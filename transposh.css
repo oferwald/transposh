@@ -1,0 +1,74 @@
+<style type='text/css'>
+
+/*
+ * Overlibmws library - For the dialog popups
+ */
+
+.olbgD {
+    background-color:#225588;
+}
+
+.olcgD {
+    background-color:#336699; 
+    text-align:center;
+}
+
+.olfgD {
+    background-color:#bbddff; 
+    text-align:center;
+}
+.olcapD {font-family:Verdana,Arial,
+         Helvetica,sans-serif; 
+         font-size:11px;
+         font-weight:bold; 
+         color:#ffffff;}
+.olcloD {
+    font-family:Verdana,Arial,
+    Helvetica,sans-serif; 
+    font-size:11px;
+    color:#bbddff; 
+    font-weight:bold;
+}
+
+a.olcloD:hover { 
+    color:#ddeeff;
+}
+
+.oltxtD {
+    font-family:Verdana,
+    Arial,Helvetica,
+    sans-serif; font-size:13px;
+    color:#000000; 
+}
+
+.sep4 {
+    font-size:4px;
+    line-height:4px;}
+
+/*
+ *  Overlibmws library - popup with MODAL form
+ */
+
+.olraisedBlue {
+    text-align:center; 
+    background:#33aaff url(raised_blue.gif) repeat-x bottom left;
+}
+
+table.olraisedBlue {
+    border-bottom:1px solid #333399;
+}
+
+.oltxtRaisedBlue {
+    font-family:Verdana;
+    font-size:14px;
+    font-weight:bold;
+    color:#ffffff;}
+
+input.olinput {
+    background:white url(inputText.gif) repeat-x bottom left; 
+    min-height:16px;
+    font-family:Verdana,Arial,Helvetica,sans-serif; 
+    font-size:13px;
+    color: #000000;}
+
+</style>
