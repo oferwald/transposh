@@ -9,7 +9,9 @@ Author URI: http://transposh.com/
 */
 
 
-require("logging.php");
+require_once("logging.php");
+require_once("constants.php");
+require_once("transposh_widget.php");
 
 //For debug purpose - mark translatable string on the page, i.e. << Hello >>
 define ("MARK_TRANSLATABLE", 0);
@@ -17,10 +19,6 @@ define ("MARK_TRANSLATABLE", 0);
 //
 //URL parameters
 //
-
-//Language indicator in URL. i.e. lang=en
-define("LANG_PARAM", "lang");
-
 
 //The url pointing to the base of the plugin
 $plugin_url;
@@ -54,7 +52,7 @@ $db_name = dirname(__FILE__) . "/transposh.sqlite";
 $db;
 
 //Is the current use is in edit mode. TODO: Get the information at runtime.
-$is_edit_mode = true;
+$is_edit_mode = false;
                              
 //Error message displayed for the admin in case of failure
 $admin_msg;
@@ -66,7 +64,7 @@ $admin_msg;
  */ 
 function translate_page(&$buffer) {
     
-    global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url;
+    global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode;
     
     $start_time = microtime(true);
     
@@ -76,12 +74,20 @@ function translate_page(&$buffer) {
         return $buffer;
         
     }
-    
+
     if(!open_db())
     {
         //Can't open the database - avoid further processing 
         return $buffer;
     }
+
+    if ($wp_query->query_vars[EDIT_PARAM] == "1" ||
+        $wp_query->query_vars[EDIT_PARAM] == "true")
+    {
+        //TODO verify user has the required permissions
+        $is_edit_mode = true;
+    }
+    
 
     $lang = $wp_query->query_vars[LANG_PARAM];
     $page = $buffer;
@@ -94,8 +100,8 @@ function translate_page(&$buffer) {
 
     logger("Translation completed in " . ($end_time - $start_time) . " seconds", 1);
     
-    //return the translated page
-    return $tr_page;
+    //return the translated page unless it is empty, othewise return the original
+    return (strlen($tr_page) > 0 ? $tr_page : $page);
 }
 
 /*
@@ -186,11 +192,6 @@ function process_html()
         //page up to the full contents of the original page.
         update_translated_page(strlen($page), -1, "");
     }
-    else
-    {
-        $tr_page = &$page;
-    }
-    
     
     logger("Exit " . __METHOD__, 4);
 }
@@ -586,8 +587,8 @@ function update_rewrite_rules($rules){
 function parameter_queryvars($qvars)
 {
     $qvars[] = LANG_PARAM;
+    $qvars[] = EDIT_PARAM;
 
-    logger("Added query var: " . LANG_PARAM);
     return $qvars;
 }
 
@@ -610,7 +611,7 @@ function setup_db()
         return;
     }
 
-    logger("Attempting to create database $db_name", 0);
+    logger("Attempting to create database $db_name", 3);
 
     try
     {
@@ -619,12 +620,12 @@ function setup_db()
         
         // create new database (procedural interface)
         $db = new SQLiteDatabase($db_name);
-        logger("Opened database $db_name", 0);
+        logger("Opened database $db_name", 3);
         
         
         //Create table
         $db->query("CREATE TABLE phrases (original CHAR(512),
-                                          lang CHAR(5),
+                                          lang CHAR(2),
                                           translated CHAR(512),
                                           PRIMARY KEY (original, lang))");
         logger("Created table phrases");
@@ -703,7 +704,7 @@ function plugin_install_error()
 function plugin_loaded()
 {
     global $admin_msg, $db_name;
-    logger("Enter " . __METHOD__, 0);
+    logger("Enter " . __METHOD__, 1);
 
     if (!file_exists($db_name))
     {

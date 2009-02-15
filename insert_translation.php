@@ -7,7 +7,7 @@ $original = $_POST['original'];
 $translation = $_POST['translation'];
 $lang = $_POST['lang'];
 
-header( 'Location: ' . $ref) ;
+header( 'Location: ' . $ref);
 
 
 if(!isset($original) || !isset($translation) || !isset($lang))
