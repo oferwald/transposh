@@ -44,7 +44,7 @@ var dialog = ''+
      '<p dir="ltr">Original text<br \/><textarea cols="60" rows="3" readonly="readyonly">' +
        original + '</textarea> <\/p>' +
     '<p>Translate to<br \/><input type="text" name="translation" size="80" value="'+ trans + '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
-    '<input type="hidden" name="original" value="'+original+'">' +
+    '<input type="hidden" name="original" value="'+escape(original)+'">' +
     '<input type="hidden" name="lang" value="'+lang+'">' +
     '<p><input type="submit" value="Translate"><\/p>' +
     ('<\/div><\/form>');
