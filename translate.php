@@ -13,12 +13,15 @@ require_once("logging.php");
 require_once("constants.php");
 require_once("transposh_widget.php");
 
-//For debug purpose - mark translatable string on the page, i.e. << Hello >>
-define ("MARK_TRANSLATABLE", 0);
-
 //
 //URL parameters
 //
+
+//Home url of the blog
+$home_url;
+
+//Home url of the blog - already quoted and ready for regex
+$home_url_quoted;
 
 //The url pointing to the base of the plugin
 $plugin_url;
@@ -51,18 +54,19 @@ $db_name = dirname(__FILE__) . "/transposh.sqlite";
 //The reference to the database
 $db;
 
-//Is the current use is in edit mode. TODO: Get the information at runtime.
+//Is the current use is in edit mode. 
 $is_edit_mode = false;
                              
 //Error message displayed for the admin in case of failure
 $admin_msg;
+
                              
 /*
  * Called when the buffer containing the original page is flused. Triggers the
  * translation process.
  * 
  */ 
-function translate_page(&$buffer) {
+function process_page(&$buffer) {
     
     global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode;
     
@@ -150,28 +154,30 @@ function process_html()
         //Get the element identifying this tag
         $element = get_element();
                 
-        //skip to end of tag
-        if($element == "!DOCTYPE")
+        if(should_skip_element($element))
         {
-            $pos = strpos($page, '>', $pos);
-        }
-        else if($element == "!--")
-        {
-            $pos = strpos($page, '-->', $pos);
+            //do nothing
         }
         else
         {
+            //Mark tag start position
+            $tag_start = $pos;
+            
             //skip to the '>' marking the end of the element
             $pos = strpos($page, '>', $pos);
+
+            //Mark tag end position
+            $tag_end = $pos;
+            
             if($page[$pos-1] == '/')
             {
                 //single line tag - no need to update tags list
-                process_tag_termination($element);
+                process_tag_init($element, $tag_start, $tag_end);
             }
             else if($element[0] != '/') 
             {
                 $tags_list[] = $element;
-                process_tag_init($element);
+                process_tag_init($element, $tag_start, $tag_end);
             }
             else
             {
@@ -198,14 +204,83 @@ function process_html()
 
 
 /*
- * Process tag init.
- * Note: The current position in buffer points to the '>' character
+ * Determine if the specified element should be skipped. If so the position
+ * is moved past end of tag.
+ * Return true if element is skipped otherwise false. 
  */
-function process_tag_init(&$element)
+function should_skip_element(&$element)
 {
-    global $pos, $page;
+    global $page, $pos;
+    $rc = true;
     
-    logger(__METHOD__ . " $element" . $page[$pos], 4);
+    if(strncmp($element, "!DOCTYPE", 8) == 0)
+    {
+        $pos = strpos($page, '>', $pos);
+    }
+    else if(strncmp($element, "!--", 3) == 0)
+    {
+        $pos = strpos($page, '-->', $pos);
+    }
+    else
+    {
+        $rc = false;
+    }
+
+    return $rc;
+}
+
+/*
+ * Process tag init for the specified element, with the current start and
+ * end positions within the page buffer.
+ */
+function process_tag_init(&$element, $start, $end)
+{
+    if($element == 'a')
+    {
+        process_tag_anchor($start, $end);
+    }
+}
+
+
+/*
+ * Fix links on the page. href needs to be modified to include
+ * lang specifier and editing mode. 
+ *
+ */
+function process_tag_anchor($start, $end)
+{
+    global $home_url, $home_url_quoted, $lang, $is_edit_mode;
+    
+    $href = get_attribute($start, $end, 'href');
+
+    if($href == NULL)
+    {
+        return;
+    }
+
+    //Ignore urls not from this site
+    if(stripos($href, $home_url) === FALSE)
+    {
+        return;
+    }
+    
+    //don't fix links to well known real paths 
+    if(stripos($href, '/wp-content') !== FALSE ||
+       stripos($href, '/wp-admin') !== FALSE)
+    {
+        return;
+    }
+    
+    $href = preg_replace("/$home_url_quoted/", "$home_url/$lang",  $href);
+
+    if($is_edit_mode)
+    {
+        $href = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . EDIT_PARAM . '=1', $href);
+    }
+
+    update_translated_page($start, $end, $href);
+    
+    logger(__METHOD__ . " $home_url href: $href");
 }
 
 /*
@@ -244,6 +319,67 @@ function get_element()
 }
 
 /*
+ * Search for the given attribute within the limit of the start and
+ * end position within the buffer.
+ * Returns the string containing the attribute if available otherwise NULL.
+ * In addition the start and end position are moved to boundaries of the
+ * attribute's value. 
+ */
+function get_attribute(&$start, &$end, $id)
+{
+    global $page;
+        
+    //look for the id within the given limits.
+    while($start < $end)
+    {
+        $index = 0;
+    
+        while($start < $end && $page[$start + $index] == $id[$index]
+              && $index < strlen($id))
+        {
+            $index++;
+        }
+
+        if($index == strlen($id))
+        {
+            //we have match
+            break;
+        }
+
+        $start++;
+    }
+
+    if($start == $end)
+    {
+        return NULL;
+    }
+    
+    //look for the " or ' marking start of attribute's value
+    while($start < $end && $page[$start] != '"' && $page[$start] != "'")
+    {
+        $start++;
+    }
+
+    $start++;
+    if($start >= $end)
+    {
+        return NULL;
+    }
+
+    $tmp = $start + 1;
+    //look for the " or ' marking the end of attribute's value
+    while($tmp < $end && $page[$tmp] != '"' && $page[$tmp] != "'")
+    {
+        $tmp++;
+    }
+    
+    $end = $tmp - 1;
+    
+        
+    return substr($page, $start, $end - $start + 1);
+}
+
+/*
  * Attempt to process the content of the tag (if exists). If the current
  * is of a type that need translation then translate, otherwise skip.
  *
@@ -255,10 +391,9 @@ function process_current_tag()
     $current_tag = end($tags_list);
     logger("Enter " . __METHOD__  ." : $current_tag", 4);
 
-    //translate only specific elements - <a> or <p>
+    //translate only specific elements - <a> or <div>
     if($current_tag == 'a' || array_search('div', $tags_list))
     {
-        
         skip_white_space();
         $start = $pos;
 
@@ -267,13 +402,10 @@ function process_current_tag()
             //will break translation unit when one of the following characters is reached: .!?
             //Note: handles the case of multi termination chars, e.g. !!! and also
             //identifies decimal point e.g. 2.0 which should not break a sentence
-            if(($page[$pos] == '.' || $page[$pos] == '!' || $page[$pos] == '?') &&
-               ($page[$pos+1] != '.' && $page[$pos+1] != '!' && $page[$pos+1] != '?' &&
-                ($page[$pos+1] < '0' || $page[$pos+1] > '9')))
+            if(is_sentence_breaker($pos))
              {
                  $pos++;
-
-                 extract_string($start);
+                 translate_text($start);
                  $start = $pos;
              }
              else
@@ -284,15 +416,98 @@ function process_current_tag()
         
         if($pos > $start)
         {
-            extract_string($start);
+            translate_text($start);
         }
     }
     logger("Exit" .  __METHOD__ . " : $current_tag" , 4);
 }
 
+
 /*
- * Skip forward within buffer past the white spaces starting from the
- * specified position. Going either backward of forward. 
+ * Determine if the current position in buffer is a sentence breaker, e.g. '.' or ',' .
+ * Note html markups are not considered sentence breaker within the scope of this function.
+ * Return true is current position marks a break in sentence otherwise false
+ */
+function is_sentence_breaker($position)
+{
+    global $page;
+    $rc = false;
+    
+    //characters which break the sentence into segments
+    if($page[$position] == ',' || $page[$position] == '?' ||
+       $page[$position] == '!' ||
+       ($page[$position] == '.' && !is_number($position+1)))
+    {
+        $rc = true;
+    }
+    
+    return $rc;
+}
+
+
+/*
+ * Determine if the current position is a number.
+ * Return true if a number otherwise false
+ */
+function is_number($position)
+{
+    global $page;
+    
+    if($page[$position] >= '0' && $page[$position] <= '9')
+    {
+        return true;
+    }
+
+    return false;
+}
+    
+/*
+ * Determine if the current position in buffer is a white space. 
+ * return true if current position marks a white space otherwise false.
+ */ 
+function is_white_space($position)
+{
+    global $page;
+    
+    if($page[$position] == " "  || $page[$position] ==  ""    ||
+       $page[$position] == "\t" || $page[$position] == "\r"   ||
+       $page[$position] == "\n" || $page[$position] == "\x0B" ||
+       $page[$position] == "\0")
+    {
+        return true;
+    }
+}
+
+/*
+ * Skip within buffer past unreadable characters , i.e. white space
+ * and characters considred to be a sentence breaker. Staring from the specified
+ * position going either forward or backward. 
+ * param forward - indicate direction going either backward of forward. 
+ */
+function skip_unreadable_chars(&$index, $forward=true)
+{
+    global $page, $pos;
+
+    if(!isset($index))
+    {
+        //use $pos as the default position if not specified otherwise
+        $index = &$pos;
+    }
+    $start = $index;
+
+    while($index < strlen($page) && $index > 0 &&
+          (is_white_space($index) || is_sentence_breaker($index)))
+    {
+        ($forward ? $index++ : $index--);
+    }
+    
+    return $index;
+}
+
+/*
+ * Skip within buffer past white space characters , Staring from the specified
+ * position going either forward or backward. 
+ * param forward - indicate direction going either backward of forward. 
  */
 function skip_white_space(&$index, $forward=true)
 {
@@ -304,11 +519,7 @@ function skip_white_space(&$index, $forward=true)
         $index = &$pos;
     }
 
-    while($index < strlen($page) && $index > 0 &&
-          ($page[$index] ==  " " || $page[$index] ==  ""    ||
-           $page[$index] == "\t" || $page[$index] == "\r"   ||
-           $page[$index] == "\n" || $page[$index] == "\x0B" ||
-           $page[$index] == "\0"))
+    while($index < strlen($page) && $index > 0 && is_white_space($index))
     {
         ($forward ? $index++ : $index--);
     }
@@ -317,22 +528,22 @@ function skip_white_space(&$index, $forward=true)
 }
 
 /**
- * Extract the text between the given start position and the current
+ * Translate the text between the given start position and the current
  * position (pos) within the buffer. 
  */
-function extract_string($start)
+function translate_text($start)
 {
     logger("Enter " . __METHOD__  . " : $start", 4);
     global $page, $pos, $is_edit_mode;
 
-    //trim white space from the start position going forward
-    skip_white_space($start);
+    //trim unreadable chars from the start position going forward
+    skip_unreadable_chars($start);
 
     //Set the end position of the string to one back from current position
     //(i.e. current position points to '<') and trim white space from the right
     //backwards
     $end = $pos - 1;
-    $end = skip_white_space($end, $forward=false);
+    $end = skip_unreadable_chars($end, $forward=false);
     
     if($start >= $end)
     {
@@ -342,18 +553,15 @@ function extract_string($start)
 
     $original_text = substr($page, $start, $end - $start + 1);
 
-    //skip strings like without any readable characters (i.e. ".")
-    //Todo: need a broader defintion for non-ascii characters as well
-    if(preg_match("/^[.?!|\(\)\[\],0-9]+$/", $original_text))
+    //Cleanup and prepare text
+    $original_text = scrub_text($original_text);
+    if($original_text == NULL)
     {
+        //nothing left from the text
         return;
     }
 
-    //replace multi space chars with a single space
-    $original_text = preg_replace("/\s\s+/", " ", $original_text);
-
     $translated_text = fetch_translation($original_text);
-
     if($translated_text != NULL)
     {
         logger("$original_text translated to $translated_text");
@@ -363,14 +571,39 @@ function extract_string($start)
     if($is_edit_mode)
     {
         $img = get_img_tag($original_text, $translated_text);
-        update_translated_page($pos, - 1, $img);
+        update_translated_page($end + 1, - 1, $img);
     }
-    
+
     logger("Exit " . __METHOD__  . " : $original_text" , 4);
 }
 
+
 /*
- * Translate a single string.
+ * Scrubs text prior to translation to remove/encode special
+ * characters.
+ * Return the scurbed text, or NULL if nothing left to translate
+ */
+function scrub_text(&$text)
+{
+    //skip strings like without any readable characters (i.e. ".")
+    //Todo: need a broader defintion for non-ascii characters as well
+    if(preg_match("/^[.?!|\(\)\[\],0-9]+$/", $text))
+    {
+        return NULL;
+    }
+
+    //replace multi space chars with a single space
+    $text = preg_replace("/\s\s+/", " ", $text);
+
+    //Make that the string is encoded in the same way as it will
+    //decoded, when passed back for translation (i.e. post)
+    $text = htmlentities($text);
+
+    return $text;
+}
+
+/*
+ * Fetch translation from db or cache. 
  * Returns the translated string or NULL if not available.
  */
 function fetch_translation($original)
@@ -379,6 +612,14 @@ function fetch_translation($original)
     $translated = NULL;
     
     logger("Enter " . __METHOD__ . " $original", 4);
+    if(function_exists('apc_fetch'))
+    {
+        $cached = apc_fetch($original . $lang, $rc);
+        if($rc === TRUE)
+        {
+            return $cached;
+        }
+    }
     
     try
     {
@@ -399,17 +640,13 @@ function fetch_translation($original)
         return NULL;
     }
     
-    
-    //Mark all translatable string on page
-    if(MARK_TRANSLATABLE)
+    if(function_exists('apc_store'))
     {
-        if($translated)
+        //update cache
+        $rc = apc_store($original . $lang, $translated, 3600);
+        if($rc === TRUE)
         {
-            $translated = "$translated";
-        }
-        else
-        {
-            $translated = "&raquo $original &laquo";
+            logger("Stored in cache: $original => $translated", 3);
         }
     }
     
@@ -481,7 +718,7 @@ function insert_javascript_includes()
 function get_img_tag($original, $translation)
 {
     global $plugin_url, $lang;
-    
+        
     $img = "<img src=\"$plugin_url/translate.png\" alt=\"translate\"  
            onclick=\"translate_dialog('$original','$translation','$lang','$plugin_url/insert_translation.php'); return false;\" 
            onmouseover=\"hint('$original'); return true;\" 
@@ -523,12 +760,16 @@ function transposh_css()
  */
 function on_init()
 {
-    global $plugin_url;
+    global $home_url, $home_url_quoted, $plugin_url;
     
     logger(__METHOD__ . $_SERVER['REQUEST_URI']);
-    $plugin_url= get_option('home') . "/wp-content/plugins/transposh";
-
-    ob_start("translate_page");
+    $home_url = get_option('home');
+    
+    $plugin_url= $home_url . "/wp-content/plugins/transposh";
+    $home_url_quoted = preg_quote($home_url);
+    $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
+    
+    ob_start("process_page");
 }
 
 
@@ -552,7 +793,11 @@ function update_rewrite_rules($rules){
     $lang_prefix="([a-z]{2,2}(\-[a-z]{2,2})?)/";
 
     $lang_parameter= "&" . LANG_PARAM . '=$matches[1]';
-    
+
+    //catch the root url 
+    $newRules[$lang_prefix."?$"] = "index.php?lang=\$matches[1]";
+    logger("\t" . $lang_prefix."?$" . "  --->  " . "index.php?lang=\$matches[1]");
+
     foreach ($rules as $key=>$value) {
         $original_key = $key;
         $original_value = $value;
@@ -704,7 +949,7 @@ function plugin_install_error()
 function plugin_loaded()
 {
     global $admin_msg, $db_name;
-    logger("Enter " . __METHOD__, 1);
+    logger("Enter " . __METHOD__, 3);
 
     if (!file_exists($db_name))
     {

@@ -55,8 +55,8 @@ function transposh_widget_init()
         return;
     }
     
-	// Register widget 
-	register_sidebar_widget(array('Transposh', 'widgets'), 'transposh_widget');
+	// Register widget
+    register_sidebar_widget(array('Transposh', 'widgets'), 'transposh_widget');
 }
 
 
