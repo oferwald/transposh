@@ -35,7 +35,7 @@ try
 
 
     //Update cache as well
-    if(function_exists('apc_store'))
+    if(ENABLE_APC && function_exists('apc_store'))
     {
         apc_store($original . $lang, $translation, 3600);
     }

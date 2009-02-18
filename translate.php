@@ -249,7 +249,7 @@ function process_tag_init(&$element, $start, $end)
  */
 function process_tag_anchor($start, $end)
 {
-    global $home_url, $home_url_quoted, $lang, $is_edit_mode;
+    global $home_url, $home_url_quoted, $lang, $is_edit_mode, $wp_rewrite;
     
     $href = get_attribute($start, $end, 'href');
 
@@ -263,24 +263,68 @@ function process_tag_anchor($start, $end)
     {
         return;
     }
-    
-    //don't fix links to well known real paths 
-    if(stripos($href, '/wp-content') !== FALSE ||
-       stripos($href, '/wp-admin') !== FALSE)
-    {
-        return;
-    }
-    
-    $href = preg_replace("/$home_url_quoted/", "$home_url/$lang",  $href);
 
-    if($is_edit_mode)
+    $use_params = FALSE;
+    
+    //Only params if permalinks is not enabled. 
+    //don't fix links pointing to real files as it will cause that the
+    //web server will not be able to locate them
+    if(!$wp_rewrite->using_permalinks() ||   
+       stripos($href, '/wp-content') !== FALSE ||
+       stripos($href, '/wp-admin') !== FALSE   ||
+       stripos($href, '/.php') !== FALSE)
     {
-        $href = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . EDIT_PARAM . '=1', $href);
+        $use_params = TRUE;
     }
 
+    $href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
+
+    //rewrite url in translated page
     update_translated_page($start, $end, $href);
-    
     logger(__METHOD__ . " $home_url href: $href");
+}
+
+
+/*
+ * Update the given url to include language params. 
+ * param url - the original url to rewrite
+ * param lang - language code
+ * param is_edit - is running in edit mode.
+ * param use_params_only - use only parameters as modifiers, i.e. not permalinks
+ */
+function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
+{
+    global $home_url, $home_url_quoted;
+
+    if($is_edit)
+    {
+        $params = EDIT_PARAM . '=1&';
+        
+    }
+
+    if($use_params_only)
+    {
+        $params .= LANG_PARAM . "=$lang&";
+    }
+    else
+    {
+        $url = preg_replace("/$home_url_quoted\/(..\/)?\/?/",
+                                 "$home_url/$lang/",  $url);
+    }
+
+    if($params)
+    {
+        //insert params to url
+        $url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
+
+        //Cleanup extra &
+        $url = preg_replace("/&&+/", "&", $url);
+            
+            //Cleanup extra ?
+        $url = preg_replace("/\?\?+/", "?", $url);
+    }
+
+    return $url;
 }
 
 /*
@@ -612,7 +656,7 @@ function fetch_translation($original)
     $translated = NULL;
     
     logger("Enter " . __METHOD__ . " $original", 4);
-    if(function_exists('apc_fetch'))
+    if(ENABLE_APC && function_exists('apc_fetch'))
     {
         $cached = apc_fetch($original . $lang, $rc);
         if($rc === TRUE)
@@ -640,7 +684,7 @@ function fetch_translation($original)
         return NULL;
     }
     
-    if(function_exists('apc_store'))
+    if(ENABLE_APC && function_exists('apc_store'))
     {
         //update cache
         $rc = apc_store($original . $lang, $translated, 3600);
@@ -755,20 +799,27 @@ function transposh_css()
 }
 
 /*
- * Setup a buffer that will contain the contents of the html page.
- * Once processing is completed the buffer will go into the translation process.
+ * 
  */
-function on_init()
+function init_home_urls()
 {
     global $home_url, $home_url_quoted, $plugin_url;
     
-    logger(__METHOD__ . $_SERVER['REQUEST_URI']);
     $home_url = get_option('home');
     
     $plugin_url= $home_url . "/wp-content/plugins/transposh";
     $home_url_quoted = preg_quote($home_url);
     $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
-    
+}
+
+/*
+ * Setup a buffer that will contain the contents of the html page.
+ * Once processing is completed the buffer will go into the translation process.
+ */
+function on_init()
+{
+    logger(__METHOD__ . $_SERVER['REQUEST_URI']);
+    init_home_urls();
     ob_start("process_page");
 }
 

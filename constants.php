@@ -6,6 +6,9 @@ define("LANG_PARAM", "lang");
 //Edit mode indicator in URL. i.e. lang=en&edit=true
 define("EDIT_PARAM", "edit");
 
+//Enable apc usage
+define("ENABLE_APC", TRUE);
+
 $languages = array("en" => "English",
                    "ar" => "العربية",
                    "bg" => "Български",

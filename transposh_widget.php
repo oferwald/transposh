@@ -9,6 +9,7 @@
  */
 require_once("logging.php");
 require_once("constants.php");
+require_once("translate.php");
 
 /*
  * Intercept init calls to see if it was posted by the widget. 
@@ -19,22 +20,30 @@ function init_transposh()
     if ($_POST['transposh_widget_posted'])
     {
         logger("Enter " . __METHOD__, 4);
+
+        global $wp_rewrite, $home_url, $home_url_quoted;
         $ref=getenv('HTTP_REFERER');
         $lang = $_POST[LANG_PARAM];
 
-        //cleanup previous lang edit parameter from url
+        //cleanup previous lang & edit parameter from url
         $ref = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $ref);
 
 
+        if(!$home_url)
+        {
+            //make sure required home urls are fetched - as they are need now
+            init_home_urls();
+        }
+        
+        //cleanup lang identifier in permalinks
+        $ref = preg_replace("/$home_url_quoted\/(..\/)/", "$home_url/",  $ref);
+
         if($lang != "none")
         {
-            $lang = LANG_PARAM . "=$lang";
-            
-            $ref .= (strstr($ref, '?') ? "&$lang" : "?$lang");
-            $ref .= ($_POST[EDIT_PARAM] == "1" ? "&edit=1" : "");
+            $use_params_only = !$wp_rewrite->using_permalinks();
+            $is_edit = $_POST[EDIT_PARAM];
 
-            //Cleanup extra &&&
-            $ref = preg_replace("/&&+/", "&", $ref);
+            $ref = rewrite_url_lang_param($ref, $lang, $is_edit, $use_params_only);
         }
 
         logger("Widget redirect url: $ref", 3);
