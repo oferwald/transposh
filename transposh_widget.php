@@ -66,6 +66,8 @@ function transposh_widget_init()
     
 	// Register widget
     register_sidebar_widget(array('Transposh', 'widgets'), 'transposh_widget');
+	// Register widget control
+    register_widget_control("Transposh",'transposh_widget_control');
 }
 
 
@@ -85,8 +87,20 @@ function transposh_widget($args)
 
     $is_edit = ($wp_query->query_vars[EDIT_PARAM] == "1" ? true : false);
     $lang = $wp_query->query_vars[LANG_PARAM];
+
+    $options = get_option('widget_transposh');
     
     echo $before_widget . $before_title . __("Transposh") . $after_title;
+	switch ($options['style']) {
+		case 1: // flags
+			global $plugin_url;
+			// TODO - fix the following links...
+			?>
+		<a href="<?=$page_url?>"><img src="<?=$plugin_url;?>/flags/us.png"/></a>
+		<a href="<?=$page_url?>"><img src="<?=$plugin_url;?>/flags/il.png"/></a>
+		<?php 
+			break;
+		default: // language list
     ?>
     <form action="<?php echo $page_url ?>" method="post">
          <select name="lang" id="lang" onchange="Javascript:this.form.submit();">
@@ -112,7 +126,38 @@ function transposh_widget($args)
     </form> 
          
 <?php
+	}
     echo $after_widget;
+}
+
+/*
+ * This is the widget control, allowing the selection of presentation type.
+ */
+function transposh_widget_control() {
+	$options = $newoptions = get_option('widget_transposh');
+
+	if ( isset($_POST['transposh-submit']) ) {
+		$newoptions['style'] = $_POST['transposh-style'];
+	}
+
+	if ( $options != $newoptions ) {
+		$options = $newoptions;
+		update_option('widget_transposh', $options);
+	}
+
+	$style = $options['style'];
+?>
+	<p><label for="transposh-style">
+	<?php _e('Style:') ?> 
+	<select id="transposh-style" name="transposh-style">
+		<option <?php if ($style ==0) {?>selected="selected" <?php }?>value="0">Language list</option>
+		<option <?php if ($style ==1) {?>selected="selected" <?php }?>value="1">Flags</option>
+		<option <?php if ($style ==2) {?>selected="selected" <?php }?>value="2">Corner flag</option>
+		<option <?php if ($style ==3) {?>selected="selected" <?php }?>value="3">Floating corner flag</option>
+	</select></label>
+	</p>
+	<input type="hidden" name="transposh-submit" id="transposh-submit" value="1" />
+<?php
 }
 
 /*
