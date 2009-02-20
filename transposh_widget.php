@@ -32,7 +32,7 @@ function init_transposh()
         if(!$home_url)
         {
             //make sure required home urls are fetched - as they are need now
-            init_home_urls();
+            init_global_vars();
         }
         
         //cleanup lang identifier in permalinks
@@ -148,7 +148,8 @@ function transposh_widget_control() {
 	$style = $options['style'];
 ?>
 	<p><label for="transposh-style">
-	<?php _e('Style:') ?> 
+	<?php _e('Style:') ?> <br/>
+         
 	<select id="transposh-style" name="transposh-style">
 		<option <?php if ($style ==0) {?>selected="selected" <?php }?>value="0">Language list</option>
 		<option <?php if ($style ==1) {?>selected="selected" <?php }?>value="1">Flags</option>
