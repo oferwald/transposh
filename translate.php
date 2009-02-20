@@ -27,7 +27,7 @@ define("DB_VERSION", "1.0");
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
 
 //Class marking a section not be translated.
-define("NO_TRANSLATE_CLASS", "no translate");
+define("NO_TRANSLATE_CLASS", "no_translate");
 
 //
 // Global variables
