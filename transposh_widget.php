@@ -90,7 +90,7 @@ function transposh_widget($args)
 
     $options = get_option('widget_transposh');
     
-    echo $before_widget . $before_title . __("Transposh") . $after_title;
+    echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
 	switch ($options['style']) {
 		case 1: // flags
 			global $plugin_url;
@@ -111,7 +111,7 @@ function transposh_widget($args)
          foreach($languages as $code => $language)
          {
              $is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
-             echo "<option value=\"$code\" $is_selected>$language</option>";
+             echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
          }
     
          ?>
@@ -128,6 +128,16 @@ function transposh_widget($args)
 <?php
 	}
     echo $after_widget;
+}
+
+
+/*
+ * Mark the given text so it will not subject to translation. 
+ * Return the text with the required tags 
+ */
+function no_translate($text)
+{
+    return "<span class=\"" . NO_TRANSLATE_CLASS . "\">$text</span>";
 }
 
 /*

@@ -14,7 +14,7 @@ require_once("constants.php");
 require_once("transposh_widget.php");
 
 //
-//Database constants
+//Constants
 //
 
 //Table name in database for storing translations
@@ -26,12 +26,15 @@ define("DB_VERSION", "1.0");
 //Constant used as key in options database
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
 
-//The full table name, i.e. prefix + name
-$table_name;
+//Class marking a section not be translated.
+define("NO_TRANSLATE_CLASS", "no translate");
 
 //
-//URL parameters
+// Global variables
 //
+
+//The full table name, i.e. prefix + name
+$table_name;
 
 //Home url of the blog
 $home_url;
@@ -45,10 +48,6 @@ $plugin_url;
 //The language to which the current page will be translated to. 
 $lang;
  
-//
-//Global variables
-//
-
 //The html page which starts contains the content being translated
 $page;
  
@@ -70,7 +69,7 @@ $is_edit_mode = false;
 //Error message displayed for the admin in case of failure
 $admin_msg;
 
-                             
+
 /*
  * Called when the buffer containing the original page is flused. Triggers the
  * translation process.
@@ -151,6 +150,7 @@ function process_html()
     logger("Enter " . __METHOD__, 4);
 
     global $page, $tr_page, $pos, $tags_list, $lang;
+    $no_translate = 0;
     
     while($pos < strlen($page))
     {
@@ -188,19 +188,35 @@ function process_html()
             }
             else if($element[0] != '/') 
             {
-                $tags_list[] = $element;
                 process_tag_init($element, $tag_start, $tag_end);
+                $tags_list[] = $element;
+
+                //Look for the no translate class 
+                if(stripos($element, NO_TRANSLATE_CLASS) !== FALSE)
+                {
+                    $no_translate++;
+                }
             }
             else
             {
-                array_pop($tags_list);
+                $popped_element = array_pop($tags_list);
                 process_tag_termination($element);
+
+                //Look for the no translate class 
+                if(stripos($popped_element, NO_TRANSLATE_CLASS) !== FALSE)
+                {
+                    $no_translate--;
+                }
             }
 
-            //logger("position $pos, tags:" . implode(",", $tags_list));
-
             $pos++;
-            process_current_tag();
+
+            //skip processing while enclosed within a tag marked by no_translate
+            if(!$no_translate)
+            {
+                process_current_tag();
+            }
+            
         }
     }
 
@@ -247,10 +263,17 @@ function should_skip_element(&$element)
  */
 function process_tag_init(&$element, $start, $end)
 {
-    if($element == 'a')
+    switch ($element)
     {
-        process_tag_anchor($start, $end);
+        case 'a':
+            process_anchor_tag($start, $end);
+            break;
+        case 'div' :     
+        case 'span':
+            process_span_or_div_tag($element, $start, $end);
+            break;
     }
+    
 }
 
 
@@ -259,7 +282,7 @@ function process_tag_init(&$element, $start, $end)
  * lang specifier and editing mode. 
  *
  */
-function process_tag_anchor($start, $end)
+function process_anchor_tag($start, $end)
 {
     global $home_url, $home_url_quoted, $lang, $is_edit_mode, $wp_rewrite;
     
@@ -294,6 +317,31 @@ function process_tag_anchor($start, $end)
     //rewrite url in translated page
     update_translated_page($start, $end, $href);
     logger(__METHOD__ . " $home_url href: $href");
+}
+
+/*
+ * Handle span tags. Looks for 'no tranlate' identifier that will disable
+ * translation for the enclosed session.
+ *
+ */
+function process_span_or_div_tag(&$element, $start, $end)
+{
+    
+    $cls = get_attribute($start, $end, 'class');
+
+    if($cls == NULL)
+    {
+        return;
+    }
+
+    //Look for the no translate class 
+    if(stripos($cls, NO_TRANSLATE_CLASS) === FALSE)
+    {
+        return;
+    }
+
+    //Mark the element as not translatable
+    $element .= "." . NO_TRANSLATE_CLASS;
 }
 
 
@@ -445,6 +493,7 @@ function process_current_tag()
     global $page, $pos, $tags_list;
 
     $current_tag = end($tags_list);
+    
     logger("Enter " . __METHOD__  ." : $current_tag", 4);
 
     //translate only specific elements - <a> or <div>
