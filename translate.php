@@ -743,14 +743,14 @@ function insert_javascript_includes()
 {
     global $pos, $plugin_url;
     
-    $oberlib_dir = "$plugin_url/js/oberlibmws";
+    $overlib_dir = "$plugin_url/js/overlibmws";
     
-    $js = "\n<script type=\"text/javascript\" src=\"$oberlib_dir/overlibmws.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$oberlib_dir/overlibmws_filter.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$oberlib_dir/overlibmws_modal.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$oberlib_dir/overlibmws_overtwo.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$oberlib_dir/overlibmws_scroll.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$oberlib_dir/overlibmws_shadow.js\"></script>";
+    $js = "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_filter.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_modal.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_overtwo.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_scroll.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
 
     $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>\n";
 
