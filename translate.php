@@ -14,6 +14,22 @@ require_once("constants.php");
 require_once("transposh_widget.php");
 
 //
+//Database constants
+//
+
+//Table name in database for storing translations
+define("TRANSLATIONS_TABLE", "translations");
+
+//Database version
+define("DB_VERSION", "1.0");
+
+//Constant used as key in options database
+define("TRANSPOSH_DB_VERSION", "transposh_db_version");
+
+//The full table name, i.e. prefix + name
+$table_name;
+
+//
 //URL parameters
 //
 
@@ -48,12 +64,6 @@ $tr_page;
 //Points to the last character that have been copied from the original to the translated page. 
 $tr_mark = 0;
 
-//Sqlite database name
-$db_name = dirname(__FILE__) . "/transposh.sqlite";
-
-//The reference to the database
-$db;
-
 //Is the current use is in edit mode. 
 $is_edit_mode = false;
                              
@@ -68,7 +78,8 @@ $admin_msg;
  */ 
 function process_page(&$buffer) {
     
-    global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode;
+    global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode, $wpdb,
+           $table_name;
     
     $start_time = microtime(true);
     
@@ -95,6 +106,7 @@ function process_page(&$buffer) {
 
     $lang = $wp_query->query_vars[LANG_PARAM];
     $page = $buffer;
+
     logger("translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
     
     //translate the entire page
@@ -443,9 +455,7 @@ function process_current_tag()
 
         while($pos < strlen($page) && $page[$pos] != '<')
         {
-            //will break translation unit when one of the following characters is reached: .!?
-            //Note: handles the case of multi termination chars, e.g. !!! and also
-            //identifies decimal point e.g. 2.0 which should not break a sentence
+            //will break translation unit when one of the following characters is reached: ., 
             if(is_sentence_breaker($pos))
              {
                  $pos++;
@@ -608,7 +618,8 @@ function translate_text($start)
     $translated_text = fetch_translation($original_text);
     if($translated_text != NULL)
     {
-        logger("$original_text translated to $translated_text");
+        logger("Translation: $original_text => $translated_text");
+        $translated_text = htmlspecialchars($translated_text);
         update_translated_page($start, $end, $translated_text);
     }
 
@@ -641,7 +652,7 @@ function scrub_text(&$text)
 
     //Make that the string is encoded in the same way as it will
     //decoded, when passed back for translation (i.e. post)
-    $text = htmlentities($text);
+    $text = htmlspecialchars($text);
 
     return $text;
 }
@@ -652,7 +663,7 @@ function scrub_text(&$text)
  */
 function fetch_translation($original)
 {
-    global $db, $lang;
+    global $wpdb, $lang, $table_name;
     $translated = NULL;
     
     logger("Enter " . __METHOD__ . " $original", 4);
@@ -665,24 +676,17 @@ function fetch_translation($original)
         }
     }
     
-    try
+    $query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' "; 
+    $row = $wpdb->get_row($query);
+    
+    if($row !== FALSE)
     {
+        $translated = $row->translated;
+        $translated = stripslashes($translated);
         
-        $result = $db->query("SELECT * FROM phrases WHERE original = '$original' and lang = '$lang' "); 
-        
-        if($result != NULL && $result->valid())
-        {
-            $row = $result->current();
-            $translated = $row['translated'];
-            
-            logger("db result for $original >>> $translated ($lang)" , 3);
-        }
+        logger("db result for $original >>> $translated ($lang)" , 3);
     }
-    catch(Exception $exception)
-    {
-        logger("Exception !!!! " . $exception->getMessage(), 0);
-        return NULL;
-    }
+    
     
     if(ENABLE_APC && function_exists('apc_store'))
     {
@@ -762,9 +766,15 @@ function insert_javascript_includes()
 function get_img_tag($original, $translation)
 {
     global $plugin_url, $lang;
+
+    //For use in javascript, make the following changes: 
+    //1. Add slashes to escape the inner text
+    //2. Convert the html special characters
+    //The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
+    $translation = htmlspecialchars(addslashes($translation));
         
     $img = "<img src=\"$plugin_url/translate.png\" alt=\"translate\"  
-           onclick=\"translate_dialog('$original','$translation','$lang','$plugin_url/insert_translation.php'); return false;\" 
+           onclick=\"translate_dialog('$original','$translation','$lang','$home_url'); return false;\" 
            onmouseover=\"hint('$original'); return true;\" 
            onmouseout=\"nd()\" />";
     
@@ -799,17 +809,69 @@ function transposh_css()
 }
 
 /*
- * 
+ * Init global variables later used throughout this process
  */
-function init_home_urls()
+function init_global_vars()
 {
-    global $home_url, $home_url_quoted, $plugin_url;
+    global $home_url, $home_url_quoted, $plugin_url, $table_name, $wpdb;
     
     $home_url = get_option('home');
     
     $plugin_url= $home_url . "/wp-content/plugins/transposh";
     $home_url_quoted = preg_quote($home_url);
     $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
+
+    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+}
+
+
+/*
+ * A new translation has been posted, update the translation database. 
+ *
+ */
+function update_translation()
+{
+    global $wpdb, $table_name;
+    
+    $ref=getenv('HTTP_REFERER');
+    $original = $_POST['original'];
+    $translation = $_POST['translation'];
+    $lang = $_POST['lang'];
+    
+    if(!isset($original) || !isset($translation) || !isset($lang))
+    {
+        logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," .
+               $ref, 0);
+        return;
+    }
+
+    //encode text
+    $original = $wpdb->escape(htmlspecialchars(urldecode($original)));
+
+    //remove already escaped character to avoid double escaping 
+    $translation = $wpdb->escape(stripslashes(urldecode($translation)));
+        
+    $update = "REPLACE INTO  $table_name (original, translated, lang)
+                VALUES ('" . $original . "','" . $translation . "','" . $lang . "')";
+
+    $result = $wpdb->query($update);
+
+    if($result !== FALSE)
+    {
+        //Delete entry from cache
+        if(ENABLE_APC && function_exists('apc_store'))
+        {
+            apc_delete($original . $lang);
+        }
+        logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
+    }
+    else
+    {
+        logger("Error !!! failed to inserted to db $original , $translation, $lang," , 0);
+    }
+
+    wp_redirect($ref);
+    exit;
 }
 
 /*
@@ -819,8 +881,18 @@ function init_home_urls()
 function on_init()
 {
     logger(__METHOD__ . $_SERVER['REQUEST_URI']);
-    init_home_urls();
-    ob_start("process_page");
+    init_global_vars();
+
+
+    if ($_POST['translation_posted'])
+    {
+        update_translation();
+    }
+    else
+    {
+        //set the callback for translating the page when it's done
+        ob_start("process_page");
+    }
 }
 
 
@@ -895,41 +967,38 @@ function parameter_queryvars($qvars)
  */
 function setup_db() 
 {
-    global $db_name, $db;
-    
-    logger("Enter " . __METHOD__  );
 
-    if (file_exists($db_name))
+    global $wpdb;
+
+    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+
+    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
     {
-        //TODO: verify db version before going further
-
-        //database exists nothing more todo
-        return;
-    }
-
-    logger("Attempting to create database $db_name", 3);
-
-    try
-    {
-        //For some reason the global declaraion is not set when this function is called ? 
-        $db_name = dirname(__FILE__) . "/transposh.sqlite";
+        logger("Attempting to create table $table_name", 0); 
+        $sql = "CREATE TABLE " . $table_name . " (original VARCHAR(256) NOT NULL,
+                                                  lang CHAR(5) NOT NULL,
+                                                  translated VARCHAR(256),
+                                                  PRIMARY KEY (original, lang)) ";
         
-        // create new database (procedural interface)
-        $db = new SQLiteDatabase($db_name);
-        logger("Opened database $db_name", 3);
+                                     
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+
+        //Verify that newly created table is ready for use.
+        $insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
+        "VALUES ('Hello','Hi There','zz')";
+
+        $result = $wpdb->query($insert);
         
-        
-        //Create table
-        $db->query("CREATE TABLE phrases (original CHAR(512),
-                                          lang CHAR(2),
-                                          translated CHAR(512),
-                                          PRIMARY KEY (original, lang))");
-        logger("Created table phrases");
-    }
-    catch(Exception $exception)
-    {
-        logger("error !!! " . $exception->getMessage());
-        die($exception->getMessage());
+        if($result === FALSE)
+        {
+            logger("Error failed to create $table_name !!!", 0); 
+        }
+        else
+        {
+            logger("Table $table_name was created successfuly", 0); 
+            add_option(TRANSPOSH_DB_VERSION, DB_VERSION);
+        }
     }
 
     logger("Exit " . __METHOD__  );
@@ -999,14 +1068,23 @@ function plugin_install_error()
  */
 function plugin_loaded()
 {
-    global $admin_msg, $db_name;
+    global $admin_msg;
     logger("Enter " . __METHOD__, 3);
 
-    if (!file_exists($db_name))
+    if (get_option(TRANSPOSH_DB_VERSION) == NULL)
     {
-        $admin_msg = "Failed to locate database <em> $db_name </em>. <br>";
-        $admin_msg .= "Verify that sqlite is supported and that <em> plugins/transposh </em>
-                       directory is writable. <br>";
+        $admin_msg = "Failed to locate the translation table  <em> " . TRANSLATIONS_TABLE . "</em> in local database. <br>";
+        
+        logger("Messsage to admin: $admin_msg", 0);
+        //Some error occured - notify admin and deactivate plugin
+        add_action('admin_notices', 'plugin_install_error');
+    }
+
+    $db_version = get_option(TRANSPOSH_DB_VERSION);
+
+    if ($db_version != DB_VERSION)
+    {
+        $admin_msg = "Translation database version ($db_version) is not comptabile with this plugin (". DB_VERSION . ")  <br>";
         
         logger("Messsage to admin: $admin_msg", 0);
         //Some error occured - notify admin and deactivate plugin
