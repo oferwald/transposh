@@ -12,7 +12,7 @@
 
 //Enable tracing level.
 //0 - disabled. Higher numbers will show more debug information.
-define ("DEBUG" , 0);
+define ("DEBUG" , 1);
 
 /*
  * Print a message to log. 
