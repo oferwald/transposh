@@ -3,7 +3,7 @@
 Plugin Name: Translation Filter
 Plugin URI: http://transposh.org/#
 Description: Translation filter for WordPress
-Author: amir@transposh.com
+Author: Team Transposh
 Version: 0.1
 Author URI: http://transposh.org/
 */
@@ -19,6 +19,7 @@ require_once("transposh_widget.php");
 
 //Table name in database for storing translations
 define("TRANSLATIONS_TABLE", "translations");
+define("TRANSLATIONS_LOG", "translations_log");
 
 //Database version
 define("DB_VERSION", "1.0");
@@ -117,8 +118,9 @@ function process_anchor_tag($start, $end)
     //don't fix links pointing to real files as it will cause that the
     //web server will not be able to locate them
     if(!$wp_rewrite->using_permalinks() ||   
-       stripos($href, '/wp-content') !== FALSE ||
        stripos($href, '/wp-admin') !== FALSE   ||
+       stripos($href, '/wp-content') !== FALSE ||
+       stripos($href, '/wp-login') !== FALSE   ||
        stripos($href, '/.php') !== FALSE)
     {
         $use_params = TRUE;
@@ -340,6 +342,22 @@ function update_translation()
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "')";
 
     $result = $wpdb->query($update);
+    
+    // also update our log
+	global $user_ID;
+	get_currentuserinfo();
+
+	// log either the user ID or his IP
+	if ('' == $user_ID) {
+		$loguser = $_SERVER['REMOTE_ADDR'];
+	} else {
+		$loguser = $user_ID;
+	}
+
+    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by)
+                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."')";
+
+    $result = $wpdb->query($log);
 
     if($result !== FALSE)
     {
@@ -486,6 +504,40 @@ function setup_db()
         }
     }
 
+    $table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+
+    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
+    {
+        logger("Attempting to create table $table_name", 0); 
+        $sql = "CREATE TABLE " . $table_name . " (original VARCHAR(256) NOT NULL,
+                                                  lang CHAR(5) NOT NULL,
+                                                  translated VARCHAR(256),
+                                                  translated_by VARCHAR(15),
+                                                  timestamp TIMESTAMP,
+                                                  PRIMARY KEY (original, lang, timestamp)) ";
+        
+                                     
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+
+        //Verify that newly created table is ready for use.
+        // TODO: is this needed?
+        //$insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
+        //"VALUES ('Hello','Hi There','zz')";
+
+        $result = $wpdb->query($insert);
+        
+        if($result === FALSE)
+        {
+            logger("Error failed to create $table_name !!!", 0); 
+        }
+        else
+        {
+            logger("Table $table_name was created successfuly", 0); 
+            add_option(TRANSPOSH_DB_VERSION, DB_VERSION);
+        }
+    }
+    
     logger("Exit " . __METHOD__  );
 }
 
