@@ -272,6 +272,10 @@ function process_tag_init(&$element, $start, $end)
         case 'span':
             process_span_or_div_tag($element, $start, $end);
             break;
+        case 'html':
+            process_html_tag($start, $end);
+            break;
+            
     }
     
 }
@@ -319,9 +323,10 @@ function process_anchor_tag($start, $end)
     logger(__METHOD__ . " $home_url href: $href");
 }
 
+
 /*
- * Handle span tags. Looks for 'no tranlate' identifier that will disable
- * translation for the enclosed session.
+ * Handle span tags. Looks for 'no_tranlate' identifier that will disable
+ * translation for the enclosed text.
  *
  */
 function process_span_or_div_tag(&$element, $start, $end)
@@ -342,6 +347,39 @@ function process_span_or_div_tag(&$element, $start, $end)
 
     //Mark the element as not translatable
     $element .= "." . NO_TRANSLATE_CLASS;
+}
+
+
+/*
+ * Process html tag. Set the direction for rtl languages. 
+ *
+ */
+function process_html_tag($start, $end)
+{
+    global $lang, $rtl_languages;
+
+    if(!(in_array ($lang, $rtl_languages)))
+    {
+        return;
+    }
+    
+    $dir = get_attribute($start, $end, 'dir');
+
+    if($dir == NULL)
+    {
+
+        //attribute does not exist - add it
+        update_translated_page($end, -1, 'dir="rtl"');
+    }
+    else
+    {
+        $dir = 'rtl';
+
+        //rewrite url in translated page
+        update_translated_page($start, $end, $dir);
+        
+    }
+    logger(__METHOD__ . " Changed page direction to rtl");
 }
 
 

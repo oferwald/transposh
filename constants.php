@@ -9,6 +9,7 @@ define("EDIT_PARAM", "edit");
 //Enable apc usage
 define("ENABLE_APC", TRUE);
 
+//Supported languages
 $languages = array("en" => "English",
                    "ar" => "العربية",
                    "bg" => "Български",
@@ -32,4 +33,9 @@ $languages = array("en" => "English",
                    "sv" => "svenska",
                    "th" => "ภาษาไทย",
                    "tr" => "Türkçe");
+
+
+//Language which are read from right to left (rtl)
+$rtl_languages =  array("ar", "he");
+
 ?>
