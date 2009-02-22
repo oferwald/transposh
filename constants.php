@@ -9,6 +9,10 @@ define("EDIT_PARAM", "edit");
 //Enable apc usage
 define("ENABLE_APC", TRUE);
 
+
+//Class marking a section not be translated.
+define("NO_TRANSLATE_CLASS", "no_translate");
+
 //Supported languages
 $languages = array("en" => "English",
                    "ar" => "العربية",

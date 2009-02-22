@@ -9,7 +9,7 @@
  */
 require_once("logging.php");
 require_once("constants.php");
-require_once("translate.php");
+require_once("transposh.php");
 
 /*
  * Intercept init calls to see if it was posted by the widget. 
