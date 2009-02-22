@@ -509,17 +509,19 @@ function translate_text($start)
         return;
     }
 
+    $is_translated = false;
     $translated_text = fetch_translation($original_text);
     if($translated_text != NULL)
     {
         logger("Translation: $original_text => $translated_text");
         $translated_text = htmlspecialchars($translated_text);
         update_translated_page($start, $end, $translated_text);
+		$is_translated = true;
     }
 
     if($is_edit_mode)
     {
-        $img = get_img_tag($original_text, $translated_text);
+        $img = get_img_tag($original_text, $translated_text, $is_translated);
         update_translated_page($end + 1, - 1, $img);
     }
 

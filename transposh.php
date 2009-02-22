@@ -250,7 +250,7 @@ function insert_javascript_includes()
  * item on the page. 
  *
  */
-function get_img_tag($original, $translation)
+function get_img_tag($original, $translation, $is_translated = false)
 {
     global $plugin_url, $lang;
 
@@ -259,8 +259,9 @@ function get_img_tag($original, $translation)
     //2. Convert the html special characters
     //The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
     $translation = htmlspecialchars(addslashes($translation));
-        
-    $img = "<img src=\"$plugin_url/translate.png\" alt=\"translate\"  
+
+    if ($is_translated) $add_img="_fix";
+    $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\"  
            onclick=\"translate_dialog('$original','$translation','$lang','$home_url'); return false;\" 
            onmouseover=\"hint('$original'); return true;\" 
            onmouseout=\"nd()\" />";
