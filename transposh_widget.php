@@ -94,6 +94,7 @@ function transposh_widget($args)
 	$is_translator = is_translator();
 
 	echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
+	echo "<span class=\"" . NO_TRANSLATE_CLASS . "\">";
 	switch ($options['style']) {
 		case 1: // flags
 			global $plugin_url;
@@ -109,47 +110,42 @@ function transposh_widget($args)
 					} else {
 						$added_url="/?lang=$code";
 					}
-					echo "<a href=\"".$home_url."".$added_url."\"><img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"/></a>&nbsp;";
+					echo "<a href=\"".$home_url."".$added_url."\"><img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\" style=\"padding: 1px 3px\"/></a>";
 				}
 			}
-			// TODO - add the edit option...
+			// this is the form for the edit...
+			echo "<form action=\"$page_url\" method=\"post\">";
+			echo "<input type=\"hidden\" name=\"lang\"	id=\"lang\" value=\"$lang\"/>";
 			break;
 		default: // language list
-			?>
-<form action="<?=$page_url?>" method="post"><select name="lang"
-	id="lang" onchange="Javascript:this.form.submit();">
-	<option value="none">[Language]</option>
+			echo "<form action=\"$page_url\" method=\"post\">";
+			echo "<select name=\"lang\"	id=\"lang\" onchange=\"Javascript:this.form.submit();\">";
+			echo "<option value=\"none\">[Language]</option>";
 
-	<?php
-
-	foreach($languages as $code => $lang2)
-	{
-		list($language,$flag) = explode (",",$lang2);
-		//Only show languages which are viewable or (editable and the user is a translator)
-		if(strstr($viewable_langs, $code) ||
-		($is_translator && strstr($editable_langs, $code)))
-		{
-			$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
-			echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
-		}
+			foreach($languages as $code => $lang2)
+			{
+				list($language,$flag) = explode (",",$lang2);
+				//Only show languages which are viewable or (editable and the user is a translator)
+				if(strstr($viewable_langs, $code) ||
+				($is_translator && strstr($editable_langs, $code)))
+				{
+					$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
+					echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
+				}
+			}
+			echo "</select><br/>";
 	}
 
-	?>
-
-</select><br />
-	<?php
 	//Add the edit checkbox only for translators  on languages marked as editable
 	if($is_translator && strstr($editable_langs, $lang))
 	{
 		echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
 		($is_edit ? "checked=\"1\"" : "0") .
-                    "\" onclick=\"Javascript:this.form.submit();\"/>Edit Translation<br/>";
+                    "\" onClick=\"this.form.submit();\"/>Edit Translation<br/>";
 	}
 
-	?> <input type="hidden" name="transposh_widget_posted" value="1" /></form>
-
-	<?php
-	}
+	echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/></form>";
+	echo "</span>"; // the no_translate for the widget
 	echo $after_widget;
 }
 
