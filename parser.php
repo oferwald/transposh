@@ -380,18 +380,24 @@ function is_sentence_breaker($position)
 {
     global $page;
     $rc = FALSE;
-    
-    //characters which break the sentence into segments
-    if($page[$position] == ',' || $page[$position] == '?' ||
-       $page[$position] == '!' ||
-       ($page[$position] == '.' && !is_number($position+1)))
+
+    if($page[$position] == '.' )
     {
         //Only break if the next character is a white space,
         //in order to avoid breaks on cases like this: (hello world.)
-        if(is_white_space($position + 1))
+        if(is_white_space($position + 1) || $page[$position + 1] == '<')
         {
             $rc = TRUE;
         }
+    }
+    else if($page[$position] == ',' || $page[$position] == '?' ||
+       $page[$position] == '(' || $page[$position] == ')' ||
+       $page[$position] == '[' || $page[$position] == ']' ||
+       $page[$position] == '"' || $page[$position] == '!' ||
+       $page[$position] == '-')
+    {
+        //break the sentence into segments regardless of the next character.
+        $rc = TRUE;
     }
     
     return $rc;
