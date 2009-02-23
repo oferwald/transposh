@@ -394,7 +394,7 @@ function is_sentence_breaker($position)
        $page[$position] == '(' || $page[$position] == ')' ||
        $page[$position] == '[' || $page[$position] == ']' ||
        $page[$position] == '"' || $page[$position] == '!' ||
-       $page[$position] == '-')
+       $page[$position] == '-' || $page[$position] == ':' )
     {
         //break the sentence into segments regardless of the next character.
         $rc = TRUE;
