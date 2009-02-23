@@ -16,7 +16,7 @@ require_once("constants.php");
  */
 function transposh_admin_menu()
 {
-    add_management_page('Transposh','Transposh', 6,'Transposh', 'transposh_admin_page');
+    add_options_page('Transposh','Transposh', 6,'Transposh', 'transposh_admin_page');
 }
 
 
