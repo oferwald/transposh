@@ -77,7 +77,7 @@ function transposh_widget_init()
 function transposh_widget($args)
 {
 	logger("Enter " . __METHOD__, 4);
-	global $languages, $wp_query;
+	global $languages, $wp_query, $wp_rewrite, $home_url;
 	extract($args);
 
 	$page_url =  ($_SERVER['HTTPS'] == 'on' ?
@@ -104,7 +104,12 @@ function transposh_widget($args)
 				if(strstr($viewable_langs, $code) ||
 				($is_translator && strstr($editable_langs, $code)))
 				{
-					echo "<a href=\"$page_url\"><img src=\"$plugin_url/flags/$flag.png\"/></a>&nbsp;";
+					if ($wp_rewrite->using_permalinks()) {
+						$added_url="/$code/";
+					} else {
+						$added_url="/?lang=$code";
+					}
+					echo "<a href=\"".$home_url."".$added_url."\"><img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"/></a>&nbsp;";
 				}
 			}
 			// TODO - add the edit option...
