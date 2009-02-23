@@ -386,7 +386,12 @@ function is_sentence_breaker($position)
        $page[$position] == '!' ||
        ($page[$position] == '.' && !is_number($position+1)))
     {
-        $rc = TRUE;
+        //Only break if the next character is a white space,
+        //in order to avoid breaks on cases like this: (hello world.)
+        if(is_white_space($position + 1))
+        {
+            $rc = TRUE;
+        }
     }
     
     return $rc;
