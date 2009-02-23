@@ -80,7 +80,11 @@ function process_html()
             }
             else if($element[0] != '/') 
             {
-                process_tag_init($element, $tag_start, $tag_end);
+                if(!$no_translate)
+                {
+                    process_tag_init($element, $tag_start, $tag_end);
+                }
+                
                 $tags_list[] = $element;
 
                 //Look for the no translate class 
@@ -92,8 +96,11 @@ function process_html()
             else
             {
                 $popped_element = array_pop($tags_list);
-                process_tag_termination($element);
-
+                if(!$no_translate)
+                {
+                    process_tag_termination($element);
+                }
+                
                 //Look for the no translate class 
                 if(stripos($popped_element, NO_TRANSLATE_CLASS) !== FALSE)
                 {
