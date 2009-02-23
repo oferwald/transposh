@@ -40,7 +40,7 @@ function transposh_admin_page()
              <h3>Supported Languages</h3> 
              <?php insert_supported_langs() ?>
              <br/>
-             <h3>Who can translate ?</h2>
+             <h3>Who can translate ?</h3>
              <?php insert_permissions() ?>
              <input type="hidden" name="transposh_admin_posted" value="1" />
              <p class="submit"><input type="submit" value="Save Changes" /></p>
@@ -56,7 +56,7 @@ function transposh_admin_page()
  */
 function insert_supported_langs()
 {
-    global $languages;
+    global $languages, $plugin_url;
     
 ?>
     <script type="text/javascript" >
@@ -84,8 +84,9 @@ function insert_supported_langs()
     
     echo '</tr>';
     
-    foreach($languages as $code => $language)
+    foreach($languages as $code => $lang)
     {
+    	list ($language,$flag) = explode (",",$lang);
         if($i % $columns == 0)
         {
             echo '</tr>';
@@ -93,7 +94,8 @@ function insert_supported_langs()
         echo "\n";
         
         $i++;
-        echo "<td>$language</td>";
+        
+        echo "<td><img src=\"$plugin_url/flags/$flag.png\"/>&nbsp;$language</td>";
         echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
             $code . '_view" onChange="chbx_change(\'' . $code . '\')"' . is_viewable($code) . '/></td>';
         echo "\n";
