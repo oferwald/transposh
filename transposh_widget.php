@@ -132,7 +132,7 @@ function transposh_widget($args)
             {
                 echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
                     ($is_edit ? "checked=\"1\"" : "0") .
-                    "\" onchange=\"Javascript:this.form.submit();\"/>Edit Translation<br/>";
+                    "\" onclick=\"Javascript:this.form.submit();\"/>Edit Translation<br/>";
             }
                  
          ?>
