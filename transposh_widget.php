@@ -85,7 +85,7 @@ function transposh_widget($args)
     $page_url .= ($_SERVER["SERVER_PORT"] != "80" ? ":" .$_SERVER["SERVER_PORT"] : "");
     $page_url .= $_SERVER["REQUEST_URI"];
 
-    $is_edit = ($wp_query->query_vars[EDIT_PARAM] == "1" ? true : false);
+    $is_edit = ($wp_query->query_vars[EDIT_PARAM] == "1" ? TRUE : FALSE);
     $lang = $wp_query->query_vars[LANG_PARAM];
 
     $options = get_option('widget_transposh');
@@ -107,20 +107,34 @@ function transposh_widget($args)
          <option value="none">[Language]</option>
 
          <?php
-
+         $viewable_langs = get_option(VIEWABLE_LANGS);
+         $editable_langs = get_option(EDITABLE_LANGS);
+         $is_translator = is_translator();
+         
          foreach($languages as $code => $language)
          {
-             $is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
-             echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
+             //Only show languages which are viewable or (editable and the user is a translator)
+             if(strstr($viewable_langs, $code) ||
+                ($is_translator && strstr($editable_langs, $code)))
+             {
+                 $is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
+                 echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
+             }
          }
     
          ?>
 
          </select>
          <br/>
-         <?php echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
-               ($is_edit ? "checked=\"1\"" : "0") .
-                "\" onchange=\"Javascript:this.form.submit();\"/>Edit Translation<br/>";
+         <?php
+            //Add the edit checkbox only for translators  on languages marked as editable
+            if($is_translator && strstr($editable_langs, $lang))
+            {
+                echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
+                    ($is_edit ? "checked=\"1\"" : "0") .
+                    "\" onchange=\"Javascript:this.form.submit();\"/>Edit Translation<br/>";
+            }
+                 
          ?>
          <input type="hidden" name="transposh_widget_posted" value="1" />
     </form> 
@@ -171,17 +185,10 @@ function transposh_widget_control() {
 <?php
 }
 
-/*
- *
- */
-function transposh_admin_menu()
-{
-    logger("Enter " . __METHOD__, 4);
-}
 
 //Register callback for WordPress events
 add_action('init', 'init_transposh',0);
 add_action('widgets_init', 'transposh_widget_init');
-add_action('admin_menu', 'transposh_admin_menu');
+
 
 ?>

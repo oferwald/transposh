@@ -42,4 +42,16 @@ $languages = array("en" => "English",
 //Language which are read from right to left (rtl)
 $rtl_languages =  array("ar", "he");
 
+//Define the new capability that will be assigned to roles - translator
+define("TRANLSLATOR", 'translator');
+
+//Option defining whether anonymous translation is allowed. 
+define("ANONYMOUS_TRANSLATION", "transposh_allow_anonymous_translation");
+
+//Option defining the list of currentlly viewable languages
+define("VIEWABLE_LANGS", "transposh_viewable_languages");
+
+//Option defining the list of currentlly editable languages
+define("EDITABLE_LANGS", "transposh_editable_languages");
+
 ?>
