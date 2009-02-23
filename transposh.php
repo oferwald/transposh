@@ -12,6 +12,7 @@ require_once("logging.php");
 require_once("constants.php");
 require_once("parser.php");
 require_once("transposh_widget.php");
+require_once("transposh_admin.php");
 
 //
 //Constants
@@ -57,7 +58,7 @@ function process_page(&$buffer) {
     global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode, $wpdb,
            $table_name;
     
-    $start_time = microtime(true);
+    $start_time = microtime(TRUE);
     
     if (!isset($wp_query->query_vars[LANG_PARAM]))
     {
@@ -70,7 +71,7 @@ function process_page(&$buffer) {
         $wp_query->query_vars[EDIT_PARAM] == "true")
     {
         //TODO verify user has the required permissions
-        $is_edit_mode = true;
+        $is_edit_mode = TRUE;
     }
     
 
@@ -82,7 +83,7 @@ function process_page(&$buffer) {
     //translate the entire page
     process_html();
     
-    $end_time = microtime(true);
+    $end_time = microtime(TRUE);
 
     logger("Translation completed in " . ($end_time - $start_time) . " seconds", 1);
     
@@ -114,7 +115,7 @@ function process_anchor_tag($start, $end)
 
     $use_params = FALSE;
     
-    //Only params if permalinks is not enabled. 
+    //Only use params if permalinks are not enabled. 
     //don't fix links pointing to real files as it will cause that the
     //web server will not be able to locate them
     if(!$wp_rewrite->using_permalinks() ||   
@@ -250,7 +251,7 @@ function insert_javascript_includes()
  * item on the page. 
  *
  */
-function get_img_tag($original, $translation, $is_translated = false)
+function get_img_tag($original, $translation, $is_translated = FALSE)
 {
     global $plugin_url, $lang;
 
@@ -333,6 +334,12 @@ function update_translation()
         return;
     }
 
+    //Check that use is allowed to translate
+    if(!is_translator())
+    {
+        logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+    }
+    
     //encode text
     $original = $wpdb->escape(htmlspecialchars(urldecode($original)));
 
@@ -343,25 +350,11 @@ function update_translation()
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "')";
 
     $result = $wpdb->query($update);
-    
-    // also update our log
-	global $user_ID;
-	get_currentuserinfo();
-
-	// log either the user ID or his IP
-	if ('' == $user_ID) {
-		$loguser = $_SERVER['REMOTE_ADDR'];
-	} else {
-		$loguser = $user_ID;
-	}
-
-    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by)
-                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."')";
-
-    $result = $wpdb->query($log);
 
     if($result !== FALSE)
     {
+        update_transaction_log($original, $translation, $lang);
+
         //Delete entry from cache
         if(ENABLE_APC && function_exists('apc_store'))
         {
@@ -371,11 +364,43 @@ function update_translation()
     }
     else
     {
-        logger("Error !!! failed to inserted to db $original , $translation, $lang," , 0);
+        logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
     }
 
     wp_redirect($ref);
     exit;
+}
+
+
+/*
+ * Update the transaction log
+ *
+ */
+function update_transaction_log(&$original, &$translation, &$lang)
+{
+	global $wpdb, $user_ID;
+	get_currentuserinfo();
+
+	// log either the user ID or his IP
+	if ('' == $user_ID)
+    {
+		$loguser = $_SERVER['REMOTE_ADDR'];
+	}
+    else
+    {
+		$loguser = $user_ID;
+	}
+
+    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by)
+                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."')";
+
+    $result = $wpdb->query($log);
+
+    if($result === FALSE)
+    {
+        logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang" , 0);
+    }
+    
 }
 
 /*
@@ -473,6 +498,7 @@ function setup_db()
 {
 
     global $wpdb;
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
     $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
 
@@ -485,7 +511,6 @@ function setup_db()
                                                   PRIMARY KEY (original, lang)) ";
         
                                      
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
 
         //Verify that newly created table is ready for use.
@@ -518,30 +543,35 @@ function setup_db()
                                                   PRIMARY KEY (original, lang, timestamp)) ";
         
                                      
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
-
-        //Verify that newly created table is ready for use.
-        // TODO: is this needed?
-        //$insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
-        //"VALUES ('Hello','Hi There','zz')";
-
-        $result = $wpdb->query($insert);
-        
-        if($result === FALSE)
-        {
-            logger("Error failed to create $table_name !!!", 0); 
-        }
-        else
-        {
-            logger("Table $table_name was created successfuly", 0); 
-            add_option(TRANSPOSH_DB_VERSION, DB_VERSION);
-        }
     }
     
     logger("Exit " . __METHOD__  );
 }
 
+/*
+ * Determine if the current user is allowed to translate.
+ * Return TRUE if allowed to translate otherwise FALSE
+ */
+function is_translator()
+{
+    if(is_user_logged_in())
+    {
+        if(current_user_can(TRANSLATOR))
+        {
+            return TRUE;
+        }
+    }
+
+    if(get_option(ANONYMOUS_TRANSLATION))
+    {
+        //if anonymous translation is allowed - let anyone enjoy it 
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+         
 
 /*
  * Plugin activated. 
@@ -556,7 +586,7 @@ function plugin_activate()
 
     add_filter('rewrite_rules_array', 'update_rewrite_rules');
     $wp_rewrite->flush_rules();
-    
+        
     logger("plugin_activate exit: " . dirname(__FILE__));
 }
 
@@ -630,7 +660,6 @@ function plugin_loaded()
     }
 }
 
-
 //Register callbacks 
 add_action('wp_head', 'add_custom_css');
 add_filter('query_vars', 'parameter_queryvars' );
@@ -641,5 +670,4 @@ add_action('shutdown', 'on_shutdown');
 add_action( 'plugins_loaded', 'plugin_loaded');
 add_action('activate_'.str_replace('\\','/',plugin_basename(__FILE__)),'plugin_activate');
 add_action('deactivate_'.str_replace('\\','/',plugin_basename(__FILE__)),'plugin_deactivate');
-
 ?>

@@ -29,7 +29,7 @@ $tr_page;
 $tr_mark = 0;
 
 //Is the current use is in edit mode. 
-$is_edit_mode = false;
+$is_edit_mode = FALSE;
 
 
 
@@ -48,7 +48,7 @@ function process_html()
     {
         //find beginning of next tag
         $pos = strpos($page, '<', $pos);
-        if($pos === false)
+        if($pos === FALSE)
         {
             //logger("Error finding < in pos " . $pos . " page: " . $page);
             break;
@@ -126,12 +126,12 @@ function process_html()
 /*
  * Determine if the specified element should be skipped. If so the position
  * is moved past end of tag.
- * Return true if element is skipped otherwise false. 
+ * Return TRUE if element is skipped otherwise FALSE. 
  */
 function should_skip_element(&$element)
 {
     global $page, $pos;
-    $rc = true;
+    $rc = TRUE;
     
     if(strncmp($element, "!DOCTYPE", 8) == 0)
     {
@@ -143,7 +143,7 @@ function should_skip_element(&$element)
     }
     else
     {
-        $rc = false;
+        $rc = FALSE;
     }
 
     return $rc;
@@ -374,19 +374,19 @@ function process_current_tag()
 /*
  * Determine if the current position in buffer is a sentence breaker, e.g. '.' or ',' .
  * Note html markups are not considered sentence breaker within the scope of this function.
- * Return true is current position marks a break in sentence otherwise false
+ * Return TRUE is current position marks a break in sentence otherwise FALSE
  */
 function is_sentence_breaker($position)
 {
     global $page;
-    $rc = false;
+    $rc = FALSE;
     
     //characters which break the sentence into segments
     if($page[$position] == ',' || $page[$position] == '?' ||
        $page[$position] == '!' ||
        ($page[$position] == '.' && !is_number($position+1)))
     {
-        $rc = true;
+        $rc = TRUE;
     }
     
     return $rc;
@@ -395,7 +395,7 @@ function is_sentence_breaker($position)
 
 /*
  * Determine if the current position is a number.
- * Return true if a number otherwise false
+ * Return TRUE if a number otherwise FALSE
  */
 function is_number($position)
 {
@@ -403,15 +403,15 @@ function is_number($position)
     
     if($page[$position] >= '0' && $page[$position] <= '9')
     {
-        return true;
+        return TRUE;
     }
 
-    return false;
+    return FALSE;
 }
     
 /*
  * Determine if the current position in buffer is a white space. 
- * return true if current position marks a white space otherwise false.
+ * return TRUE if current position marks a white space otherwise FALSE.
  */ 
 function is_white_space($position)
 {
@@ -422,7 +422,7 @@ function is_white_space($position)
        $page[$position] == "\n" || $page[$position] == "\x0B" ||
        $page[$position] == "\0")
     {
-        return true;
+        return TRUE;
     }
 }
 
@@ -432,7 +432,7 @@ function is_white_space($position)
  * position going either forward or backward. 
  * param forward - indicate direction going either backward of forward. 
  */
-function skip_unreadable_chars(&$index, $forward=true)
+function skip_unreadable_chars(&$index, $forward=TRUE)
 {
     global $page, $pos;
 
@@ -457,7 +457,7 @@ function skip_unreadable_chars(&$index, $forward=true)
  * position going either forward or backward. 
  * param forward - indicate direction going either backward of forward. 
  */
-function skip_white_space(&$index, $forward=true)
+function skip_white_space(&$index, $forward=TRUE)
 {
     global $page, $pos;
 
@@ -491,7 +491,7 @@ function translate_text($start)
     //(i.e. current position points to '<') and trim white space from the right
     //backwards
     $end = $pos - 1;
-    $end = skip_unreadable_chars($end, $forward=false);
+    $end = skip_unreadable_chars($end, $forward=FALSE);
     
     if($start >= $end)
     {
@@ -509,14 +509,14 @@ function translate_text($start)
         return;
     }
 
-    $is_translated = false;
+    $is_translated = FALSE;
     $translated_text = fetch_translation($original_text);
     if($translated_text != NULL)
     {
         logger("Translation: $original_text => $translated_text");
         $translated_text = htmlspecialchars($translated_text);
         update_translated_page($start, $end, $translated_text);
-		$is_translated = true;
+		$is_translated = TRUE;
     }
 
     if($is_edit_mode)
