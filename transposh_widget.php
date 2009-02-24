@@ -1,10 +1,8 @@
 <?php
 
 /*
- * Provides the following:
- * 1. Widget for sidebar for selecting a language and switching between edit/view
+ * Provides the sidebar widget for selecting a language and switching between edit/view
  * mode.
- * 2. Admin page for configuring language selection and other configuration settings.
  *
  */
 require_once("logging.php");
@@ -66,6 +64,7 @@ function transposh_widget_init()
 
 	// Register widget
 	register_sidebar_widget(array('Transposh', 'widgets'), 'transposh_widget');
+
 	// Register widget control
 	register_widget_control("Transposh",'transposh_widget_control');
 }
@@ -93,62 +92,88 @@ function transposh_widget($args)
 	$editable_langs = get_option(EDITABLE_LANGS);
 	$is_translator = is_translator();
 
+    $is_showing_languages = FALSE;
+    
 	echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
-	echo "<span class=\"" . NO_TRANSLATE_CLASS . "\">";
+	echo "<span class=\"" . NO_TRANSLATE_CLASS . "\" >";
+    
 	switch ($options['style']) {
 		case 1: // flags
-			global $plugin_url;
+            //keep the flags in the same direction regardless of the overall page direction
+            echo "<div dir=rtl>"; 
+            
+            global $plugin_url;
+            $using_permalinks = $wp_rewrite->using_permalinks();
+            
 			foreach($languages as $code => $lang2)
 			{
 				list($language,$flag) = explode (",",$lang2);
+
 				//Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
-				($is_translator && strstr($editable_langs, $code)))
+				   ($is_translator && strstr($editable_langs, $code)))
 				{
-					if ($wp_rewrite->using_permalinks()) {
-						$added_url="/$code/";
-					} else {
-						$added_url="/?lang=$code";
-					}
-					echo "<a href=\"".$home_url."".$added_url."\"><img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\" style=\"padding: 1px 3px\"/></a>";
+					$page_url = rewrite_url_lang_param($page_url, $code, $is_edit, !$using_permalinks);
+                    
+					echo "<a href=\"" . $page_url . "\">
+                         <img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"
+                         style=\"padding: 1px 3px\"/></a>";
+                    $is_showing_languages = TRUE;
 				}
 			}
+
+            echo "</div>";
+            
 			// this is the form for the edit...
 			echo "<form action=\"$page_url\" method=\"post\">";
 			echo "<input type=\"hidden\" name=\"lang\"	id=\"lang\" value=\"$lang\"/>";
 			break;
 		default: // language list
-			echo "<form action=\"$page_url\" method=\"post\">";
+
+            echo "<form action=\"$page_url\" method=\"post\">";
 			echo "<select name=\"lang\"	id=\"lang\" onchange=\"Javascript:this.form.submit();\">";
 			echo "<option value=\"none\">[Language]</option>";
 
 			foreach($languages as $code => $lang2)
 			{
 				list($language,$flag) = explode (",",$lang2);
-				//Only show languages which are viewable or (editable and the user is a translator)
+
+                //Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
-				($is_translator && strstr($editable_langs, $code)))
+				   ($is_translator && strstr($editable_langs, $code)))
 				{
 					$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
 					echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
+                    $is_showing_languages = TRUE;
 				}
 			}
 			echo "</select><br/>";
 	}
 
-	//Add the edit checkbox only for translators  on languages marked as editable
-	if($is_translator && strstr($editable_langs, $lang))
-	{
-		echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
-		($is_edit ? "checked=\"1\"" : "0") .
-                    "\" onClick=\"this.form.submit();\"/>Edit Translation<br/>";
-	}
 
-	echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/></form>";
-	echo "</span>"; // the no_translate for the widget
-	echo $after_widget;
+    //at least one language showing - add the edit box if applicable
+    if($is_showing_languages)
+    {
+        //Add the edit checkbox only for translators  on languages marked as editable
+        if($is_translator && strstr($editable_langs, $lang))
+        {
+            echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
+                ($is_edit ? "checked=\"1\"" : "0") .
+                "\" onClick=\"this.form.submit();\"/>Edit Translation<br/>";
+        }
+        
+        echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/></form>";
+    }
+    else
+    {
+        //no languages configured - error message
+        echo '<p> No languages available for display. Check the Transposh settings (Admin).</p>';
+    }
+    
+    echo "</span>"; // the no_translate for the widget
+
+    echo $after_widget;
 }
-
 
 /*
  * Mark the given text so it will not subject to translation.
@@ -162,35 +187,33 @@ function no_translate($text)
 /*
  * This is the widget control, allowing the selection of presentation type.
  */
-function transposh_widget_control() {
+function transposh_widget_control()
+{
 	$options = $newoptions = get_option('widget_transposh');
 
-	if ( isset($_POST['transposh-submit']) ) {
+	if ( isset($_POST['transposh-submit']) )
+    {
 		$newoptions['style'] = $_POST['transposh-style'];
 	}
 
-	if ( $options != $newoptions ) {
+	if ( $options != $newoptions )
+    {
 		$options = $newoptions;
 		update_option('widget_transposh', $options);
 	}
 
 	$style = $options['style'];
-	?>
-<p><label for="transposh-style"> <?php _e('Style:') ?> <br />
 
-<select id="transposh-style" name="transposh-style">
-	<option <?php if ($style ==0) {?> selected="selected" <?php }?>
-		value="0">Language list</option>
-	<option <?php if ($style ==1) {?> selected="selected" <?php }?>
-		value="1">Flags</option>
-	<option <?php if ($style ==2) {?> selected="selected" <?php }?>
-		value="2">Corner flag</option>
-	<option <?php if ($style ==3) {?> selected="selected" <?php }?>
-		value="3">Floating corner flag</option>
-</select></label></p>
-<input
-	type="hidden" name="transposh-submit" id="transposh-submit" value="1" />
-	<?php
+    echo '<p><label for="transposh-style">Style:<br />
+         <select id="transposh-style" name="transposh-style">';
+    echo '<option ' . ($style == 0 ? 'selected="selected"' : '') .
+        'value="0">Language list</option>';
+    echo '<option ' . ($style == 1 ? 'selected="selected"' : '') .
+        'value="1">Flags</option>';
+    
+    echo '</select></label></p>
+          <input type="hidden" name="transposh-submit" id="transposh-submit" value="1" />';
+    
 }
 
 

@@ -32,22 +32,20 @@ function transposh_admin_page()
     {
 		update_admin_options();
 	}
-?>
-        <div class="wrap alternate">
-        <h2>Transposh</h2>
 
-        <form action="?page=Transposh" method="post">
-             <h3>Supported Languages</h3> 
-             <?php insert_supported_langs() ?>
-             <br/>
-             <h3>Who can translate ?</h3>
-             <?php insert_permissions() ?>
-             <input type="hidden" name="transposh_admin_posted" value="1" />
-             <p class="submit"><input type="submit" value="Save Changes" /></p>
-       </form>
-       </div>
-             
-<?php
+    echo '<div class="wrap alternate">
+         <h2>Transposh</h2>
+         <form action="?page=Transposh" method="post">
+             <h3>Supported Languages</h3>';
+
+    insert_supported_langs();
+    echo '<br/> <h3>Who can translate ?</h3>';
+    insert_permissions();
+
+    echo '<input type="hidden" name="transposh_admin_posted" value="1" />
+          <p class="submit"><input type="submit" value="Save Changes" /></p>
+          </form>
+          </div>';
 }
 
 /*
@@ -58,7 +56,7 @@ function insert_supported_langs()
 {
     global $languages, $plugin_url;
     
-?>
+    echo '
     <script type="text/javascript" >
         function chbx_change(lang)
         {
@@ -73,8 +71,9 @@ function insert_supported_langs()
     </script>
           
     <table>
-    <tr>
-<?php
+    <tr>';
+    
+
     $columns = 3;
     
     for($hdr=0; $hdr < $columns; $hdr++)
@@ -115,11 +114,8 @@ function insert_supported_langs()
         echo "\n";
         
     }
-?>
-    </table>
-          
-<?php
-             
+
+    echo '</table>';
 }
 
 
