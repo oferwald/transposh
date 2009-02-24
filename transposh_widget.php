@@ -19,23 +19,14 @@ function init_transposh()
 	{
 		logger("Enter " . __METHOD__, 4);
 
-		global $wp_rewrite, $home_url, $home_url_quoted;
+		global $wp_rewrite;
+        
 		$ref=getenv('HTTP_REFERER');
 		$lang = $_POST[LANG_PARAM];
 
-		//cleanup previous lang & edit parameter from url
-		$ref = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $ref);
-
-
-		if(!$home_url)
-		{
-			//make sure required home urls are fetched - as they are need now
-			init_global_vars();
-		}
-
-		//cleanup lang identifier in permalinks
-		$ref = preg_replace("/$home_url_quoted\/(..\/)/", "$home_url/",  $ref);
-
+        //remove existing language settings. 
+        $ref = cleanup_url($ref);
+        
 		if($lang != "none")
 		{
 			$use_params_only = !$wp_rewrite->using_permalinks();
@@ -76,7 +67,7 @@ function transposh_widget_init()
 function transposh_widget($args)
 {
 	logger("Enter " . __METHOD__, 4);
-	global $languages, $wp_query, $wp_rewrite, $home_url;
+	global $languages, $wp_query, $wp_rewrite;
 	extract($args);
 
 	$page_url =  ($_SERVER['HTTPS'] == 'on' ?
@@ -109,6 +100,9 @@ function transposh_widget($args)
 			{
 				list($language,$flag) = explode (",",$lang2);
 
+                //remove any language identifier 
+                $page_url = cleanup_url($page_url);
+                
 				//Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
 				   ($is_translator && strstr($editable_langs, $code)))
@@ -162,17 +156,43 @@ function transposh_widget($args)
                 "\" onClick=\"this.form.submit();\"/>Edit Translation<br/>";
         }
         
-        echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/></form>";
+        echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/>";
     }
     else
     {
         //no languages configured - error message
         echo '<p> No languages available for display. Check the Transposh settings (Admin).</p>';
     }
-    
+
+    echo "</form>";
     echo "</span>"; // the no_translate for the widget
 
     echo $after_widget;
+}
+
+
+/*
+ *Remove from url any language (or editing) params that were added for our use.
+ *Return the scrubed url
+ */
+function cleanup_url($url)
+{
+    global $home_url, $home_url_quoted;
+    
+    //cleanup previous lang & edit parameter from url
+    $url = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $url);
+    
+    
+    if(!$home_url)
+    {
+        //make sure required home urls are fetched - as they are need now
+        init_global_vars();
+    }
+    
+    //cleanup lang identifier in permalinks
+    $url = preg_replace("/$home_url_quoted\/(..\/)/", "$home_url/",  $url);
+
+    return $url;
 }
 
 /*
