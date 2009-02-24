@@ -67,17 +67,24 @@ function process_page(&$buffer) {
         
     }
 
-    if ($wp_query->query_vars[EDIT_PARAM] == "1" ||
-        $wp_query->query_vars[EDIT_PARAM] == "true")
-    {
-        //TODO verify user has the required permissions
-        $is_edit_mode = TRUE;
-    }
-    
-
     $lang = $wp_query->query_vars[LANG_PARAM];
     $page = $buffer;
 
+
+    if (($wp_query->query_vars[EDIT_PARAM] == "1" ||
+         $wp_query->query_vars[EDIT_PARAM] == "true"))
+    {
+        //Verify that the current language is editable and that the
+        //user has the required permissions
+        $editable_langs = get_option(EDITABLE_LANGS);
+        
+        if(is_translator() && strstr($editable_langs, $lang))
+        {
+            $is_edit_mode = TRUE;
+        }
+        
+    }
+    
     logger("translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
     
     //translate the entire page
