@@ -68,6 +68,15 @@ function process_page(&$buffer) {
     }
 
     $lang = $wp_query->query_vars[LANG_PARAM];
+    $default_lang = get_default_lang();
+    if($lang == $default_lang)
+    {
+        //Don't translate the default language
+        logger("Skipping translation for default language $default_lang", 3);
+        return $buffer;
+    }
+    
+    
     $page = $buffer;
 
 
@@ -408,6 +417,25 @@ function update_transaction_log(&$original, &$translation, &$lang)
         logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang" , 0);
     }
     
+}
+
+
+/*
+ * Gets the default language setting, i.e. the source language which
+ * should not be translated.
+ * Return the default language setting
+ */
+function get_default_lang()
+{
+    global $languages;
+    
+    $default = get_option(DEFAULT_LANG);
+    if(!$languages[$default])
+    {
+        $default = "en";
+    }
+
+    return $default;
 }
 
 /*

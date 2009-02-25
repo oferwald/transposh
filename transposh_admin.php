@@ -36,7 +36,7 @@ function transposh_admin_page()
     echo '<div class="wrap alternate">
          <h2>Transposh</h2>
          <form action="?page=Transposh" method="post">
-             <h3>Supported Languages</h3>';
+         <h3>Supported Languages</h3>';
 
     insert_supported_langs();
     echo '<br/> <h3>Who can translate ?</h3>';
@@ -74,11 +74,12 @@ function insert_supported_langs()
     <tr>';
     
 
-    $columns = 3;
+    $columns = 2;
     
     for($hdr=0; $hdr < $columns; $hdr++)
     {
-        echo '<th>Language</th> <th>Viewable</th> <th>Translatable</th> <th></th>';
+        echo '<th>Language </th> <th>Viewable </th> <th>Translatable </th>
+              <th>Default</th><th style="padding-right: 80px"> </th>';
     }
     
     echo '</tr>';
@@ -98,9 +99,11 @@ function insert_supported_langs()
         echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
             $code . '_view" onChange="chbx_change(\'' . $code . '\')"' . is_viewable($code) . '/></td>';
         echo "\n";
-        
         echo '<td align="center">  <input type="checkbox" id="' . $code . '_edit" name="' .
             $code . '_edit" ' . is_editable($code). '/></td>';
+        echo "\n";
+        echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\"" . 
+               is_default_lang($code). "/> </td>";
                 
         if($i % $columns == 0)
         {
@@ -108,7 +111,7 @@ function insert_supported_langs()
         }
         else
         {
-            echo "<td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td>";
+            echo "<td><style padding-right: 60px></style></td>";
         }
         
         echo "\n";
@@ -148,6 +151,29 @@ function is_viewable($code)
         return "checked";
     }
     
+    return "";
+}
+
+/*
+ * Determine if the given language code is currentlly the default language
+ * Return 'checked' if true otherwise ""
+ */
+function is_default_lang($code)
+{
+    global $languages;
+    
+    $default = get_option(DEFAULT_LANG);
+
+    if(!$languages[$default])
+    {
+        $default = "en";
+    }
+    
+    if($default ==  $code)
+    {
+        return "checked";
+    }
+
     return "";
 }
 
@@ -248,6 +274,7 @@ function update_admin_options()
 
     update_option(VIEWABLE_LANGS, implode(',', $viewable_langs));
     update_option(EDITABLE_LANGS, implode(',', $editable_langs));
+    update_option(DEFAULT_LANG,   $_POST['default_lang']);
     
     echo '<div id="message"class="updated fade">';	
     echo ('<p> Changes saved</p>');			
