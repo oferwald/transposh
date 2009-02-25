@@ -54,4 +54,7 @@ define("VIEWABLE_LANGS", "transposh_viewable_languages");
 //Option defining the list of currentlly editable languages
 define("EDITABLE_LANGS", "transposh_editable_languages");
 
+//Option defining the default language
+define("DEFAULT_LANG", "transposh_default_language");
+
 ?>
