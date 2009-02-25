@@ -349,7 +349,8 @@ function process_current_tag()
     logger("Enter " . __METHOD__  ." : $current_tag", 4);
 
     //translate only specific elements - <a> or <div>
-    if($current_tag == 'a' || array_search('div', $tags_list))
+    if($current_tag == 'a' || $current_tag == 'title' ||
+       array_search('div', $tags_list))
     {
         skip_white_space();
         $start = $pos;
@@ -394,7 +395,7 @@ function is_sentence_breaker($position)
     global $page;
     $rc = FALSE;
 
-    if($page[$position] == '.' )
+    if($page[$position] == '.' || $page[$position] == '-')
     {
         //Only break if the next character is a white space,
         //in order to avoid breaks on cases like this: (hello world.)
@@ -407,8 +408,7 @@ function is_sentence_breaker($position)
        $page[$position] == '(' || $page[$position] == ')' ||
        $page[$position] == '[' || $page[$position] == ']' ||
        $page[$position] == '"' || $page[$position] == '!' ||
-       $page[$position] == '-' || $page[$position] == ':' ||
-       $page[$position] == '|')
+       $page[$position] == ':' || $page[$position] == '|')
     {
         //break the sentence into segments regardless of the next character.
         $rc = TRUE;
