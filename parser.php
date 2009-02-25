@@ -359,9 +359,15 @@ function process_current_tag()
             //will break translation unit when one of the following characters is reached: ., 
             if(is_sentence_breaker($pos))
              {
-                 $pos++;
                  translate_text($start);
+                 $pos++;
                  $start = $pos;
+             }
+            else if(($end_of_entity = is_html_entity($pos)))
+             {
+                 translate_text($start);
+                 $pos++;
+                 $start = $end_of_entity;
              }
              else
              {
@@ -401,7 +407,8 @@ function is_sentence_breaker($position)
        $page[$position] == '(' || $page[$position] == ')' ||
        $page[$position] == '[' || $page[$position] == ']' ||
        $page[$position] == '"' || $page[$position] == '!' ||
-       $page[$position] == '-' || $page[$position] == ':' )
+       $page[$position] == '-' || $page[$position] == ':' ||
+       $page[$position] == '|')
     {
         //break the sentence into segments regardless of the next character.
         $rc = TRUE;
@@ -410,12 +417,71 @@ function is_sentence_breaker($position)
     return $rc;
 }
 
+/*
+ * Determines if the current position marks the begining of an html
+ * entity. E.g &amp;
+ * Return 0 if not an html entity otherwise return the position past this
+ *          entity. 
+ *
+ */
+function is_html_entity($position)
+{
+    global $page;
+    if($page[$position] == "&" )
+    {
+        $end_pos = $position + 1;
+        
+        while($page[$end_pos] == "#" ||
+              is_digit($end_pos) || is_a_to_z_character($end_pos))
+        {
+            $end_pos++;
+        }
+
+        if($page[$end_pos] == ';')
+        {
+            $entity = substr($page, $position, $end_pos - $position + 1);
+
+            //Don't break on ` so for our use we don't consider it an entity
+            //e.g. Jack`s apple
+            if($entity ==  "&#8217;" || $entity == "&apos;")
+            {
+                return 0;
+            }
+            
+            //It is an html entity.
+            return $end_pos + 1;
+        }
+    }
+
+    return 0;
+}
+
+
+/*
+ * Determine if the current position in page points to a character in the
+ * range of a-z (case insensetive).
+ * Return TRUE if a-z otherwise FALSE
+ *
+ */
+
+function is_a_to_z_character($position)
+{
+    global $page;
+    
+    if(($page[$position] >= 'a' && $page[$position] <= 'z') ||
+        ($page[$position] >= 'A' && $page[$position] <= 'Z'))
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
 
 /*
  * Determine if the current position is a number.
  * Return TRUE if a number otherwise FALSE
  */
-function is_number($position)
+function is_digit($position)
 {
     global $page;
     
@@ -502,14 +568,14 @@ function translate_text($start)
     logger("Enter " . __METHOD__  . " : $start", 4);
     global $page, $pos, $is_edit_mode;
 
-    //trim unreadable chars from the start position going forward
-    skip_unreadable_chars($start);
+    //trim white space from the start position going forward
+    skip_white_space($start);
 
     //Set the end position of the string to one back from current position
-    //(i.e. current position points to '<') and trim white space from the right
-    //backwards
+    //(i.e. current position points to '<' or a breaker '.') and then trim
+    //white space from the right backwards
     $end = $pos - 1;
-    $end = skip_unreadable_chars($end, $forward=FALSE);
+    $end = skip_white_space($end, $forward=FALSE);
     
     if($start >= $end)
     {

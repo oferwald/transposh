@@ -12,7 +12,7 @@
 
 //Enable tracing level.
 //0 - disabled. Higher numbers will show more debug information.
-define ("DEBUG" , 1);
+define ("DEBUG" , 0);
 
 /*
  * Print a message to log. 
@@ -21,7 +21,7 @@ function logger($msg, $severity=3)
 {
     if($severity <= DEBUG)
     {
-        error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/var/tmp/my-errors.log");
+        error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/var/tmp/transposh.log");
     }
 }
 
