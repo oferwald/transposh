@@ -1,4 +1,20 @@
 <?php
+/*  Copyright © 2009 Transposh Team (website : http://transposh.org)
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 //Language indicator in URL. i.e. lang=en
 define("LANG_PARAM", "lang");
@@ -9,11 +25,10 @@ define("EDIT_PARAM", "edit");
 //Enable apc usage
 define("ENABLE_APC", TRUE);
 
-
 //Class marking a section not be translated.
 define("NO_TRANSLATE_CLASS", "no_translate");
 
-//Supported languages
+//Supported languages, new languages can be added here
 $languages = array("en" => "English,us",
                    "ar" => "العربية,sa",
                    "bg" => "Български,bg",
@@ -56,5 +71,8 @@ define("EDITABLE_LANGS", "transposh_editable_languages");
 
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
+
+//Option defining transposh widget appearance
+define("WIDGET_TRANSPOSH", "widget_transposh");
 
 ?>
