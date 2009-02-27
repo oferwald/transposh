@@ -1,9 +1,24 @@
 <?php
+/*  Copyright © 2009 Transposh Team (website : http://transposh.org)
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 /*
  * Provides the sidebar widget for selecting a language and switching between edit/view
  * mode.
- *
  */
 require_once("logging.php");
 require_once("constants.php");
@@ -78,7 +93,7 @@ function transposh_widget($args)
 	$is_edit = ($wp_query->query_vars[EDIT_PARAM] == "1" ? TRUE : FALSE);
 	$lang = $wp_query->query_vars[LANG_PARAM];
 
-	$options = get_option('widget_transposh');
+	$options = get_option(WIDGET_TRANSPOSH);
 	$viewable_langs = get_option(VIEWABLE_LANGS);
 	$editable_langs = get_option(EDITABLE_LANGS);
 	$is_translator = is_translator();
@@ -209,7 +224,7 @@ function no_translate($text)
  */
 function transposh_widget_control()
 {
-	$options = $newoptions = get_option('widget_transposh');
+	$options = $newoptions = get_option(WIDGET_TRANSPOSH);
 
 	if ( isset($_POST['transposh-submit']) )
     {
