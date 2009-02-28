@@ -46,21 +46,79 @@ function hint(original)
 }
  
 //Open translation dialog 
-function translate_dialog(original, trans, lang, post_url)
+function translate_dialog(original, trans, lang, post_url, segment_id)
 {
 caption='Edit Translation';
 
-//TODO accept the action url as a parameter
 var dialog = ''+
-    ('<form name="transposh_edit_form" method="post" action="' + post_url + '"><div>') +
-     '<p dir="ltr">Original text<br \/><textarea cols="60" rows="3" readonly="readyonly">' +
+    ('<form id="tr_form" name="transposh_edit_form" method="post" action="' + post_url + '"><div>') +
+     '<p dir="ltr">Original text<br \/><textarea id="tr_original_unescaped" cols="60" rows="3" readonly="readyonly">' +
        original + '</textarea> <\/p>' +
-    '<p>Translate to<br \/><input type="text" name="translation" size="80" value="'+ trans + '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
-    '<input type="hidden" name="original" value="'+escape(original)+'">' +
-    '<input type="hidden" name="lang" value="'+lang+'">' +
+    '<p>Translate to<br \/><input type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
+    '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
+    '<input type="hidden" id="tr_original" name="original" value="' + escape(original) +'">' +
+    '<input type="hidden" id="tr_lang" name="lang" value="'+lang+'">' +
     '<input type="hidden" name="translation_posted" value= "1">' +
     '<p><input type="submit" value="Translate"><\/p>' +
     ('<\/div><\/form>');
 
 display_dialog(caption, dialog);
+
+// attach handler to form's submit event 
+$('#tr_form').submit(function() { 
+        var translation = $('#tr_translation').val();
+        var query = 'original=' +  original +
+                    '&translation=' + translation +
+                    '&lang=' + $('#tr_lang').val() +
+                    '&translation_posted=1';
+        
+                
+        $.ajax({  
+            type: "POST",
+            url: post_url,
+            data: query,  
+            success: function(req) {
+                    //rewrite onclick function - in case of re-edit
+                    $("#tr_img_" + segment_id).click(function () {
+                            translate_dialog(original, translation, lang, post_url, segment_id);
+                        });
+
+                    //current img 
+                    var img = $("#tr_img_" + segment_id).attr('src');
+                    var text_rewrite = translation;
+                    
+                    if(jQuery.trim(translation).length == 0) {
+                        //reset to the original content - the not escaped version
+                        text_rewrite = original;
+
+                        //switch to the edit img
+                        img = img.replace(/translate_fix.png/, "translate.png");
+                    }
+                    else {
+                        //switch to the fix img
+                        img = img.replace(/translate.png/, "translate_fix.png");
+                    }
+                    
+                    
+                    //rewrite text
+                    $("#tr_" + segment_id).text(text_rewrite);
+
+                    //rewrite image
+                    $("#tr_img_" + segment_id).attr('src', img);
+
+                    //close dialog
+                    cClick();
+                    },
+                    
+            error: function(req) {
+                    alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+                   }
+                
+                    
+        });
+        
+        // return false to prevent normal browser submit and page navigation 
+        return false;
+        
+    });
 }

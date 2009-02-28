@@ -72,6 +72,12 @@ define("EDITABLE_LANGS", "transposh_editable_languages");
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
 
+//Define segment id prefix, will be included in span tag.
+define("SPAN_PREFIX", "tr_");
+
+//Define segment id prefix, will be included in img tag.
+define("IMG_PREFIX", "tr_img_");
+
 //Option defining transposh widget appearance
 define("WIDGET_TRANSPOSH", "widget_transposh");
 
