@@ -248,7 +248,9 @@ function update_admin_options()
 {
     logger('Entry ' . __METHOD__, 4);
     global $wp_roles, $languages;
-
+    $viewable_langs = array();
+    $editable_langs = array();
+    
     //update roles and capabilities
     foreach($wp_roles->get_names() as $role_name => $something)
     {

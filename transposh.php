@@ -354,8 +354,9 @@ function init_global_vars()
     global $home_url, $home_url_quoted, $plugin_url, $table_name, $wpdb;
     
     $home_url = get_option('home');
+    $local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
     
-    $plugin_url= $home_url . "/wp-content/plugins/transposh";
+    $plugin_url= $home_url . "/wp-content/plugins/$local_dir";
     $home_url_quoted = preg_quote($home_url);
     $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
