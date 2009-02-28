@@ -244,8 +244,15 @@ function fetch_translation($original)
     
     if(ENABLE_APC && function_exists('apc_store'))
     {
+        //If we don't have translation still we want to have it in cache
+        $cache_entry = $translated;
+        if($cache_entry == NULL)
+        {
+            $cache_entry = "";
+        }
+        
         //update cache
-        $rc = apc_store($original . $lang, $translated, 3600);
+        $rc = apc_store($original . $lang, $cache_entry, 3600);
         if($rc === TRUE)
         {
             logger("Stored in cache: $original => $translated", 3);
@@ -275,6 +282,7 @@ function insert_javascript_includes()
     $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
 
     $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>\n";
+    $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/jquery/jquery.js\"></script>\n";
 
     echo $js;
 }
@@ -283,21 +291,28 @@ function insert_javascript_includes()
 /*
  * Return the img tag that will added to enable editing a translatable
  * item on the page. 
- *
+ * param segement_id The id (number) identifying this segment. Needs to be
+         placed within the img tag for use on client side operation (jquery)
  */
-function get_img_tag($original, $translation, $is_translated = FALSE)
+function get_img_tag($original, $translation, $segment_id, $is_translated = FALSE)
 {
-    global $plugin_url, $lang;
-
+    global $plugin_url, $lang, $home_url;
+    $url = $home_url . '/index.php';
+    
     //For use in javascript, make the following changes: 
     //1. Add slashes to escape the inner text
     //2. Convert the html special characters
     //The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
     $translation = htmlspecialchars(addslashes($translation));
+    $original    = htmlspecialchars(addslashes($original));
 
-    if ($is_translated) $add_img="_fix";
-    $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\"  
-           onclick=\"translate_dialog('$original','$translation','$lang','$home_url'); return false;\" 
+    if ($is_translated)
+    {
+        $add_img = "_fix";
+    }
+
+    $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\" 
+           onclick=\"translate_dialog('$original','$translation','$lang','$url', '$segment_id'); return false;\" 
            onmouseover=\"hint('$original'); return true;\" 
            onmouseout=\"nd()\" />";
     
@@ -373,12 +388,10 @@ function update_translation()
     {
         logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
     }
-    
-    //encode text
-    $original = $wpdb->escape(htmlspecialchars(urldecode($original)));
 
-    //remove already escaped character to avoid double escaping 
-    $translation = $wpdb->escape(stripslashes(urldecode($translation)));
+    //Decode & remove already escaped character to avoid double escaping 
+    $original    = $wpdb->escape(stripslashes(urldecode($original)));
+    $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
         
     $update = "REPLACE INTO  $table_name (original, translated, lang)
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "')";
@@ -399,9 +412,9 @@ function update_translation()
     else
     {
         logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
+        header("HTTP/1.0 404 Failed to update language database");
     }
 
-    wp_redirect($ref);
     exit;
 }
 

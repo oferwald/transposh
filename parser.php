@@ -47,7 +47,8 @@ $tr_mark = 0;
 //Is the current use is in edit mode. 
 $is_edit_mode = FALSE;
 
-
+//Segment identifier within tags (span/img) mainly for use by js code on the client
+$segment_id = 0;
 
 /*
  * Parse the html page into tags, identify translateable string which
@@ -609,20 +610,57 @@ function translate_text($start)
         return;
     }
 
-    $is_translated = FALSE;
     $translated_text = fetch_translation($original_text);
-    if($translated_text != NULL)
-    {
-        logger("Translation: $original_text => $translated_text");
-        $translated_text = htmlspecialchars($translated_text);
-        update_translated_page($start, $end, $translated_text);
-		$is_translated = TRUE;
-    }
 
-    if($is_edit_mode)
+    insert_translation($original_text, $translated_text, $start, $end);
+}
+
+/*
+ * Update the translated page with the specified translation at the given position.
+ * param original_text Text in the original page. Will not be NULL.
+ * param translated_text The translated text, can be NULL in case no translation is available
+ * param start Marks the start position of the text to be replaced within the original page
+ * param end Marks the end position of the text to be replaced within the original page
+ */
+function insert_translation(&$original_text, &$translated_text, $start, $end)
+{
+    global $segment_id, $is_edit_mode, $tags_list;
+    
+    $is_translated = FALSE;
+
+    if(!$is_edit_mode || !in_array('body', $tags_list))
     {
-        $img = get_img_tag($original_text, $translated_text, $is_translated);
+        if($translated_text != NULL)
+        {
+            update_translated_page($start, $end, $translated_text);
+        }
+    }
+    else
+    {
+        $span = "<span id=\"" . SPAN_PREFIX . "$segment_id\">";
+         
+        if($translated_text == NULL)
+        {
+            $span .= $original_text . '</span>';
+        }
+        else
+        {
+            $span .= $translated_text . "</span>";
+            $is_translated = TRUE;
+        }
+        
+        //Insert text (either original or translated) marked by a <span>
+        update_translated_page($start, $end, $span);
+
+                
+        //Insert image to allow editing this segment
+        $img = get_img_tag($original_text, $translated_text, $segment_id, $is_translated);
         update_translated_page($end + 1, - 1, $img);
+
+        //Increment only after both text and image are generated so they
+        //will be the same for each translated segement
+        $segment_id++;
+        
     }
 
     logger("Exit " . __METHOD__  . " : $original_text" , 4);
@@ -645,10 +683,6 @@ function scrub_text(&$text)
 
     //replace multi space chars with a single space
     $text = preg_replace("/\s\s+/", " ", $text);
-
-    //Make that the string is encoded in the same way as it will
-    //decoded, when passed back for translation (i.e. post)
-    $text = htmlspecialchars($text);
 
     return $text;
 }
