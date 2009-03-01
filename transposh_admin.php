@@ -58,6 +58,9 @@ function transposh_admin_page()
     echo '<br/> <h3>Who can translate ?</h3>';
     insert_permissions();
 
+    echo '<br/> <h3>Rewrite URLs </h3>';
+    insert_permalink_rewrite_option();
+
     echo '<input type="hidden" name="transposh_admin_posted" value="1" />
           <p class="submit"><input type="submit" value="Save Changes" /></p>
           </form>
@@ -213,6 +216,27 @@ function insert_permissions()
             can_translate('anonymous') . '" /> Anonymous</input>';
 }
 
+
+/*
+ * Insert the option to enable/disable rewrite of perlmalinks.
+ * When disabled only parameters will be used to identify the current language.
+ *
+ */
+function insert_permalink_rewrite_option()
+{
+    $checked = "";
+    if(get_option(ENABLE_PERMALINKS_REWRITE))
+    {
+        $checked = 'checked';
+    }
+
+    echo '<input type="checkbox" value="1" name="enable_permalinks"'     .
+            $checked . '" /> Rewrite URLs to be search engine friendly,
+            e.g.  (http://wordpress.org/<strong> en</strong>). 
+            Requires that permalinks will be enabled. </input>';
+}
+
+
 /*
  * Indicates whether the given role can translate. 
  * Return either "checked" or "" 
@@ -293,6 +317,17 @@ function update_admin_options()
     update_option(VIEWABLE_LANGS, implode(',', $viewable_langs));
     update_option(EDITABLE_LANGS, implode(',', $editable_langs));
     update_option(DEFAULT_LANG,   $_POST['default_lang']);
+
+    if(get_option(ENABLE_PERMALINKS_REWRITE) != $_POST['enable_permalinks'])
+    {
+        global $wp_rewrite;
+        update_option(ENABLE_PERMALINKS_REWRITE, $_POST['enable_permalinks']);
+
+        //rewrite rules
+        add_filter('rewrite_rules_array', 'update_rewrite_rules');
+        $wp_rewrite->flush_rules();
+    }
+    
     
     echo '<div id="message"class="updated fade">';	
     echo ('<p> Changes saved</p>');			
