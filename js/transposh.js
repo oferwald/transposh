@@ -67,7 +67,7 @@ display_dialog(caption, dialog);
 // attach handler to form's submit event 
 $('#tr_form').submit(function() { 
         var translation = $('#tr_translation').val();
-        var query = 'original=' +  original +
+        var query = 'original=' +  escape(original) +
                     '&translation=' + translation +
                     '&lang=' + $('#tr_lang').val() +
                     '&translation_posted=1';
@@ -101,7 +101,7 @@ $('#tr_form').submit(function() {
                     
                     
                     //rewrite text
-                    $("#tr_" + segment_id).text(text_rewrite);
+                    $("#tr_" + segment_id).html(text_rewrite);
 
                     //rewrite image
                     $("#tr_img_" + segment_id).attr('src', img);
