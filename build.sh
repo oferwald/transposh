@@ -49,10 +49,16 @@ echo
 echo "Adding .php files (without logging)"
 
 for file in `find . -maxdepth 1 -iname '*.php' -printf "%p "`; do 
-    sed 's/logger.*;//' $file > $TRANSPOSH_DIR/$file
+    sed 's/logger.*;//;s/require_once("logging.*;//' $file > $TRANSPOSH_DIR/$file
     echo "added $file"
 done;
 echo
+
+#
+# Remove logging.php
+#
+
+rm $TMP_DIR/logging.php
 
 #
 #Generate zip file
