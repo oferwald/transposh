@@ -180,6 +180,12 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
 {
     global $home_url, $home_url_quoted;
 
+    if(!get_option(ENABLE_PERMALINKS_REWRITE))
+    {
+        //override the use only params - admin configured system to not touch permalinks
+        $use_params_only = TRUE;
+    }
+    
     if($is_edit)
     {
         $params = EDIT_PARAM . '=1&';
@@ -270,7 +276,7 @@ function fetch_translation($original)
  */
 function insert_javascript_includes()
 {
-    global $pos, $plugin_url, $home_url;
+    global $plugin_url;
     
     $overlib_dir = "$plugin_url/js/overlibmws";
     
@@ -508,6 +514,12 @@ function on_shutdown()
 function update_rewrite_rules($rules){
     logger("Enter update_rewrite_rules");
 
+    if(!get_option(ENABLE_PERMALINKS_REWRITE))
+    {
+        logger("Not touching rewrite rules - permalinks modification disabled by admin");
+        return $rule;
+    }
+    
     $newRules = array();
     $lang_prefix="([a-z]{2,2}(\-[a-z]{2,2})?)/";
 

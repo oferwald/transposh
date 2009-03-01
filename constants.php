@@ -81,4 +81,7 @@ define("IMG_PREFIX", "tr_img_");
 //Option defining transposh widget appearance
 define("WIDGET_TRANSPOSH", "widget_transposh");
 
+//Option to enable/disable rewrite of permalinks
+define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
+
 ?>
