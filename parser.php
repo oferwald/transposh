@@ -50,6 +50,9 @@ $is_edit_mode = FALSE;
 //Segment identifier within tags (span/img) mainly for use by js code on the client
 $segment_id = 0;
 
+//Is current position within the body tag
+$is_in_body = FALSE;
+
 /*
  * Parse the html page into tags, identify translateable string which
  * will be translated. 
@@ -60,8 +63,9 @@ function process_html()
 
     global $page, $tr_page, $pos, $tags_list, $lang;
     $no_translate = 0;
+    $page_length = strlen($page);
     
-    while($pos < strlen($page))
+    while($pos < $page_length)
     {
         //find beginning of next tag
         $pos = strpos($page, '<', $pos);
@@ -191,6 +195,11 @@ function process_tag_init(&$element, $start, $end)
         case 'html':
             process_html_tag($start, $end);
             break;
+        case 'body':
+            global $is_in_body;
+            $is_in_body = TRUE;
+            break;
+            
             
     }
     
@@ -359,20 +368,20 @@ function get_attribute(&$start, &$end, $id)
  */
 function process_current_tag()
 {
-    global $page, $pos, $tags_list;
+    global $page, $pos, $tags_list, $is_in_body;
 
     $current_tag = end($tags_list);
     
     logger("Enter " . __METHOD__  ." : $current_tag", 4);
 
-    //translate only specific elements - <a> or <div>
-    if($current_tag == 'a' || $current_tag == 'title' ||
-       array_search('div', $tags_list))
+    //translate only elements within the body or title
+    if($is_in_body || $current_tag == 'title')
     {
         skip_white_space();
         $start = $pos;
+        $page_length =  strlen($page);
 
-        while($pos < strlen($page) && $page[$pos] != '<')
+        while($pos < $page_length && $page[$pos] != '<')
         {
             //will break translation unit when one of the following characters is reached: ., 
             if(is_sentence_breaker($pos))
