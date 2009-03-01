@@ -270,7 +270,7 @@ function fetch_translation($original)
  */
 function insert_javascript_includes()
 {
-    global $pos, $plugin_url;
+    global $pos, $plugin_url, $home_url;
     
     $overlib_dir = "$plugin_url/js/overlibmws";
     
@@ -282,7 +282,7 @@ function insert_javascript_includes()
     $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
 
     $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>\n";
-    $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/jquery/jquery.js\"></script>\n";
+    $js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>\n";
 
     echo $js;
 }
