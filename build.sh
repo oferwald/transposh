@@ -49,24 +49,31 @@ echo
 echo "Adding .php files (without logging)"
 
 for file in `find . -maxdepth 1 -iname '*.php' -printf "%p "`; do 
-    sed 's/logger.*;//;s/require_once("logging.*;//' $file > $TRANSPOSH_DIR/$file
+    sed "s/logger.*;//;s/require_once(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
     echo "added $file"
 done;
 echo
 
 #
+#fixing version in readme.txt
+#
+sed "s/<%VERSION%>/$VERSION/;" readme.txt > $TRANSPOSH_DIR/readme.txt
+echo "fixing version in readme.txt to $VERSION"
+
+#
 # Remove logging.php
 #
 
-rm $TMP_DIR/logging.php
+rm $TRANSPOSH_DIR/logging.php
+echo "removed logging.php"
 
 #
 #Generate zip file
 # 
-cd $TMP_DIR
-zip -r "transposh.$VERSION.zip" .
-cd - >/dev/null
-mv "$TMP_DIR/transposh.$VERSION.zip" . 
+#cd $TMP_DIR
+#zip -r "transposh.$VERSION.zip" .
+#cd - >/dev/null
+#mv "$TMP_DIR/transposh.$VERSION.zip" . 
 
-echo
-echo "transposh.$VERSION.zip is ready"
+#echo
+#echo "transposh.$VERSION.zip is ready"

@@ -4,7 +4,7 @@ Donate link: http://transposh.org/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, RTL, Hebrew, Spanish, French, Russian, crowdsourcing, context, wiki
 Requires at least: 2.5
 Tested up to: 2.7.1
-Stable tag: 0.0.1
+Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
 
@@ -71,4 +71,8 @@ harnessed to get your message out to more people. Future versions will give more
 
 == Release notes ==
 
-09/02/28 - 0.0.1 - Initial release
+* 09/03/01 - 0.0.2
+ * Fixed bug with hard coded plugin path (thanks [Atomboy](http://politicalnewsblogs.com/))
+ * Support for AJAX replacement of content using jQuery 
+* 09/02/28 - 0.0.1
+ * Initial release

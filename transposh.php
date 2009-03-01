@@ -4,7 +4,7 @@
 	Plugin URI: http://transposh.org/#
 	Description: Translation filter for WordPress, After enabling please set languages at the <a href="options-general.php?page=Transposh">the options page</a> Want to help? visit our development site at <a href="http://trac.transposh.org/">trac.transposh.org</a>.
 	Author: Team Transposh
-	Version: 0.0.1
+	Version: <%VERSION%>
 	Author URI: http://transposh.org/
 	License: GPL (http://www.gnu.org/licenses/gpl.txt)
  */
