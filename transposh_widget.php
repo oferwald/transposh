@@ -101,13 +101,12 @@ function transposh_widget($args)
     $is_showing_languages = FALSE;
     
 	echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
-	echo "<span class=\"" . NO_TRANSLATE_CLASS . "\" >";
-    
+	    
 	switch ($options['style']) {
 		case 1: // flags
             //keep the flags in the same direction regardless of the overall page direction
-            echo "<div dir=rtl>"; 
-            
+            echo "<div style=\"text-align: left;\" class=\"" . NO_TRANSLATE_CLASS . "\" >"; 
+
             global $plugin_url;
             $using_permalinks = $wp_rewrite->using_permalinks();
             
@@ -130,7 +129,6 @@ function transposh_widget($args)
                     $is_showing_languages = TRUE;
 				}
 			}
-
             echo "</div>";
             
 			// this is the form for the edit...
@@ -140,6 +138,7 @@ function transposh_widget($args)
 		default: // language list
 
             echo "<form action=\"$page_url\" method=\"post\">";
+            echo "<span class=\"" . NO_TRANSLATE_CLASS . "\" >";
 			echo "<select name=\"lang\"	id=\"lang\" onchange=\"Javascript:this.form.submit();\">";
 			echo "<option value=\"none\">[Language]</option>";
 
@@ -152,11 +151,12 @@ function transposh_widget($args)
 				   ($is_translator && strstr($editable_langs, $code)))
 				{
 					$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
-					echo "<option value=\"$code\" $is_selected>" . no_translate($language) . "</option>";
+					echo "<option value=\"$code\" $is_selected>" . $language . "</option>";
                     $is_showing_languages = TRUE;
 				}
 			}
 			echo "</select><br/>";
+            echo "</span>"; // the no_translate for the language list
 	}
 
 
@@ -168,7 +168,7 @@ function transposh_widget($args)
         {
             echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
                 ($is_edit ? "checked=\"1\"" : "0") .
-                "\" onClick=\"this.form.submit();\"/>Edit Translation<br/>";
+                "\" onClick=\"this.form.submit();\"/>&nbsp;Edit Translation";
         }
         
         echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/>";
@@ -180,7 +180,6 @@ function transposh_widget($args)
     }
 
     echo "</form>";
-    echo "</span>"; // the no_translate for the widget
 
     echo $after_widget;
 }

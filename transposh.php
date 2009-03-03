@@ -277,7 +277,16 @@ function fetch_translation($original)
  */
 function insert_javascript_includes()
 {
-    global $plugin_url;
+    global $plugin_url, $is_edit_mode, $wp_query;
+
+    if (!($wp_query->query_vars[EDIT_PARAM] == "1" ||
+         $wp_query->query_vars[EDIT_PARAM] == "true"))
+    {
+        //check permission later - for now just make sure we don't load the
+        //js code when it is not needed
+        return;
+    }
+    
 
     $overlib_dir = "$plugin_url/js/overlibmws";
 
