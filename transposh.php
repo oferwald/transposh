@@ -290,6 +290,8 @@ function insert_javascript_includes()
 
     $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>\n";
     $js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>\n";
+    $js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>\n";
+    $js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>\n";
 
     echo $js;
 }
