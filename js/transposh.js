@@ -44,7 +44,17 @@ function hint(original)
     		TEXTFONTCLASS,'oltxtD',
     		AUTOSTATUS,WRAP);
 }
- 
+
+// fetch translation from google translate...
+function getgt(lang)
+{
+	google.language.translate($("#tr_original_unescaped").text(), "", lang, function(result) {
+		  if (!result.error) {
+		    $("#tr_translation").attr('value',result.translation);
+		  } 
+		});
+}
+
 //Open translation dialog 
 function translate_dialog(original, trans, lang, post_url, segment_id)
 {
@@ -59,7 +69,7 @@ var dialog = ''+
     '<input type="hidden" id="tr_original" name="original" value="' + escape(original) +'">' +
     '<input type="hidden" id="tr_lang" name="lang" value="'+lang+'">' +
     '<input type="hidden" name="translation_posted" value= "1">' +
-    '<p><input type="submit" value="Translate"><\/p>' +
+    '<p><input onclick="getgt(\''+lang+'\')" type="button" value="Get Suggestion!"/>&nbsp;<input type="submit" value="Translate"/><\/p>' +
     ('<\/div><\/form>');
 
 display_dialog(caption, dialog);
