@@ -277,7 +277,7 @@ function fetch_translation($original)
  */
 function insert_javascript_includes()
 {
-    global $plugin_url, $is_edit_mode, $wp_query;
+    global $plugin_url, $wp_query;
 
     if (!($wp_query->query_vars[EDIT_PARAM] == "1" ||
          $wp_query->query_vars[EDIT_PARAM] == "true"))
@@ -751,6 +751,23 @@ function plugin_loaded()
     }
 }
 
+/*
+ * Gets the plugin name to be used in activation/decativation hooks. 
+ * Keep only the file name and its containing directory. Don't use the full
+ * path as it will break when using symbollic links. 
+ */
+function get_plugin_name()
+{
+	$file = __FILE__;	
+	$file = str_replace('\\','/',$file); // sanitize for Win32 installs
+	$file = preg_replace('|/+|','/', $file); // remove any duplicate slash
+	
+	//keep only the file name and its parent directory
+	$file = preg_replace('/.*(\/[^\/]+\/[^\/]+)$/', '$1', $file);
+	logger("Plugin path $file", 3);
+	return $file;
+}
+
 //Register callbacks
 add_action('wp_head', 'add_custom_css');
 add_filter('query_vars', 'parameter_queryvars' );
@@ -759,6 +776,6 @@ add_action('init', 'on_init');
 add_action('shutdown', 'on_shutdown');
 
 add_action( 'plugins_loaded', 'plugin_loaded');
-add_action('activate_'.str_replace('\\','/',plugin_basename(__FILE__)),'plugin_activate');
-add_action('deactivate_'.str_replace('\\','/',plugin_basename(__FILE__)),'plugin_deactivate');
+register_activation_hook(get_plugin_name(), 'plugin_activate');
+register_deactivation_hook(get_plugin_name(),'plugin_deactivate');
 ?>
