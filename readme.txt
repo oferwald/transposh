@@ -71,8 +71,11 @@ harnessed to get your message out to more people. Future versions will give more
 
 == Release notes ==
 
-* 09/03/01 - 0.0.2
+* 2009/03/07 - 0.0.3
+ * Added ability to get suggestions from Google Translate
+ * Improved support for RSS feeds translation 
+* 2009/03/01 - 0.0.2
  * Fixed bug with hard coded plugin path (thanks [Atomboy](http://politicalnewsblogs.com/))
  * Support for AJAX replacement of content using jQuery 
-* 09/02/28 - 0.0.1
+* 2009/02/28 - 0.0.1
  * Initial release
