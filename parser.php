@@ -53,6 +53,9 @@ $segment_id = 0;
 //Is current position within the body tag
 $is_in_body = FALSE;
 
+//Is current position within the channel tag, i.e. RSS feed
+$is_in_channel = FALSE;
+
 /*
  * Parse the html page into tags, identify translateable string which
  * will be translated.
@@ -84,18 +87,16 @@ function process_html()
 			logger ("skipping element: $element");
 			//do nothing
 		}
+		else if($element == '![CDATA[')
+		{
+			process_cdata_section();
+		}
 		else
 		{
 			//Mark tag start position
 			$tag_start = $pos;
-
-			//skip to the '>' marking the end of the element
-			if ($element == "!") {
-				$pos = strpos($page, '[', $pos);
-			}else {
-				$pos = strpos($page, '>', $pos);
-			}
-
+			$pos = strpos($page, '>', $pos);
+			
 			//Mark tag end position
 			$tag_end = $pos;
 
@@ -195,19 +196,19 @@ function process_tag_init(&$element, $start, $end)
 			break;
 		case 'div' :
 		case 'span':
-			//case 'description':
-			//case 'content:encoded':
-			logger("in case : $element",1);
 			process_span_or_div_tag($element, $start, $end);
 			break;
-			case 'html':
-				process_html_tag($start, $end);
-				break;
-			case 'body':
-			case 'channel':
-				global $is_in_body;
-				$is_in_body = TRUE;
-				break;
+		case 'html':
+			process_html_tag($start, $end);
+			break;
+		case 'body':
+			global $is_in_body;
+			$is_in_body = TRUE;
+			break;
+		case 'channel':
+			global $is_in_channel;
+			$is_in_channel = TRUE;
+			break;	
 	}
 
 }
@@ -296,14 +297,20 @@ function get_element()
 
 	$start = $pos;
 
-	//keep scanning till the first white space or the '>' mark
-	// TODO - for CDATA, check '['
-	while($pos < strlen($page) && $page[$pos] != ' ' && $page[$pos] != '[' &&
-	$page[$pos] != '>' && $page[$pos] != '\t')
+	//check first for a character data section - treat it like an element
+	if(is_word('![CDATA['))
 	{
-		$pos++;
+		$pos += 8; //skip to end of ![CDATA[ 
 	}
-
+	else
+	{
+		//keep scanning till the first white space or the '>' mark
+		while($pos < strlen($page) && !is_white_space($pos)  &&	 $page[$pos] != '>')
+		{
+			$pos++;
+		}
+	}
+	
 	logger("Exit " . __METHOD__. ": $pos", 5);
 	return substr($page,$start, $pos - $start);
 }
@@ -376,33 +383,40 @@ function get_attribute(&$start, &$end, $id)
  */
 function process_current_tag()
 {
-	global $page, $pos, $tags_list, $is_in_body;
+	global $page, $pos;
+	
+	logger("Enter " . __METHOD__ , 4);
 
-	$current_tag = end($tags_list);
-
-	logger("Enter " . __METHOD__  ." : $current_tag", 4);
-
-	//translate only elements within the body or title
-	if($is_in_body || $current_tag == 'title')
+	//translate only known elements within the body or channel
+	if(is_translatable_section())
 	{
 		skip_white_space();
 		$start = $pos;
 		$page_length =  strlen($page);
-
+		
+		// Indicates if the html entity should break into a new translation segment. 
+		$is_breaker = FALSE;  
+		
 		while($pos < $page_length && $page[$pos] != '<')
 		{
 			//will break translation unit when one of the following characters is reached: .,
-			if(is_sentence_breaker($pos))
+			if(($end_of_entity = is_html_entity($pos, $is_breaker)))
+			{
+				//Check if should break - value has been set by the is_html_entity function
+				if($is_breaker)
+				{
+					translate_text($start);
+					$start = $end_of_entity;
+				}
+				
+				//skip past entity
+				$pos = $end_of_entity;
+			}
+			else if(is_sentence_breaker($pos))
 			{
 				translate_text($start);
 				$pos++;
 				$start = $pos;
-			}
-			else if(($end_of_entity = is_html_entity($pos)))
-			{
-				translate_text($start);
-				$pos++;
-				$start = $end_of_entity;
 			}
 			else
 			{
@@ -418,6 +432,71 @@ function process_current_tag()
 	logger("Exit" .  __METHOD__ . " : $current_tag" , 4);
 }
 
+
+/*
+ * Translate the content of a cdata section.  For now we only expect to handle it 
+ * within RSS feeds. 
+ */
+function process_cdata_section()
+{
+	global $page, $pos;
+	
+	logger("Enter " . __METHOD__  , 4);
+
+	//translate only known elements within rss feeds
+	if(is_translatable_section())
+	{
+		skip_white_space();
+		$start = $pos;
+		$page_length =  strlen($page);
+		
+		while($pos < $page_length && !is_word(']]>'))
+		{
+			//will break translation unit when one of the following characters is reached: .,
+			if(is_sentence_breaker($pos) ||
+			   $page[$pos] == '<' || $page[$pos] == '>')  //only in cdata the < > are valid breakers as well
+			{
+				translate_text($start);
+				$pos++;
+				$start = $pos;
+			}
+			else
+			{
+				$pos++;
+			}
+		}
+
+		if($pos > $start)
+		{
+			translate_text($start);
+		}
+	}
+	logger("Exit " .  __METHOD__ , 4);
+}
+
+/**
+ * Determines position in page marks a transaltable tag in html page or rss feed section.
+ * Return TRUE if should be translated otherwise FALSE.  
+ */
+function is_translatable_section()
+{
+	global $tags_list, $is_in_channel, $is_in_body;
+	$rc = FALSE;
+	$current_tag = end($tags_list);
+	
+	if($is_in_body || $current_tag == 'title')
+	{
+		$rc = TRUE;
+	}
+	else if($is_in_channel &&
+	        ($current_tag == 'title' || $current_tag == 'description' || $current_tag == 'category'))
+	{
+		$rc = TRUE;
+	}
+
+	logger("Exit " . __METHOD__ . " $current_tag, translate: " . ($rc ? "yes" : "no"), 4);
+	return $rc;   
+}
 
 /*
  * Determine if the current position in buffer is a sentence breaker, e.g. '.' or ',' .
@@ -439,10 +518,13 @@ function is_sentence_breaker($position)
 		}
 	}
 	else if($page[$position] == ',' || $page[$position] == '?' ||
-	$page[$position] == '(' || $page[$position] == ')' ||
-	$page[$position] == '[' || $page[$position] == ']' ||
-	$page[$position] == '"' || $page[$position] == '!' ||
-	$page[$position] == ':' || $page[$position] == '|')
+		    $page[$position] == '(' || $page[$position] == ')' ||
+		    $page[$position] == '[' || $page[$position] == ']' ||
+			$page[$position] == '"' || $page[$position] == '!' ||
+			$page[$position] == ':' || $page[$position] == '|' ||
+			$page[$position] == ';' ||
+			//break on numbers but not like: 3rd, 4th
+			(is_digit($position) && !is_a_to_z_character($position+1))) 
 	{
 		//break the sentence into segments regardless of the next character.
 		$rc = TRUE;
@@ -454,13 +536,14 @@ function is_sentence_breaker($position)
 /*
  * Determines if the current position marks the begining of an html
  * entity. E.g &amp;
- * Return 0 if not an html entity otherwise return the position past this
- *          entity.
+ * Return 0 if not an html entity otherwise return the position past this entity. In addition 
+ *        the $is_breaker will be set to TRUE if entity should break translation into a new segment.
  *
  */
-function is_html_entity($position)
+function is_html_entity($position, &$is_breaker)
 {
 	global $page;
+	$is_breaker = FALSE;
 	if($page[$position] == "&" )
 	{
 		$end_pos = $position + 1;
@@ -477,9 +560,9 @@ function is_html_entity($position)
 
 			//Don't break on ` so for our use we don't consider it an entity
 			//e.g. Jack`s apple
-			if($entity ==  "&#8217;" || $entity == "&apos;")
+			if(!($entity ==  "&#8217;" || $entity == "&apos;" || $entity == "&#039;"))
 			{
-				return 0;
+				$is_breaker = TRUE;
 			}
 
 			//It is an html entity.
@@ -592,6 +675,52 @@ function skip_white_space(&$index, $forward=TRUE)
 
 	return $index;
 }
+
+
+/*
+ * Check within page buffer position for the given word.
+ * param word The word to look for.
+ * param index1 Optional position within the page buffer, if not available then the current 
+ *              position ($pos) is used.  
+ * Return TRUE if the word matches otherwise FALSE
+ */
+function is_word($word, $index1)
+{
+	global $page, $pos;
+	$rc = FALSE;
+	
+	if(!isset($index1))
+	{
+		//use $pos as the default position if not specified otherwise
+		$index1 = $pos;
+	}
+	
+	$index2 = 0; //position within word
+	$word_len =   strlen($word);
+	$page_length =  strlen($page);
+	
+	while($index1 < $page_length && $index2 < $word_len)
+	{
+		if($page[$index1] == $word[$index2])
+		{
+			$index1++;
+			$index2++;
+		}
+		else
+		{
+			break;
+		}
+	}
+	
+	//check if we have full match
+	if($index2 == $word_len)
+	{
+		$rc = TRUE;
+	}
+	
+	return $rc;
+}
+
 
 /**
  * Translate the text between the given start position and the current
