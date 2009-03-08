@@ -763,7 +763,7 @@ function get_plugin_name()
 	$file = preg_replace('|/+|','/', $file); // remove any duplicate slash
 	
 	//keep only the file name and its parent directory
-	$file = preg_replace('/.*(\/[^\/]+\/[^\/]+)$/', '$1', $file);
+	$file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
 	logger("Plugin path $file", 3);
 	return $file;
 }
