@@ -67,6 +67,10 @@ echo "fixing version in readme.txt to $VERSION"
 rm $TRANSPOSH_DIR/logging.php
 echo "removed logging.php"
 
+# Remove .svn dirs
+find tmp -name "*.svn*" -exec rm -rf {} \;
+echo "removed .svn dirs"
+
 #
 #Generate zip file
 # 
