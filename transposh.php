@@ -41,7 +41,7 @@ define("TRANSLATIONS_TABLE", "translations");
 define("TRANSLATIONS_LOG", "translations_log");
 
 //Database version
-define("DB_VERSION", "1.0");
+define("DB_VERSION", "1.01");
 
 //Constant used as key in options database
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
@@ -286,7 +286,7 @@ function insert_javascript_includes()
         //js code when it is not needed
         return;
     }
-    
+
 
     $overlib_dir = "$plugin_url/js/overlibmws";
 
@@ -587,44 +587,47 @@ function parameter_queryvars($qvars)
  */
 function setup_db()
 {
-
-    global $wpdb;
+    logger("Enter " . __METHOD__  );
+	global $wpdb;
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+    $installed_ver = get_option(TRANSPOSH_DB_VERSION);
 
-    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
-    {
+    if( $installed_ver != DB_VERSION ) {
+  		$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+
+    //if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
+    //{
         logger("Attempting to create table $table_name", 0);
-        $sql = "CREATE TABLE " . $table_name . " (original VARCHAR(256) NOT NULL,
-                                                  lang CHAR(5) NOT NULL,
-                                                  translated VARCHAR(256),
-                                                  PRIMARY KEY (original, lang)) ";
+        $sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,
+				lang CHAR(5) NOT NULL,
+				translated VARCHAR(256),
+				source TINYINT NOT NULL,
+				PRIMARY KEY (original, lang)) ";
 
 
         dbDelta($sql);
 
         //Verify that newly created table is ready for use.
-        $insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
-        "VALUES ('Hello','Hi There','zz')";
+        //$insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
+        //"VALUES ('Hello','Hi There','zz')";
 
-        $result = $wpdb->query($insert);
+        //$result = $wpdb->query($insert);
 
-        if($result === FALSE)
-        {
-            logger("Error failed to create $table_name !!!", 0);
-        }
-        else
-        {
-            logger("Table $table_name was created successfuly", 0);
-            add_option(TRANSPOSH_DB_VERSION, DB_VERSION);
-        }
-    }
+        //if($result === FALSE)
+        //{
+            //logger("Error failed to create $table_name !!!", 0);
+        //}
+        //else
+        //{
+		// logger("Table $table_name was created successfuly", 0);
+        //}
+    //}
 
-    $table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+    	$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
 
-    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
-    {
+    //if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
+    //{
         logger("Attempting to create table $table_name", 0);
         $sql = "CREATE TABLE " . $table_name . " (original VARCHAR(256) NOT NULL,
                                                   lang CHAR(5) NOT NULL,
@@ -635,6 +638,8 @@ function setup_db()
 
 
         dbDelta($sql);
+        // TODO: check
+		update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
     }
 
     logger("Exit " . __METHOD__  );
@@ -730,6 +735,19 @@ function plugin_loaded()
     global $admin_msg;
     logger("Enter " . __METHOD__, 3);
 
+    $db_version = get_option(TRANSPOSH_DB_VERSION);
+
+    if ($db_version != DB_VERSION)
+    {
+    	setup_db();
+        //$admin_msg = "Translation database version ($db_version) is not comptabile with this plugin (". DB_VERSION . ")  <br>";
+
+        logger("Updating database in plugin loaded", 0);
+        //Some error occured - notify admin and deactivate plugin
+        //add_action('admin_notices', 'plugin_install_error');
+    }
+
+    // TODO: This is wrong? and also deactivation fails
     if (get_option(TRANSPOSH_DB_VERSION) == NULL)
     {
         $admin_msg = "Failed to locate the translation table  <em> " . TRANSLATIONS_TABLE . "</em> in local database. <br>";
@@ -739,29 +757,19 @@ function plugin_loaded()
         add_action('admin_notices', 'plugin_install_error');
     }
 
-    $db_version = get_option(TRANSPOSH_DB_VERSION);
-
-    if ($db_version != DB_VERSION)
-    {
-        $admin_msg = "Translation database version ($db_version) is not comptabile with this plugin (". DB_VERSION . ")  <br>";
-
-        logger("Messsage to admin: $admin_msg", 0);
-        //Some error occured - notify admin and deactivate plugin
-        add_action('admin_notices', 'plugin_install_error');
-    }
 }
 
 /*
- * Gets the plugin name to be used in activation/decativation hooks. 
+ * Gets the plugin name to be used in activation/decativation hooks.
  * Keep only the file name and its containing directory. Don't use the full
- * path as it will break when using symbollic links. 
+ * path as it will break when using symbollic links.
  */
 function get_plugin_name()
 {
-	$file = __FILE__;	
+	$file = __FILE__;
 	$file = str_replace('\\','/',$file); // sanitize for Win32 installs
 	$file = preg_replace('|/+|','/', $file); // remove any duplicate slash
-	
+
 	//keep only the file name and its parent directory
 	$file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
 	logger("Plugin path $file", 3);
