@@ -29,30 +29,49 @@ define("ENABLE_APC", TRUE);
 define("NO_TRANSLATE_CLASS", "no_translate");
 
 //Supported languages, new languages can be added here
+//the array directs from language code to - Native name, flag
 $languages = array("en" => "English,us",
+				   "sq" => "Shqip,al",
                    "ar" => "العربية,sa",
                    "bg" => "Български,bg",
-                   "zh" => "汉字,cn",
-                   "hr" => "Hrvatski,hr",
+					"ca" => "Català", // flag ?
+					"zh" => "中文(简体),cn",
+                   "zh-tw" => "中文(漢字),tw",
+				   "hr" => "Hrvatski,hr",
                    "cs" => "čeština,cz",
-                   "nl" => "Nederlands,nl",
-                   "fi" => "Suomi,fi",
+    				"da" => "dansk,dk",
+					"nl" => "Nederlands,nl",
+    				"et" => "Eesti keel,ee",
+    				"fi" => "Suomi,fi",
                    "fr" => "Français,fr",
-                   "de" => "Deutsch,de",
+    				"ga" => "Galego", //flag ?
+    				"de" => "Deutsch,de",
                    "el" => "Ελληνικά,gr",
                    "he" => "עברית,il",
-                   "hu" => "magyar,hu",
-                   "it" => "Italiano,it",
-                   "ko" => "우리말,kr",
-                   "pl" => "Polski,pl",
+    				"hi" => "हिन्दी; हिंदी,in",
+    				"hu" => "magyar,hu",
+    				"id" => "Bahasa Indonesia,id",
+    				"it" => "Italiano,it",
+    				"ja" => "日本語 (にほんご／にっぽんご),jp",
+    				"ko" => "우리말,kr",
+    				"lv" => "latviešu valoda,lv",
+    				"lt" => "lietuvių kalba,lt",
+    				"mt" => "Malti,mt",
+    				"no" => "Norsk,no",
+    				"pl" => "Polski,pl",
                    "pt" => "Português,pt",
                    "ro" => "Română,ro",
                    "ru" => "Русский,ru",
-                   "es" => "Español,es",
+    				"sr" => "српски језик,rs",
+    				"sk" => "slovenčina,sk",
+    				"sl" => "slovenščina,sl",
+    				"es" => "Español,es",
                    "sv" => "svenska,se",
-                   "th" => "ภาษาไทย,th",
-                   "tr" => "Türkçe,tr");
-
+    				"tl" => "Tagalog,ph",
+    				"th" => "ภาษาไทย,th",
+                   "tr" => "Türkçe,tr",
+    				"uk" => "Українська,ua",
+    				"vi" => "Tiếng Việt,vi");
 
 //Language which are read from right to left (rtl)
 $rtl_languages =  array("ar", "he");
@@ -69,6 +88,12 @@ define("VIEWABLE_LANGS", "transposh_viewable_languages");
 //Option defining the list of currentlly editable languages
 define("EDITABLE_LANGS", "transposh_editable_languages");
 
+//Option to enable/disable rewrite of permalinks
+define("ENABLE_AUTO_TRANSLATE", "transposh_enable_autotranslate");
+
+//Option to enable/disable rewrite of permalinks
+define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
+
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
 
@@ -81,6 +106,4 @@ define("SPAN_PREFIX", "tr_");
 //Define segment id prefix, will be included in img tag.
 define("IMG_PREFIX", "tr_img_");
 
-//Option to enable/disable rewrite of permalinks
-define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
 ?>
