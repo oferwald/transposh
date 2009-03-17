@@ -60,7 +60,7 @@ $rtl_languages =  array("ar", "he");
 //Define the new capability that will be assigned to roles - translator
 define("TRANLSLATOR", 'translator');
 
-//Option defining whether anonymous translation is allowed. 
+//Option defining whether anonymous translation is allowed.
 define("ANONYMOUS_TRANSLATION", "transposh_allow_anonymous_translation");
 
 //Option defining the list of currentlly viewable languages
@@ -72,16 +72,15 @@ define("EDITABLE_LANGS", "transposh_editable_languages");
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
 
-//Define segment id prefix, will be included in span tag.
+//Option defining transposh widget appearance
+define("WIDGET_TRANSPOSH", "transposh_widget");
+
+//Define segment id prefix, will be included in span tag. also used as class identifier
 define("SPAN_PREFIX", "tr_");
 
 //Define segment id prefix, will be included in img tag.
 define("IMG_PREFIX", "tr_img_");
 
-//Option defining transposh widget appearance
-define("WIDGET_TRANSPOSH", "widget_transposh");
-
 //Option to enable/disable rewrite of permalinks
 define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
-
 ?>

@@ -41,7 +41,7 @@ define("TRANSLATIONS_TABLE", "translations");
 define("TRANSLATIONS_LOG", "translations_log");
 
 //Database version
-define("DB_VERSION", "1.01");
+define("DB_VERSION", "1.02");
 
 //Constant used as key in options database
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
@@ -220,6 +220,7 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
 /*
  * Fetch translation from db or cache.
  * Returns the translated string or NULL if not available.
+ * TODO: // will an array work?
  */
 function fetch_translation($original)
 {
@@ -229,7 +230,7 @@ function fetch_translation($original)
     logger("Enter " . __METHOD__ . ": $original", 4);
     if(ENABLE_APC && function_exists('apc_fetch'))
     {
-        $cached = apc_fetch($original . $lang, $rc);
+        $cached = apc_fetch($original .'___'. $lang, $rc);
         if($rc === TRUE)
         {
     		logger("Exit from cache " . __METHOD__ . ": $cached", 4);
@@ -242,10 +243,10 @@ function fetch_translation($original)
 
     if($row !== FALSE)
     {
-        $translated = $row->translated;
-        $translated = stripslashes($translated);
+        $translated_text = stripslashes($row->translated);
+        $translated = array($translated_text, $row->source);
 
-        logger("db result for $original >>> $translated ($lang)" , 3);
+        logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 3);
     }
 
 
@@ -259,7 +260,7 @@ function fetch_translation($original)
         }
 
         //update cache
-        $rc = apc_store($original . $lang, $cache_entry, 3600);
+        $rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
         if($rc === TRUE)
         {
             logger("Stored in cache: $original => $translated", 3);
@@ -297,10 +298,13 @@ function insert_javascript_includes()
     $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_scroll.js\"></script>";
     $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
 
-    $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>\n";
-    $js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>\n";
-    $js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>\n";
-    $js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>\n";
+    $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
+    $js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
+    $js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>";
+    global $lang, $home_url;
+    $post_url = $home_url . '/index.php';
+    $js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';$(document).ready(function() {do_auto_translate();});</script>";
 
     echo $js;
 }
@@ -312,7 +316,7 @@ function insert_javascript_includes()
  * param segement_id The id (number) identifying this segment. Needs to be
          placed within the img tag for use on client side operation (jquery)
  */
-function get_img_tag($original, $translation, $segment_id, $is_translated = FALSE)
+function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
 {
     global $plugin_url, $lang, $home_url;
     $url = $home_url . '/index.php';
@@ -329,8 +333,12 @@ function get_img_tag($original, $translation, $segment_id, $is_translated = FALS
         $add_img = "_fix";
     }
 
+    if ($source == 1) {
+        $add_img = "_auto";
+    }
+
     $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\"
-           onclick=\"translate_dialog('$original','$translation','$lang','$url', '$segment_id'); return false;\"
+           onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\"
            onmouseover=\"hint('$original'); return true;\"
            onmouseout=\"nd()\" />";
 
@@ -394,11 +402,11 @@ function update_translation()
     $original = $_POST['original'];
     $translation = $_POST['translation'];
     $lang = $_POST['lang'];
+    $source = $_POST['source'];
 
     if(!isset($original) || !isset($translation) || !isset($lang))
     {
-        logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," .
-               $ref, 0);
+        logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
         return;
     }
 
@@ -412,19 +420,21 @@ function update_translation()
     $original    = $wpdb->escape(stripslashes(urldecode($original)));
     $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
 
-    $update = "REPLACE INTO  $table_name (original, translated, lang)
-                VALUES ('" . $original . "','" . $translation . "','" . $lang . "')";
+    //TODO: Check more escaping...
+
+    $update = "REPLACE INTO  $table_name (original, translated, lang, source)
+                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
 
     $result = $wpdb->query($update);
 
     if($result !== FALSE)
     {
-        update_transaction_log($original, $translation, $lang);
+        update_transaction_log($original, $translation, $lang, $source);
 
         //Delete entry from cache
         if(ENABLE_APC && function_exists('apc_store'))
         {
-            apc_delete($original . $lang);
+            apc_delete($original .'___'. $lang);
         }
         logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
     }
@@ -442,7 +452,7 @@ function update_translation()
  * Update the transaction log
  *
  */
-function update_transaction_log(&$original, &$translation, &$lang)
+function update_transaction_log(&$original, &$translation, &$lang, $source)
 {
 	global $wpdb, $user_ID;
 	get_currentuserinfo();
@@ -457,18 +467,16 @@ function update_transaction_log(&$original, &$translation, &$lang)
 		$loguser = $user_ID;
 	}
 
-    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by)
-                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."')";
+    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source)
+                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')";
 
     $result = $wpdb->query($log);
 
     if($result === FALSE)
     {
-        logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang" , 0);
+        logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang, $source" , 0);
     }
-
 }
-
 
 /*
  * Gets the default language setting, i.e. the source language which
@@ -509,7 +517,6 @@ function on_init()
     }
 }
 
-
 /*
  * Page generation completed - flush buffer.
  */
@@ -517,7 +524,6 @@ function on_shutdown()
 {
     ob_flush();
 }
-
 
 /*
  * Update the url rewrite rules to include language identifier
@@ -580,7 +586,6 @@ function parameter_queryvars($qvars)
     return $qvars;
 }
 
-
 /*
  * Setup the translation database.
  *
@@ -608,6 +613,7 @@ function setup_db()
 
         dbDelta($sql);
 
+		// TODO: remove this?
         //Verify that newly created table is ready for use.
         //$insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
         //"VALUES ('Hello','Hi There','zz')";
@@ -633,6 +639,7 @@ function setup_db()
                                                   lang CHAR(5) NOT NULL,
                                                   translated VARCHAR(256),
                                                   translated_by VARCHAR(15),
+                                                  source TINYINT NOT NULL,
                                                   timestamp TIMESTAMP,
                                                   PRIMARY KEY (original, lang, timestamp)) ";
 
