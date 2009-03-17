@@ -35,13 +35,13 @@ function init_transposh()
 		logger("Enter " . __METHOD__, 4);
 
 		global $wp_rewrite;
-        
+
 		$ref=getenv('HTTP_REFERER');
 		$lang = $_POST[LANG_PARAM];
 
-        //remove existing language settings. 
+        //remove existing language settings.
         $ref = cleanup_url($ref);
-        
+
 		if($lang != "none")
 		{
 			$use_params_only = !$wp_rewrite->using_permalinks();
@@ -99,30 +99,30 @@ function transposh_widget($args)
 	$is_translator = is_translator();
 
     $is_showing_languages = FALSE;
-    
+
 	echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
-	    
+
 	switch ($options['style']) {
 		case 1: // flags
             //keep the flags in the same direction regardless of the overall page direction
-            echo "<div style=\"text-align: left;\" class=\"" . NO_TRANSLATE_CLASS . "\" >"; 
+            echo "<div style=\"text-align: left;\" class=\"" . NO_TRANSLATE_CLASS . "\" >";
 
             global $plugin_url;
             $using_permalinks = $wp_rewrite->using_permalinks();
-            
+
 			foreach($languages as $code => $lang2)
 			{
 				list($language,$flag) = explode (",",$lang2);
 
-                //remove any language identifier 
+                //remove any language identifier
                 $page_url = cleanup_url($page_url);
-                
+
 				//Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
 				   ($is_translator && strstr($editable_langs, $code)))
 				{
 					$page_url = rewrite_url_lang_param($page_url, $code, $is_edit, !$using_permalinks);
-                    
+
 					echo "<a href=\"" . $page_url . "\">
                          <img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"
                          style=\"padding: 1px 3px\"/></a>";
@@ -130,7 +130,7 @@ function transposh_widget($args)
 				}
 			}
             echo "</div>";
-            
+
 			// this is the form for the edit...
 			echo "<form action=\"$page_url\" method=\"post\">";
 			echo "<input type=\"hidden\" name=\"lang\"	id=\"lang\" value=\"$lang\"/>";
@@ -138,7 +138,7 @@ function transposh_widget($args)
 		default: // language list
 
             echo "<form action=\"$page_url\" method=\"post\">";
-            echo "<span class=\"" . NO_TRANSLATE_CLASS . "\" >";
+            echo "<span class=\"" .NO_TRANSLATE_CLASS . "\" >";
 			echo "<select name=\"lang\"	id=\"lang\" onchange=\"Javascript:this.form.submit();\">";
 			echo "<option value=\"none\">[Language]</option>";
 
@@ -170,7 +170,7 @@ function transposh_widget($args)
                 ($is_edit ? "checked=\"1\"" : "0") .
                 "\" onClick=\"this.form.submit();\"/>&nbsp;Edit Translation";
         }
-        
+
         echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/>";
     }
     else
@@ -180,29 +180,29 @@ function transposh_widget($args)
     }
 
     echo "</form>";
+    echo "<button onClick=\"do_auto_translate();\">translate all</button>";
 
     echo $after_widget;
 }
 
-
 /*
- *Remove from url any language (or editing) params that were added for our use.
- *Return the scrubed url
+ * Remove from url any language (or editing) params that were added for our use.
+ * Return the scrubed url
  */
 function cleanup_url($url)
 {
     global $home_url, $home_url_quoted;
-    
+
     //cleanup previous lang & edit parameter from url
     $url = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $url);
-    
-    
+
+
     if(!$home_url)
     {
         //make sure required home urls are fetched - as they are need now
         init_global_vars();
     }
-    
+
     //cleanup lang identifier in permalinks
     $url = preg_replace("/$home_url_quoted\/(..\/)/", "$home_url/",  $url);
 
@@ -244,16 +244,14 @@ function transposh_widget_control()
         'value="0">Language list</option>';
     echo '<option ' . ($style == 1 ? 'selected="selected"' : '') .
         'value="1">Flags</option>';
-    
+
     echo '</select></label></p>
           <input type="hidden" name="transposh-submit" id="transposh-submit" value="1" />';
-    
-}
 
+}
 
 //Register callback for WordPress events
 add_action('init', 'init_transposh',0);
 add_action('widgets_init', 'transposh_widget_init');
-
 
 ?>

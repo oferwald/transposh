@@ -96,7 +96,7 @@ function process_html()
 			//Mark tag start position
 			$tag_start = $pos;
 			$pos = strpos($page, '>', $pos);
-			
+
 			//Mark tag end position
 			$tag_end = $pos;
 
@@ -156,7 +156,6 @@ function process_html()
 	logger("Exit " . __METHOD__, 4);
 }
 
-
 /*
  * Determine if the specified element should be skipped. If so the position
  * is moved past end of tag.
@@ -208,11 +207,10 @@ function process_tag_init(&$element, $start, $end)
 		case 'channel':
 			global $is_in_channel;
 			$is_in_channel = TRUE;
-			break;	
+			break;
 	}
 
 }
-
 
 /*
  * Handle span tags. Looks for 'no_tranlate' identifier that will disable
@@ -238,7 +236,6 @@ function process_span_or_div_tag(&$element, $start, $end)
 	//Mark the element as not translatable
 	$element .= "." . NO_TRANSLATE_CLASS;
 }
-
 
 /*
  * Process html tag. Set the direction for rtl languages.
@@ -300,7 +297,7 @@ function get_element()
 	//check first for a character data section - treat it like an element
 	if(is_word('![CDATA['))
 	{
-		$pos += 8; //skip to end of ![CDATA[ 
+		$pos += 8; //skip to end of ![CDATA[
 	}
 	else
 	{
@@ -310,7 +307,7 @@ function get_element()
 			$pos++;
 		}
 	}
-	
+
 	logger("Exit " . __METHOD__. ": $pos", 5);
 	return substr($page,$start, $pos - $start);
 }
@@ -384,7 +381,7 @@ function get_attribute(&$start, &$end, $id)
 function process_current_tag()
 {
 	global $page, $pos;
-	
+
 	logger("Enter " . __METHOD__ , 4);
 
 	//translate only known elements within the body or channel
@@ -393,10 +390,10 @@ function process_current_tag()
 		skip_white_space();
 		$start = $pos;
 		$page_length =  strlen($page);
-		
-		// Indicates if the html entity should break into a new translation segment. 
-		$is_breaker = FALSE;  
-		
+
+		// Indicates if the html entity should break into a new translation segment.
+		$is_breaker = FALSE;
+
 		while($pos < $page_length && $page[$pos] != '<')
 		{
 			//will break translation unit when one of the following characters is reached: .,
@@ -408,7 +405,7 @@ function process_current_tag()
 					translate_text($start);
 					$start = $end_of_entity;
 				}
-				
+
 				//skip past entity
 				$pos = $end_of_entity;
 			}
@@ -432,15 +429,14 @@ function process_current_tag()
 	logger("Exit" .  __METHOD__ . " : $current_tag" , 4);
 }
 
-
 /*
- * Translate the content of a cdata section.  For now we only expect to handle it 
- * within RSS feeds. 
+ * Translate the content of a cdata section.  For now we only expect to handle it
+ * within RSS feeds.
  */
 function process_cdata_section()
 {
 	global $page, $pos;
-	
+
 	logger("Enter " . __METHOD__  , 4);
 
 	//translate only known elements within rss feeds
@@ -449,7 +445,7 @@ function process_cdata_section()
 		skip_white_space();
 		$start = $pos;
 		$page_length =  strlen($page);
-		
+
 		while($pos < $page_length && !is_word(']]>'))
 		{
 			//will break translation unit when one of the following characters is reached: .,
@@ -476,14 +472,14 @@ function process_cdata_section()
 
 /**
  * Determines position in page marks a transaltable tag in html page or rss feed section.
- * Return TRUE if should be translated otherwise FALSE.  
+ * Return TRUE if should be translated otherwise FALSE.
  */
 function is_translatable_section()
 {
 	global $tags_list, $is_in_channel, $is_in_body;
 	$rc = FALSE;
 	$current_tag = end($tags_list);
-	
+
 	if($is_in_body || $current_tag == 'title')
 	{
 		$rc = TRUE;
@@ -495,7 +491,7 @@ function is_translatable_section()
 	}
 
 	logger("Exit " . __METHOD__ . " $current_tag, translate: " . ($rc ? "yes" : "no"), 4);
-	return $rc;   
+	return $rc;
 }
 
 /*
@@ -524,7 +520,7 @@ function is_sentence_breaker($position)
 			$page[$position] == ':' || $page[$position] == '|' ||
 			$page[$position] == ';' ||
 			//break on numbers but not like: 3rd, 4th
-			(is_digit($position) && !is_a_to_z_character($position+1))) 
+			(is_digit($position) && !is_a_to_z_character($position+1)))
 	{
 		//break the sentence into segments regardless of the next character.
 		$rc = TRUE;
@@ -536,7 +532,7 @@ function is_sentence_breaker($position)
 /*
  * Determines if the current position marks the begining of an html
  * entity. E.g &amp;
- * Return 0 if not an html entity otherwise return the position past this entity. In addition 
+ * Return 0 if not an html entity otherwise return the position past this entity. In addition
  *        the $is_breaker will be set to TRUE if entity should break translation into a new segment.
  *
  */
@@ -676,29 +672,28 @@ function skip_white_space(&$index, $forward=TRUE)
 	return $index;
 }
 
-
 /*
  * Check within page buffer position for the given word.
  * param word The word to look for.
- * param index1 Optional position within the page buffer, if not available then the current 
- *              position ($pos) is used.  
+ * param index1 Optional position within the page buffer, if not available then the current
+ *              position ($pos) is used.
  * Return TRUE if the word matches otherwise FALSE
  */
 function is_word($word, $index1)
 {
 	global $page, $pos;
 	$rc = FALSE;
-	
+
 	if(!isset($index1))
 	{
 		//use $pos as the default position if not specified otherwise
 		$index1 = $pos;
 	}
-	
+
 	$index2 = 0; //position within word
 	$word_len =   strlen($word);
 	$page_length =  strlen($page);
-	
+
 	while($index1 < $page_length && $index2 < $word_len)
 	{
 		if($page[$index1] == $word[$index2])
@@ -711,18 +706,17 @@ function is_word($word, $index1)
 			break;
 		}
 	}
-	
+
 	//check if we have full match
 	if($index2 == $word_len)
 	{
 		$rc = TRUE;
 	}
-	
+
 	return $rc;
 }
 
-
-/**
+/*
  * Translate the text between the given start position and the current
  * position (pos) within the buffer.
  */
@@ -756,9 +750,9 @@ function translate_text($start)
 		return;
 	}
 
-	$translated_text = fetch_translation($original_text);
+	list($translated_text, $source) = fetch_translation($original_text);
 
-	insert_translation($original_text, $translated_text, $start, $end);
+	insert_translation($original_text, $translated_text, $source, $start, $end);
 }
 
 /*
@@ -768,7 +762,7 @@ function translate_text($start)
  * param start Marks the start position of the text to be replaced within the original page
  * param end Marks the end position of the text to be replaced within the original page
  */
-function insert_translation(&$original_text, &$translated_text, $start, $end)
+function insert_translation(&$original_text, &$translated_text, $source, $start, $end)
 {
 	global $segment_id, $is_edit_mode, $tags_list;
 
@@ -783,14 +777,18 @@ function insert_translation(&$original_text, &$translated_text, $start, $end)
 	}
 	else
 	{
-		$span = "<span id=\"" . SPAN_PREFIX . "$segment_id\">";
+		$span_prefix = SPAN_PREFIX;
+		// We will mark translated text with tr_t class and untranslated with tr_u
+		$span = "<span class=\"$span_prefix";
 
 		if($translated_text == NULL)
 		{
+			$span .= "u\" id=\"{$span_prefix}{$segment_id}\">";
 			$span .= $original_text . '</span>';
 		}
 		else
 		{
+			$span .= "t\" id=\"{$span_prefix}{$segment_id}\">";
 			$span .= $translated_text . "</span>";
 			$is_translated = TRUE;
 		}
@@ -800,7 +798,7 @@ function insert_translation(&$original_text, &$translated_text, $start, $end)
 
 
 		//Insert image to allow editing this segment
-		$img = get_img_tag($original_text, $translated_text, $segment_id, $is_translated);
+		$img = get_img_tag($original_text, $translated_text, $source, $segment_id, $is_translated);
 		update_translated_page($end + 1, - 1, $img);
 
 		//Increment only after both text and image are generated so they
@@ -811,7 +809,6 @@ function insert_translation(&$original_text, &$translated_text, $start, $end)
 
 	logger("Exit " . __METHOD__  . " : $original_text" , 4);
 }
-
 
 /*
  * Scrubs text prior to translation to remove/encode special
@@ -832,7 +829,6 @@ function scrub_text(&$text)
 
 	return $text;
 }
-
 
 /**
  * Insert a translated text to the translated page.
@@ -864,5 +860,4 @@ function update_translated_page($start, $end, $translated_text)
 	}
 
 }
-
 ?>
