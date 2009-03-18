@@ -227,6 +227,7 @@ function fetch_translation($original)
     global $wpdb, $lang, $table_name;
     $translated = NULL;
     logger("Enter " . __METHOD__ . ": $original", 4);
+    logger("Original was: $original", 3);
     $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
     logger("Original is: $original", 3);
     if(ENABLE_APC && function_exists('apc_fetch'))
@@ -392,6 +393,13 @@ function init_global_vars()
     $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
 }
 
+/*
+ * Helper function for annoying strings from php escape (%u2019)
+ */
+function utf8_urldecode($str) {
+    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($str));
+    return html_entity_decode($str,null,'UTF-8');;
+  }
 
 /*
  * A new translation has been posted, update the translation database.
@@ -421,8 +429,10 @@ function update_translation()
 
     //Decode & remove already escaped character to avoid double escaping
     // TODO: remove logging?
-    logger("orig:" .$original,4);
-    $original    = $wpdb->escape(stripslashes(urldecode(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'))));
+    logger("origwas:" .$original,4);
+    $original = utf8_urldecode($original);
+    logger("orig2:" .$original,4);
+    $original    = $wpdb->escape(stripslashes(urldecode(html_entity_decode($original, null, 'UTF-8'))));
     logger("orig:" .$original,4);
     $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
 
