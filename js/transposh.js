@@ -84,6 +84,7 @@ function ajax_translate(original,translation,source,segment_id) {
 
                     //switch to the edit img
                     img = img.replace(/translate_fix.png/, "translate.png");
+                    img = img.replace(/translate_auto.png/, "translate.png");
                 }
                 else {
                 	if (source == 1) {
@@ -92,6 +93,7 @@ function ajax_translate(original,translation,source,segment_id) {
                 	} else {
                 		//switch to the fix img
                 		img = img.replace(/translate.png/, "translate_fix.png");
+                		img = img.replace(/translate_auto.png/, "translate_fix.png");
                 	}
                 }
                 
@@ -152,6 +154,7 @@ function do_auto_translate() {
 			if (!result.error) {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
 		        ajax_translate($("#"+translated_id).text(),result.translation,1,segment_id);
+		        $("#"+translated_id).addClass("tr_t").removeClass("tr_u");
 			} 
 		});
 	});
