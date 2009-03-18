@@ -226,8 +226,9 @@ function fetch_translation($original)
 {
     global $wpdb, $lang, $table_name;
     $translated = NULL;
-
     logger("Enter " . __METHOD__ . ": $original", 4);
+    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+    logger("Original is: $original", 3);
     if(ENABLE_APC && function_exists('apc_fetch'))
     {
         $cached = apc_fetch($original .'___'. $lang, $rc);
@@ -304,8 +305,10 @@ function insert_javascript_includes()
     $js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>";
     global $lang, $home_url;
     $post_url = $home_url . '/index.php';
-    $js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';$(document).ready(function() {do_auto_translate();});</script>";
-
+    $js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';</script>";
+    if (get_option(ENABLE_AUTO_TRANSLATE,1)) {
+    	$js .= "\n<script type=\"text/javascript\">$(document).ready(function() {do_auto_translate();});</script>";
+    }
     echo $js;
 }
 
@@ -417,7 +420,10 @@ function update_translation()
     }
 
     //Decode & remove already escaped character to avoid double escaping
-    $original    = $wpdb->escape(stripslashes(urldecode($original)));
+    // TODO: remove logging?
+    logger("orig:" .$original,4);
+    $original    = $wpdb->escape(stripslashes(urldecode(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'))));
+    logger("orig:" .$original,4);
     $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
 
     //TODO: Check more escaping...
@@ -435,7 +441,14 @@ function update_translation()
         if(ENABLE_APC && function_exists('apc_store'))
         {
             apc_delete($original .'___'. $lang);
+           // TODO: update cache
+            //$rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
+            //if($rc === TRUE)
+            //{
+//            	logger("Stored in cache: $original => $translated", 3);
+            //}
         }
+
         logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
     }
     else
