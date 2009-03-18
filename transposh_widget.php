@@ -100,7 +100,8 @@ function transposh_widget($args)
 
     $is_showing_languages = FALSE;
 
-	echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
+	//echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
+	echo $before_widget . $before_title . __("Translation") . $after_title;
 
 	switch ($options['style']) {
 		case 1: // flags
@@ -121,9 +122,10 @@ function transposh_widget($args)
 				if(strstr($viewable_langs, $code) ||
 				   ($is_translator && strstr($editable_langs, $code)))
 				{
-					$page_url = rewrite_url_lang_param($page_url, $code, $is_edit, !$using_permalinks);
+                //$page_url = cleanup_url($page_url);
+					$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit, !$using_permalinks);
 
-					echo "<a href=\"" . $page_url . "\">
+					echo "<a href=\"" . $page_url2 . "\">
                          <img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"
                          style=\"padding: 1px 3px\"/></a>";
                     $is_showing_languages = TRUE;
@@ -180,8 +182,8 @@ function transposh_widget($args)
     }
 
     echo "</form>";
-    echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-
+    //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
+	echo "<div id=\"credit\">by <a href=\"http://transposh.org\"><img src=\"$plugin_url/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 

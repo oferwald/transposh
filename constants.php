@@ -71,7 +71,7 @@ $languages = array("en" => "English,us",
     				"th" => "ภาษาไทย,th",
                    "tr" => "Türkçe,tr",
     				"uk" => "Українська,ua",
-    				"vi" => "Tiếng Việt,vi");
+    				"vi" => "Tiếng Việt,vn");
 
 //Language which are read from right to left (rtl)
 $rtl_languages =  array("ar", "he");
