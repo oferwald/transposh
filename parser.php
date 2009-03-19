@@ -777,27 +777,24 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 
 	$is_translated = FALSE;
 
-	if(!($is_edit_mode || $enable_auto_translate) || !in_array('body', $tags_list))
-	{
-		if($translated_text != NULL)
-		{
-			update_translated_page($start, $end, $translated_text);
-		}
-	}
-	else
+	if(($is_edit_mode || ($enable_auto_translate && $translated_text == NULL)) && in_array('body', $tags_list))
 	{
 		$span_prefix = SPAN_PREFIX;
 		// We will mark translated text with tr_t class and untranslated with tr_u
 		$span = "<span class=\"$span_prefix";
-
-		if($translated_text == NULL)
+		
+		//Use base64 encoding to make that when the page is translated (i.e. update_translation) we
+    	//get back exactlly the same string without having the client decode/encode it in anyway. 
+    	$token = "token=\"" . base64_encode($original_text) . "\"";
+		
+    	if($translated_text == NULL)
 		{
-			$span .= "u\" id=\"{$span_prefix}{$segment_id}\">";
+		    $span .= "u\" id=\"{$span_prefix}{$segment_id}\" $token>";
 			$span .= $original_text . '</span>';
 		}
 		else
 		{
-			$span .= "t\" id=\"{$span_prefix}{$segment_id}\">";
+			$span .= "t\" id=\"{$span_prefix}{$segment_id}\" $token>";
 			$span .= $translated_text . "</span>";
 			$is_translated = TRUE;
 		}
@@ -816,7 +813,14 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 		$segment_id++;
 
 	}
-
+	else
+	{
+		if($translated_text != NULL)
+		{
+			update_translated_page($start, $end, $translated_text);
+		}
+	}
+	
 	logger("Exit " . __METHOD__  . " : $original_text" , 4);
 }
 

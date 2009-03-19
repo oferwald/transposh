@@ -335,10 +335,6 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
     global $plugin_url, $lang, $home_url;
     $url = $home_url . '/index.php';
 
-    //Use base64 encoding to make that when the page is translated (i.e. update_translation) we
-    //get back exactlly the same string without having the client decode/encode it in anyway. 
-    $token = base64_encode($original);
-    
     //For use in javascript, make the following changes:
     //1. Add slashes to escape the inner text
     //2. Convert the html special characters
@@ -355,7 +351,7 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
         $add_img = "_auto";
     }
 
-    $img = "<img src=\"$plugin_url/translate$add_img.png\" token=\"$token\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\"
+    $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\"
            onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\"
            onmouseover=\"hint('$original'); return true;\"
            onmouseout=\"nd()\" />";
@@ -405,7 +401,7 @@ function init_global_vars()
     $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
     $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
-    $enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1);
+    $enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translator();
 }
 
 /*

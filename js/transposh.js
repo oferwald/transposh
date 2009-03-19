@@ -58,7 +58,7 @@ function getgt()
 
 //Ajax translation
 function ajax_translate(original,translation,source,segment_id) {
-	var token = $("#tr_img_" + segment_id).attr('token');
+	var token = $("#tr_" + segment_id).attr('token');
 	var query = 'token=' +  token +
     '&translation=' + translation +
     '&lang=' + transposh_target_lang +
@@ -133,7 +133,6 @@ var dialog = ''+
        original + '</textarea> <\/p>' +
     '<p>Translate to<br \/><input type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
     '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
-    '<input type="hidden" id="tr_original" name="original" value="' + escape(original) +'">' +
     '<input type="hidden" name="translation_posted" value= "1">' +
     '<p><input onclick="getgt()" type="button" value="Get Suggestion!"/>&nbsp;<input type="submit" value="Translate"/><\/p>' +
     ('<\/div><\/form>');
