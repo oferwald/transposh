@@ -773,7 +773,7 @@ function translate_text($start)
  */
 function insert_translation(&$original_text, &$translated_text, $source, $start, $end)
 {
-	global $segment_id, $is_edit_mode, $tags_list;
+	global $segment_id, $is_edit_mode, $tags_list, $enable_auto_translate;
 
 	$is_translated = FALSE;
 
