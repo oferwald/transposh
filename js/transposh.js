@@ -69,15 +69,19 @@ function ajax_translate(original,translation,source,segment_id) {
         url: transposh_post_url,
         data: query,  
         success: function(req) {
+                var text_rewrite = translation;
+
+                //rewrite text
+                $("#tr_" + segment_id).html(text_rewrite);
+
+                //current img 
+                var img = $("#tr_img_" + segment_id).attr('src');
+
                 //rewrite onclick function - in case of re-edit
                 $("#tr_img_" + segment_id).click(function () {
                         translate_dialog(original, translation, segment_id);
                     });
 
-                //current img 
-                var img = $("#tr_img_" + segment_id).attr('src');
-                var text_rewrite = translation;
-                
                 if(jQuery.trim(translation).length == 0) {
                     //reset to the original content - the not escaped version
                     text_rewrite = original;
@@ -98,9 +102,6 @@ function ajax_translate(original,translation,source,segment_id) {
                 }
                 
                 
-                //rewrite text
-                $("#tr_" + segment_id).html(text_rewrite);
-
                 //rewrite image
                 $("#tr_img_" + segment_id).attr('src', img);
 
@@ -109,8 +110,10 @@ function ajax_translate(original,translation,source,segment_id) {
                 },
                 
         error: function(req) {
-                alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
-               }
+                	if (source == 0) {
+                		alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+                	}
+                }
     });
 
 }
