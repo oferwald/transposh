@@ -280,10 +280,12 @@ function fetch_translation($original)
  */
 function insert_javascript_includes()
 {
-    global $plugin_url, $wp_query;
+    global $plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
 
-    if (!($wp_query->query_vars[EDIT_PARAM] == "1" ||
-         $wp_query->query_vars[EDIT_PARAM] == "true") && !get_option(ENABLE_AUTO_TRANSLATE,1))
+    $is_edit_param_enabled = ($wp_query->query_vars[EDIT_PARAM] == "1" ||
+         					  $wp_query->query_vars[EDIT_PARAM] == "true");
+         					   
+    if (!$is_edit_param_enabled && ! $enable_auto_translate)
     {
         //TODO: check permission later - for now just make sure we don't load the
         //js code when it is not needed
@@ -293,7 +295,8 @@ function insert_javascript_includes()
 
     $overlib_dir = "$plugin_url/js/overlibmws";
 
-    if ($wp_query->query_vars[EDIT_PARAM] == "1" ||  $wp_query->query_vars[EDIT_PARAM] == "true") {
+    if($is_edit_param_enabled) 
+    {
     	$js = "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws.js\"></script>";
     	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_filter.js\"></script>";
     	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_modal.js\"></script>";
@@ -301,17 +304,22 @@ function insert_javascript_includes()
     	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_scroll.js\"></script>";
     	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
     }
-    $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
-    $js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>";
-    global $lang, $home_url;
-    $post_url = $home_url . '/index.php';
-    $js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';</script>";
-    if (get_option(ENABLE_AUTO_TRANSLATE,1)) {
+    
+    if($is_edit_param_enabled || $enable_auto_translate) 
+    {
+    	$js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
+    	$js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>";
+    
+    
+    	$post_url = $home_url . '/index.php';
+    	$js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';</script>";
+    
     	$js .= "\n<script type=\"text/javascript\">$(document).ready(function() {do_auto_translate();});</script>";
     }
-    echo $js;
+    
+    echo $js . "\n";
 }
 
 
@@ -382,7 +390,7 @@ function transposh_css()
  */
 function init_global_vars()
 {
-    global $home_url, $home_url_quoted, $plugin_url, $table_name, $wpdb;
+    global $home_url, $home_url_quoted, $plugin_url, $table_name, $wpdb, $enable_auto_translate;
 
     $home_url = get_option('home');
     $local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
@@ -392,6 +400,7 @@ function init_global_vars()
     $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
     $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+    $enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1);
 }
 
 /*
@@ -529,8 +538,7 @@ function on_init()
 {
     logger(__METHOD__ . $_SERVER['REQUEST_URI']);
     init_global_vars();
-
-
+	
     if ($_POST['translation_posted'])
     {
         update_translation();
@@ -765,7 +773,7 @@ function plugin_install_error()
 function plugin_loaded()
 {
     global $admin_msg;
-    logger("Enter " . __METHOD__, 3);
+    logger("Enter " . __METHOD__, 4);
 
     $db_version = get_option(TRANSPOSH_DB_VERSION);
 

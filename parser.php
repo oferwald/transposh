@@ -56,6 +56,9 @@ $is_in_body = FALSE;
 //Is current position within the channel tag, i.e. RSS feed
 $is_in_channel = FALSE;
 
+//Indicates whether automatic translation (i.e. google) is enabled for this page
+$enable_auto_translate;
+
 /*
  * Parse the html page into tags, identify translateable string which
  * will be translated.
@@ -415,6 +418,12 @@ function process_current_tag()
 				$pos++;
 				$start = $pos;
 			}
+			else if($end_of_number = is_number($pos))
+			{
+				//numbers will break translations segements and will not be included in the translation
+				translate_text($start);
+				$pos = $start = $end_of_number;
+			}			
 			else
 			{
 				$pos++;
@@ -455,6 +464,12 @@ function process_cdata_section()
 				translate_text($start);
 				$pos++;
 				$start = $pos;
+			}
+			else if($end_of_number = is_number($pos))
+			{
+				//numbers will break translations segements and will not be included in the translation
+				translate_text($start);
+				$pos = $start = $end_of_number;
 			}
 			else
 			{
@@ -518,9 +533,7 @@ function is_sentence_breaker($position)
 		    $page[$position] == '[' || $page[$position] == ']' ||
 			$page[$position] == '"' || $page[$position] == '!' ||
 			$page[$position] == ':' || $page[$position] == '|' ||
-			$page[$position] == ';' ||
-			//break on numbers but not like: 3rd, 4th
-			(is_digit($position) && !is_a_to_z_character($position+1)))
+			$page[$position] == ';')
 	{
 		//break the sentence into segments regardless of the next character.
 		$rc = TRUE;
@@ -569,6 +582,28 @@ function is_html_entity($position, &$is_breaker)
 	return 0;
 }
 
+/*
+ * Determines if the current position marks the begining of a number, e.g. 123 050-391212232
+ * 
+ * Return 0 if not a number otherwise return the position past this number. 
+ */
+function is_number($position)
+{
+	global $page;
+	$start = $position;
+	
+	while(is_digit($position) || $page[$position] == '-' || $page[$position] == '+')
+	{
+		$position++;
+	}
+	
+	if($position != $start && (is_white_space($position) || $page[$position] == '<'))
+	{
+		return $position;		
+	}
+	
+	return 0;
+}
 
 /*
  * Determine if the current position in page points to a character in the
@@ -621,32 +656,6 @@ function is_white_space($position)
 	{
 		return TRUE;
 	}
-}
-
-/*
- * Skip within buffer past unreadable characters , i.e. white space
- * and characters considred to be a sentence breaker. Staring from the specified
- * position going either forward or backward.
- * param forward - indicate direction going either backward of forward.
- */
-function skip_unreadable_chars(&$index, $forward=TRUE)
-{
-	global $page, $pos;
-
-	if(!isset($index))
-	{
-		//use $pos as the default position if not specified otherwise
-		$index = &$pos;
-	}
-	$start = $index;
-
-	while($index < strlen($page) && $index > 0 &&
-	(is_white_space($index) || is_sentence_breaker($index)))
-	{
-		($forward ? $index++ : $index--);
-	}
-
-	return $index;
 }
 
 /*
@@ -768,7 +777,7 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 
 	$is_translated = FALSE;
 
-	if(!($is_edit_mode || get_option(ENABLE_AUTO_TRANSLATE,1)) || !in_array('body', $tags_list))
+	if(!($is_edit_mode || $enable_auto_translate) || !in_array('body', $tags_list))
 	{
 		if($translated_text != NULL)
 		{
