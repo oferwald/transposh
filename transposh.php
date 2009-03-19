@@ -229,7 +229,7 @@ function fetch_translation($original)
     logger("Enter " . __METHOD__ . ": $original", 4);
     
     //The original is saved in db in its escaped form
-    $original = $wpdb->escape($original);
+    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
     
     if(ENABLE_APC && function_exists('apc_fetch'))
     {
@@ -435,7 +435,7 @@ function update_translation()
     
     //The original content is encoded as base64 before it is sent (i.e. token), after we
     //decode it should just the same after it was parsed.  
-    $original = $wpdb->escape($original);
+    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
     
     $update = "REPLACE INTO  $table_name (original, translated, lang, source)
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
