@@ -283,9 +283,9 @@ function insert_javascript_includes()
     global $plugin_url, $wp_query;
 
     if (!($wp_query->query_vars[EDIT_PARAM] == "1" ||
-         $wp_query->query_vars[EDIT_PARAM] == "true"))
+         $wp_query->query_vars[EDIT_PARAM] == "true") && !get_option(ENABLE_AUTO_TRANSLATE,1))
     {
-        //check permission later - for now just make sure we don't load the
+        //TODO: check permission later - for now just make sure we don't load the
         //js code when it is not needed
         return;
     }
@@ -293,13 +293,14 @@ function insert_javascript_includes()
 
     $overlib_dir = "$plugin_url/js/overlibmws";
 
-    $js = "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_filter.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_modal.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_overtwo.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_scroll.js\"></script>";
-    $js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
-
+    if ($wp_query->query_vars[EDIT_PARAM] == "1" ||  $wp_query->query_vars[EDIT_PARAM] == "true") {
+    	$js = "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_filter.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_modal.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_overtwo.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_scroll.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
+    }
     $js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>";
     $js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
     $js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
@@ -497,6 +498,7 @@ function update_transaction_log(&$original, &$translation, &$lang, $source)
 
     if($result === FALSE)
     {
+    	logger(mysql_error(),0);
         logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang, $source" , 0);
     }
 }
