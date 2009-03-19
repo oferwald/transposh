@@ -125,9 +125,9 @@ function transposh_widget($args)
                 //$page_url = cleanup_url($page_url);
 					$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit, !$using_permalinks);
 
-					echo "<a href=\"" . $page_url2 . "\">
-                         <img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"
-                         style=\"padding: 1px 3px\"/></a>";
+					echo "<a href=\"" . $page_url2 . "\">".
+                         "<img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
+                         " style=\"padding: 1px 3px\"/></a>";
                     $is_showing_languages = TRUE;
 				}
 			}
