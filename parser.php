@@ -723,7 +723,7 @@ function is_word($word, $index1)
 function translate_text($start)
 {
 	logger("Enter " . __METHOD__  . " : $start", 4);
-	global $page, $pos, $is_edit_mode;
+	global $page, $pos;
 
 	//trim white space from the start position going forward
 	skip_white_space($start);
@@ -768,7 +768,7 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 
 	$is_translated = FALSE;
 
-	if(!$is_edit_mode || !in_array('body', $tags_list))
+	if(!($is_edit_mode || get_option(ENABLE_AUTO_TRANSLATE,1)) || !in_array('body', $tags_list))
 	{
 		if($translated_text != NULL)
 		{
@@ -797,10 +797,11 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 		update_translated_page($start, $end, $span);
 
 
-		//Insert image to allow editing this segment
-		$img = get_img_tag($original_text, $translated_text, $source, $segment_id, $is_translated);
-		update_translated_page($end + 1, - 1, $img);
-
+		//Insert image to allow editing this segment (only in explicit edit)
+		if($is_edit_mode) {
+			$img = get_img_tag($original_text, $translated_text, $source, $segment_id, $is_translated);
+			update_translated_page($end + 1, - 1, $img);
+		}
 		//Increment only after both text and image are generated so they
 		//will be the same for each translated segement
 		$segment_id++;
