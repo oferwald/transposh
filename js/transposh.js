@@ -63,57 +63,59 @@ function ajax_translate(original,translation,source,segment_id) {
     '&lang=' + transposh_target_lang +
     '&source=' + source +
     '&translation_posted=1';
-
+    //$("span:contains("+translation+")").css("text-decoration", "underline");
     $.ajax({  
         type: "POST",
         url: transposh_post_url,
         data: query,  
         success: function(req) {
-                var text_rewrite = translation;
+        	var pre_translated = $("#tr_" + segment_id).html();
+        	var new_text = translation;
+        	//reset to the original content - the unescaped version if translation is empty
+            if(jQuery.trim(translation).length == 0) {
+            	new_text = original;
+            }
+            // rewrite text for all matching items at once
+        	$(".tr_t,.tr_u").filter(function() {return $(this).html() == pre_translated;}).html(new_text)
+        		.each(function (i) { // handle the image changes
+        			var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_')+1);
+                    //current img 
+                    var img = $("#tr_img_" + img_segment_id).attr('src');
 
-                //rewrite text
-                $("#tr_" + segment_id).html(text_rewrite);
-
-                //current img 
-                var img = $("#tr_img_" + segment_id).attr('src');
-
-                //rewrite onclick function - in case of re-edit
-                $("#tr_img_" + segment_id).click(function () {
-                        translate_dialog(original, translation, segment_id);
+                    //rewrite onclick function - in case of re-edit
+                    $("#tr_img_" + img_segment_id).click(function () {
+                    	translate_dialog(original, translation, img_segment_id);
                     });
 
-                if(jQuery.trim(translation).length == 0) {
-                    //reset to the original content - the not escaped version
-                    text_rewrite = original;
-
-                    //switch to the edit img
-                    img = img.replace(/translate_fix.png/, "translate.png");
-                    img = img.replace(/translate_auto.png/, "translate.png");
-                }
-                else {
-                	if (source == 1) {
-                		//switch to the auto img
-                		img = img.replace(/translate.png/, "translate_auto.png");                		
-                	} else {
-                		//switch to the fix img
-                		img = img.replace(/translate.png/, "translate_fix.png");
-                		img = img.replace(/translate_auto.png/, "translate_fix.png");
-                	}
-                }
+                    // handle image
+                    if(jQuery.trim(translation).length == 0) {
+                        //switch to the edit img
+                        img = img.replace(/translate_fix.png/, "translate.png");
+                        img = img.replace(/translate_auto.png/, "translate.png");
+                    } else {
+                    	if (source == 1) {
+                    		//switch to the auto img
+                    		img = img.replace(/translate.png/, "translate_auto.png");                		
+                    	} else {
+                    		//switch to the fix img
+                    		img = img.replace(/translate.png/, "translate_fix.png");
+                    		img = img.replace(/translate_auto.png/, "translate_fix.png");
+                    	}
+                    }
+                    //rewrite image
+                    $("#tr_img_" + img_segment_id).attr('src', img);
+        			
+        		});
                 
-                
-                //rewrite image
-                $("#tr_img_" + segment_id).attr('src', img);
-
-                //close dialog
-                cClick();
-                },
+            //close dialog
+            cClick();
+    	},
                 
         error: function(req) {
-                	if (source == 0) {
-                		alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
-                	}
-                }
+    		if (source == 0) {
+    			alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+    		}
+    	}
     });
 
 }
