@@ -58,11 +58,13 @@ function getgt()
 
 //Ajax translation
 function ajax_translate(original,translation,source,segment_id) {
-    var query = 'original=' +  escape(original) +
+	var token = $("#tr_img_" + segment_id).attr('token');
+	var query = 'token=' +  token +
     '&translation=' + translation +
     '&lang=' + transposh_target_lang +
     '&source=' + source +
     '&translation_posted=1';
+	
     //$("span:contains("+translation+")").css("text-decoration", "underline");
     $.ajax({  
         type: "POST",

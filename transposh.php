@@ -219,17 +219,18 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
 
 /*
  * Fetch translation from db or cache.
- * Returns the translated string or NULL if not available.
- * TODO: // will an array work?
+ * Returns An array that contains the translated string and it source. 
+ *         Will return NULL if no translation is available.
  */
 function fetch_translation($original)
 {
     global $wpdb, $lang, $table_name;
     $translated = NULL;
     logger("Enter " . __METHOD__ . ": $original", 4);
-    logger("Original was: $original", 3);
-    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-    logger("Original is: $original", 3);
+    
+    //The original is saved in db in its escaped form
+    $original = $wpdb->escape($original);
+    
     if(ENABLE_APC && function_exists('apc_fetch'))
     {
         $cached = apc_fetch($original .'___'. $lang, $rc);
@@ -334,6 +335,10 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
     global $plugin_url, $lang, $home_url;
     $url = $home_url . '/index.php';
 
+    //Use base64 encoding to make that when the page is translated (i.e. update_translation) we
+    //get back exactlly the same string without having the client decode/encode it in anyway. 
+    $token = base64_encode($original);
+    
     //For use in javascript, make the following changes:
     //1. Add slashes to escape the inner text
     //2. Convert the html special characters
@@ -350,12 +355,12 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
         $add_img = "_auto";
     }
 
-    $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\"
+    $img = "<img src=\"$plugin_url/translate$add_img.png\" token=\"$token\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\"
            onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\"
            onmouseover=\"hint('$original'); return true;\"
            onmouseout=\"nd()\" />";
-
-    return $img;
+    
+	return $img;
 }
 
 
@@ -404,14 +409,6 @@ function init_global_vars()
 }
 
 /*
- * Helper function for annoying strings from php escape (%u2019)
- */
-function utf8_urldecode($str) {
-    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($str));
-    return html_entity_decode($str,null,'UTF-8');;
-  }
-
-/*
  * A new translation has been posted, update the translation database.
  *
  */
@@ -420,7 +417,7 @@ function update_translation()
     global $wpdb, $table_name;
 
     $ref=getenv('HTTP_REFERER');
-    $original = $_POST['original'];
+    $original =  base64_decode($_POST['token'], TRUE);
     $translation = $_POST['translation'];
     $lang = $_POST['lang'];
     $source = $_POST['source'];
@@ -438,16 +435,12 @@ function update_translation()
     }
 
     //Decode & remove already escaped character to avoid double escaping
-    // TODO: remove logging?
-    logger("origwas:" .$original,4);
-    $original = utf8_urldecode($original);
-    logger("orig2:" .$original,4);
-    $original    = $wpdb->escape(stripslashes(urldecode(html_entity_decode($original, null, 'UTF-8'))));
-    logger("orig:" .$original,4);
     $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
-
-    //TODO: Check more escaping...
-
+    
+    //The original content is encoded as base64 before it is sent (i.e. token), after we
+    //decode it should just the same after it was parsed.  
+    $original = $wpdb->escape($original);
+    
     $update = "REPLACE INTO  $table_name (original, translated, lang, source)
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
 
@@ -461,12 +454,6 @@ function update_translation()
         if(ENABLE_APC && function_exists('apc_store'))
         {
             apc_delete($original .'___'. $lang);
-           // TODO: update cache
-            //$rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
-            //if($rc === TRUE)
-            //{
-//            	logger("Stored in cache: $original => $translated", 3);
-            //}
         }
 
         logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
@@ -634,8 +621,6 @@ function setup_db()
     if( $installed_ver != DB_VERSION ) {
   		$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
 
-    //if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
-    //{
         logger("Attempting to create table $table_name", 0);
         $sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,
 				lang CHAR(5) NOT NULL,
@@ -646,27 +631,9 @@ function setup_db()
 
         dbDelta($sql);
 
-		// TODO: remove this?
-        //Verify that newly created table is ready for use.
-        //$insert = "INSERT INTO " . $table_name . " (original, translated, lang) " .
-        //"VALUES ('Hello','Hi There','zz')";
-
-        //$result = $wpdb->query($insert);
-
-        //if($result === FALSE)
-        //{
-            //logger("Error failed to create $table_name !!!", 0);
-        //}
-        //else
-        //{
-		// logger("Table $table_name was created successfuly", 0);
-        //}
-    //}
 
     	$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
 
-    //if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name)
-    //{
         logger("Attempting to create table $table_name", 0);
         $sql = "CREATE TABLE " . $table_name . " (original VARCHAR(256) NOT NULL,
                                                   lang CHAR(5) NOT NULL,
@@ -678,7 +645,6 @@ function setup_db()
 
 
         dbDelta($sql);
-        // TODO: check
 		update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
     }
 
@@ -756,7 +722,7 @@ function plugin_install_error()
     echo $admin_msg;
 
     if (function_exists('deactivate_plugins') ) {
-        deactivate_plugins("transposh/translate.php", "translate.php");
+        deactivate_plugins(get_plugin_name(), "translate.php");
         echo '<br> This plugin has been automatically deactivated.';
     }
 
@@ -787,8 +753,7 @@ function plugin_loaded()
         //add_action('admin_notices', 'plugin_install_error');
     }
 
-    // TODO: This is wrong? and also deactivation fails
-    if (get_option(TRANSPOSH_DB_VERSION) == NULL)
+    if ($db_version != DB_VERSION)
     {
         $admin_msg = "Failed to locate the translation table  <em> " . TRANSLATIONS_TABLE . "</em> in local database. <br>";
 

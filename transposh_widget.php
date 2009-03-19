@@ -235,7 +235,7 @@ function transposh_widget_control()
 	if ( $options != $newoptions )
     {
 		$options = $newoptions;
-		update_option('widget_transposh', $options);
+		update_option(WIDGET_TRANSPOSH, $options);
 	}
 
 	$style = $options['style'];
