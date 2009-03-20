@@ -423,7 +423,7 @@ function process_current_tag()
 				//numbers will break translations segements and will not be included in the translation
 				translate_text($start);
 				$pos = $start = $end_of_number;
-			}			
+			}
 			else
 			{
 				$pos++;
@@ -584,24 +584,25 @@ function is_html_entity($position, &$is_breaker)
 
 /*
  * Determines if the current position marks the begining of a number, e.g. 123 050-391212232
- * 
- * Return 0 if not a number otherwise return the position past this number. 
+ *
+ * Return 0 if not a number otherwise return the position past this number.
  */
 function is_number($position)
 {
 	global $page;
 	$start = $position;
-	
-	while(is_digit($position) || $page[$position] == '-' || $page[$position] == '+')
+
+	while(is_digit($position) || $page[$position] == '-' || $page[$position] == '+' ||
+	 (($page[$position] == ',' || $page[$position] == '.' || $page[$position] == '\\' || $page[$position] == '/') && is_digit($position+1)))
 	{
 		$position++;
 	}
-	
+
 	if($position != $start && (is_white_space($position) || $page[$position] == '<'))
 	{
-		return $position;		
+		return $position;
 	}
-	
+
 	return 0;
 }
 
@@ -782,11 +783,11 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 		$span_prefix = SPAN_PREFIX;
 		// We will mark translated text with tr_t class and untranslated with tr_u
 		$span = "<span class=\"$span_prefix";
-		
+
 		//Use base64 encoding to make that when the page is translated (i.e. update_translation) we
-    	//get back exactlly the same string without having the client decode/encode it in anyway. 
+    	//get back exactlly the same string without having the client decode/encode it in anyway.
     	$token = "token=\"" . base64_encode($original_text) . "\"";
-		
+
     	if($translated_text == NULL)
 		{
 		    $span .= "u\" id=\"{$span_prefix}{$segment_id}\" $token>";
@@ -820,7 +821,7 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 			update_translated_page($start, $end, $translated_text);
 		}
 	}
-	
+
 	logger("Exit " . __METHOD__  . " : $original_text" , 4);
 }
 
