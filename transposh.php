@@ -551,7 +551,7 @@ function update_rewrite_rules($rules){
     if(!get_option(ENABLE_PERMALINKS_REWRITE))
     {
         logger("Not touching rewrite rules - permalinks modification disabled by admin");
-        return $rule;
+        return $rules;
     }
 
     $newRules = array();
@@ -787,4 +787,6 @@ add_action('shutdown', 'on_shutdown');
 add_action( 'plugins_loaded', 'plugin_loaded');
 register_activation_hook(get_plugin_name(), 'plugin_activate');
 register_deactivation_hook(get_plugin_name(),'plugin_deactivate');
+
+add_filter('rewrite_rules_array', 'update_rewrite_rules');
 ?>
