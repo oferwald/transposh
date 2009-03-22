@@ -1,7 +1,7 @@
 === Transposh - translation filter for wordpress ===
-Contributors: oferwald
+Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/
-Tags: translation, widget, filter, bilingual, multilingual, transposh, language, RTL, Hebrew, Spanish, French, Russian, crowdsourcing, context, wiki
+Tags: translation, widget, filter, bilingual, multilingual, transposh, language, RTL, Hebrew, Spanish, French, Russian, English, Arabic, crowdsourcing, context, wiki
 Requires at least: 2.5
 Tested up to: 2.7.1
 Stable tag: <%VERSION%>
@@ -17,6 +17,7 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 * Unique interface for choosing viewable/translatable languages
 * Multiple selection for widget appearances
 * Translation of external plugins with no changes
+* Automatic translation mode for all content (including comments!)
 * Fine grained control for advanced users
 
 ***We are focused on:***
@@ -35,6 +36,7 @@ Technology has been tested on a large dynamic site with millions of monthly page
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Add the widget to your side bar, decide which interface you prefer
 1. On the settings page - define which languages you would like viewable, translatable and which language is currently used (default) 
+1. You may also elect to disable/enable the automatic translation mode  
 1. You are good to go
 
 == Frequently Asked Questions ==
@@ -55,11 +57,18 @@ The correct place for that would be our [development site](http://trac.transposh
 
 Another .css file might intervene with our in ways we didn't predict yet, either fix that .css alone or contact us
 
+= What do the colors of the translation icons mean =
+
+There are currently three colors used
+
+* Red - no translation was done
+* Yellow - translation was done by a robot
+* Green - translation was done by human (or approved by one)
+
 = Why should I allow anonymous translation =
 
 Wiki has proven itself quite a valid model on the Internet. More people have good intentions than bad intentions and that can be
 harnessed to get your message out to more people. Future versions will give more focus on preventing spammers from defacing sites
-
 
 == Screenshots ==
 
@@ -71,6 +80,11 @@ harnessed to get your message out to more people. Future versions will give more
 
 == Release notes ==
 
+* 2009/03/22 - 0.1.0
+ * Enabled automatic translation for site readers
+ * Added many languages to the default list
+ * Upgrade database for supporting translation "sources"
+ * Fixed installation bug
 * 2009/03/07 - 0.0.3
  * Added ability to get suggestions from Google Translate
  * Improved support for RSS feeds translation 
