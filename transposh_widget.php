@@ -82,7 +82,7 @@ function transposh_widget_init()
 function transposh_widget($args)
 {
 	logger("Enter " . __METHOD__, 4);
-	global $languages, $wp_query, $wp_rewrite;
+	global $languages, $wp_query, $wp_rewrite, $plugin_url;
 	extract($args);
 
 	$page_url =  ($_SERVER['HTTPS'] == 'on' ?
@@ -108,7 +108,6 @@ function transposh_widget($args)
             //keep the flags in the same direction regardless of the overall page direction
             echo "<div style=\"text-align: left;\" class=\"" . NO_TRANSLATE_CLASS . "\" >";
 
-            global $plugin_url;
             $using_permalinks = $wp_rewrite->using_permalinks();
 
 			foreach($languages as $code => $lang2)
