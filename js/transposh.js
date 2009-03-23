@@ -169,8 +169,8 @@ function do_auto_translate() {
 //to run at start
 jQuery.noConflict();
 var transposh_post_url,transposh_target_lang; 
-jQuery("script[src*='transposh']").each(function (i) {
-	transposh_post_url = this.src.match('post_url=(.*?)&')[1];
+jQuery("script[src*='transposh.js']").each(function (i) {
+	transposh_post_url = unescape(this.src.match('post_url=(.*?)&')[1]);
 	transposh_target_lang = this.src.match('lang=(.*?)&')[1];
 });
 google.load("language", "1");
