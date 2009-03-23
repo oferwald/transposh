@@ -65,109 +65,101 @@ $plugin_url;
 //Error message displayed for the admin in case of failure
 $admin_msg;
 
-
 /*
  * Called when the buffer containing the original page is flused. Triggers the
  * translation process.
- *
  */
 function process_page(&$buffer) {
 
-    global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode, $wpdb,
-           $table_name;
+	global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode, $wpdb, $table_name;
 
-    $start_time = microtime(TRUE);
+	$start_time = microtime(TRUE);
 
-    if (!isset($wp_query->query_vars[LANG_PARAM]))
-    {
-        //No language code - avoid further processing.
-        return $buffer;
+	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	{
+		//No language code - avoid further processing.
+		return $buffer;
 
-    }
+	}
 
-    $lang = $wp_query->query_vars[LANG_PARAM];
-    $default_lang = get_default_lang();
-    if($lang == $default_lang)
-    {
-        //Don't translate the default language
-        logger("Skipping translation for default language $default_lang", 3);
-        return $buffer;
-    }
+	$lang = $wp_query->query_vars[LANG_PARAM];
+	$default_lang = get_default_lang();
+	if($lang == $default_lang)
+	{
+		//Don't translate the default language
+		logger("Skipping translation for default language $default_lang", 3);
+		return $buffer;
+	}
 
+	$page = $buffer;
 
-    $page = $buffer;
+	if (($wp_query->query_vars[EDIT_PARAM] == "1" ||
+	$wp_query->query_vars[EDIT_PARAM] == "true"))
+	{
+		//Verify that the current language is editable and that the
+		//user has the required permissions
+		$editable_langs = get_option(EDITABLE_LANGS);
 
+		if(is_translator() && strstr($editable_langs, $lang))
+		{
+			$is_edit_mode = TRUE;
+		}
+	}
 
-    if (($wp_query->query_vars[EDIT_PARAM] == "1" ||
-         $wp_query->query_vars[EDIT_PARAM] == "true"))
-    {
-        //Verify that the current language is editable and that the
-        //user has the required permissions
-        $editable_langs = get_option(EDITABLE_LANGS);
+	logger("translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
 
-        if(is_translator() && strstr($editable_langs, $lang))
-        {
-            $is_edit_mode = TRUE;
-        }
+	//translate the entire page
+	process_html();
 
-    }
+	$end_time = microtime(TRUE);
 
-    logger("translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
+	logger("Translation completed in " . ($end_time - $start_time) . " seconds", 1);
 
-    //translate the entire page
-    process_html();
-
-    $end_time = microtime(TRUE);
-
-    logger("Translation completed in " . ($end_time - $start_time) . " seconds", 1);
-
-    //return the translated page unless it is empty, othewise return the original
-    return (strlen($tr_page) > 0 ? $tr_page : $page);
+	//return the translated page unless it is empty, othewise return the original
+	return (strlen($tr_page) > 0 ? $tr_page : $page);
 }
 
 /*
  * Fix links on the page. href needs to be modified to include
  * lang specifier and editing mode.
- *
  */
 function process_anchor_tag($start, $end)
 {
-    global $home_url, $home_url_quoted, $lang, $is_edit_mode, $wp_rewrite;
+	global $home_url, $home_url_quoted, $lang, $is_edit_mode, $wp_rewrite;
 
-    $href = get_attribute($start, $end, 'href');
+	$href = get_attribute($start, $end, 'href');
 
-    if($href == NULL)
-    {
-        return;
-    }
+	if($href == NULL)
+	{
+		return;
+	}
 
-    //Ignore urls not from this site
-    if(stripos($href, $home_url) === FALSE)
-    {
-        return;
-    }
+	//Ignore urls not from this site
+	if(stripos($href, $home_url) === FALSE)
+	{
+		return;
+	}
 
-    $use_params = FALSE;
+	$use_params = FALSE;
 
-    //Only use params if permalinks are not enabled.
-    //don't fix links pointing to real files as it will cause that the
-    //web server will not be able to locate them
-    if(!$wp_rewrite->using_permalinks() ||
-       stripos($href, '/wp-admin') !== FALSE   ||
-       stripos($href, '/wp-content') !== FALSE ||
-       stripos($href, '/wp-login') !== FALSE   ||
-       stripos($href, '/.php') !== FALSE)
-    {
-        $use_params = TRUE;
-    }
+	//Only use params if permalinks are not enabled.
+	//don't fix links pointing to real files as it will cause that the
+	//web server will not be able to locate them
+	if(!$wp_rewrite->using_permalinks() ||
+	stripos($href, '/wp-admin') !== FALSE   ||
+	stripos($href, '/wp-content') !== FALSE ||
+	stripos($href, '/wp-login') !== FALSE   ||
+	stripos($href, '/.php') !== FALSE)
+	{
+		$use_params = TRUE;
+	}
 
-    $href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
+	$href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
 
-    //rewrite url in translated page
-    update_translated_page($start, $end, $href);
-    logger(__METHOD__ . " $home_url href: $href");
+	//rewrite url in translated page
+	update_translated_page($start, $end, $href);
+	logger(__METHOD__ . " $home_url href: $href");
 }
-
 
 /*
  * Update the given url to include language params.
@@ -178,213 +170,134 @@ function process_anchor_tag($start, $end)
  */
 function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
 {
-    global $home_url, $home_url_quoted;
+	global $home_url, $home_url_quoted;
 
-    if(!get_option(ENABLE_PERMALINKS_REWRITE))
-    {
-        //override the use only params - admin configured system to not touch permalinks
-        $use_params_only = TRUE;
-    }
+	if(!get_option(ENABLE_PERMALINKS_REWRITE))
+	{
+		//override the use only params - admin configured system to not touch permalinks
+		$use_params_only = TRUE;
+	}
 
-    if($is_edit)
-    {
-        $params = EDIT_PARAM . '=1&';
+	if($is_edit)
+	{
+		$params = EDIT_PARAM . '=1&';
 
-    }
+	}
 
-    if($use_params_only)
-    {
-        $params .= LANG_PARAM . "=$lang&";
-    }
-    else
-    {
-        $url = preg_replace("/$home_url_quoted\/(..\/)?\/?/",
+	if($use_params_only)
+	{
+		$params .= LANG_PARAM . "=$lang&";
+	}
+	else
+	{
+		$url = preg_replace("/$home_url_quoted\/(..\/)?\/?/",
                                  "$home_url/$lang/",  $url);
-    }
+	}
 
-    if($params)
-    {
-        //insert params to url
-        $url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
+	if($params)
+	{
+		//insert params to url
+		$url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
 
-        //Cleanup extra &
-        $url = preg_replace("/&&+/", "&", $url);
+		//Cleanup extra &
+		$url = preg_replace("/&&+/", "&", $url);
 
-            //Cleanup extra ?
-        $url = preg_replace("/\?\?+/", "?", $url);
-    }
+		//Cleanup extra ?
+		$url = preg_replace("/\?\?+/", "?", $url);
+	}
 
-    return $url;
+	return $url;
 }
 
 /*
  * Fetch translation from db or cache.
- * Returns An array that contains the translated string and it source. 
- *         Will return NULL if no translation is available.
+ * Returns An array that contains the translated string and it source.
+ *   Will return NULL if no translation is available.
  */
 function fetch_translation($original)
 {
-    global $wpdb, $lang, $table_name;
-    $translated = NULL;
-    logger("Enter " . __METHOD__ . ": $original", 4);
-    
-    //The original is saved in db in its escaped form
-    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-    
-    if(ENABLE_APC && function_exists('apc_fetch'))
-    {
-        $cached = apc_fetch($original .'___'. $lang, $rc);
-        if($rc === TRUE)
-        {
-    		logger("Exit from cache " . __METHOD__ . ": $cached", 4);
-        	return $cached;
-        }
-    }
+	global $wpdb, $lang, $table_name;
+	$translated = NULL;
+	logger("Enter " . __METHOD__ . ": $original", 4);
 
-    $query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' ";
-    $row = $wpdb->get_row($query);
+	//The original is saved in db in its escaped form
+	$original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
 
-    if($row !== FALSE)
-    {
-        $translated_text = stripslashes($row->translated);
-        $translated = array($translated_text, $row->source);
+	if(ENABLE_APC && function_exists('apc_fetch'))
+	{
+		$cached = apc_fetch($original .'___'. $lang, $rc);
+		if($rc === TRUE)
+		{
+			logger("Exit from cache " . __METHOD__ . ": $cached", 4);
+			return $cached;
+		}
+	}
 
-        logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 3);
-    }
+	$query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' ";
+	$row = $wpdb->get_row($query);
 
+	if($row !== FALSE)
+	{
+		$translated_text = stripslashes($row->translated);
+		$translated = array($translated_text, $row->source);
 
-    if(ENABLE_APC && function_exists('apc_store'))
-    {
-        //If we don't have translation still we want to have it in cache
-        $cache_entry = $translated;
-        if($cache_entry == NULL)
-        {
-            $cache_entry = "";
-        }
+		logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 3);
+	}
 
-        //update cache
-        $rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
-        if($rc === TRUE)
-        {
-            logger("Stored in cache: $original => $translated", 3);
-        }
-    }
+	if(ENABLE_APC && function_exists('apc_store'))
+	{
+		//If we don't have translation still we want to have it in cache
+		$cache_entry = $translated;
+		if($cache_entry == NULL)
+		{
+			$cache_entry = "";
+		}
 
-    logger("Exit " . __METHOD__ . ": $translated", 4);
-    return $translated;
+		//update cache
+		$rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
+		if($rc === TRUE)
+		{
+			logger("Stored in cache: $original => $translated", 3);
+		}
+	}
+
+	logger("Exit " . __METHOD__ . ": $translated", 4);
+	return $translated;
 }
-
-/*
- * Insert references to the javascript files used in the transalted
- * version of the page.
- *
- */
-function insert_javascript_includes()
-{
-    global $plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
-
-    $is_edit_param_enabled = ($wp_query->query_vars[EDIT_PARAM] == "1" ||
-         					  $wp_query->query_vars[EDIT_PARAM] == "true");
-         					   
-    if (!$is_edit_param_enabled && ! $enable_auto_translate)
-    {
-        //TODO: check permission later - for now just make sure we don't load the
-        //js code when it is not needed
-        return;
-    }
-
-
-    $overlib_dir = "$plugin_url/js/overlibmws";
-
-    if($is_edit_param_enabled) 
-    {
-    	$js = "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_filter.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_modal.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_overtwo.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_scroll.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"$overlib_dir/overlibmws_shadow.js\"></script>";
-    }
-    
-    if($is_edit_param_enabled || $enable_auto_translate) 
-    {
-    	$js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
-    	$js .= "\n<script type=\"text/javascript\">jQuery.noConflict();</script>";
-    	$js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
-    	$js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>";
-    
-    
-    	$post_url = $home_url . '/index.php';
-    	$js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';</script>";
-    
-    	$js .= "\n<script type=\"text/javascript\">jQuery(document).ready(function() {do_auto_translate();});</script>";
-    }
-    
-    echo $js . "\n";
-}
-
 
 /*
  * Return the img tag that will added to enable editing a translatable
  * item on the page.
  * param segement_id The id (number) identifying this segment. Needs to be
-         placed within the img tag for use on client side operation (jquery)
+ * placed within the img tag for use on client side operation (jquery)
  */
 function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
 {
-    global $plugin_url, $lang, $home_url;
-    $url = $home_url . '/index.php';
+	global $plugin_url, $lang, $home_url;
+	$url = $home_url . '/index.php';
 
-    //For use in javascript, make the following changes:
-    //1. Add slashes to escape the inner text
-    //2. Convert the html special characters
-    //The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
-    $translation = htmlspecialchars(addslashes($translation));
-    $original    = htmlspecialchars(addslashes($original));
+	//For use in javascript, make the following changes:
+	//1. Add slashes to escape the inner text
+	//2. Convert the html special characters
+	//The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
+	$translation = htmlspecialchars(addslashes($translation));
+	$original    = htmlspecialchars(addslashes($original));
 
-    if ($is_translated)
-    {
-        $add_img = "_fix";
-    }
+	if ($is_translated)
+	{
+		$add_img = "_fix";
+	}
 
-    if ($source == 1) {
-        $add_img = "_auto";
-    }
+	if ($source == 1) {
+		$add_img = "_auto";
+	}
 
-    $img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\"
-           onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\"
-           onmouseover=\"hint('$original'); return true;\"
-           onmouseout=\"nd()\" />";
-    
+	$img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\" ".
+           "onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\" ".
+           "onmouseover=\"hint('$original'); return true;\" ".
+           "onmouseout=\"nd()\" />";
+
 	return $img;
-}
-
-
-/*
- * Add custom css, i.e. transposh.css
- *
- */
-function add_custom_css()
-{
-    transposh_css();
-    insert_javascript_includes();
-}
-
-// We need some CSS to position the paragraph
-function transposh_css()
-{
-    global $plugin_url, $wp_query;
-
-    if (!isset($wp_query->query_vars[LANG_PARAM]))
-    {
-        return;
-    }
-
-    //include the transposh.css
-	echo "<link rel=\"stylesheet\" href=\"$plugin_url/transposh.css\" type=\"text/css\" />";
-
-	logger("Added transposh_css");
 }
 
 /*
@@ -392,82 +305,79 @@ function transposh_css()
  */
 function init_global_vars()
 {
-    global $home_url, $home_url_quoted, $plugin_url, $table_name, $wpdb, $enable_auto_translate;
+	global $home_url, $home_url_quoted, $plugin_url, $table_name, $wpdb, $enable_auto_translate;
 
-    $home_url = get_option('home');
-    $local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
+	$home_url = get_option('home');
+	$local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
 
-    $plugin_url= $home_url . "/wp-content/plugins/$local_dir";
-    $home_url_quoted = preg_quote($home_url);
-    $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
+	$plugin_url= $home_url . "/wp-content/plugins/$local_dir";
+	$home_url_quoted = preg_quote($home_url);
+	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
-    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
-    $enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translator();
+	$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translator();
 }
 
 /*
  * A new translation has been posted, update the translation database.
- *
  */
 function update_translation()
 {
-    global $wpdb, $table_name;
+	global $wpdb, $table_name;
 
-    $ref=getenv('HTTP_REFERER');
-    $original =  base64_url_decode($_POST['token']);
-    $translation = $_POST['translation'];
-    $lang = $_POST['lang'];
-    $source = $_POST['source'];
+	$ref=getenv('HTTP_REFERER');
+	$original =  base64_url_decode($_POST['token']);
+	$translation = $_POST['translation'];
+	$lang = $_POST['lang'];
+	$source = $_POST['source'];
 
-    if(!isset($original) || !isset($translation) || !isset($lang))
-    {
-        logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
-        return;
-    }
+	if(!isset($original) || !isset($translation) || !isset($lang))
+	{
+		logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
+		return;
+	}
 
-    //Check that use is allowed to translate
-    if(!is_translator())
-    {
-        logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
-    }
+	//Check that use is allowed to translate
+	if(!is_translator())
+	{
+		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+	}
 
-    //Decode & remove already escaped character to avoid double escaping
-    $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
-    
-    //The original content is encoded as base64 before it is sent (i.e. token), after we
-    //decode it should just the same after it was parsed.  
-    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-    
-    $update = "REPLACE INTO  $table_name (original, translated, lang, source)
+	//Decode & remove already escaped character to avoid double escaping
+	$translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
+
+	//The original content is encoded as base64 before it is sent (i.e. token), after we
+	//decode it should just the same after it was parsed.
+	$original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+	$update = "REPLACE INTO  $table_name (original, translated, lang, source)
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
 
-    $result = $wpdb->query($update);
+	$result = $wpdb->query($update);
 
-    if($result !== FALSE)
-    {
-        update_transaction_log($original, $translation, $lang, $source);
+	if($result !== FALSE)
+	{
+		update_transaction_log($original, $translation, $lang, $source);
 
-        //Delete entry from cache
-        if(ENABLE_APC && function_exists('apc_store'))
-        {
-            apc_delete($original .'___'. $lang);
-        }
+		//Delete entry from cache
+		if(ENABLE_APC && function_exists('apc_store'))
+		{
+			apc_delete($original .'___'. $lang);
+		}
 
-        logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
-    }
-    else
-    {
-        logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
-        header("HTTP/1.0 404 Failed to update language database");
-    }
+		logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
+	}
+	else
+	{
+		logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
+		header("HTTP/1.0 404 Failed to update language database");
+	}
 
-    exit;
+	exit;
 }
-
 
 /*
  * Update the transaction log
- *
  */
 function update_transaction_log(&$original, &$translation, &$lang, $source)
 {
@@ -476,24 +386,24 @@ function update_transaction_log(&$original, &$translation, &$lang, $source)
 
 	// log either the user ID or his IP
 	if ('' == $user_ID)
-    {
+	{
 		$loguser = $_SERVER['REMOTE_ADDR'];
 	}
-    else
-    {
+	else
+	{
 		$loguser = $user_ID;
 	}
 
-    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source)
-                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')";
+	$log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
+			"VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')";
 
-    $result = $wpdb->query($log);
+	$result = $wpdb->query($log);
 
-    if($result === FALSE)
-    {
-    	logger(mysql_error(),0);
-        logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang, $source" , 0);
-    }
+	if($result === FALSE)
+	{
+		logger(mysql_error(),0);
+		logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang, $source" , 0);
+	}
 }
 
 /*
@@ -503,15 +413,15 @@ function update_transaction_log(&$original, &$translation, &$lang, $source)
  */
 function get_default_lang()
 {
-    global $languages;
+	global $languages;
 
-    $default = get_option(DEFAULT_LANG);
-    if(!$languages[$default])
-    {
-        $default = "en";
-    }
+	$default = get_option(DEFAULT_LANG);
+	if(!$languages[$default])
+	{
+		$default = "en";
+	}
 
-    return $default;
+	return $default;
 }
 
 /*
@@ -520,18 +430,18 @@ function get_default_lang()
  */
 function on_init()
 {
-    logger(__METHOD__ . $_SERVER['REQUEST_URI']);
-    init_global_vars();
-	
-    if ($_POST['translation_posted'])
-    {
-        update_translation();
-    }
-    else
-    {
-        //set the callback for translating the page when it's done
-        ob_start("process_page");
-    }
+	logger(__METHOD__ . $_SERVER['REQUEST_URI']);
+	init_global_vars();
+
+	if ($_POST['translation_posted'])
+	{
+		update_translation();
+	}
+	else
+	{
+		//set the callback for translating the page when it's done
+		ob_start("process_page");
+	}
 }
 
 /*
@@ -539,57 +449,56 @@ function on_init()
  */
 function on_shutdown()
 {
-    ob_flush();
+	ob_flush();
 }
 
 /*
  * Update the url rewrite rules to include language identifier
- *
  */
 function update_rewrite_rules($rules){
-    logger("Enter update_rewrite_rules");
+	logger("Enter update_rewrite_rules");
 
-    if(!get_option(ENABLE_PERMALINKS_REWRITE))
-    {
-        logger("Not touching rewrite rules - permalinks modification disabled by admin");
-        return $rules;
-    }
+	if(!get_option(ENABLE_PERMALINKS_REWRITE))
+	{
+		logger("Not touching rewrite rules - permalinks modification disabled by admin");
+		return $rules;
+	}
 
-    $newRules = array();
-    $lang_prefix="([a-z]{2,2}(\-[a-z]{2,2})?)/";
+	$newRules = array();
+	$lang_prefix="([a-z]{2,2}(\-[a-z]{2,2})?)/";
 
-    $lang_parameter= "&" . LANG_PARAM . '=$matches[1]';
+	$lang_parameter= "&" . LANG_PARAM . '=$matches[1]';
 
-    //catch the root url
-    $newRules[$lang_prefix."?$"] = "index.php?lang=\$matches[1]";
-    logger("\t" . $lang_prefix."?$" . "  --->  " . "index.php?lang=\$matches[1]");
+	//catch the root url
+	$newRules[$lang_prefix."?$"] = "index.php?lang=\$matches[1]";
+	logger("\t" . $lang_prefix."?$" . "  --->  " . "index.php?lang=\$matches[1]");
 
-    foreach ($rules as $key=>$value) {
-        $original_key = $key;
-        $original_value = $value;
+	foreach ($rules as $key=>$value) {
+		$original_key = $key;
+		$original_value = $value;
 
-        $key = $lang_prefix . $key;
+		$key = $lang_prefix . $key;
 
-        //Shift existing matches[i] two step forward as we pushed new elements
-        //in the beginning of the expression
-        for($i = 6; $i > 0; $i--)
-        {
-            $value = str_replace('['. $i .']', '['. ($i + 2) .']', $value);
-        }
+		//Shift existing matches[i] two step forward as we pushed new elements
+		//in the beginning of the expression
+		for($i = 6; $i > 0; $i--)
+		{
+			$value = str_replace('['. $i .']', '['. ($i + 2) .']', $value);
+		}
 
-        $value .= $lang_parameter;
+		$value .= $lang_parameter;
 
-        logger("\t" . $key . "  --->  " . $value);
+		logger("\t" . $key . "  --->  " . $value);
 
 
-        $newRules[$key] = $value;
-        $newRules[$original_key] = $original_value;
+		$newRules[$key] = $value;
+		$newRules[$original_key] = $original_value;
 
-        logger("\t" . $original_key . "  --->  " . $original_value);
-    }
+		logger("\t" . $original_key . "  --->  " . $original_value);
+	}
 
-    logger("Exit update_rewrite_rules");
-    return $newRules;
+	logger("Exit update_rewrite_rules");
+	return $newRules;
 }
 
 /*
@@ -597,55 +506,52 @@ function update_rewrite_rules($rules){
  */
 function parameter_queryvars($qvars)
 {
-    $qvars[] = LANG_PARAM;
-    $qvars[] = EDIT_PARAM;
+	$qvars[] = LANG_PARAM;
+	$qvars[] = EDIT_PARAM;
 
-    return $qvars;
+	return $qvars;
 }
 
 /*
  * Setup the translation database.
- *
  */
 function setup_db()
 {
-    logger("Enter " . __METHOD__  );
+	logger("Enter " . __METHOD__  );
 	global $wpdb;
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-    $installed_ver = get_option(TRANSPOSH_DB_VERSION);
+	$installed_ver = get_option(TRANSPOSH_DB_VERSION);
 
-    if( $installed_ver != DB_VERSION ) {
-  		$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+	if( $installed_ver != DB_VERSION ) {
+		$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
 
-        logger("Attempting to create table $table_name", 0);
-        $sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,
-				lang CHAR(5) NOT NULL,
-				translated VARCHAR(256),
-				source TINYINT NOT NULL,
-				PRIMARY KEY (original, lang)) ";
+		logger("Attempting to create table $table_name", 0);
+		$sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,".
+				"lang CHAR(5) NOT NULL,".
+				"translated VARCHAR(256),".
+				"source TINYINT NOT NULL,".
+				"PRIMARY KEY (original, lang))";
 
-
-        dbDelta($sql);
-
-
-    	$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
-
-        logger("Attempting to create table $table_name", 0);
-        $sql = "CREATE TABLE " . $table_name . " (original VARCHAR(256) NOT NULL,
-                                                  lang CHAR(5) NOT NULL,
-                                                  translated VARCHAR(256),
-                                                  translated_by VARCHAR(15),
-                                                  source TINYINT NOT NULL,
-                                                  timestamp TIMESTAMP,
-                                                  PRIMARY KEY (original, lang, timestamp)) ";
+		dbDelta($sql);
 
 
-        dbDelta($sql);
+		$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+
+		logger("Attempting to create table $table_name", 0);
+		$sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,".
+				"lang CHAR(5) NOT NULL,".
+				"translated VARCHAR(256),".
+				"translated_by VARCHAR(15),".
+				"source TINYINT NOT NULL,".
+				"timestamp TIMESTAMP,".
+				"PRIMARY KEY (original, lang, timestamp))";
+
+		dbDelta($sql);
 		update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
-    }
+	}
 
-    logger("Exit " . __METHOD__  );
+	logger("Exit " . __METHOD__  );
 }
 
 /*
@@ -654,111 +560,103 @@ function setup_db()
  */
 function is_translator()
 {
-    if(is_user_logged_in())
-    {
-        if(current_user_can(TRANSLATOR))
-        {
-            return TRUE;
-        }
-    }
+	if(is_user_logged_in())
+	{
+		if(current_user_can(TRANSLATOR))
+		{
+			return TRUE;
+		}
+	}
 
-    if(get_option(ANONYMOUS_TRANSLATION))
-    {
-        //if anonymous translation is allowed - let anyone enjoy it
-        return TRUE;
-    }
+	if(get_option(ANONYMOUS_TRANSLATION))
+	{
+		//if anonymous translation is allowed - let anyone enjoy it
+		return TRUE;
+	}
 
-    return FALSE;
+	return FALSE;
 }
-
 
 /*
  * Plugin activated.
- *
  */
 function plugin_activate()
 {
-    global $wp_rewrite;
-    logger("plugin_activate enter: " . dirname(__FILE__));
+	global $wp_rewrite;
+	logger("plugin_activate enter: " . dirname(__FILE__));
 
-    setup_db();
+	setup_db();
 
-    add_filter('rewrite_rules_array', 'update_rewrite_rules');
-    $wp_rewrite->flush_rules();
+	add_filter('rewrite_rules_array', 'update_rewrite_rules');
+	$wp_rewrite->flush_rules();
 
-    logger("plugin_activate exit: " . dirname(__FILE__));
+	logger("plugin_activate exit: " . dirname(__FILE__));
 }
-
 
 /*
  * Plugin deactivated.
- *
  */
 function plugin_deactivate(){
-    global $wp_rewrite;
-    logger("plugin_deactivate enter: " . dirname(__FILE__));
+	global $wp_rewrite;
+	logger("plugin_deactivate enter: " . dirname(__FILE__));
 
-    remove_filter('rewrite_rules_array', 'update_rewrite_rules');
-    $wp_rewrite->flush_rules();
+	remove_filter('rewrite_rules_array', 'update_rewrite_rules');
+	$wp_rewrite->flush_rules();
 
-    logger("plugin_deactivate exit: " . dirname(__FILE__));
+	logger("plugin_deactivate exit: " . dirname(__FILE__));
 }
 
 /*
  * Callback from admin_notices - display error message to the admin.
- *
  */
 function plugin_install_error()
 {
-    global $admin_msg;
-    logger("Enter " . __METHOD__, 0);
+	global $admin_msg;
+	logger("Enter " . __METHOD__, 0);
 
-    echo '<div class="updated"><p>';
-    echo 'Error has occured in the installation process of the translation plugin: <br>';
+	echo '<div class="updated"><p>';
+	echo 'Error has occured in the installation process of the translation plugin: <br>';
 
-    echo $admin_msg;
+	echo $admin_msg;
 
-    if (function_exists('deactivate_plugins') ) {
-        deactivate_plugins(get_plugin_name(), "translate.php");
-        echo '<br> This plugin has been automatically deactivated.';
-    }
+	if (function_exists('deactivate_plugins') ) {
+		deactivate_plugins(get_plugin_name(), "translate.php");
+		echo '<br> This plugin has been automatically deactivated.';
+	}
 
-    echo '</p></div>';
+	echo '</p></div>';
 }
-
 
 /*
  * Callback when all plugins have been loaded. Serves as the location
  * to check that the plugin loaded successfully else trigger notification
  * to the admin and deactivate plugin.
- *
  */
 function plugin_loaded()
 {
-    global $admin_msg;
-    logger("Enter " . __METHOD__, 4);
+	global $admin_msg;
+	logger("Enter " . __METHOD__, 4);
 
-    $db_version = get_option(TRANSPOSH_DB_VERSION);
+	$db_version = get_option(TRANSPOSH_DB_VERSION);
 
-    if ($db_version != DB_VERSION)
-    {
-    	setup_db();
-        //$admin_msg = "Translation database version ($db_version) is not comptabile with this plugin (". DB_VERSION . ")  <br>";
+	if ($db_version != DB_VERSION)
+	{
+		setup_db();
+		//$admin_msg = "Translation database version ($db_version) is not comptabile with this plugin (". DB_VERSION . ")  <br>";
 
-        logger("Updating database in plugin loaded", 0);
-        //Some error occured - notify admin and deactivate plugin
-        //add_action('admin_notices', 'plugin_install_error');
-    }
+		logger("Updating database in plugin loaded", 0);
+		//Some error occured - notify admin and deactivate plugin
+		//add_action('admin_notices', 'plugin_install_error');
+	}
 
-    if ($db_version != DB_VERSION)
-    {
-        $admin_msg = "Failed to locate the translation table  <em> " . TRANSLATIONS_TABLE . "</em> in local database. <br>";
+	if ($db_version != DB_VERSION)
+	{
+		$admin_msg = "Failed to locate the translation table  <em> " . TRANSLATIONS_TABLE . "</em> in local database. <br>";
 
-        logger("Messsage to admin: $admin_msg", 0);
-        //Some error occured - notify admin and deactivate plugin
-        add_action('admin_notices', 'plugin_install_error');
-    }
-
+		logger("Messsage to admin: $admin_msg", 0);
+		//Some error occured - notify admin and deactivate plugin
+		add_action('admin_notices', 'plugin_install_error');
+	}
 }
 
 /*
@@ -778,9 +676,66 @@ function get_plugin_name()
 	return $file;
 }
 
+/*
+ * Add custom css, i.e. transposh.css
+ */
+function add_transposh_css() {
+	global $plugin_url, $wp_query;
+	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	{
+		return;
+	}
+	//include the transposh.css
+	wp_enqueue_style("transposh","$plugin_url/transposh.css",array(),'1.0');
+	logger("Added transposh_css");
+}
+
+/*
+ * Insert references to the javascript files used in the transalted
+ * version of the page.
+ */
+function add_transposh_js() {
+	global $plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
+
+	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	{
+		return;
+	}
+
+	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
+
+	if (!$is_edit_param_enabled && ! $enable_auto_translate)
+	{
+		//TODO: check permission later - for now just make sure we don't load the
+		//js code when it is not needed
+		return;
+	}
+
+	$overlib_dir = "$plugin_url/js/overlibmws";
+
+	if($is_edit_param_enabled)
+	{
+		wp_enqueue_script("overlibmws","$overlib_dir/overlibmws.js",array(),'1.0');
+		wp_enqueue_script("overlibmws1","$overlib_dir/overlibmws_filter.js",array("overlibmws"),'1.0');
+		wp_enqueue_script("overlibmws2","$overlib_dir/overlibmws_modal.js",array("overlibmws1"),'1.0');
+		wp_enqueue_script("overlibmws3","$overlib_dir/overlibmws_overtwo.js",array("overlibmws2"),'1.0');
+		wp_enqueue_script("overlibmws4","$overlib_dir/overlibmws_scroll.js",array("overlibmws3"),'1.0');
+		wp_enqueue_script("overlibmws5","$overlib_dir/overlibmws_shadow.js",array("overlibmws4"),'1.0');
+	}
+
+	if($is_edit_param_enabled || $enable_auto_translate)
+	{
+		$post_url = $home_url . '/index.php';
+		wp_enqueue_script("jquerymin","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
+		wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1');
+		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url&lang={$lang}",array("jquerymin"),'1.0');
+	}
+}
+
 //Register callbacks
-add_action('wp_head', 'add_custom_css');
 add_filter('query_vars', 'parameter_queryvars' );
+add_action('wp_print_styles', 'add_transposh_css');
+add_action('wp_print_scripts', 'add_transposh_js');
 
 add_action('init', 'on_init');
 add_action('shutdown', 'on_shutdown');
