@@ -786,7 +786,7 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 
 		//Use base64 encoding to make that when the page is translated (i.e. update_translation) we
     	//get back exactlly the same string without having the client decode/encode it in anyway.
-    	$token = "token=\"" . base64_encode($original_text) . "\"";
+    	$token = "token=\"" . base64_url_encode($original_text) . "\"";
 
     	if($translated_text == NULL)
 		{
@@ -875,4 +875,20 @@ function update_translated_page($start, $end, $translated_text)
 	}
 
 }
+
+/**
+ * Encode a string as base 64 while avoiding characters which should be avoided 
+ * in uri, e.g. + is interpeted as a space.
+ */
+function base64_url_encode($input) {
+    return strtr(base64_encode($input), '+/=', '-_,');
+}
+
+/**
+ * Decode a string previously decoded with base64_url_encode
+ */
+function base64_url_decode($input) {
+    return base64_decode(strtr($input, '-_,', '+/='));
+}
+
 ?>

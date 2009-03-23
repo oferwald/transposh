@@ -414,7 +414,7 @@ function update_translation()
     global $wpdb, $table_name;
 
     $ref=getenv('HTTP_REFERER');
-    $original =  base64_decode($_POST['token'], TRUE);
+    $original =  base64_url_decode($_POST['token']);
     $translation = $_POST['translation'];
     $lang = $_POST['lang'];
     $source = $_POST['source'];
