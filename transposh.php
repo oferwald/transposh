@@ -310,6 +310,7 @@ function insert_javascript_includes()
     {
     	$js .= "\n<script type=\"text/javascript\" src=\"$plugin_url/js/transposh.js\"></script>";
     	$js .= "\n<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
+    	$js .= "\n<script type=\"text/javascript\">jQuery.noConflict();</script>";
     	$js .= "\n<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
     	$js .= "\n<script type=\"text/javascript\">google.load(\"language\", \"1\");</script>";
     
@@ -317,7 +318,7 @@ function insert_javascript_includes()
     	$post_url = $home_url . '/index.php';
     	$js .= "\n<script type=\"text/javascript\">var transposh_post_url='$post_url';var transposh_target_lang='$lang';</script>";
     
-    	$js .= "\n<script type=\"text/javascript\">$(document).ready(function() {do_auto_translate();});</script>";
+    	$js .= "\n<script type=\"text/javascript\">jQuery(document).ready(function() {do_auto_translate();});</script>";
     }
     
     echo $js . "\n";

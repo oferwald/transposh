@@ -49,43 +49,43 @@ function hint(original)
 // fetch translation from google translate...
 function getgt()
 {
-	google.language.translate($("#tr_original_unescaped").text(), "", transposh_target_lang, function(result) {
+	google.language.translate(jQuery("#tr_original_unescaped").text(), "", transposh_target_lang, function(result) {
 		  if (!result.error) {
-		    $("#tr_translation").val(result.translation);
+		    jQuery("#tr_translation").val(result.translation);
 		  } 
 		});
 }
 
 //Ajax translation
 function ajax_translate(original,translation,source,segment_id) {
-	var token = $("#tr_" + segment_id).attr('token');
+	var token = jQuery("#tr_" + segment_id).attr('token');
 	var query = 'token=' +  token +
     '&translation=' + translation +
     '&lang=' + transposh_target_lang +
     '&source=' + source +
     '&translation_posted=1';
 	
-    //$("span:contains("+translation+")").css("text-decoration", "underline");
-    $.ajax({  
+    //jQuery("span:contains("+translation+")").css("text-decoration", "underline");
+    jQuery.ajax({  
         type: "POST",
         url: transposh_post_url,
         data: query,  
         success: function(req) {
-        	var pre_translated = $("#tr_" + segment_id).html();
+        	var pre_translated = jQuery("#tr_" + segment_id).html();
         	var new_text = translation;
         	//reset to the original content - the unescaped version if translation is empty
             if(jQuery.trim(translation).length == 0) {
             	new_text = original;
             }
             // rewrite text for all matching items at once
-        	$(".tr_t,.tr_u").filter(function() {return $(this).html() == pre_translated;}).html(new_text)
+        	jQuery(".tr_t,.tr_u").filter(function() {return jQuery(this).html() == pre_translated;}).html(new_text)
         		.each(function (i) { // handle the image changes
-        			var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_')+1);
+        			var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
                     //current img 
-                    var img = $("#tr_img_" + img_segment_id).attr('src');
+                    var img = jQuery("#tr_img_" + img_segment_id).attr('src');
 
                     //rewrite onclick function - in case of re-edit
-                    $("#tr_img_" + img_segment_id).click(function () {
+                    jQuery("#tr_img_" + img_segment_id).click(function () {
                     	translate_dialog(original, translation, img_segment_id);
                     });
 
@@ -105,7 +105,7 @@ function ajax_translate(original,translation,source,segment_id) {
                     	}
                     }
                     //rewrite image
-                    $("#tr_img_" + img_segment_id).attr('src', img);
+                    jQuery("#tr_img_" + img_segment_id).attr('src', img);
         			
         		});
                 
@@ -140,8 +140,8 @@ var dialog = ''+
 	display_dialog(caption, dialog);
 
 	// attach handler to form's submit event 
-	$('#tr_form').submit(function() { 
-        var translation = $('#tr_translation').val();
+	jQuery('#tr_form').submit(function() { 
+        var translation = jQuery('#tr_translation').val();
                         
         ajax_translate(original,translation,0,segment_id);
         
@@ -154,13 +154,13 @@ var dialog = ''+
 //function for auto translation
 
 function do_auto_translate() {
-	$(".tr_u").each(function (i) {
-		var translated_id = $(this).attr('id');
-		google.language.translate($(this).text(), "", transposh_target_lang, function(result) {
+	jQuery(".tr_u").each(function (i) {
+		var translated_id = jQuery(this).attr('id');
+		google.language.translate(jQuery(this).text(), "", transposh_target_lang, function(result) {
 			if (!result.error) {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
-		        ajax_translate($("#"+translated_id).text(),result.translation,1,segment_id);
-		        $("#"+translated_id).addClass("tr_t").removeClass("tr_u");
+		        ajax_translate(jQuery("#"+translated_id).text(),result.translation,1,segment_id);
+		        jQuery("#"+translated_id).addClass("tr_t").removeClass("tr_u");
 			} 
 		});
 	});
