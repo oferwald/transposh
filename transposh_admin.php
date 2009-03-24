@@ -19,26 +19,21 @@
 /*
  * Provide the admin page for configuring the translation options. eg.  what languages ?
  * who is allowed to translate ?
- *
  */
 
 require_once("logging.php");
 require_once("constants.php");
 
-
 /*
  * Add transposh to the admin menu.
- *
  */
 function transposh_admin_menu()
 {
 	add_options_page('Transposh','Transposh', 6,'Transposh', 'transposh_admin_page');
 }
 
-
 /*
  * Create the admin page.
- *
  */
 function transposh_admin_page()
 {
@@ -72,36 +67,30 @@ function transposh_admin_page()
 
 /*
  * Insert supported languages section in admin page
- *
  */
 function insert_supported_langs()
 {
 	global $languages, $plugin_url;
 
-	echo '
-    <script type="text/javascript" >
-        function chbx_change(lang)
-        {
-            var view = lang + "_view";
-            if(document.getElementById(view).checked)
-            {
-                var edit = lang + "_edit";
-                document.getElementById(edit).checked = true;
-            }
-
-        }
-    </script>
-
-    <table>
-    <tr>';
-
+	echo '<script type="text/javascript">'.
+        'function chbx_change(lang)'.
+        '{'.
+            'var view = lang + "_view";'.
+            'if(document.getElementById(view).checked)'.
+            '{'.
+               'var edit = lang + "_edit";'.
+                'document.getElementById(edit).checked = true;'.
+            '}'.
+        '}'.
+    '</script>';
+	echo '<table><tr>';
 
 	$columns = 2;
 
 	for($hdr=0; $hdr < $columns; $hdr++)
 	{
-		echo '<th>Language</th><th>Viewable</th><th>Translatable</th>
-              <th>Default</th><th style="padding-right: 80px"></th>';
+		echo '<th>Language</th><th>Viewable</th><th>Translatable</th>'.
+             '<th>Default</th><th style="padding-right: 80px"></th>';
 	}
 
 	echo '</tr>';
@@ -111,21 +100,21 @@ function insert_supported_langs()
 		list ($language,$flag) = explode (",",$lang);
 		if($i % $columns == 0)
 		{
-			echo '</tr>';
+			echo '<tr>';
 		}
 		echo "\n";
 
 		$i++;
 
-		echo "<td><img src=\"$plugin_url/flags/$flag.png\"/>&nbsp;$language</td>";
+		echo "<td><img src=\"$plugin_url/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
 		echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
-		$code . '_view" onChange="chbx_change(\'' . $code . '\')"' . is_viewable($code) . '/></td>';
+		$code . '_view" onChange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
 		echo "\n";
 		echo '<td align="center">  <input type="checkbox" id="' . $code . '_edit" name="' .
 		$code . '_edit" ' . is_editable($code). '/></td>';
 		echo "\n";
-		echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\"" .
-		is_default_lang($code). "/> </td>";
+		echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
+		is_default_lang($code). "/></td>";
 
 		if($i % $columns == 0)
 		{
@@ -133,7 +122,7 @@ function insert_supported_langs()
 		}
 		else
 		{
-			echo "<td><style padding-right: 60px></style></td>";
+			echo "<td style=\"padding-right: 60px\"></td>";
 		}
 		echo "\n";
 	}
@@ -152,7 +141,7 @@ function is_editable($code)
 
 	if(strstr($langs, $code))
 	{
-		return "checked";
+		return 'checked="checked"';
 	}
 
 	return "";
@@ -167,7 +156,7 @@ function is_viewable($code)
 	$langs = get_option(VIEWABLE_LANGS);
 	if(strstr($langs, $code))
 	{
-		return "checked";
+		return 'checked="checked"';
 	}
 
 	return "";
@@ -190,7 +179,7 @@ function is_default_lang($code)
 
 	if($default ==  $code)
 	{
-		return "checked";
+		return 'checked="checked"';
 	}
 
 	return "";
@@ -198,7 +187,6 @@ function is_default_lang($code)
 
 /*
  * Insert permissiions section in the admin page
- *
  */
 function insert_permissions()
 {
@@ -208,12 +196,12 @@ function insert_permissions()
 	foreach($wp_roles->get_names() as $role_name => $something)
 	{
 		echo '<input type="checkbox" value="1" name="' . $role_name . '" ' . can_translate($role_name) .
-             '" />' . $role_name . '&nbsp&nbsp&nbsp</input>';
+             '/>' . $role_name . '&nbsp;&nbsp;&nbsp;';
 	}
 
 	//Add our own custom role
-	echo '<input type="checkbox" value="1" name="anonymous"'     .
-	can_translate('anonymous') . '" /> Anonymous</input>';
+	echo '<input type="checkbox" value="1" name="anonymous" '.
+	can_translate('anonymous') . '/> Anonymous';
 }
 
 /*
@@ -226,32 +214,29 @@ function insert_permalink_rewrite_option()
 	$checked = "";
 	if(get_option(ENABLE_PERMALINKS_REWRITE))
 	{
-		$checked = 'checked';
+		$checked = 'checked="checked"';
 	}
 
-	echo '<input type="checkbox" value="1" name="enable_permalinks"'. $checked . '"/>'.
+	echo '<input type="checkbox" value="1" name="enable_permalinks" '. $checked . '/>'.
 		 'Rewrite URLs to be search engine friendly, '.
 		 'e.g.  (http://wordpress.org/<strong> en</strong>). '.
-         'Requires that permalinks will be enabled.'.
-         '</input>';
+         'Requires that permalinks will be enabled.';
 }
 
 /*
  * Insert the option to enable/disable automatic translation.
  * Enabled by default.
- *
  */
 function insert_auto_translate_option()
 {
 	$checked = "";
 	if(get_option(ENABLE_AUTO_TRANSLATE,1))
 	{
-		$checked = 'checked';
+		$checked = 'checked="checked"';
 	}
 
-	echo '<input type="checkbox" value="1" name="enable_autotranslate"'.$checked.'"/>'.
-	     'Allow automatic translation of pages (currently using Google Translate).'.
-	     '</input>';
+	echo '<input type="checkbox" value="1" name="enable_autotranslate" '.$checked.'/>'.
+	     'Allow automatic translation of pages (currently using Google Translate)';
 }
 
 /*
@@ -266,7 +251,7 @@ function can_translate($role_name)
 		$role = $wp_roles->get_role($role_name);
 		if(isset($role) && $role->has_cap(TRANSLATOR))
 		{
-			return 'checked';
+			return 'checked="checked"';
 		}
 	}
 	else
@@ -274,7 +259,7 @@ function can_translate($role_name)
 		$allow_anonymous = get_option(ANONYMOUS_TRANSLATION);
 		if($allow_anonymous == "1")
 		{
-			return 'checked';
+			return 'checked="checked"';
 		}
 	}
 
@@ -283,7 +268,6 @@ function can_translate($role_name)
 
 /*
  * Handle newly posted admin options.
- *
  */
 function update_admin_options()
 {
@@ -350,8 +334,8 @@ function update_admin_options()
 		update_option(ENABLE_AUTO_TRANSLATE, $_POST['enable_autotranslate']);
 	}
 
-	echo '<div id="message"class="updated fade">';
-	echo ('<p> Changes saved</p>');
+	echo '<div id="message" class="updated fade">';
+	echo '<p>Changes saved</p>';
 	echo '</div>';
 }
 
