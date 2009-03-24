@@ -568,11 +568,18 @@ function is_html_entity($position, &$is_breaker)
 			$entity = substr($page, $position, $end_pos - $position + 1);
 
 			//Don't break on ` so for our use we don't consider it an entity
-			//e.g. Jack`s apple
-			if(!($entity ==  "&#8217;" || $entity == "&apos;" || $entity == "&#039;"))
+			//e.g. Jack`s apple. 
+			//Exception: don't break when we there is a white space after the apostrophe. e.g. `uncategorized` 
+			if(($entity ==  "&#8217;" || $entity == "&apos;" || $entity == "&#039;") 
+			    && $page[$end_pos + 1] != " ")
+			{
+				$is_breaker = FALSE;
+			}
+			else
 			{
 				$is_breaker = TRUE;
 			}
+			
 
 			//It is an html entity.
 			return $end_pos + 1;
