@@ -531,7 +531,7 @@ function setup_db()
 				"lang CHAR(5) NOT NULL,".
 				"translated VARCHAR(256),".
 				"source TINYINT NOT NULL,".
-				"PRIMARY KEY (original, lang))";
+				"PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
 		dbDelta($sql);
 
@@ -545,7 +545,7 @@ function setup_db()
 				"translated_by VARCHAR(15),".
 				"source TINYINT NOT NULL,".
 				"timestamp TIMESTAMP,".
-				"PRIMARY KEY (original, lang, timestamp))";
+				"PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
 		dbDelta($sql);
 		update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
