@@ -292,7 +292,7 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
 		$add_img = "_auto";
 	}
 
-	$img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" id=\"" . IMG_PREFIX . "$segment_id\" ".
+	$img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" class=\"".IMG_PREFIX."\" id=\"" . IMG_PREFIX . "$segment_id\" ".
            "onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\" ".
            "onmouseover=\"hint('$original'); return true;\" ".
            "onmouseout=\"nd()\" />";
@@ -686,7 +686,7 @@ function add_transposh_css() {
 		return;
 	}
 	//include the transposh.css
-	wp_enqueue_style("transposh","$plugin_url/transposh.css",array(),'1.0');
+	wp_enqueue_style("transposh","$plugin_url/transposh.css",array(),'1.0.1');
 	logger("Added transposh_css");
 }
 

@@ -27,6 +27,12 @@
 #overDiv table tr:hover {
     background-color:#225588;}
 
+.post .postbody .tr_img_, .attachment .tr_img_, .navigation .alignleft .tr_img_, .navigation .alignright .tr_img_,
+.tr_img_ {
+    border: 0px; 
+    margin: 0px;
+}
+
 /*
  * Define our styling
  */
