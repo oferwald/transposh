@@ -108,7 +108,7 @@ function insert_supported_langs()
 
 		echo "<td><img src=\"$plugin_url/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
 		echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
-		$code . '_view" onChange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
+		$code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
 		echo "\n";
 		echo '<td align="center">  <input type="checkbox" id="' . $code . '_edit" name="' .
 		$code . '_edit" ' . is_editable($code). '/></td>';
