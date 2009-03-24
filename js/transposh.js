@@ -65,7 +65,6 @@ function ajax_translate(original,translation,source,segment_id) {
     '&source=' + source +
     '&translation_posted=1';
 	
-    //jQuery("span:contains("+translation+")").css("text-decoration", "underline");
     jQuery.ajax({  
         type: "POST",
         url: transposh_post_url,
