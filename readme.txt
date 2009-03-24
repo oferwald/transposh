@@ -2,7 +2,7 @@
 Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, RTL, Hebrew, Spanish, French, Russian, English, Arabic, crowdsourcing, context, wiki
-Requires at least: 2.5
+Requires at least: 2.7
 Tested up to: 2.7.1
 Stable tag: <%VERSION%>
 
@@ -80,6 +80,11 @@ harnessed to get your message out to more people. Future versions will give more
 
 == Release notes ==
 
+* 2009/03/24 - 0.1.1
+ * Fixed compatability issues with other scripts (thanks [Eike](http://spotterblog.de/))
+ * Fixed minor issues with encoding some strings
+ * Verify UTF charset and collation upon database creation
+ * Some CSS improvments
 * 2009/03/22 - 0.1.0
  * Enabled automatic translation for site readers
  * Added many languages to the default list
