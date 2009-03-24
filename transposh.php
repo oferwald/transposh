@@ -190,7 +190,7 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
 	}
 	else
 	{
-		$url = preg_replace("/$home_url_quoted\/(..\/)?\/?/",
+		$url = preg_replace("/$home_url_quoted\/(..(-..)?\/)?\/?/",
                                  "$home_url/$lang/",  $url);
 	}
 
