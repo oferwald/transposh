@@ -487,7 +487,11 @@ function is_translatable_section()
 	$rc = FALSE;
 	$current_tag = end($tags_list);
 
-	if($is_in_body || $current_tag == 'title')
+	if($current_tag == 'title')
+	{
+		$rc = TRUE;
+	}
+	else if($is_in_body &&  $current_tag != 'style' && $current_tag != 'script')
 	{
 		$rc = TRUE;
 	}
