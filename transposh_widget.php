@@ -78,7 +78,7 @@ function transposh_widget_init()
 function transposh_widget($args)
 {
 	logger("Enter " . __METHOD__, 4);
-	global $languages, $wp_query, $plugin_url;
+	global $languages, $wp_query, $plugin_url,$lang;
 	extract($args);
 
 	$page_url =  ($_SERVER['HTTPS'] == 'on' ?
@@ -114,7 +114,7 @@ function transposh_widget($args)
 				//Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
 				   ($is_translator && strstr($editable_langs, $code)) ||
-				   get_option(DEFAULT_LANG) == $code)
+				   (get_option(DEFAULT_LANG) == $code && $lang))
 				{
     				$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
     				if (get_option(DEFAULT_LANG) == $code) {
@@ -147,7 +147,7 @@ function transposh_widget($args)
                 //Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
 				   ($is_translator && strstr($editable_langs, $code)) ||
-				   get_option(DEFAULT_LANG) == $code)
+				   (get_option(DEFAULT_LANG) == $code && $lang))
 				{
 					$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
 					echo "<option value=\"$code\" $is_selected>" . $language . "</option>";
