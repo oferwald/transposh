@@ -28,23 +28,11 @@
 
 require_once("logging.php");
 require_once("constants.php");
+require_once("globals.php");
 require_once("transposh_db.php");
 require_once("parser.php");
 require_once("transposh_widget.php");
 require_once("transposh_admin.php");
-
-//
-// Global variables
-//
-
-//Home url of the blog
-$home_url;
-
-//Home url of the blog - already quoted and ready for regex
-$home_url_quoted;
-
-//The url pointing to the base of the plugin
-$plugin_url;
 
 //Error message displayed for the admin in case of failure
 $admin_msg;
@@ -109,7 +97,7 @@ function process_page(&$buffer) {
  */
 function process_anchor_tag($start, $end)
 {
-	global $home_url, $home_url_quoted, $lang, $is_edit_mode, $wp_rewrite;
+	global $home_url, $home_url_quoted, $lang, $is_edit_mode, $enable_permalinks_rewrite;
 
 	$href = get_attribute($start, $end, 'href');
 
@@ -124,16 +112,15 @@ function process_anchor_tag($start, $end)
 		return;
 	}
 
-	$use_params = FALSE;
+	$use_params = !$enable_permalinks_rewrite;
 
 	//Only use params if permalinks are not enabled.
 	//don't fix links pointing to real files as it will cause that the
 	//web server will not be able to locate them
-	if(!$wp_rewrite->using_permalinks() ||
-	stripos($href, '/wp-admin') !== FALSE   ||
-	stripos($href, '/wp-content') !== FALSE ||
-	stripos($href, '/wp-login') !== FALSE   ||
-	stripos($href, '/.php') !== FALSE)
+	if(stripos($href, '/wp-admin') !== FALSE   ||
+	   stripos($href, '/wp-content') !== FALSE ||
+	   stripos($href, '/wp-login') !== FALSE   ||
+	   stripos($href, '/.php') !== FALSE)
 	{
 		$use_params = TRUE;
 	}
@@ -152,11 +139,11 @@ function process_anchor_tag($start, $end)
  * param is_edit - is running in edit mode.
  * param use_params_only - use only parameters as modifiers, i.e. not permalinks
  */
-function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only)
+function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 {
-	global $home_url, $home_url_quoted;
+	global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
 
-	if(!get_option(ENABLE_PERMALINKS_REWRITE))
+	if(!$enable_permalinks_rewrite)
 	{
 		//override the use only params - admin configured system to not touch permalinks
 		$use_params_only = TRUE;
@@ -232,7 +219,8 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
  */
 function init_global_vars()
 {
-	global $home_url, $home_url_quoted, $plugin_url, $enable_auto_translate;
+	global $home_url, $home_url_quoted, $plugin_url, $enable_auto_translate, 
+	      $enable_permalinks_rewrite, $wp_rewrite;
 
 	$home_url = get_option('home');
 	$local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
@@ -242,6 +230,11 @@ function init_global_vars()
 	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
 	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translator();
+	
+	if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE))
+	{
+		$enable_permalinks_rewrite = TRUE;
+	}
 }
 
 /*
