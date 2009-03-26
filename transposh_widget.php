@@ -34,8 +34,6 @@ function init_transposh()
 	{
 		logger("Enter " . __METHOD__, 4);
 
-		global $wp_rewrite;
-
 		$ref=getenv('HTTP_REFERER');
 		$lang = $_POST[LANG_PARAM];
 
@@ -44,10 +42,8 @@ function init_transposh()
 
 		if($lang != "none")
 		{
-			$use_params_only = !$wp_rewrite->using_permalinks();
 			$is_edit = $_POST[EDIT_PARAM];
-
-			$ref = rewrite_url_lang_param($ref, $lang, $is_edit, $use_params_only);
+			$ref = rewrite_url_lang_param($ref, $lang, $is_edit);
 		}
 
 		logger("Widget redirect url: $ref", 3);
@@ -82,7 +78,7 @@ function transposh_widget_init()
 function transposh_widget($args)
 {
 	logger("Enter " . __METHOD__, 4);
-	global $languages, $wp_query, $wp_rewrite, $plugin_url;
+	global $languages, $wp_query, $plugin_url;
 	extract($args);
 
 	$page_url =  ($_SERVER['HTTPS'] == 'on' ?
@@ -108,9 +104,7 @@ function transposh_widget($args)
             //keep the flags in the same direction regardless of the overall page direction
             echo "<div style=\"text-align: left;\" class=\"" . NO_TRANSLATE_CLASS . "\" >";
 
-            $using_permalinks = $wp_rewrite->using_permalinks();
-
-			foreach($languages as $code => $lang2)
+            foreach($languages as $code => $lang2)
 			{
 				list($language,$flag) = explode (",",$lang2);
 
@@ -121,8 +115,7 @@ function transposh_widget($args)
 				if(strstr($viewable_langs, $code) ||
 				   ($is_translator && strstr($editable_langs, $code)))
 				{
-                //$page_url = cleanup_url($page_url);
-					$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit, !$using_permalinks);
+    				$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
 
 					echo "<a href=\"" . $page_url2 . "\">".
                          "<img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"".

@@ -25,9 +25,7 @@
 
 require_once("logging.php");
 require_once("constants.php");
-
-//The language to which the current page will be translated to.
-$lang;
+require_once("globals.php");
 
 //The html page which starts contains the content being translated
 $page;
@@ -44,9 +42,6 @@ $tr_page;
 //Points to the last character that have been copied from the original to the translated page.
 $tr_mark = 0;
 
-//Is the current use is in edit mode.
-$is_edit_mode = FALSE;
-
 //Segment identifier within tags (span/img) mainly for use by js code on the client
 $segment_id = 0;
 
@@ -55,9 +50,6 @@ $is_in_body = FALSE;
 
 //Is current position within the channel tag, i.e. RSS feed
 $is_in_channel = FALSE;
-
-//Indicates whether automatic translation (i.e. google) is enabled for this page
-$enable_auto_translate;
 
 /*
  * Parse the html page into tags, identify translateable string which
