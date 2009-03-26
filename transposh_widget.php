@@ -166,8 +166,8 @@ function transposh_widget($args)
         if($is_translator && strstr($editable_langs, $lang))
         {
             echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
-                ($is_edit ? "checked=\"1\"" : "0") .
-                "\" onClick=\"this.form.submit();\"/>&nbsp;Edit Translation";
+                ($is_edit ? "checked=\"1\"" : "") .
+                " onclick=\"this.form.submit();\"/>&nbsp;Edit Translation";
         }
 
         echo "<input type=\"hidden\" name=\"transposh_widget_posted\" value=\"1\"/>";

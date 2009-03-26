@@ -151,13 +151,13 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 
 	if($is_edit)
 	{
-		$params = EDIT_PARAM . '=1&';
+		$params = EDIT_PARAM . '=1&amp;';
 
 	}
 
 	if($use_params_only)
 	{
-		$params .= LANG_PARAM . "=$lang&";
+		$params .= LANG_PARAM . "=$lang&amp;";
 	}
 	else
 	{
