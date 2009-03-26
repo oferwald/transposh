@@ -113,9 +113,13 @@ function transposh_widget($args)
 
 				//Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
-				   ($is_translator && strstr($editable_langs, $code)))
+				   ($is_translator && strstr($editable_langs, $code)) ||
+				   get_option(DEFAULT_LANG) == $code)
 				{
     				$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
+    				if (get_option(DEFAULT_LANG) == $code) {
+    					$page_url2 = $page_url;
+    				}
 
 					echo "<a href=\"" . $page_url2 . "\">".
                          "<img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
@@ -142,7 +146,8 @@ function transposh_widget($args)
 
                 //Only show languages which are viewable or (editable and the user is a translator)
 				if(strstr($viewable_langs, $code) ||
-				   ($is_translator && strstr($editable_langs, $code)))
+				   ($is_translator && strstr($editable_langs, $code)) ||
+				   get_option(DEFAULT_LANG) == $code)
 				{
 					$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
 					echo "<option value=\"$code\" $is_selected>" . $language . "</option>";
