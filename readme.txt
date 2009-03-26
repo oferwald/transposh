@@ -70,6 +70,15 @@ There are currently three colors used
 Wiki has proven itself quite a valid model on the Internet. More people have good intentions than bad intentions and that can be
 harnessed to get your message out to more people. Future versions will give more focus on preventing spammers from defacing sites
 
+= I have installed the plugin - automatic translation is on but nothing happens =
+
+The current implementation of automatic translation only works for people that have a privilege for translation, if you have
+enabled it for everyone (allowed anonymous translation) it will always work, Do remember that the results of translations
+that were made in a higher privilege level will be shown to lower priviledge levels.
+
+This comes from our view that auto-translation serves as a helper for real translation, at the future we might change this
+behavior 
+
 == Screenshots ==
 
 1. This is a screen shot of a site using Transposh widget on the sidebar
@@ -80,11 +89,14 @@ harnessed to get your message out to more people. Future versions will give more
 
 == Release notes ==
 
+* 2009/03/26 - 0.1.2
+ * Made sure our code passes w3c validation
+ * Added missing flags for two languages
 * 2009/03/24 - 0.1.1
- * Fixed compatability issues with other scripts (thanks [Eike](http://spotterblog.de/))
+ * Fixed compatibility issues with other scripts (thanks [Eike](http://spotterblog.de/))
  * Fixed minor issues with encoding some strings
  * Verify UTF charset and collation upon database creation
- * Some CSS improvments
+ * Some CSS improvements
 * 2009/03/22 - 0.1.0
  * Enabled automatic translation for site readers
  * Added many languages to the default list
