@@ -177,6 +177,9 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 		$url = preg_replace("/\?\?+/", "?", $url);
 	}
 
+	// more cleanups
+	$url = preg_replace("/\?$/", "", $url);
+	$url = preg_replace("/&$/", "", $url);
 	return $url;
 }
 /*
@@ -219,7 +222,7 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
  */
 function init_global_vars()
 {
-	global $home_url, $home_url_quoted, $plugin_url, $enable_auto_translate, 
+	global $home_url, $home_url_quoted, $plugin_url, $enable_auto_translate,
 	      $enable_permalinks_rewrite, $wp_rewrite;
 
 	$home_url = get_option('home');
@@ -230,7 +233,7 @@ function init_global_vars()
 	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
 	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translator();
-	
+
 	if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE))
 	{
 		$enable_permalinks_rewrite = TRUE;
