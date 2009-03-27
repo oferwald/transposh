@@ -44,6 +44,10 @@ function init_transposh()
 		{
 			$is_edit = $_POST[EDIT_PARAM];
 			$ref = rewrite_url_lang_param($ref, $lang, $is_edit);
+			
+			//ref is generated with html entities encoded, needs to be
+			//decoded when used in the http header (i.e. 302 redirect)
+			$ref = html_entity_decode($ref, ENT_NOQUOTES);
 		}
 
 		logger("Widget redirect url: $ref", 3);
