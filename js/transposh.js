@@ -49,7 +49,7 @@ function hint(original)
 // fetch translation from google translate...
 function getgt()
 {
-	google.language.translate(jQuery("#tr_original_unescaped").text(), "", transposh_target_lang, function(result) {
+	google.language.translate(jQuery("#tr_original_unescaped").text(), "", transposh_params['lang'], function(result) {
 		  if (!result.error) {
 		    jQuery("#tr_translation").val(result.translation);
 		  } 
@@ -61,13 +61,13 @@ function ajax_translate(original,translation,source,segment_id) {
 	var token = jQuery("#tr_" + segment_id).attr('token');
 	var query = 'token=' +  token +
     '&translation=' + translation +
-    '&lang=' + transposh_target_lang +
+    '&lang=' + transposh_params['lang'] +
     '&source=' + source +
     '&translation_posted=1';
 	
     jQuery.ajax({  
         type: "POST",
-        url: transposh_post_url,
+        url: transposh_params['post_url'],
         data: query,  
         success: function(req) {
         	var pre_translated = jQuery("#tr_" + segment_id).html();
@@ -127,7 +127,7 @@ function translate_dialog(original, trans, segment_id)
 caption='Edit Translation';
 //alert (this.id);
 var dialog = ''+
-    ('<form id="tr_form" name="transposh_edit_form" method="post" action="' + transposh_post_url + '"><div>') +
+    ('<form id="tr_form" name="transposh_edit_form" method="post" action="' + transposh_params['post_url'] + '"><div>') +
      '<p dir="ltr">Original text<br \/><textarea id="tr_original_unescaped" cols="60" rows="3" readonly="readyonly">' +
        original + '</textarea> <\/p>' +
     '<p>Translate to<br \/><input type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
@@ -155,7 +155,7 @@ var dialog = ''+
 function do_auto_translate() {
 	jQuery(".tr_u").each(function (i) {
 		var translated_id = jQuery(this).attr('id');
-		google.language.translate(jQuery(this).text(), "", transposh_target_lang, function(result) {
+		google.language.translate(jQuery(this).text(), "", transposh_params['lang'], function(result) {
 			if (!result.error) {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
 		        ajax_translate(jQuery("#"+translated_id).text(),result.translation,1,segment_id);
@@ -167,11 +167,21 @@ function do_auto_translate() {
 
 //to run at start
 jQuery.noConflict();
-var transposh_post_url,transposh_target_lang; 
+//read parameters
+var transposh_params = new Array(); 
 jQuery("script[src*='transposh.js']").each(function (i) {
-	transposh_post_url = unescape(this.src.match('post_url=(.*?)&')[1]);
-	transposh_target_lang = this.src.match('lang=(.*?)&')[1];
+	var query_string = unescape(this.src.substring(this.src.indexOf('?')+1));
+	var parms = query_string.split('&');
+	for (var i=0; i<parms.length; i++) {
+		var pos = parms[i].indexOf('=');
+		if (pos > 0) {
+			var key = parms[i].substring(0,pos);
+			var val = parms[i].substring(pos+1);
+			transposh_params[key] = val;	
+		}
+	}
 });
+
 google.load("language", "1");
 jQuery(document).ready(
 	function() {
