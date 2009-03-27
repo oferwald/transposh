@@ -143,6 +143,8 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 {
 	global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
 
+	$url = html_entity_decode($url, ENT_NOQUOTES);
+	
 	if(!$enable_permalinks_rewrite)
 	{
 		//override the use only params - admin configured system to not touch permalinks
@@ -151,13 +153,13 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 
 	if($is_edit)
 	{
-		$params = EDIT_PARAM . '=1&amp;';
+		$params = EDIT_PARAM . '=1&';
 
 	}
 
 	if($use_params_only)
 	{
-		$params .= LANG_PARAM . "=$lang&amp;";
+		$params .= LANG_PARAM . "=$lang&";
 	}
 	else
 	{
@@ -178,8 +180,11 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 	}
 
 	// more cleanups
-	$url = preg_replace("/\?$/", "", $url);
 	$url = preg_replace("/&$/", "", $url);
+	$url = preg_replace("/\?$/", "", $url);
+		
+	$url = htmlentities($url, ENT_NOQUOTES);
+	
 	return $url;
 }
 /*
