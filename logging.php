@@ -1,6 +1,6 @@
 <?php
 /*
- * Logging Utlis. 
+ * Logging Utils.
  */
 
 //
@@ -12,16 +12,16 @@
 
 //Enable tracing level.
 //0 - disabled. Higher numbers will show more debug information.
-define ("DEBUG" , 0);
+define ("DEBUG" , 3);
 
 /*
- * Print a message to log. 
+ * Print a message to log.
  */
-function logger($msg, $severity=3) 
+function logger($msg, $severity=3)
 {
     if($severity <= DEBUG)
     {
-        error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/var/tmp/transposh.log");
+        error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/tmp/transposh.log");
     }
 }
 
