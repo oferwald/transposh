@@ -58,17 +58,14 @@ function getgt()
 
 //Ajax translation
 function ajax_translate(original,translation,source,segment_id) {
-	var token = jQuery("#tr_" + segment_id).attr('token');
-	var query = 'token=' +  token +
-    '&translation=' + escape(translation) +
-    '&lang=' + transposh_params['lang'] +
-    '&source=' + source +
-    '&translation_posted=1';
-	
     jQuery.ajax({  
         type: "POST",
         url: transposh_params['post_url'],
-        data: query,  
+        data: {token: jQuery("#tr_" + segment_id).attr('token'),
+				translation: translation,
+				lang: transposh_params['lang'],
+				source: source,
+				translation_posted: "1"},
         success: function(req) {
         	var pre_translated = jQuery("#tr_" + segment_id).html();
         	var new_text = translation;
@@ -82,34 +79,35 @@ function ajax_translate(original,translation,source,segment_id) {
         			var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
                     //current img 
                     var img = jQuery("#tr_img_" + img_segment_id).attr('src');
-
-                    //rewrite onclick function - in case of re-edit
-                    jQuery("#tr_img_" + img_segment_id).click(function () {
-                    	translate_dialog(original, translation, img_segment_id);
-                    });
-
-                    // handle image
-                    if(jQuery.trim(translation).length == 0) {
+                    if (img != undefined) {
+                    	//rewrite onclick function - in case of re-edit
+                    	jQuery("#tr_img_" + img_segment_id).click(function () {
+                    		translate_dialog(original, translation, img_segment_id);
+                    	});
+                    	img = img.substr(0,img.lastIndexOf("/")) + "/";
+                    	// handle image
+                    	if(jQuery.trim(translation).length == 0) {
                         //switch to the edit img
-                        img = img.replace(/translate_fix.png/, "translate.png");
-                        img = img.replace(/translate_auto.png/, "translate.png");
-                    } else {
-                    	if (source == 1) {
-                    		//switch to the auto img
-                    		img = img.replace(/translate.png/, "translate_auto.png");                		
+                    		img += "translate.png";
                     	} else {
-                    		//switch to the fix img
-                    		img = img.replace(/translate.png/, "translate_fix.png");
-                    		img = img.replace(/translate_auto.png/, "translate_fix.png");
+                    		if (source == 1) {
+                    			//switch to the auto img
+                    			img += "translate_auto.png";                		
+                    		} else {
+                    		//	switch to the fix img
+                    			img += "translate_fix.png";
+                    		}
                     	}
-                    }
-                    //rewrite image
-                    jQuery("#tr_img_" + img_segment_id).attr('src', img);
+                    	//	rewrite image
+                    	jQuery("#tr_img_" + img_segment_id).attr('src', img);
+                    };
         			
         		});
                 
             //close dialog
-            cClick();
+        	if (typeof cClick == 'function' && source == 0) {
+        		cClick();
+        	}
     	},
                 
         error: function(req) {
@@ -118,7 +116,6 @@ function ajax_translate(original,translation,source,segment_id) {
     		}
     	}
     });
-
 }
 
 //Open translation dialog 
