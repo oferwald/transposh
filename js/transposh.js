@@ -51,7 +51,7 @@ function getgt()
 {
 	google.language.translate(jQuery("#tr_original_unescaped").text(), "", transposh_params['lang'], function(result) {
 		  if (!result.error) {
-		    jQuery("#tr_translation").val(result.translation);
+		    jQuery("#tr_translation").val(jQuery("<div>"+result.translation+"</div>").text());
 		  } 
 		});
 }
@@ -158,7 +158,7 @@ function do_auto_translate() {
 		google.language.translate(jQuery(this).text(), "", transposh_params['lang'], function(result) {
 			if (!result.error) {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
-		        ajax_translate(jQuery("#"+translated_id).text(),result.translation,1,segment_id);
+		        ajax_translate(jQuery("#"+translated_id).text(),jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
 		        jQuery("#"+translated_id).addClass("tr_t").removeClass("tr_u");
 			} 
 		});
