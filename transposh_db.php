@@ -18,9 +18,9 @@
 
 
 /**
- * Contains db realated function which are likely to be specific for each environment. 
+ * Contains db realated function which are likely to be specific for each environment.
  * This implementation for use with mysql within wordpress
- * 
+ *
  */
 
 require_once("logging.php");
@@ -97,6 +97,13 @@ function fetch_translation($original)
 	return $translated;
 }
 
+/*
+* Helper function for annoying strings from php escape (%u2019)
+*/
+function utf8_urldecode($str) {
+    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($str));
+    return html_entity_decode($str,null,'UTF-8');;
+}
 
 /*
  * A new translation has been posted, update the translation database.
@@ -107,7 +114,7 @@ function update_translation()
 
 	$ref=getenv('HTTP_REFERER');
 	$original =  base64_url_decode($_POST['token']);
-	$translation = $_POST['translation'];
+	$translation = utf8_urldecode($_POST['translation']);
 	$lang = $_POST['lang'];
 	$source = $_POST['source'];
 
@@ -122,9 +129,9 @@ function update_translation()
 	{
 		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
 	}
-	
+
 	$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
-	
+
 	//Decode & remove already escaped character to avoid double escaping
 	$translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
 
