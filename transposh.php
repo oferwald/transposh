@@ -498,9 +498,18 @@ function add_transposh_js() {
 	{
 		return;
 	}
-
+	
+	$lang = $wp_query->query_vars[LANG_PARAM];
+	$editable_langs = get_option(EDITABLE_LANGS);
+	
+	if(strpos($editable_langs, $lang) === FALSE)
+	{
+		//not an editable language - no need for any js. 	
+		return;
+	}
+	
 	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-
+	
 	if (!$is_edit_param_enabled && ! $enable_auto_translate)
 	{
 		//TODO: check permission later - for now just make sure we don't load the
