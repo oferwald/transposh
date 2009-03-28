@@ -144,7 +144,7 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 	global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
 
 	$url = html_entity_decode($url, ENT_NOQUOTES);
-	
+
 	if(!$enable_permalinks_rewrite)
 	{
 		//override the use only params - admin configured system to not touch permalinks
@@ -182,9 +182,9 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
 	// more cleanups
 	$url = preg_replace("/&$/", "", $url);
 	$url = preg_replace("/\?$/", "", $url);
-		
+
 	$url = htmlentities($url, ENT_NOQUOTES);
-	
+
 	return $url;
 }
 /*
@@ -482,6 +482,16 @@ function add_transposh_css() {
 	{
 		return;
 	}
+
+	$lang = $wp_query->query_vars[LANG_PARAM];
+	$editable_langs = get_option(EDITABLE_LANGS);
+
+	if(strpos($editable_langs, $lang) === FALSE)
+	{
+		//not an editable language - no need for any css.
+		return;
+	}
+
 	//include the transposh.css
 	wp_enqueue_style("transposh","$plugin_url/transposh.css",array(),'1.0.1');
 	logger("Added transposh_css");
@@ -498,18 +508,17 @@ function add_transposh_js() {
 	{
 		return;
 	}
-	
 	$lang = $wp_query->query_vars[LANG_PARAM];
 	$editable_langs = get_option(EDITABLE_LANGS);
-	
+
 	if(strpos($editable_langs, $lang) === FALSE)
 	{
-		//not an editable language - no need for any js. 	
+		//not an editable language - no need for any js.
 		return;
 	}
-	
+
 	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-	
+
 	if (!$is_edit_param_enabled && ! $enable_auto_translate)
 	{
 		//TODO: check permission later - for now just make sure we don't load the

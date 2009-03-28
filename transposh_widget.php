@@ -44,7 +44,7 @@ function init_transposh()
 		{
 			$is_edit = $_POST[EDIT_PARAM];
 			$ref = rewrite_url_lang_param($ref, $lang, $is_edit);
-			
+
 			//ref is generated with html entities encoded, needs to be
 			//decoded when used in the http header (i.e. 302 redirect)
 			$ref = html_entity_decode($ref, ENT_NOQUOTES);
@@ -208,6 +208,10 @@ function cleanup_url($url)
 
     //cleanup lang identifier in permalinks
     $url = preg_replace("/$home_url_quoted\/(..\/)/", "$home_url/",  $url);
+
+    //some more cleans
+    $url = preg_replace("/&$/", "", $url);
+	$url = preg_replace("/\?$/", "", $url);
 
     return $url;
 }
