@@ -116,8 +116,8 @@ function transposh_widget($args)
                 $page_url = cleanup_url($page_url);
 
 				//Only show languages which are viewable or (editable and the user is a translator)
-				if(strstr($viewable_langs, $code) ||
-				   ($is_translator && strstr($editable_langs, $code)) ||
+				if(strpos($viewable_langs, $code) !== FALSE ||
+				   ($is_translator && strpos($editable_langs, $code) !== FALSE) ||
 				   (get_option(DEFAULT_LANG) == $code && $lang))
 				{
     				$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
@@ -149,8 +149,8 @@ function transposh_widget($args)
 				list($language,$flag) = explode (",",$lang2);
 
                 //Only show languages which are viewable or (editable and the user is a translator)
-				if(strstr($viewable_langs, $code) ||
-				   ($is_translator && strstr($editable_langs, $code)) ||
+				if(strpos($viewable_langs, $code) !== FALSE ||
+				   ($is_translator && strpos($editable_langs, $code) !== FALSE) ||
 				   (get_option(DEFAULT_LANG) == $code && $lang))
 				{
 					$is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
@@ -167,7 +167,7 @@ function transposh_widget($args)
     if($is_showing_languages)
     {
         //Add the edit checkbox only for translators  on languages marked as editable
-        if($is_translator && strstr($editable_langs, $lang))
+        if($is_translator && strpos($editable_langs, $lang) !== FALSE)
         {
             echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
                 ($is_edit ? "checked=\"1\"" : "") .
