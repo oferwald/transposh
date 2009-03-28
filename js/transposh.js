@@ -60,7 +60,7 @@ function getgt()
 function ajax_translate(original,translation,source,segment_id) {
 	var token = jQuery("#tr_" + segment_id).attr('token');
 	var query = 'token=' +  token +
-    '&translation=' + translation +
+    '&translation=' + escape(translation) +
     '&lang=' + transposh_params['lang'] +
     '&source=' + source +
     '&translation_posted=1';
