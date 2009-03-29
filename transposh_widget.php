@@ -181,8 +181,8 @@ function transposh_widget($args)
         //Add the edit checkbox only for translators  on languages marked as editable
         if($is_translator && strpos($editable_langs, $lang) !== FALSE)
         {
-            echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\"" .
-                ($is_edit ? "checked=\"1\"" : "") .
+            echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\" " .
+                ($is_edit ? "checked=\"checked\"" : "") .
                 " onclick=\"this.form.submit();\"/>&nbsp;Edit Translation";
         }
 
