@@ -117,10 +117,12 @@ function update_translation()
 		return;
 	}
 
-	//Check that use is allowed to translate
-	if(!is_translator())
+	//Check that user is allowed to translate this language
+	if(!is_translator() || !is_editable_lang($lang))
 	{
 		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+		header("HTTP/1.0 401 Unauthorized translation");
+		exit;
 	}
 
 	$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
