@@ -25,6 +25,7 @@
 
 require_once("logging.php");
 require_once("constants.php");
+require_once("utils.php");
 
 //
 //Constants
@@ -116,7 +117,10 @@ function update_translation()
 		logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
 		return;
 	}
-
+	
+	//add  our own custom header - so we will know that we got here 
+	header("Transposh: version_". DB_VERSION);
+	
 	//Check that user is allowed to translate this language
 	if(!is_translator() || !is_editable_lang($lang))
 	{

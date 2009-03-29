@@ -29,6 +29,7 @@
 require_once("logging.php");
 require_once("constants.php");
 require_once("globals.php");
+require_once("utils.php");
 require_once("transposh_db.php");
 require_once("parser.php");
 require_once("transposh_widget.php");
@@ -65,17 +66,10 @@ function process_page(&$buffer) {
 
 	$page = $buffer;
 
-	if (($wp_query->query_vars[EDIT_PARAM] == "1" ||
-	$wp_query->query_vars[EDIT_PARAM] == "true"))
+	if (($wp_query->query_vars[EDIT_PARAM] == "1" || $wp_query->query_vars[EDIT_PARAM] == "true") &&
+	     is_translation_allowed())
 	{
-		//Verify that the current language is editable and that the
-		//user has the required permissions
-		$editable_langs = get_option(EDITABLE_LANGS);
-
-		if(is_translator() && strstr($editable_langs, $lang))
-		{
-			$is_edit_mode = TRUE;
-		}
+		$is_edit_mode = TRUE;
 	}
 
 	logger("translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
@@ -92,143 +86,13 @@ function process_page(&$buffer) {
 }
 
 /*
- * Fix links on the page. href needs to be modified to include
- * lang specifier and editing mode.
- */
-function process_anchor_tag($start, $end)
-{
-	global $home_url, $home_url_quoted, $lang, $is_edit_mode, $enable_permalinks_rewrite;
-
-	$href = get_attribute($start, $end, 'href');
-
-	if($href == NULL)
-	{
-		return;
-	}
-
-	//Ignore urls not from this site
-	if(stripos($href, $home_url) === FALSE)
-	{
-		return;
-	}
-
-	$use_params = !$enable_permalinks_rewrite;
-
-	//Only use params if permalinks are not enabled.
-	//don't fix links pointing to real files as it will cause that the
-	//web server will not be able to locate them
-	if(stripos($href, '/wp-admin') !== FALSE   ||
-	   stripos($href, '/wp-content') !== FALSE ||
-	   stripos($href, '/wp-login') !== FALSE   ||
-	   stripos($href, '/.php') !== FALSE)
-	{
-		$use_params = TRUE;
-	}
-
-	$href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
-
-	//rewrite url in translated page
-	update_translated_page($start, $end, $href);
-	logger(__METHOD__ . " $home_url href: $href");
-}
-
-/*
- * Update the given url to include language params.
- * param url - the original url to rewrite
- * param lang - language code
- * param is_edit - is running in edit mode.
- * param use_params_only - use only parameters as modifiers, i.e. not permalinks
- */
-function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
-{
-	global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
-
-	$url = html_entity_decode($url, ENT_NOQUOTES);
-
-	if(!$enable_permalinks_rewrite)
-	{
-		//override the use only params - admin configured system to not touch permalinks
-		$use_params_only = TRUE;
-	}
-
-	if($is_edit)
-	{
-		$params = EDIT_PARAM . '=1&';
-
-	}
-
-	if($use_params_only)
-	{
-		$params .= LANG_PARAM . "=$lang&";
-	}
-	else
-	{
-		$url = preg_replace("/$home_url_quoted\/(..(-..)?\/)?\/?/",
-                                 "$home_url/$lang/",  $url);
-	}
-
-	if($params)
-	{
-		//insert params to url
-		$url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
-
-		//Cleanup extra &
-		$url = preg_replace("/&&+/", "&", $url);
-
-		//Cleanup extra ?
-		$url = preg_replace("/\?\?+/", "?", $url);
-	}
-
-	// more cleanups
-	$url = preg_replace("/&$/", "", $url);
-	$url = preg_replace("/\?$/", "", $url);
-
-	$url = htmlentities($url, ENT_NOQUOTES);
-
-	return $url;
-}
-/*
- * Return the img tag that will added to enable editing a translatable
- * item on the page.
- * param segement_id The id (number) identifying this segment. Needs to be
- * placed within the img tag for use on client side operation (jquery)
- */
-function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
-{
-	global $plugin_url, $lang, $home_url;
-	$url = $home_url . '/index.php';
-
-	//For use in javascript, make the following changes:
-	//1. Add slashes to escape the inner text
-	//2. Convert the html special characters
-	//The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
-	$translation = htmlspecialchars(addslashes($translation));
-	$original    = htmlspecialchars(addslashes($original));
-
-	if ($is_translated)
-	{
-		$add_img = "_fix";
-	}
-
-	if ($source == 1) {
-		$add_img = "_auto";
-	}
-
-	$img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" class=\"".IMG_PREFIX."\" id=\"" . IMG_PREFIX . "$segment_id\" ".
-           "onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\" ".
-           "onmouseover=\"hint('$original'); return true;\" ".
-           "onmouseout=\"nd()\" />";
-
-	return $img;
-}
-
-/*
- * Init global variables later used throughout this process
+ * Init global variables later used throughout this process. 
+ * Note that at the time that this function is called the wp_query is not initialized, 
+ * which means that query parameters are not accessiable. 
  */
 function init_global_vars()
 {
-	global $home_url, $home_url_quoted, $plugin_url, $enable_auto_translate,
-	      $enable_permalinks_rewrite, $wp_rewrite;
+	global $home_url, $home_url_quoted, $plugin_url, $enable_permalinks_rewrite, $wp_rewrite;
 
 	$home_url = get_option('home');
 	$local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
@@ -236,8 +100,6 @@ function init_global_vars()
 	$plugin_url= $home_url . "/wp-content/plugins/$local_dir";
 	$home_url_quoted = preg_quote($home_url);
 	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
-
-	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translation_allowed();
 
 	if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE))
 	{
@@ -503,7 +365,9 @@ function add_transposh_js() {
 	}
 	
 	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-	if (!$is_edit_param_enabled && ! $enable_auto_translate)
+	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translation_allowed();
+	
+	if (!$is_edit_param_enabled && !$enable_auto_translate)
 	{
 		//Not in any translation mode - no need for any js.
 		return;
@@ -570,6 +434,30 @@ function is_editable_lang($lang)
 	}
 	
 	return TRUE;
+}
+
+/**
+ * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
+ * Some urls should be modified only by adding parameters and should be identified by this 
+ * function.
+ * @param $href
+ * @return TRUE if parameters should be used instead of rewriting as a permalink
+ */
+function is_url_excluded_from_permalink_rewrite($href)
+{
+	$use_params = FALSE;
+	
+	//don't fix links pointing to real files as it will cause that the
+	//web server will not be able to locate them
+	if(stripos($href, '/wp-admin') !== FALSE   ||
+	   stripos($href, '/wp-content') !== FALSE ||
+	   stripos($href, '/wp-login') !== FALSE   ||
+	   stripos($href, '/.php') !== FALSE)
+	{
+		$use_params = TRUE;
+	}
+	
+	return $use_params;
 }
 
 //Register callbacks

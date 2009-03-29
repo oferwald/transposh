@@ -26,6 +26,7 @@
 require_once("logging.php");
 require_once("constants.php");
 require_once("globals.php");
+require_once("utils.php");
 
 //The html page which starts contains the content being translated
 $page;
@@ -879,19 +880,76 @@ function update_translated_page($start, $end, $translated_text)
 
 }
 
-/**
- * Encode a string as base 64 while avoiding characters which should be avoided 
- * in uri, e.g. + is interpeted as a space.
- */
-function base64_url_encode($input) {
-    return strtr(base64_encode($input), '+/=', '-_,');
-}
 
-/**
- * Decode a string previously decoded with base64_url_encode
+/*
+ * Fix links on the page. href needs to be modified to include
+ * lang specifier and editing mode.
  */
-function base64_url_decode($input) {
-    return base64_decode(strtr($input, '-_,', '+/='));
+function process_anchor_tag($start, $end)
+{
+	global $home_url, $home_url_quoted, $lang, $is_edit_mode, $enable_permalinks_rewrite;
+
+	$href = get_attribute($start, $end, 'href');
+
+	if($href == NULL)
+	{
+		return;
+	}
+
+	//Ignore urls not from this site
+	if(stripos($href, $home_url) === FALSE)
+	{
+		return;
+	}
+
+	$use_params = !$enable_permalinks_rewrite;
+
+	//Allow specific override for url rewriting . 
+	if($enable_permalinks_rewrite &&  function_exists('is_url_excluded_from_permalink_rewrite') &&
+	   is_url_excluded_from_permalink_rewrite($href))
+	{
+		$use_params = TRUE;
+	}
+	
+	$href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
+
+	//rewrite url in translated page
+	update_translated_page($start, $end, $href);
+	logger(__METHOD__ . " $home_url href: $href");
+}
+/*
+ * Return the img tag that will added to enable editing a translatable
+ * item on the page.
+ * param segement_id The id (number) identifying this segment. Needs to be
+ * placed within the img tag for use on client side operation (jquery)
+ */
+function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
+{
+	global $plugin_url, $lang, $home_url;
+	$url = $home_url . '/index.php';
+
+	//For use in javascript, make the following changes:
+	//1. Add slashes to escape the inner text
+	//2. Convert the html special characters
+	//The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
+	$translation = htmlspecialchars(addslashes($translation));
+	$original    = htmlspecialchars(addslashes($original));
+
+	if ($is_translated)
+	{
+		$add_img = "_fix";
+	}
+
+	if ($source == 1) {
+		$add_img = "_auto";
+	}
+
+	$img = "<img src=\"$plugin_url/translate$add_img.png\" alt=\"translate\" class=\"".IMG_PREFIX."\" id=\"" . IMG_PREFIX . "$segment_id\" ".
+           "onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\" ".
+           "onmouseover=\"hint('$original'); return true;\" ".
+           "onmouseout=\"nd()\" />";
+
+	return $img;
 }
 
 ?>
