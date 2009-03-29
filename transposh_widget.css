@@ -1,0 +1,10 @@
+/*
+ * Widget's css 
+ */
+.transposh_flags {
+	direction: ltr;
+}
+
+.transposh_flags a {
+	display: inline;
+}

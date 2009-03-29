@@ -73,8 +73,21 @@ function transposh_widget_init()
 
 	// Register widget control
 	register_widget_control("Transposh",'transposh_widget_control');
+	
+	//regigster callback for widget's css
+	add_action('wp_print_styles', 'add_transposh_widget_css');
 }
 
+/*
+ * Add custom css, i.e. transposh.css
+ */
+function add_transposh_widget_css() {
+	global $plugin_url;
+	
+	//include the transposh_widget.css 
+	wp_enqueue_style("transposh_widget","$plugin_url/transposh_widget.css",array(),'1.0.1');
+	logger("Added transposh_widget_css");
+}
 
 /*
  * The actual widget implementation.
@@ -100,13 +113,12 @@ function transposh_widget($args)
 
     $is_showing_languages = FALSE;
 
-	//echo $before_widget . $before_title . __(no_translate("Transposh")) . $after_title;
 	echo $before_widget . $before_title . __("Translation") . $after_title;
 
 	switch ($options['style']) {
 		case 1: // flags
             //keep the flags in the same direction regardless of the overall page direction
-            echo "<div style=\"text-align: left;\" class=\"" . NO_TRANSLATE_CLASS . "\" >";
+            echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
 
             foreach($languages as $code => $lang2)
 			{
