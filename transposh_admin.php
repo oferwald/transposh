@@ -139,7 +139,7 @@ function is_editable($code)
 {
 	$langs = get_option(EDITABLE_LANGS);
 
-	if(strstr($langs, $code))
+	if(strpos($langs, $code) !== FALSE)
 	{
 		return 'checked="checked"';
 	}
@@ -154,7 +154,7 @@ function is_editable($code)
 function is_viewable($code)
 {
 	$langs = get_option(VIEWABLE_LANGS);
-	if(strstr($langs, $code))
+	if(strpos($langs, $code) !== FALSE)
 	{
 		return 'checked="checked"';
 	}

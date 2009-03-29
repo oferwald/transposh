@@ -237,7 +237,7 @@ function init_global_vars()
 	$home_url_quoted = preg_quote($home_url);
 	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
-	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translator();
+	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translation_allowed();
 
 	if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE))
 	{
@@ -477,21 +477,13 @@ function get_plugin_name()
  * Add custom css, i.e. transposh.css
  */
 function add_transposh_css() {
-	global $plugin_url, $wp_query;
-	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	global $plugin_url;
+	
+	if(!is_translation_allowed())
 	{
+		//translation not allowed - no need for the transposh.css 	
 		return;
 	}
-
-	$lang = $wp_query->query_vars[LANG_PARAM];
-	$editable_langs = get_option(EDITABLE_LANGS);
-
-	if(strpos($editable_langs, $lang) === FALSE)
-	{
-		//not an editable language - no need for any css.
-		return;
-	}
-
 	//include the transposh.css
 	wp_enqueue_style("transposh","$plugin_url/transposh.css",array(),'1.0.1');
 	logger("Added transposh_css");
@@ -504,25 +496,16 @@ function add_transposh_css() {
 function add_transposh_js() {
 	global $plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
 
-	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	if(!is_translation_allowed())
 	{
+		//translation not allowed - no need for any js.	
 		return;
 	}
-	$lang = $wp_query->query_vars[LANG_PARAM];
-	$editable_langs = get_option(EDITABLE_LANGS);
-
-	if(strpos($editable_langs, $lang) === FALSE)
-	{
-		//not an editable language - no need for any js.
-		return;
-	}
-
+	
 	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-
 	if (!$is_edit_param_enabled && ! $enable_auto_translate)
 	{
-		//TODO: check permission later - for now just make sure we don't load the
-		//js code when it is not needed
+		//Not in any translation mode - no need for any js.
 		return;
 	}
 
@@ -545,6 +528,48 @@ function add_transposh_js() {
 		wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1');
 		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url&lang={$lang}",array("jquerymin"),'1.0');
 	}
+}
+
+
+/**
+ * Determine if the currently selected language (taken from the query parameters) is in the admin's list 
+ * of editable languages and the current user is allowed to translate. 
+ *  
+ * @return TRUE if translation allowed otherwise FALSE
+ */
+function is_translation_allowed()
+{
+	global $wp_query;
+
+	if(!is_translator())
+	{
+		return FALSE;
+	}
+	
+	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	{
+		return FALSE;
+	}
+	
+	$lang = $wp_query->query_vars[LANG_PARAM];
+	return is_editable_lang($lang);
+}
+
+/**
+ * Determine if the given language in on the list of editable languages
+ * @return TRUE if editable othewise FALSE
+ */
+function is_editable_lang($lang)
+{
+	$editable_langs = get_option(EDITABLE_LANGS);
+
+	if(strpos($editable_langs, $lang) === FALSE)
+	{
+		//not an editable language
+		return FALSE;
+	}
+	
+	return TRUE;
 }
 
 //Register callbacks
