@@ -46,9 +46,9 @@ define("TRANSPOSH_DB_VERSION", "transposh_db_version");
  * Returns An array that contains the translated string and it source.
  *   Will return NULL if no translation is available.
  */
-function fetch_translation($original)
+function fetch_translation($original, $lang)
 {
-	global $wpdb, $lang;
+	global $wpdb;
 	$translated = NULL;
 	logger("Enter " . __METHOD__ . ": $original", 4);
 
@@ -90,7 +90,7 @@ function fetch_translation($original)
 		$rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
 		if($rc === TRUE)
 		{
-			logger("Stored in cache: $original => $translated", 3);
+			logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
 		}
 	}
 
@@ -111,24 +111,11 @@ function update_translation()
 	$lang = $_POST['lang'];
 	$source = $_POST['source'];
 
-	logger("Enter " . __FILE__ . " Params: $original , $translation, $lang," . $ref, 3);
+	logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
 	if(!isset($original) || !isset($translation) || !isset($lang))
 	{
 		logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
 		return;
-	}
-	
-	//add  our own custom header - so we will know that we got here 
-	header("Transposh: version_". DB_VERSION);
-	
-	//Check permissions, first the lanugage must be on the edit list. Then either the user
-	//is a translator or automatic translation if it is enabled. 
-	if(!(is_editable_lang($lang) && 
-	    (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE)))))
-	{
-		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
-		header("HTTP/1.0 401 Unauthorized translation");
-		exit;
 	}
 
 	$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
@@ -139,6 +126,31 @@ function update_translation()
 	//The original content is encoded as base64 before it is sent (i.e. token), after we
 	//decode it should just the same after it was parsed.
 	$original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+	//add  our own custom header - so we will know that we got here
+	header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
+
+	list($translated_text, $old_source) = fetch_translation($original, $lang);
+	if ($translated_text) {
+		if ($source == 1) {
+			logger("Warning " . __METHOD__ . " auto-translation for already translated: $original", 0);
+			return;
+		}
+		if ($translation == $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
+			logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
+			return;
+		}
+	}
+
+	//Check permissions, first the lanugage must be on the edit list. Then either the user
+	//is a translator or automatic translation if it is enabled.
+	if(!(is_editable_lang($lang) &&
+	    (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE)))))
+	{
+		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+		header("HTTP/1.0 401 Unauthorized translation");
+		exit;
+	}
 
 	$update = "REPLACE INTO  $table_name (original, translated, lang, source)
                 VALUES ('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
