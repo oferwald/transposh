@@ -63,7 +63,7 @@ function process_page(&$buffer) {
 	$page = $buffer;
 
 	if (($wp_query->query_vars[EDIT_PARAM] == "1" || $wp_query->query_vars[EDIT_PARAM] == "true") &&
-	     is_translation_allowed())
+	     is_editing_permitted())
 	{
 		$is_edit_mode = TRUE;
 	}
@@ -337,7 +337,7 @@ function get_plugin_name()
 function add_transposh_css() {
 	global $plugin_url;
 	
-	if(!is_translation_allowed())
+	if(!is_editing_permitted() && !is_auto_translate_permitted())
 	{
 		//translation not allowed - no need for the transposh.css 	
 		return;
@@ -354,14 +354,14 @@ function add_transposh_css() {
 function add_transposh_js() {
 	global $plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
 
-	if(!is_translation_allowed())
+	$enable_auto_translate = is_auto_translate_permitted();
+	if(!is_editing_permitted() && !$enable_auto_translate)
 	{
 		//translation not allowed - no need for any js.	
 		return;
 	}
 	
 	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-	$enable_auto_translate = get_option(ENABLE_AUTO_TRANSLATE,1) && is_translation_allowed();
 	
 	if (!$is_edit_param_enabled && !$enable_auto_translate)
 	{
@@ -397,7 +397,7 @@ function add_transposh_js() {
  *  
  * @return TRUE if translation allowed otherwise FALSE
  */
-function is_translation_allowed()
+function is_editing_permitted()
 {
 	global $wp_query;
 
@@ -432,6 +432,31 @@ function is_editable_lang($lang)
 	return TRUE;
 }
 
+
+/**
+ * Determine if the currently selected language (taken from the query parameters) is in the admin's list 
+ * of editable languages and that automatic translation has been enabled.
+ * Note that any user can auto translate. i.e. ignore permissions.  
+ *  
+ * @return TRUE if automatic translation allowed otherwise FALSE
+ */
+function is_auto_translate_permitted()
+{
+	global $wp_query;
+
+	if(!get_option(ENABLE_AUTO_TRANSLATE))
+	{
+		return FALSE;
+	}
+	
+	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	{
+		return FALSE;
+	}
+	
+	$lang = $wp_query->query_vars[LANG_PARAM];
+	return is_editable_lang($lang);
+}
 /**
  * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
  * Some urls should be modified only by adding parameters and should be identified by this 
