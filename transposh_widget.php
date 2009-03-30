@@ -20,8 +20,8 @@
  * Provides the sidebar widget for selecting a language and switching between edit/view
  * mode.
  */
-require_once("logging.php");
-require_once("constants.php");
+require_once("core/logging.php");
+require_once("core/constants.php");
 require_once("transposh.php");
 
 /*
@@ -85,7 +85,7 @@ function add_transposh_widget_css() {
 	global $plugin_url;
 	
 	//include the transposh_widget.css 
-	wp_enqueue_style("transposh_widget","$plugin_url/transposh_widget.css",array(),'1.0.1');
+	wp_enqueue_style("transposh_widget","$plugin_url/css/transposh_widget.css",array(),'1.0.1');
 	logger("Added transposh_widget_css");
 }
 
@@ -138,7 +138,7 @@ function transposh_widget($args)
     				}
 
 					echo "<a href=\"" . $page_url2 . "\">".
-                         "<img src=\"$plugin_url/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
+                         "<img src=\"$plugin_url/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
                          " style=\"padding: 1px 3px\"/></a>";
                     $is_showing_languages = TRUE;
 				}
@@ -196,7 +196,7 @@ function transposh_widget($args)
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-	echo "<div id=\"credit\">by <a href=\"http://transposh.org\"><img src=\"$plugin_url/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+	echo "<div id=\"credit\">by <a href=\"http://transposh.org\"><img src=\"$plugin_url/img/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 

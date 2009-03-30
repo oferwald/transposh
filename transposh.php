@@ -26,12 +26,8 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-require_once("logging.php");
-require_once("constants.php");
-require_once("globals.php");
-require_once("utils.php");
+require_once("core/parser.php");
 require_once("transposh_db.php");
-require_once("parser.php");
 require_once("transposh_widget.php");
 require_once("transposh_admin.php");
 
@@ -347,7 +343,7 @@ function add_transposh_css() {
 		return;
 	}
 	//include the transposh.css
-	wp_enqueue_style("transposh","$plugin_url/transposh.css",array(),'1.0.1');
+	wp_enqueue_style("transposh","$plugin_url/css/transposh.css",array(),'1.0.1');
 	logger("Added transposh_css");
 }
 
