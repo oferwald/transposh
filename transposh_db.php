@@ -23,9 +23,9 @@
  *
  */
 
-require_once("logging.php");
-require_once("constants.php");
-require_once("utils.php");
+require_once("core/logging.php");
+require_once("core/constants.php");
+require_once("core/utils.php");
 
 //
 //Constants

@@ -21,8 +21,8 @@
  * who is allowed to translate ?
  */
 
-require_once("logging.php");
-require_once("constants.php");
+require_once("core/logging.php");
+require_once("core/constants.php");
 
 /*
  * Add transposh to the admin menu.
@@ -106,7 +106,7 @@ function insert_supported_langs()
 
 		$i++;
 
-		echo "<td><img src=\"$plugin_url/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
+		echo "<td><img src=\"$plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
 		echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
 		$code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
 		echo "\n";
