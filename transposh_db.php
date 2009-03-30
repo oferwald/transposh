@@ -111,11 +111,22 @@ function update_translation()
 	$lang = $_POST['lang'];
 	$source = $_POST['source'];
 
+	// check params
 	logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
 	if(!isset($original) || !isset($translation) || !isset($lang))
 	{
 		logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
 		return;
+	}
+
+	//Check permissions, first the lanugage must be on the edit list. Then either the user
+	//is a translator or automatic translation if it is enabled.
+	if(!(is_editable_lang($lang) &&
+	    (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE)))))
+	{
+		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+		header("HTTP/1.0 401 Unauthorized translation");
+		exit;
 	}
 
 	$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
@@ -140,16 +151,6 @@ function update_translation()
 			logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
 			return;
 		}
-	}
-
-	//Check permissions, first the lanugage must be on the edit list. Then either the user
-	//is a translator or automatic translation if it is enabled.
-	if(!(is_editable_lang($lang) &&
-	    (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE)))))
-	{
-		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
-		header("HTTP/1.0 401 Unauthorized translation");
-		exit;
 	}
 
 	$update = "REPLACE INTO  $table_name (original, translated, lang, source)
