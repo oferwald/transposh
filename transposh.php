@@ -444,7 +444,7 @@ function is_auto_translate_permitted()
 {
 	global $wp_query;
 
-	if(!get_option(ENABLE_AUTO_TRANSLATE))
+	if(!get_option(ENABLE_AUTO_TRANSLATE, 1))
 	{
 		return FALSE;
 	}

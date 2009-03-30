@@ -122,7 +122,7 @@ function update_translation()
 	//Check permissions, first the lanugage must be on the edit list. Then either the user
 	//is a translator or automatic translation if it is enabled.
 	if(!(is_editable_lang($lang) &&
-	    (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE)))))
+	    (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE, 1)))))
 	{
 		logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
 		header("HTTP/1.0 401 Unauthorized translation");
