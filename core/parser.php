@@ -565,9 +565,9 @@ function is_html_entity($position, &$is_breaker)
 			$entity = substr($page, $position, $end_pos - $position + 1);
 
 			//Don't break on ` so for our use we don't consider it an entity
-			//e.g. Jack`s apple. 
-			//Exception: don't break when we there is a white space after the apostrophe. e.g. `uncategorized` 
-			if(($entity ==  "&#8217;" || $entity == "&apos;" || $entity == "&#039;") 
+			//e.g. Jack`s apple.
+			//Exception: don't break when we there is a white space after the apostrophe. e.g. `uncategorized`
+			if(($entity ==  "&#8217;" || $entity == "&apos;" || $entity == "&#039;")
 			    && $page[$end_pos + 1] != " ")
 			{
 				$is_breaker = FALSE;
@@ -576,7 +576,7 @@ function is_html_entity($position, &$is_breaker)
 			{
 				$is_breaker = TRUE;
 			}
-			
+
 
 			//It is an html entity.
 			return $end_pos + 1;
@@ -737,7 +737,7 @@ function is_word($word, $index1)
 function translate_text($start)
 {
 	logger("Enter " . __METHOD__  . " : $start", 4);
-	global $page, $pos;
+	global $page, $pos, $lang;
 
 	//trim white space from the start position going forward
 	skip_white_space($start);
@@ -764,7 +764,7 @@ function translate_text($start)
 		return;
 	}
 
-	list($translated_text, $source) = fetch_translation($original_text);
+	list($translated_text, $source) = fetch_translation($original_text, $lang);
 
 	insert_translation($original_text, $translated_text, $source, $start, $end);
 }
@@ -904,13 +904,13 @@ function process_anchor_tag($start, $end)
 
 	$use_params = !$enable_permalinks_rewrite;
 
-	//Allow specific override for url rewriting . 
+	//Allow specific override for url rewriting .
 	if($enable_permalinks_rewrite &&  function_exists('is_url_excluded_from_permalink_rewrite') &&
 	   is_url_excluded_from_permalink_rewrite($href))
 	{
 		$use_params = TRUE;
 	}
-	
+
 	$href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
 
 	//rewrite url in translated page
