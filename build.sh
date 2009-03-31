@@ -14,31 +14,34 @@ if [ -z $VERSION ]; then
   exit
 fi
 
-TMP_DIR="tmp"
-TRANSPOSH_DIR=$TMP_DIR/transposh
+TRANSPOSH_DIR=/tmp/transposh
 
 echo "Building package for WordPress plugin version: $VERSION";
  
 #Cleanup tmp dir 
-rm -r $TMP_DIR 2>/dev/null
-mkdir $TMP_DIR
+rm -r $TRANSPOSH_DIR 2>/dev/null
 mkdir $TRANSPOSH_DIR
-echo "cleaned up $TMP_DIR directory"
+echo "cleaned up $TRANSPOSH_DIR directory"
 echo
 
 #
 #Add sub directories
 #
-for DIR in flags js; do
+for DIR in js css img; do
   cp -r $DIR $TRANSPOSH_DIR
   echo "added sub-directory $DIR"
 done;
 echo
 
 #
+#Create core directory
+#
+mkdir $TRANSPOSH_DIR/core
+
+#
 #Add non-php files 
 #
-for FTYPE in css png txt; do
+for FTYPE in png txt; do
   cp *.$FTYPE $TRANSPOSH_DIR
   echo "added $FTYPE files"
 done;
@@ -49,13 +52,16 @@ echo
 #
 if [ "$DEBUG" != 'debug' ]; then
   echo "Adding .php files (without logging)"
-  for file in `find . -maxdepth 1 -iname '*.php' -printf "%p "`; do 
-  sed "s/logger.*;//;s/require_once(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
-  echo "added $file"
+  for file in `find . -maxdepth 2 -iname '*.php'`; do 
+    sed "s/logger.*;//;s/require_once(\"core.logging.*//;s/require_once(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
+    echo "added $file"
   done;
 else
   echo "Adding .php files (with logging)"
-  cp *.php $TRANSPOSH_DIR
+  for file in `find . -maxdepth 2 -iname '*.php'`; do 
+    cp $file > $TRANSPOSH_DIR/$file
+    echo "added $file"
+  done;
 fi
 echo
 
@@ -69,7 +75,7 @@ echo "fixing version in readme.txt to $VERSION"
 # Remove logging.php
 #
 if [ "$DEBUG" != 'debug' ]; then
-  rm $TRANSPOSH_DIR/logging.php
+  rm $TRANSPOSH_DIR/core/logging.php
   echo "removed logging.php"
 else
   rm $TRANSPOSH_DIR/screenshot*.png
@@ -77,7 +83,7 @@ else
 fi
 
 # Remove .svn dirs
-find tmp -name "*.svn*" -exec rm -rf {} 2>/dev/null \;
+find $TRANSPOSH_DIR -name "*.svn*" -exec rm -rf {} 2>/dev/null \;
 echo "removed .svn dirs"
 
 #

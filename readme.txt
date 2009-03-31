@@ -70,14 +70,12 @@ There are currently three colors used
 Wiki has proven itself quite a valid model on the Internet. More people have good intentions than bad intentions and that can be
 harnessed to get your message out to more people. Future versions will give more focus on preventing spammers from defacing sites
 
-= I have installed the plugin - automatic translation is on but nothing happens =
+= I have installed the plugin - nothing happens =
 
-The current implementation of automatic translation only works for people that have a privilege for translation, if you have
-enabled it for everyone (allowed anonymous translation) it will always work, Do remember that the results of translations
-that were made in a higher privilege level will be shown to lower priviledge levels.
+By default, automatic translation is on and it should be kicking in. If its off, and you don't have enough privileges
+to translate, nothing will happen.
 
-This comes from our view that auto-translation serves as a helper for real translation, at the future we might change this
-behavior 
+If everything is setup correctly and still nothing happens, please contact us.
 
 == Screenshots ==
 
@@ -89,9 +87,10 @@ behavior
 
 == Release notes ==
 
-* 2009/03/26 - 0.1.2
+* 2009/03/31 - 0.1.2
  * Made sure our code passes w3c validation
  * Added missing flags for two languages
+ * Auto translation should always work if set (even to non translators)
 * 2009/03/24 - 0.1.1
  * Fixed compatibility issues with other scripts (thanks [Eike](http://spotterblog.de/))
  * Fixed minor issues with encoding some strings
