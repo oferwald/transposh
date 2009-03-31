@@ -127,10 +127,10 @@ var dialog = ''+
     ('<form id="tr_form" name="transposh_edit_form" method="post" action="' + transposh_params['post_url'] + '"><div>') +
      '<p dir="ltr">Original text<br \/><textarea id="tr_original_unescaped" cols="60" rows="3" readonly="readyonly">' +
        original + '</textarea> <\/p>' +
-    '<p>Translate to<br \/><input type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
+    '<p>Translate to<br \/><input class="olinput" type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
     '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
     '<input type="hidden" name="translation_posted" value= "1">' +
-    '<p><input onclick="getgt()" type="button" value="Get Suggestion!"/>&nbsp;<input type="submit" value="Translate"/><\/p>' +
+    '<p><input class="olinput" onclick="getgt()" type="button" value="Get Suggestion!"/>&nbsp;<input class="olinput" type="submit" value="Translate"/><\/p>' +
     ('<\/div><\/form>');
 
 	display_dialog(caption, dialog);

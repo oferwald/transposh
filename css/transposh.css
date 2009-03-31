@@ -80,7 +80,7 @@ a.olcloD:hover {
 
 .olraisedBlue {
     text-align:center; 
-    background:#33aaff url(js/overlibmws/raised_blue.gif) repeat-x bottom left;}
+    background:#33aaff url(../js/overlibmws/raised_blue.gif) repeat-x bottom left;}
 
 table.olraisedBlue {
     border-bottom:1px solid #333399;}
@@ -92,7 +92,7 @@ table.olraisedBlue {
     color:#ffffff;}
 
 input.olinput {
-    background:white url(js/overlibmws/inputText.gif) repeat-x bottom left; 
+    background:white url(../js/overlibmws/inputText.gif) repeat-x bottom left; 
     min-height:16px;
     font-family:Verdana,Arial,Helvetica,sans-serif; 
     font-size:13px;
