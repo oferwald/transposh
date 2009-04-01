@@ -36,7 +36,7 @@ define("TRANSLATIONS_TABLE", "translations");
 define("TRANSLATIONS_LOG", "translations_log");
 
 //Database version
-define("DB_VERSION", "1.02");
+define("DB_VERSION", "1.03");
 
 //Constant used as key in options database
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
@@ -173,7 +173,7 @@ function update_translation()
 	else
 	{
 		logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
-		header("HTTP/1.0 404 Failed to update language database");
+		header("HTTP/1.0 404 Failed to update language database ".mysql_error());
 	}
 
 	exit;
@@ -225,9 +225,9 @@ function setup_db()
 		$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
 
 		logger("Attempting to create table $table_name", 0);
-		$sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,".
+		$sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
 				"lang CHAR(5) NOT NULL,".
-				"translated VARCHAR(256),".
+				"translated VARCHAR(255),".
 				"source TINYINT NOT NULL,".
 				"PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
@@ -237,9 +237,9 @@ function setup_db()
 		$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
 
 		logger("Attempting to create table $table_name", 0);
-		$sql = "CREATE TABLE $table_name (original VARCHAR(256) NOT NULL,".
+		$sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
 				"lang CHAR(5) NOT NULL,".
-				"translated VARCHAR(256),".
+				"translated VARCHAR(255),".
 				"translated_by VARCHAR(15),".
 				"source TINYINT NOT NULL,".
 				"timestamp TIMESTAMP,".

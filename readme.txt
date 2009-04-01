@@ -87,6 +87,8 @@ If everything is setup correctly and still nothing happens, please contact us.
 
 == Release notes ==
 
+* 2009/04/02 - 0.1.3
+ * Fix for mysql 4.1 (thanks [Amit](http://landscaping-blog.com/))
 * 2009/03/31 - 0.1.2
  * Made sure our code passes w3c validation
  * Added missing flags for two languages
