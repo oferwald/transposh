@@ -59,7 +59,7 @@ if [ "$DEBUG" != 'debug' ]; then
 else
   echo "Adding .php files (with logging)"
   for file in `find . -maxdepth 2 -iname '*.php'`; do 
-    cp $file > $TRANSPOSH_DIR/$file
+    cp $file $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
 fi
@@ -90,10 +90,10 @@ echo "removed .svn dirs"
 #Generate zip file
 # 
 if [ "$ZIPME" == 'zip' ]; then
-  cd $TMP_DIR
+  cd $TRANSPOSH_DIR
   zip -rq "transposh.$VERSION.zip" .
   cd - >/dev/null
-  mv "$TMP_DIR/transposh.$VERSION.zip" . 
+#  mv "$TRANSPOSH_DIR/transposh.$VERSION.zip" . 
   echo
   echo "transposh.$VERSION.zip is ready"
 fi
