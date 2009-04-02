@@ -72,8 +72,13 @@ harnessed to get your message out to more people. Future versions will give more
 
 = I have installed the plugin - nothing happens =
 
-By default, automatic translation is on and it should be kicking in. If its off, and you don't have enough privileges
-to translate, nothing will happen.
+By default, automatic translation is on and it should be kicking in. If its off, and you don’t have enough privileges to translate, nothing will happen.
+
+Please be reminded of the following “rules”
+
+1. A language marked as viewable will have its flag shown inside the widget.
+1. A language marked for editing will allow a translator (anyone marked in the ‘who can translate’ section) to manually edit the page. i.e. the translate check-box will appear in the widget.
+1. Enabling automatic translation will automatically translate a page (without requiring entering edit mode) for EVERYONE viewing the page regardless of the their role. However it will only take place for languages marked as editable.
 
 If everything is setup correctly and still nothing happens, please contact us.
 
