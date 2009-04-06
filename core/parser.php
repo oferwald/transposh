@@ -34,6 +34,11 @@ $page;
 //Marks the current position of the translation process within the page
 $pos = 0;
 
+//Used for statistics
+$phrase_count = 0;
+$pharses_by_human = 0;
+$pharses_by_cat = 0;
+
 //Contains the stack of tag in the current position within the page
 $tags_list = array();
 
@@ -60,7 +65,7 @@ function process_html()
 {
 	logger("Enter " . __METHOD__, 4);
 
-	global $page, $tr_page, $pos, $tags_list, $lang;
+	global $page, $tr_page, $pos, $tags_list, $lang, $phrase_count, $pharses_by_human, $pharses_by_cat;
 	$no_translate = 0;
 	$page_length = strlen($page);
 
@@ -149,6 +154,7 @@ function process_html()
 		update_translated_page(strlen($page), -1, "");
 	}
 
+	logger("Stats: all-$phrase_count, cat-$pharses_by_cat, human-$pharses_by_human", 0);
 	logger("Exit " . __METHOD__, 4);
 }
 
@@ -452,7 +458,7 @@ function process_cdata_section()
 		{
 			//will break translation unit when one of the following characters is reached: .,
 			if(is_sentence_breaker($pos) ||
-			   $page[$pos] == '<' || $page[$pos] == '>')  //only in cdata the < > are valid breakers as well
+			$page[$pos] == '<' || $page[$pos] == '>')  //only in cdata the < > are valid breakers as well
 			{
 				translate_text($start);
 				$pos++;
@@ -497,7 +503,7 @@ function is_translatable_section()
 		$rc = TRUE;
 	}
 	else if($is_in_channel &&
-	        ($current_tag == 'title' || $current_tag == 'description' || $current_tag == 'category'))
+	($current_tag == 'title' || $current_tag == 'description' || $current_tag == 'category'))
 	{
 		$rc = TRUE;
 	}
@@ -526,11 +532,11 @@ function is_sentence_breaker($position)
 		}
 	}
 	else if($page[$position] == ',' || $page[$position] == '?' ||
-		    $page[$position] == '(' || $page[$position] == ')' ||
-		    $page[$position] == '[' || $page[$position] == ']' ||
-			$page[$position] == '"' || $page[$position] == '!' ||
-			$page[$position] == ':' || $page[$position] == '|' ||
-			$page[$position] == ';')
+	$page[$position] == '(' || $page[$position] == ')' ||
+	$page[$position] == '[' || $page[$position] == ']' ||
+	$page[$position] == '"' || $page[$position] == '!' ||
+	$page[$position] == ':' || $page[$position] == '|' ||
+	$page[$position] == ';')
 	{
 		//break the sentence into segments regardless of the next character.
 		$rc = TRUE;
@@ -568,7 +574,7 @@ function is_html_entity($position, &$is_breaker)
 			//e.g. Jack`s apple.
 			//Exception: don't break when we there is a white space after the apostrophe. e.g. `uncategorized`
 			if(($entity ==  "&#8217;" || $entity == "&apos;" || $entity == "&#039;")
-			    && $page[$end_pos + 1] != " ")
+			&& $page[$end_pos + 1] != " ")
 			{
 				$is_breaker = FALSE;
 			}
@@ -597,7 +603,7 @@ function is_number($position)
 	$start = $position;
 
 	while(is_digit($position) || $page[$position] == '-' || $page[$position] == '+' ||
-	 (($page[$position] == ',' || $page[$position] == '.' || $page[$position] == '\\' || $page[$position] == '/') && is_digit($position+1)))
+	(($page[$position] == ',' || $page[$position] == '.' || $page[$position] == '\\' || $page[$position] == '/') && is_digit($position+1)))
 	{
 		$position++;
 	}
@@ -737,7 +743,7 @@ function is_word($word, $index1)
 function translate_text($start)
 {
 	logger("Enter " . __METHOD__  . " : $start", 4);
-	global $page, $pos, $lang;
+	global $page, $pos, $lang, $phrase_count, $pharses_by_human, $pharses_by_cat;
 
 	//trim white space from the start position going forward
 	skip_white_space($start);
@@ -766,6 +772,15 @@ function translate_text($start)
 
 	list($translated_text, $source) = fetch_translation($original_text, $lang);
 
+	$phrase_count++;
+	if ($translated_text != NULL) {
+		if ($source) {
+			$pharses_by_cat++;
+		} else  {
+			$pharses_by_human++;
+		}
+	}
+
 	insert_translation($original_text, $translated_text, $source, $start, $end);
 }
 
@@ -789,12 +804,12 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 		$span = "<span class=\"$span_prefix";
 
 		//Use base64 encoding to make that when the page is translated (i.e. update_translation) we
-    	//get back exactlly the same string without having the client decode/encode it in anyway.
-    	$token = "token=\"" . base64_url_encode($original_text) . "\"";
+		//get back exactlly the same string without having the client decode/encode it in anyway.
+		$token = "token=\"" . base64_url_encode($original_text) . "\"";
 
-    	if($translated_text == NULL)
+		if($translated_text == NULL)
 		{
-		    $span .= "u\" id=\"{$span_prefix}{$segment_id}\" $token>";
+			$span .= "u\" id=\"{$span_prefix}{$segment_id}\" $token>";
 			$span .= $original_text . '</span>';
 		}
 		else
@@ -906,7 +921,7 @@ function process_anchor_tag($start, $end)
 
 	//Allow specific override for url rewriting .
 	if($enable_permalinks_rewrite &&  function_exists('is_url_excluded_from_permalink_rewrite') &&
-	   is_url_excluded_from_permalink_rewrite($href))
+	is_url_excluded_from_permalink_rewrite($href))
 	{
 		$use_params = TRUE;
 	}
