@@ -948,7 +948,8 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
 	//2. Convert the html special characters
 	//The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
 	$translation = htmlspecialchars(addslashes($translation));
-	$original    = htmlspecialchars(addslashes($original));
+	//TODO: Need to check this one delicate point
+	// $original    = htmlspecialchars(addslashes($original));
 
 	if ($is_translated)
 	{
@@ -961,7 +962,8 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
 
 	$img = "<img src=\"$plugin_url/img/translate$add_img.png\" alt=\"translate\" class=\"".IMG_PREFIX."\" id=\"" . IMG_PREFIX . "$segment_id\" ".
            "onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\" ".
-           "onmouseover=\"hint('$original'); return true;\" ".
+		   "title=\"$original\"".
+           //"onmouseover=\"hint('$original'); return true;\" ".
            "onmouseout=\"nd()\" />";
 
 	return $img;
