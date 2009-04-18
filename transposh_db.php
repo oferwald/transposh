@@ -209,6 +209,63 @@ function update_transaction_log(&$original, &$translation, &$lang, $source)
 	}
 }
 
+/*
+ * A new translation has been posted, update the translation database.
+ */
+function get_translation_history($token, $lang)
+{
+	global $wpdb;
+
+	$ref=getenv('HTTP_REFERER');
+	$original =  base64_url_decode($token);
+
+	// check params
+	logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
+	if(!isset($original) || !isset($lang))
+	{
+		logger("Enter " . __FILE__ . " missing params: $original, $lang," . $ref, 0);
+		return;
+	}
+
+	//Check permissions, first the lanugage must be on the edit list. Then either the user
+	//is a translator or automatic translation if it is enabled.
+	if(!(is_editable_lang($lang) && is_translator()))
+	{
+		logger("Unauthorized history request " . $_SERVER['REMOTE_ADDR'] , 1);
+		header("HTTP/1.0 401 Unauthorized history");
+		exit;
+	}
+
+	$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+
+	//The original content is encoded as base64 before it is sent (i.e. token), after we
+	//decode it should just the same after it was parsed.
+	$original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+	//add  our own custom header - so we will know that we got here
+	header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
+
+	$query = "SELECT translated, translated_by, timestamp, source FROM $table_name WHERE original='$original' AND lang='$lang' ORDER BY timestamp DESC";
+	//echo $query;
+	$rows = $wpdb->get_results($query);
+
+	if($rows !== FALSE)
+	{
+		echo '<table>' .
+		'<thead>'.
+			'<tr>'.
+				'<th>Translated</th><th>By</th><th>At</th>'.
+			'</tr>'.
+		'</thead>'.
+		'<tbody>';
+		foreach ($rows as $row) :
+			echo "<tr><td>{$row->translated}</td><td>{$row->translated_by}</td><td>{$row->timestamp}</td></tr>";
+		endforeach;
+		echo '</tbody></table>';
+	}
+
+	exit;
+}
 
 /*
  * Setup the translation database.

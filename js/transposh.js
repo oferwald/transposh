@@ -15,7 +15,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-function display_dialog(caption, content)
+/*function display_dialog(caption, content)
 {        
 overlib(content,
 		MODAL,
@@ -36,20 +36,21 @@ overlib(content,
 		SHADOW, SHADOWCOLOR, '#113377', SHADOWOPACITY, 20,
 		WRAP, STICKY, SCROLL, MIDX,0, MIDY,0);
 }
+*/
 
 //Show tooltip over a translated text
-function hint(original)
+/*function hint(original)
 {
     overlib('<bdo dir="ltr">'+ original +'</bdo>',
     		FGCLASS,'olfgD',
     		TEXTFONTCLASS,'oltxtD',
     		AUTOSTATUS,WRAP);
-}
+}*/
 
 // fetch translation from google translate...
 function getgt()
 {
-	google.language.translate(jQuery("#tr_original_unescaped").text(), "", transposh_params['lang'], function(result) {
+	google.language.translate(jQuery("#tr_original").val(), "", transposh_params['lang'], function(result) {
 		  if (!result.error) {
 		    jQuery("#tr_translation").val(jQuery("<div>"+result.translation+"</div>").text());
 		  } 
@@ -118,35 +119,6 @@ function ajax_translate(original,translation,source,segment_id) {
     });
 }
 
-//Open translation dialog 
-function translate_dialog(original, trans, segment_id)
-{
-caption='Edit Translation';
-//alert (this.id);
-var dialog = ''+
-    ('<form id="tr_form" name="transposh_edit_form" method="post" action="' + transposh_params['post_url'] + '"><div>') +
-     '<p dir="ltr">Original text<br \/><textarea id="tr_original_unescaped" cols="60" rows="3" readonly="readyonly">' +
-       original + '</textarea> <\/p>' +
-    '<p>Translate to<br \/><input class="olinput" type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
-    '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
-    '<input type="hidden" name="translation_posted" value= "1">' +
-    '<p><input class="olinput" onclick="getgt()" type="button" value="Get Suggestion!"/>&nbsp;<input class="olinput" type="submit" value="Translate"/><\/p>' +
-    ('<\/div><\/form>');
-
-	display_dialog(caption, dialog);
-
-	// attach handler to form's submit event 
-	jQuery('#tr_form').submit(function() { 
-        var translation = jQuery('#tr_translation').val();
-                        
-        ajax_translate(original,translation,0,segment_id);
-        
-        // return false to prevent normal browser submit and page navigation 
-        return false;
-        
-    });
-
-}
 //function for auto translation
 
 function do_auto_translate() {
@@ -178,6 +150,77 @@ jQuery("script[src*='transposh.js']").each(function (i) {
 		}
 	}
 });
+
+//Open translation dialog 
+/*function translate_dialog(original, trans, segment_id)
+{
+caption='Edit Translation';
+//alert (this.id);
+var dialog = ''+
+    ('<form id="tr_form" name="transposh_edit_form" method="post" action="' + transposh_params['post_url'] + '"><div>') +
+     '<p dir="ltr">Original text<br \/><textarea id="tr_original_unescaped" cols="60" rows="3" readonly="readyonly">' +
+       original + '</textarea> <\/p>' +
+    '<p>Translate to<br \/><input class="olinput" type="text" id="tr_translation" name="translation" size="80" value="'+ trans +
+    '"' + 'onfocus="OLmEdit=1;" onblur="OLmEdit=0;"<\/p>' +
+    '<input type="hidden" name="translation_posted" value= "1">' +
+    '<p><input class="olinput" onclick="getgt()" type="button" value="Get Suggestion!"/>&nbsp;<input class="olinput" type="submit" value="Translate"/><\/p>' +
+    ('<\/div><\/form>');
+
+	display_dialog(caption, dialog);
+
+	// attach handler to form's submit event 
+	jQuery('#tr_form').submit(function() { 
+        var translation = jQuery('#tr_translation').val();
+                        
+        ajax_translate(original,translation,0,segment_id);
+        
+        // return false to prevent normal browser submit and page navigation 
+        return false;
+        
+    });
+}*/
+
+function translate_dialog(original, trans, segment_id) {
+	jQuery("#tabs").remove();
+	jQuery('<div id="tabs" title="Edit Translation"/>').appendTo("body");
+	jQuery("#tabs").append('<ul/>').tabs({ cache: true });
+	jQuery("#tabs").tabs('add','#tabs-1','Translate');
+	jQuery("#tabs").tabs('add','index.php?tr_token_hist='+jQuery("#tr_" + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History');
+	jQuery("#tabs-1").append(
+			'<form>' +	
+			'<fieldset>' +
+			'<label for="original">Original Text</label>' +
+			'<input type="text" name="original" id="tr_original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
+			'<label for="translation">Translate To</label>' +
+			'<input type="text" name="translation" id="tr_translation" value="" class="text ui-widget-content ui-corner-all"/>' +
+			'</fieldset>' +
+			'</form>');
+	jQuery("#tr_original").val(original);
+	jQuery("#tr_translation").val(trans);
+	jQuery("#tabs").css("text-align","left");
+	jQuery("#tabs-1 label").css("display","block");
+	jQuery("#tabs-1 input.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
+	jQuery("#tabs").bind('tabsload', function(event, ui) {
+		//TODO, formatting here, not server side
+		jQuery("table",ui.panel).addClass("ui-widget ui-widget-content").css({'width' : '95%', 'padding' : '0'});
+		jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
+	});
+	jQuery("#tabs").tabs().dialog({
+		bgiframe: true,
+		modal: true,
+		width: 460,
+		buttons: {
+			Suggest: function() {
+				getgt();
+			},
+			Ok: function() {
+				var translation = jQuery('#tr_translation').val();
+				ajax_translate(original,translation,0,segment_id);
+				jQuery(this).dialog('close');
+			}
+		}
+	}).css("padding",0).dialog('open');
+}
 
 google.load("language", "1");
 jQuery(document).ready(
