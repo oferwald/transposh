@@ -82,9 +82,9 @@ function process_page(&$buffer) {
 }
 
 /*
- * Init global variables later used throughout this process. 
- * Note that at the time that this function is called the wp_query is not initialized, 
- * which means that query parameters are not accessiable. 
+ * Init global variables later used throughout this process.
+ * Note that at the time that this function is called the wp_query is not initialized,
+ * which means that query parameters are not accessiable.
  */
 function init_global_vars()
 {
@@ -133,6 +133,9 @@ function on_init()
 	if ($_POST['translation_posted'])
 	{
 		update_translation();
+	}
+	elseif ($_GET['tr_token_hist']) {
+		get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
 	}
 	else
 	{
@@ -336,14 +339,15 @@ function get_plugin_name()
  */
 function add_transposh_css() {
 	global $plugin_url;
-	
+
 	if(!is_editing_permitted() && !is_auto_translate_permitted())
 	{
-		//translation not allowed - no need for the transposh.css 	
+		//translation not allowed - no need for the transposh.css
 		return;
 	}
 	//include the transposh.css
 	wp_enqueue_style("transposh","$plugin_url/css/transposh.css",array(),'1.0.1');
+	wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/ui-lightness/jquery-ui.css",array(),'1.0.1');
 	logger("Added transposh_css");
 }
 
@@ -357,12 +361,12 @@ function add_transposh_js() {
 	$enable_auto_translate = is_auto_translate_permitted();
 	if(!is_editing_permitted() && !$enable_auto_translate)
 	{
-		//translation not allowed - no need for any js.	
+		//translation not allowed - no need for any js.
 		return;
 	}
-	
+
 	$is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-	
+
 	if (!$is_edit_param_enabled && !$enable_auto_translate)
 	{
 		//Not in any translation mode - no need for any js.
@@ -373,28 +377,30 @@ function add_transposh_js() {
 
 	if($is_edit_param_enabled)
 	{
-		wp_enqueue_script("overlibmws","$overlib_dir/overlibmws.js",array(),'1.0');
+		/*wp_enqueue_script("overlibmws","$overlib_dir/overlibmws.js",array(),'1.0');
 		wp_enqueue_script("overlibmws1","$overlib_dir/overlibmws_filter.js",array("overlibmws"),'1.0');
 		wp_enqueue_script("overlibmws2","$overlib_dir/overlibmws_modal.js",array("overlibmws1"),'1.0');
 		wp_enqueue_script("overlibmws3","$overlib_dir/overlibmws_overtwo.js",array("overlibmws2"),'1.0');
 		wp_enqueue_script("overlibmws4","$overlib_dir/overlibmws_scroll.js",array("overlibmws3"),'1.0');
-		wp_enqueue_script("overlibmws5","$overlib_dir/overlibmws_shadow.js",array("overlibmws4"),'1.0');
+		wp_enqueue_script("overlibmws5","$overlib_dir/overlibmws_shadow.js",array("overlibmws4"),'1.0');*/
+		wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js",array("jquery"),'1.7.1');
 	}
 
 	if($is_edit_param_enabled || $enable_auto_translate)
 	{
 		$post_url = $home_url . '/index.php';
-		wp_enqueue_script("jquerymin","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
+		wp_deregister_script('jquery');
+		wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
 		wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1');
-		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url&lang={$lang}",array("jquerymin"),'1.0');
+		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url&lang={$lang}",array("jquery"),'1.0');
 	}
 }
 
 
 /**
- * Determine if the currently selected language (taken from the query parameters) is in the admin's list 
- * of editable languages and the current user is allowed to translate. 
- *  
+ * Determine if the currently selected language (taken from the query parameters) is in the admin's list
+ * of editable languages and the current user is allowed to translate.
+ *
  * @return TRUE if translation allowed otherwise FALSE
  */
 function is_editing_permitted()
@@ -405,12 +411,12 @@ function is_editing_permitted()
 	{
 		return FALSE;
 	}
-	
+
 	if (!isset($wp_query->query_vars[LANG_PARAM]))
 	{
 		return FALSE;
 	}
-	
+
 	$lang = $wp_query->query_vars[LANG_PARAM];
 	return is_editable_lang($lang);
 }
@@ -428,16 +434,16 @@ function is_editable_lang($lang)
 		//not an editable language
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
 
 /**
- * Determine if the currently selected language (taken from the query parameters) is in the admin's list 
+ * Determine if the currently selected language (taken from the query parameters) is in the admin's list
  * of editable languages and that automatic translation has been enabled.
- * Note that any user can auto translate. i.e. ignore permissions.  
- *  
+ * Note that any user can auto translate. i.e. ignore permissions.
+ *
  * @return TRUE if automatic translation allowed otherwise FALSE
  */
 function is_auto_translate_permitted()
@@ -448,18 +454,18 @@ function is_auto_translate_permitted()
 	{
 		return FALSE;
 	}
-	
+
 	if (!isset($wp_query->query_vars[LANG_PARAM]))
 	{
 		return FALSE;
 	}
-	
+
 	$lang = $wp_query->query_vars[LANG_PARAM];
 	return is_editable_lang($lang);
 }
 /**
  * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
- * Some urls should be modified only by adding parameters and should be identified by this 
+ * Some urls should be modified only by adding parameters and should be identified by this
  * function.
  * @param $href
  * @return TRUE if parameters should be used instead of rewriting as a permalink
@@ -467,7 +473,7 @@ function is_auto_translate_permitted()
 function is_url_excluded_from_permalink_rewrite($href)
 {
 	$use_params = FALSE;
-	
+
 	//don't fix links pointing to real files as it will cause that the
 	//web server will not be able to locate them
 	if(stripos($href, '/wp-admin') !== FALSE   ||
@@ -477,7 +483,7 @@ function is_url_excluded_from_permalink_rewrite($href)
 	{
 		$use_params = TRUE;
 	}
-	
+
 	return $use_params;
 }
 
