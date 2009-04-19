@@ -180,12 +180,12 @@ var dialog = ''+
     });
 }*/
 
-function translate_dialog(original, trans, segment_id) {
+function translate_dialog(segment_id) {
 	jQuery("#tabs").remove();
 	jQuery('<div id="tabs" title="Edit Translation"/>').appendTo("body");
 	jQuery("#tabs").append('<ul/>').tabs({ cache: true });
 	jQuery("#tabs").tabs('add','#tabs-1','Translate');
-	jQuery("#tabs").tabs('add','index.php?tr_token_hist='+jQuery("#tr_" + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History');
+	jQuery("#tabs").tabs('add',transposh_params['post_url']+'?tr_token_hist='+jQuery("#tr_" + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History');
 	jQuery("#tabs-1").append(
 			'<form>' +	
 			'<fieldset>' +
@@ -195,8 +195,8 @@ function translate_dialog(original, trans, segment_id) {
 			'<input type="text" name="translation" id="tr_translation" value="" class="text ui-widget-content ui-corner-all"/>' +
 			'</fieldset>' +
 			'</form>');
-	jQuery("#tr_original").val(original);
-	jQuery("#tr_translation").val(trans);
+	jQuery("#tr_original").val(jQuery("#tr_img_" + segment_id).attr('title'));
+	jQuery("#tr_translation").val(jQuery("#tr_" + segment_id).html());
 	jQuery("#tabs").css("text-align","left");
 	jQuery("#tabs-1 label").css("display","block");
 	jQuery("#tabs-1 input.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
