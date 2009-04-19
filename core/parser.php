@@ -961,10 +961,11 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
 	}
 
 	$img = "<img src=\"$plugin_url/img/translate$add_img.png\" alt=\"translate\" class=\"".IMG_PREFIX."\" id=\"" . IMG_PREFIX . "$segment_id\" ".
-           "onclick=\"translate_dialog('$original','$translation','$segment_id'); return false;\" ".
+           "onclick=\"translate_dialog('$segment_id'); return false;\" ".
 		   "title=\"$original\"".
            //"onmouseover=\"hint('$original'); return true;\" ".
-           "onmouseout=\"nd()\" />";
+           //"onmouseout=\"nd()\"
+           "/>";
 
 	return $img;
 }
