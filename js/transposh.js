@@ -206,12 +206,35 @@ function confirm_close() {
 }
 
 function translate_dialog(segment_id) {
-	jQuery("#tabs").remove();
-	jQuery('<div id="tabs" title="Edit Translation"/>').appendTo("body");
-	jQuery("#tabs").append('<ul/>').tabs({ cache: true });
-	jQuery("#tabs").tabs('add','#tabs-1','Translate');
-	jQuery("#tabs").tabs('add',transposh_params['post_url']+'?tr_token_hist='+jQuery("#tr_" + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History');
-	jQuery("#tabs-1").append(
+	jQuery("#trd-tabs").remove();
+	jQuery('<div id="trd-tabs" title="Edit Translation"/>').appendTo("body");
+	jQuery("#trd-tabs").append('<ul/>').tabs({ cache: true })
+		.tabs('add','#trd-tabs-1','Translate')
+		.tabs('add',transposh_params['post_url']+'?tr_token_hist='+jQuery("#tr_" + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History')
+		.css("text-align","left")
+		.css("padding",0)
+		.bind('tabsload', function(event, ui) {
+			//TODO, formatting here, not server side
+			jQuery("table",ui.panel).addClass("ui-widget ui-widget-content").css({'width' : '95%', 'padding' : '0'});
+			jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
+		})
+		.bind('tabsselect', function(event, ui) {
+			// Change buttons
+			if (jQuery(ui.tab).text() == 'Translate') {
+				jQuery("#trd-tabs").dialog('option', 'buttons', tButtons);
+			} else {
+				jQuery("#trd-tabs").dialog('option', 'buttons', hButtons);
+			}
+		})
+		.bind('dialogbeforeclose', function(event, ui) {
+			if(jQuery('#tr_translation').data("edit").changed) {
+				confirm_close();
+				return false;
+			}
+		});
+	// fix for templates messing with li
+	jQuery("#trd-tabs li").css("list-style-type","none").css("list-style-position","outside");
+	jQuery("#trd-tabs-1").append(
 			'<form id="tr_form">' +	
 			'<fieldset>' +
 			'<label for="original">Original Text</label>' +
@@ -220,14 +243,13 @@ function translate_dialog(segment_id) {
 			'<textarea cols="80" row="3" name="translation" id="tr_translation" value="" class="text ui-widget-content ui-corner-all"/>' +
 			'</fieldset>' +
 			'</form>');
+	jQuery("#trd-tabs-1 label").css("display","block");
+	jQuery("#trd-tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
 	jQuery("#tr_original").val(jQuery("#tr_img_" + segment_id).attr('title'));
 	jQuery("#tr_translation").val(jQuery("#tr_" + segment_id).html());
 	jQuery("#tr_translation").data("edit", { changed: false});
 	jQuery("#tr_translation").keyup(function(e){
-		//alert(jQuery(this).val());
-		//alert(jQuery("#tr_" + segment_id).text());
 		if (jQuery("#tr_" + segment_id).text() != jQuery(this).val()) {
-		//if (e.which != 0) {
 			jQuery(this).css("background","yellow");
 			jQuery(this).data("edit", { changed: true});
 		} else {
@@ -235,36 +257,6 @@ function translate_dialog(segment_id) {
 			jQuery(this).data("edit", { changed: false});			
 		}
     });
-	/*jQuery("#tr_translation").change(function(e){
-		//alert(jQuery(this).val());
-		//alert(jQuery("#tr_" + segment_id).text());
-		//if (jQuery("#tr_" + segment_id).text() != jQuery(this).val()) {
-			jQuery(this).css("background","yellow");
-			jQuery(this).data("edit", { changed: true});
-    });*/
-	jQuery("#tabs").css("text-align","left");
-	jQuery("#tabs-1 label").css("display","block");
-	jQuery("#tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
-	jQuery("#tabs").bind('tabsload', function(event, ui) {
-		//TODO, formatting here, not server side
-		jQuery("table",ui.panel).addClass("ui-widget ui-widget-content").css({'width' : '95%', 'padding' : '0'});
-		jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
-	});
-	jQuery("#tabs").bind('tabsselect', function(event, ui) {
-		// Change buttons
-		if (jQuery(ui.tab).text() == 'Translate') {
-			jQuery("#tabs").dialog('option', 'buttons', tButtons);
-		} else {
-			jQuery("#tabs").dialog('option', 'buttons', hButtons);
-		}
-	});
-	jQuery("#tabs").bind('dialogbeforeclose', function(event, ui) {
-		//alert(jQuery('#tr_translation').data("edit").changed);
-		if(jQuery('#tr_translation').data("edit").changed) {
-			confirm_close();
-			return false;
-		}
-	});
 	var tButtons =	{
 			'Suggest - Google': function() {
 				getgt();
@@ -283,17 +275,13 @@ function translate_dialog(segment_id) {
 				jQuery(this).dialog('close');
 			}
 		}; 
-	jQuery("#tabs").tabs().dialog({
+	jQuery("#trd-tabs").tabs().dialog({
 		bgiframe: true,
 		modal: true,
 		//width: 'auto',
 		width: 500,
 		buttons: tButtons		
-	}).css("padding",0);
-	//if (!jQuery.support.boxModel)
-//		jQuery("#tabs").dialog('option', 'width', jQuery("#tabs fieldset").width()+50);
-	//alert(jQuery("#tabs fieldset").width()+50);
-	//alert(jQuery("#tabs").dialog('option', 'width'));
+	});
 }
 
 google.load("language", "1");
