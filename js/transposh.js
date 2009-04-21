@@ -136,23 +136,6 @@ function do_auto_translate() {
 	});
 }
 
-//to run at start
-jQuery.noConflict();
-//read parameters
-var transposh_params = new Array(); 
-jQuery("script[src*='transposh.js']").each(function (i) {
-	var query_string = unescape(this.src.substring(this.src.indexOf('?')+1));
-	var parms = query_string.split('&');
-	for (var i=0; i<parms.length; i++) {
-		var pos = parms[i].indexOf('=');
-		if (pos > 0) {
-			var key = parms[i].substring(0,pos);
-			var val = parms[i].substring(pos+1);
-			transposh_params[key] = val;	
-		}
-	}
-});
-
 //Open translation dialog 
 /*function translate_dialog(original, trans, segment_id)
 {
@@ -216,7 +199,13 @@ function translate_dialog(segment_id) {
 		.bind('tabsload', function(event, ui) {
 			//TODO, formatting here, not server side
 			jQuery("table",ui.panel).addClass("ui-widget ui-widget-content").css({'width' : '95%', 'padding' : '0'});
+			jQuery("table thead th:last",ui.panel).after("<th/>");
 			jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
+			jQuery("table tbody tr",ui.panel).append('<td/>');
+			jQuery("table tbody tr:first td:last",ui.panel).append('<span id="tr_revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
+			jQuery("#tr_revert").click(function () { 
+		      alert ('hi'); 
+			});
 		})
 		.bind('tabsselect', function(event, ui) {
 			// Change buttons
@@ -245,7 +234,7 @@ function translate_dialog(segment_id) {
 			'</form>');
 	jQuery("#trd-tabs-1 label").css("display","block");
 	jQuery("#trd-tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
-	jQuery("#tr_original").val(jQuery("#tr_img_" + segment_id).attr('title'));
+	jQuery("#tr_original").val(jQuery("#tr_" + segment_id).attr('orig'));
 	jQuery("#tr_translation").val(jQuery("#tr_" + segment_id).html());
 	jQuery("#tr_translation").data("edit", { changed: false});
 	jQuery("#tr_translation").keyup(function(e){
@@ -284,10 +273,43 @@ function translate_dialog(segment_id) {
 	});
 }
 
+//to run at start
+jQuery.noConflict();
+//read parameters
+var transposh_params = new Array(); 
+jQuery("script[src*='transposh.js']").each(function (i) {
+	var query_string = unescape(this.src.substring(this.src.indexOf('?')+1));
+	var parms = query_string.split('&');
+	for (var i=0; i<parms.length; i++) {
+		var pos = parms[i].indexOf('=');
+		if (pos > 0) {
+			var key = parms[i].substring(0,pos);
+			var val = parms[i].substring(pos+1);
+			transposh_params[key] = val;	
+		}
+	}
+});
+
 google.load("language", "1");
 jQuery(document).ready(
 	function() {
 		do_auto_translate();
+		if (transposh_params['edit']) {
+			// lets add the images
+			jQuery(".tr_t,.tr_u").each(function (i) {
+				var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
+				jQuery(this).after('<img id="tr_img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params['post_url']+'?tp_gif=y"/>');
+				jQuery('#tr_img_'+translated_id).click(function () {
+				      translate_dialog(translated_id);
+				      });
+				if (jQuery(this).hasClass('tr_t')) {
+				if (jQuery(this).attr('source') == '1')
+					jQuery('#tr_img_'+translated_id).addClass('tr-icon-yellow');
+				else
+					jQuery('#tr_img_'+translated_id).addClass('tr-icon-green');
+				}
+			});
+		}
 	}
 );
 
