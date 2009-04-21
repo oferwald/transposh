@@ -137,6 +137,12 @@ function on_init()
 	elseif ($_GET['tr_token_hist']) {
 		get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
 	}
+	elseif ($_GET['tp_gif']) {
+		$trans_gif_64 = "R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+		header("Content-type: image/gif");
+		print(base64_decode($trans_gif_64));
+		exit;
+	}
 	else
 	{
 		//set the callback for translating the page when it's done
@@ -373,7 +379,7 @@ function add_transposh_js() {
 		return;
 	}
 
-	$overlib_dir = "$plugin_url/js/overlibmws";
+	//$overlib_dir = "$plugin_url/js/overlibmws";
 
 	if($is_edit_param_enabled)
 	{
@@ -384,6 +390,7 @@ function add_transposh_js() {
 		wp_enqueue_script("overlibmws4","$overlib_dir/overlibmws_scroll.js",array("overlibmws3"),'1.0');
 		wp_enqueue_script("overlibmws5","$overlib_dir/overlibmws_shadow.js",array("overlibmws4"),'1.0');*/
 		wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js",array("jquery"),'1.7.1');
+		$edit_mode = "&edit=y";
 	}
 
 	if($is_edit_param_enabled || $enable_auto_translate)
@@ -392,7 +399,7 @@ function add_transposh_js() {
 		wp_deregister_script('jquery');
 		wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
 		wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1');
-		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url&lang={$lang}",array("jquery"),'1.0');
+		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$lang}&prefix=".SPAN_PREFIX,array("jquery"),'1.0');
 	}
 }
 

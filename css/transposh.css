@@ -33,6 +33,21 @@
     margin: 0px;
 }
 
+.tr-icon {
+	background-image:url(../img/tr_imgs.png);
+	height:12px;
+	width:12px;
+	background-repeat:no-repeat;
+	overflow:hidden;
+	text-indent:-99999px;
+}
+.tr-icon-yellow {
+	background-position:-12px -0px;
+}
+.tr-icon-green {
+	background-position:-24px -0px;
+}
+
 /*
  * Define our styling
  */

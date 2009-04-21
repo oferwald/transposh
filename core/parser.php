@@ -799,35 +799,43 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 
 	if(($is_edit_mode || ($enable_auto_translate && $translated_text == NULL)) && in_array('body', $tags_list))
 	{
-		$span_prefix = SPAN_PREFIX;
-		// We will mark translated text with tr_t class and untranslated with tr_u
-		$span = "<span class=\"$span_prefix";
-
 		//Use base64 encoding to make that when the page is translated (i.e. update_translation) we
 		//get back exactlly the same string without having the client decode/encode it in anyway.
-		$token = "token=\"" . base64_url_encode($original_text) . "\"";
+		$token = 'token="' . base64_url_encode($original_text) . '"';
+
+		// We will mark translated text with tr_t class and untranslated with tr_u
+		$span = '<span id="'.SPAN_PREFIX."{$segment_id}\" $token ";
+		// those are needed for on the fly image creation
+		if ($is_edit_mode) {
+			$span .= "source=\"$source\" ";
+			if($translated_text != NULL)
+			  $span .= "orig=\"$original_text\" ";
+		}
+		$span .= 'class="'.SPAN_PREFIX;
 
 		if($translated_text == NULL)
 		{
-			$span .= "u\" id=\"{$span_prefix}{$segment_id}\" $token>";
-			$span .= $original_text . '</span>';
+			$span .= 'u">';
+			$span .= $original_text;
 		}
 		else
 		{
-			$span .= "t\" id=\"{$span_prefix}{$segment_id}\" $token>";
-			$span .= $translated_text . "</span>";
-			$is_translated = TRUE;
+			$span .= 't">';
+			$span .= $translated_text;
+		////	$is_translated = TRUE;
 		}
+		$span .= '</span>';
 
 		//Insert text (either original or translated) marked by a <span>
 		update_translated_page($start, $end, $span);
 
 
 		//Insert image to allow editing this segment (only in explicit edit)
-		if($is_edit_mode) {
+		// TODO: check removal
+		/*if($is_edit_mode) {
 			$img = get_img_tag($original_text, $translated_text, $source, $segment_id, $is_translated);
 			update_translated_page($end + 1, - 1, $img);
-		}
+		}*/
 		//Increment only after both text and image are generated so they
 		//will be the same for each translated segement
 		$segment_id++;
@@ -938,7 +946,7 @@ function process_anchor_tag($start, $end)
  * param segement_id The id (number) identifying this segment. Needs to be
  * placed within the img tag for use on client side operation (jquery)
  */
-function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
+/*function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
 {
 	global $plugin_url, $lang, $home_url;
 	$url = $home_url . '/index.php';
@@ -968,6 +976,6 @@ function get_img_tag($original, $translation, $source, $segment_id, $is_translat
            "/>";
 
 	return $img;
-}
+}*/
 
 ?>
