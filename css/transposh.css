@@ -1,32 +1,7 @@
 /*
- * Overlibmws library - For the dialog popups
- */
-
-/*
  * Fix collisions with some themes
  */
 
-/*#overDiv {
-    border: 0px; 
-    text-align:center;
-    margin: 0px;
-    padding: 0px;}
- 
-#overDiv table {
-    border: 0px; 
-    text-align:center;
-    margin: 0px;
-    padding: 0px;}
-
-#overDiv table th, #overDiv table td {
-    border: 0px; 
-    text-align:center;
-    margin: 0px;
-    padding: 1px;} 
-
-#overDiv table tr:hover {
-    background-color:#225588;}
-*/
 .post .postbody .tr_img_, .attachment .tr_img_, .navigation .alignleft .tr_img_, .navigation .alignright .tr_img_,
 .tr_img_ {
     border: 0px; 
@@ -47,71 +22,3 @@
 .tr-icon-green {
 	background-position:-24px -0px;
 }
-
-/*
- * Define our styling
- */
-
-/*.olbgD {
-    background-color:#225588;}
-
-.olcgD {
-    background-color:#336699; 
-    text-align:center;}
-
-.olfgD {
-    background-color:#bbddff; 
-    text-align:center;}
-
-.olcapD {font-family:Verdana,Arial,
-         Helvetica,sans-serif; 
-         font-size:11px;
-         font-weight:bold; 
-         color:#ffffff;}
-         
-.olcloD {
-    font-family:Verdana,Arial,
-    Helvetica,sans-serif; 
-    font-size:11px;
-    color:#bbddff; 
-    font-weight:bold;}
-
-a.olcloD:hover { 
-    color:#ddeeff;}
-
-.oltxtD {
-    font-family:Verdana,
-    Arial,Helvetica,
-    sans-serif; font-size:13px;
-    color:#000000;}
-
-.sep4 {
-    font-size:4px;
-    line-height:4px;}
-*/
-/*
- *  Overlibmws library - popup with MODAL form
- */
-
-/*
-.olraisedBlue {
-    text-align:center; 
-    background:#33aaff url(../js/overlibmws/raised_blue.gif) repeat-x bottom left;}
-
-table.olraisedBlue {
-    border-bottom:1px solid #333399;}
-
-.oltxtRaisedBlue {
-    font-family:Verdana;
-    font-size:14px;
-    font-weight:bold;
-    color:#ffffff;}
-
-input.olinput {
-    background:white url(../js/overlibmws/inputText.gif) repeat-x bottom left; 
-    min-height:16px;
-    font-family:Verdana,Arial,Helvetica,sans-serif; 
-    font-size:13px;
-    color: #000000;}
-
-*/
