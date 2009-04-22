@@ -60,10 +60,10 @@ function ajax_translate(original,translation,source,segment_id) {
                    	}
         		});
                 
-            //close dialog
-        	if (typeof cClick == 'function' && source == 0) {
+            //TODO: fix close dialog
+        	/*if (typeof cClick == 'function' && source == 0) {
         		cClick();
-        	}
+        	}*/
     	},
                 
         error: function(req) {
@@ -76,6 +76,16 @@ function ajax_translate(original,translation,source,segment_id) {
 
 //function for auto translation
 function do_auto_translate() {
+    if (transposh_params['edit']) {
+        var togo = jQuery("."+transposh_params['prefix']+"u").size();
+        if (togo) {
+            jQuery("#credit").after('<div style="width: 90%; height: 10px" id="progress_bar"/>')
+            jQuery("#progress_bar").progressbar({
+                value: 0
+            });
+        }
+        var done = 0;
+    }
 	jQuery("."+transposh_params['prefix']+"u").each(function (i) {
 		var translated_id = jQuery(this).attr('id');
 		google.language.translate(jQuery(this).text(), "", transposh_params['lang'], function(result) {
@@ -83,6 +93,13 @@ function do_auto_translate() {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
 		        ajax_translate(jQuery("#"+translated_id).text(),jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
 		        jQuery("#"+translated_id).addClass(transposh_params['prefix']+"t").removeClass(transposh_params['prefix']+"u");
+                if (transposh_params['edit']) {
+                    done = togo - jQuery("."+transposh_params['prefix']+"u").size();
+                    if (togo) {
+                        //alert (done/togo*100);
+                        jQuery("#progress_bar").progressbar('value' , done/togo*100);
+                    }
+                }
 			} 
 		});
 	});
@@ -201,7 +218,7 @@ function translate_dialog(segment_id) {
 jQuery.noConflict();
 //read parameters
 var transposh_params = new Array(); 
-jQuery("script[src*='transposh.js']").each(function (i) {
+jQuery("script[src*='transposh.js']").each(function (j) {
 	var query_string = unescape(this.src.substring(this.src.indexOf('?')+1));
 	var parms = query_string.split('&');
 	for (var i=0; i<parms.length; i++) {
