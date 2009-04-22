@@ -119,7 +119,7 @@ function confirm_close() {
 				'Discard': function() {
 					jQuery("#"+transposh_params['prefix']+"translation").data("edit", { changed: false});
 					jQuery(this).dialog('close');
-					jQuery("#tabs").dialog('close');
+					jQuery("#"+transposh_params['prefix']+"d-tabs").dialog('close');
 				},
 				Cancel: function() {
 					jQuery(this).dialog('close');
@@ -130,10 +130,10 @@ function confirm_close() {
 
 //Open translation dialog 
 function translate_dialog(segment_id) {
-	jQuery("#trd-tabs").remove();
-	jQuery('<div id="trd-tabs" title="Edit Translation"/>').appendTo("body");
-	jQuery("#trd-tabs").append('<ul/>').tabs({ cache: true })
-		.tabs('add','#trd-tabs-1','Translate')
+	jQuery("#"+transposh_params['prefix']+"d-tabs").remove();
+	jQuery('<div id="'+transposh_params['prefix']+'d-tabs" title="Edit Translation"/>').appendTo("body");
+	jQuery("#"+transposh_params['prefix']+"d-tabs").append('<ul/>').tabs({ cache: true })
+		.tabs('add',"#"+transposh_params['prefix']+"d-tabs-1",'Translate')
 		.tabs('add',transposh_params['post_url']+'?tr_token_hist='+jQuery("#"+transposh_params['prefix'] + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History')
 		.css("text-align","left")
 		.css("padding",0)
@@ -151,9 +151,9 @@ function translate_dialog(segment_id) {
 		.bind('tabsselect', function(event, ui) {
 			// Change buttons
 			if (jQuery(ui.tab).text() == 'Translate') {
-				jQuery("#trd-tabs").dialog('option', 'buttons', tButtons);
+				jQuery("#"+transposh_params['prefix']+"d-tabs").dialog('option', 'buttons', tButtons);
 			} else {
-				jQuery("#trd-tabs").dialog('option', 'buttons', hButtons);
+				jQuery("#"+transposh_params['prefix']+"d-tabs").dialog('option', 'buttons', hButtons);
 			}
 		})
 		.bind('dialogbeforeclose', function(event, ui) {
@@ -163,8 +163,8 @@ function translate_dialog(segment_id) {
 			}
 		});
 	// fix for templates messing with li
-	jQuery("#trd-tabs li").css("list-style-type","none").css("list-style-position","outside");
-	jQuery("#trd-tabs-1").append(
+	jQuery("#"+transposh_params['prefix']+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
+	jQuery("#"+transposh_params['prefix']+"d-tabs-1").append(
 			'<form id="'+transposh_params['prefix']+'form">' +	
 			'<fieldset>' +
 			'<label for="original">Original Text</label>' +
@@ -173,8 +173,8 @@ function translate_dialog(segment_id) {
 			'<textarea cols="80" row="3" name="translation" id="'+transposh_params['prefix']+'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
 			'</fieldset>' +
 			'</form>');
-	jQuery("#trd-tabs-1 label").css("display","block");
-	jQuery("#trd-tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
+	jQuery("#"+transposh_params['prefix']+"d-tabs-1 label").css("display","block");
+	jQuery("#"+transposh_params['prefix']+"d-tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
 	jQuery("#"+transposh_params['prefix']+"original").val(jQuery("#"+transposh_params['prefix'] + segment_id).attr('orig'));
 	jQuery("#"+transposh_params['prefix']+"translation").val(jQuery("#"+transposh_params['prefix'] + segment_id).html());
 	jQuery("#"+transposh_params['prefix']+"translation").data("edit", { changed: false});
@@ -205,7 +205,7 @@ function translate_dialog(segment_id) {
 				jQuery(this).dialog('close');
 			}
 		}; 
-	jQuery("#trd-tabs").tabs().dialog({
+	jQuery("#"+transposh_params['prefix']+"d-tabs").tabs().dialog({
 		bgiframe: true,
 		modal: true,
 		//width: 'auto',
