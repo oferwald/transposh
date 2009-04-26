@@ -399,7 +399,8 @@ function process_current_tag()
 		while($pos < $page_length && $page[$pos] != '<')
 		{
 			//will break translation unit when one of the following characters is reached: .,
-			if(($end_of_entity = is_html_entity($pos, $is_breaker)))
+            $end_of_entity = is_html_entity($pos, $is_breaker);
+			if($end_of_entity)
 			{
 				//Check if should break - value has been set by the is_html_entity function
 				if($is_breaker)
@@ -417,11 +418,11 @@ function process_current_tag()
 				$pos++;
 				$start = $pos;
 			}
-			else if($end_of_number = is_number($pos))
+			else if(is_number($pos))
 			{
 				//numbers will break translations segements and will not be included in the translation
 				translate_text($start);
-				$pos = $start = $end_of_number;
+				$pos = $start = is_number($pos);
 			}
 			else
 			{
@@ -464,11 +465,11 @@ function process_cdata_section()
 				$pos++;
 				$start = $pos;
 			}
-			else if($end_of_number = is_number($pos))
+			else if(is_number($pos))
 			{
 				//numbers will break translations segements and will not be included in the translation
 				translate_text($start);
-				$pos = $start = $end_of_number;
+				$pos = $start = is_number($pos);
 			}
 			else
 			{
@@ -674,7 +675,7 @@ function is_white_space($position)
  * position going either forward or backward.
  * param forward - indicate direction going either backward of forward.
  */
-function skip_white_space(&$index, $forward=TRUE)
+function skip_white_space(&$index = NULL, $forward=TRUE)
 {
 	global $page, $pos;
 
@@ -699,7 +700,7 @@ function skip_white_space(&$index, $forward=TRUE)
  *              position ($pos) is used.
  * Return TRUE if the word matches otherwise FALSE
  */
-function is_word($word, $index1)
+function is_word($word, $index1 = NULL)
 {
 	global $page, $pos;
 	$rc = FALSE;
