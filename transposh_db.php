@@ -245,7 +245,11 @@ function get_translation_history($token, $lang)
 	//add  our own custom header - so we will know that we got here
 	header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
 
-	$query = "SELECT translated, translated_by, timestamp, source FROM $table_name WHERE original='$original' AND lang='$lang' ORDER BY timestamp DESC";
+	$query = "SELECT translated, translated_by, timestamp, source, user_login ". 
+             "FROM $table_name ".
+             "LEFT JOIN {$wpdb->prefix}users ON translated_by = wp_users.id ".
+             "WHERE original='$original' AND lang='$lang' ".
+             "ORDER BY timestamp DESC";
 	//echo $query;
 	$rows = $wpdb->get_results($query);
 
@@ -254,12 +258,13 @@ function get_translation_history($token, $lang)
 		echo '<table>' .
 		'<thead>'.
 			'<tr>'.
-				'<th>Translated</th><th>By</th><th>At</th>'.
+				'<th>Translated</th><th/><th>By</th><th>At</th>'.
 			'</tr>'.
 		'</thead>'.
 		'<tbody>';
 		foreach ($rows as $row) :
-			echo "<tr><td>{$row->translated}</td><td>{$row->translated_by}</td><td>{$row->timestamp}</td></tr>";
+            if (is_null($row->user_login)) $row->user_login = $row->translated_by;
+			echo "<tr><td>{$row->translated}</td><td source=\"{$row->source}\"/><td user_id=\"{$row->translated_by}\">{$row->user_login}</td><td>{$row->timestamp}</td></tr>";
 		endforeach;
 		echo '</tbody></table>';
 	}

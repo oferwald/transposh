@@ -28,6 +28,8 @@ function getgt()
 }
 
 //Ajax translation
+var done_p = 0;
+var togo = 0;
 function ajax_translate(original,translation,source,segment_id) {
     jQuery.ajax({  
         type: "POST",
@@ -59,7 +61,15 @@ function ajax_translate(original,translation,source,segment_id) {
                    		}
                    	}
         		});
-                
+
+            // Progress bar of saving
+            if (transposh_params['progress']) {
+                    done_p++;
+                    if (togo > 4) {
+                        jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
+                    }
+                }
+
             //TODO: fix close dialog
         	/*if (typeof cClick == 'function' && source == 0) {
         		cClick();
@@ -76,13 +86,19 @@ function ajax_translate(original,translation,source,segment_id) {
 
 //function for auto translation
 function do_auto_translate() {
-    if (transposh_params['edit']) {
-        var togo = jQuery("."+transposh_params['prefix']+"u").size();
-        if (togo) {
-            jQuery("#credit").after('<div style="width: 90%; height: 10px" id="progress_bar"/>')
+    if (transposh_params['progress']) {
+        togo = jQuery("."+transposh_params['prefix']+"u").size();
+        // progress bar is for alteast 5 items
+        if (togo > 4) {
+            jQuery("#"+transposh_params['prefix']+"credit").after('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="float:left;width: 90%;height: 10px" id="progress_bar2"/>')
             jQuery("#progress_bar").progressbar({
                 value: 0
             });
+            jQuery("#progress_bar2").progressbar({
+                value: 0
+            });
+            // color the "save" bar
+            jQuery("#progress_bar2 > div").css({'background':'#28F828', 'border' : "#08A908 1px solid"});
         }
         var done = 0;
     }
@@ -93,10 +109,9 @@ function do_auto_translate() {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
 		        ajax_translate(jQuery("#"+translated_id).text(),jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
 		        jQuery("#"+translated_id).addClass(transposh_params['prefix']+"t").removeClass(transposh_params['prefix']+"u");
-                if (transposh_params['edit']) {
+                if (transposh_params['progress']) {
                     done = togo - jQuery("."+transposh_params['prefix']+"u").size();
-                    if (togo) {
-                        //alert (done/togo*100);
+                    if (togo > 4) {
                         jQuery("#progress_bar").progressbar('value' , done/togo*100);
                     }
                 }
@@ -143,7 +158,9 @@ function translate_dialog(segment_id) {
 			jQuery("table thead th:last",ui.panel).after("<th/>");
 			jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
 			jQuery("table tbody tr",ui.panel).append('<td/>');
-			jQuery("table tbody tr:first td:last",ui.panel).append('<span id="'+transposh_params['prefix']+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
+			jQuery("table tbody td[source='1']",ui.panel).append('<img size="16x16" src="'+transposh_params['post_url']+'?tp_gif=y" title="computer" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-gear"/>');
+			jQuery("table tbody td[source='0']",ui.panel).append('<img size="16x16" src="'+transposh_params['post_url']+'?tp_gif=y" title="human" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-person"/>');
+			//jQuery("table tbody tr:first td:last",ui.panel).append('<span title="remove this translation" id="'+transposh_params['prefix']+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
 			jQuery("#"+transposh_params['prefix']+"revert").click(function () { 
 		      alert ('hi'); 
 			});
@@ -161,6 +178,7 @@ function translate_dialog(segment_id) {
 				confirm_close();
 				return false;
 			}
+            return true;
 		});
 	// fix for templates messing with li
 	jQuery("#"+transposh_params['prefix']+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
@@ -205,7 +223,7 @@ function translate_dialog(segment_id) {
 				jQuery(this).dialog('close');
 			}
 		}; 
-	jQuery("#"+transposh_params['prefix']+"d-tabs").tabs().dialog({
+	jQuery("#"+transposh_params['prefix']+"d-tabs").dialog({
 		bgiframe: true,
 		modal: true,
 		//width: 'auto',
@@ -234,6 +252,10 @@ jQuery("script[src*='transposh.js']").each(function (j) {
 google.load("language", "1");
 jQuery(document).ready(
 	function() {
+        // an implicit param
+        if (typeof(jQuery().progressbar) != 'undefined')
+            transposh_params['progress'] = true;
+        
 		do_auto_translate();
 		if (transposh_params['edit']) {
 			// lets add the images
@@ -254,4 +276,3 @@ jQuery(document).ready(
 		}
 	}
 );
-

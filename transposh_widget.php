@@ -196,7 +196,7 @@ function transposh_widget($args)
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-	echo "<div id=\"credit\">by <a href=\"http://transposh.org\"><img src=\"$plugin_url/img/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img src=\"$plugin_url/img/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 
@@ -247,6 +247,10 @@ function transposh_widget_control()
 	if ( isset($_POST['transposh-submit']) )
     {
 		$newoptions['style'] = $_POST['transposh-style'];
+        if ($_POST['transposh-progress'])
+            $newoptions['progressbar'] = 1;
+        else
+            $newoptions['progressbar'] = 0;
 	}
 
 	if ( $options != $newoptions )
@@ -255,18 +259,16 @@ function transposh_widget_control()
 		update_option(WIDGET_TRANSPOSH, $options);
 	}
 
-	$style = $options['style'];
-
-    echo '<p><label for="transposh-style">Style:<br />
-         <select id="transposh-style" name="transposh-style">';
-    echo '<option ' . ($style == 0 ? 'selected="selected"' : '') .
-        'value="0">Language list</option>';
-    echo '<option ' . ($style == 1 ? 'selected="selected"' : '') .
-        'value="1">Flags</option>';
-
-    echo '</select></label></p>
-          <input type="hidden" name="transposh-submit" id="transposh-submit" value="1" />';
-
+    echo '<p><label for="transposh-style">Style:<br />'.
+         '<select id="transposh-style" name="transposh-style">'.
+         '<option value="0"' . ($options['style'] == 0 ? ' selected="selected"' : '').'>Language list</option>'.
+         '<option value="1"' . ($options['style'] == 1 ? ' selected="selected"' : '').'>Flags</option>'.
+         '</select>'.
+         '</label></p>'.
+         '<p><label for="transposh-progress">Effects:<br/>'.
+         '<input type="checkbox" id="transposh-progress" name="transposh-progress"'.($options['progressbar'] ? ' checked="checked"' : '').'/>'.
+         '&nbsp;Show progress bar</label></p>'.
+         '<input type="hidden" name="transposh-submit" id="transposh-submit" value="1"/>';
 }
 
 //Register callback for WordPress events
