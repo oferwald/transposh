@@ -379,20 +379,17 @@ function add_transposh_js() {
 		return;
 	}
 
-	//$overlib_dir = "$plugin_url/js/overlibmws";
+    $options = get_option(WIDGET_TRANSPOSH);
 
 	if($is_edit_param_enabled)
 	{
-		/*wp_enqueue_script("overlibmws","$overlib_dir/overlibmws.js",array(),'1.0');
-		wp_enqueue_script("overlibmws1","$overlib_dir/overlibmws_filter.js",array("overlibmws"),'1.0');
-		wp_enqueue_script("overlibmws2","$overlib_dir/overlibmws_modal.js",array("overlibmws1"),'1.0');
-		wp_enqueue_script("overlibmws3","$overlib_dir/overlibmws_overtwo.js",array("overlibmws2"),'1.0');
-		wp_enqueue_script("overlibmws4","$overlib_dir/overlibmws_scroll.js",array("overlibmws3"),'1.0');
-		wp_enqueue_script("overlibmws5","$overlib_dir/overlibmws_shadow.js",array("overlibmws4"),'1.0');*/
-		wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js",array("jquery"),'1.7.1');
-		$edit_mode = "&edit=y";
+		$edit_mode = "&".EDIT_PARAM."=y";
 	}
 
+	if($is_edit_param_enabled || $options['progressbar']) {
+		wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js",array("jquery"),'1.7.1');
+    }
+    
 	if($is_edit_param_enabled || $enable_auto_translate)
 	{
 		$post_url = $home_url . '/index.php';

@@ -420,9 +420,10 @@ function process_current_tag()
 			}
 			else if(is_number($pos))
 			{
+                $end_of_number = is_number($pos);
 				//numbers will break translations segements and will not be included in the translation
 				translate_text($start);
-				$pos = $start = is_number($pos);
+				$pos = $start = $end_of_number;
 			}
 			else
 			{
@@ -467,9 +468,10 @@ function process_cdata_section()
 			}
 			else if(is_number($pos))
 			{
+                $end_of_number = is_number($pos);
 				//numbers will break translations segements and will not be included in the translation
 				translate_text($start);
-				$pos = $start = is_number($pos);
+				$pos = $start = $end_of_number;
 			}
 			else
 			{
@@ -809,7 +811,7 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 		// those are needed for on the fly image creation
 		if ($is_edit_mode) {
 			$span .= "source=\"$source\" ";
-			if($translated_text != NULL)
+			//if($translated_text != NULL)
 			  $span .= "orig=\"$original_text\" ";
 		}
 		$span .= 'class="'.SPAN_PREFIX;
