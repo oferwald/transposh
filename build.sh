@@ -85,7 +85,13 @@ fi
 echo "Minify .js files"
 for file in `find . -maxdepth 2 -iname '*.js'`; do 
   echo "minifying $file"
-  java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file > $TRANSPOSH_DIR/$file
+  java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
+done;
+
+echo "Minify .css files"
+for file in `find . -maxdepth 2 -iname '*.css'`; do 
+  echo "minifying $file"
+  java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
 done;
 
 # Remove .svn dirs
