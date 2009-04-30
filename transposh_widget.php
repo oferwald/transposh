@@ -112,6 +112,8 @@ function transposh_widget($args)
 	$is_translator = is_translator();
 
     $is_showing_languages = FALSE;
+    //TODO: improve this shortening
+    $plugpath = parse_url($plugin_url, PHP_URL_PATH);
 
 	echo $before_widget . $before_title . __("Translation") . $after_title;
 
@@ -136,10 +138,16 @@ function transposh_widget($args)
     				if (get_option(DEFAULT_LANG) == $code) {
     					$page_url2 = $page_url;
     				}
+                    //TODO: improve this hacky! shortening
+                    $urlpath = parse_url($page_url2, PHP_URL_PATH);
+                    if (trim(parse_url($page_url2, PHP_URL_QUERY)) != '')
+                        $urlpath .= '?'.parse_url($page_url2, PHP_URL_QUERY);
+                    if (trim(parse_url($page_url2, PHP_URL_FRAGMENT)) != '')
+                        $urlpath .= '#'.parse_url($page_url2, PHP_URL_FRAGMENT);
 
-					echo "<a href=\"" . $page_url2 . "\">".
-                         "<img src=\"$plugin_url/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
-                         " style=\"padding: 1px 3px\"/></a>";
+					echo "<a href=\"" . $urlpath . "\">".
+                         "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
+                         " style=\"padding: 1px 3px;border: 0px\"/></a>";
                     $is_showing_languages = TRUE;
 				}
 			}
@@ -147,7 +155,7 @@ function transposh_widget($args)
 
 			// this is the form for the edit...
 			echo "<form action=\"$page_url\" method=\"post\">";
-			echo "<input type=\"hidden\" name=\"lang\"	id=\"lang\" value=\"$lang\"/>";
+			echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"$lang\"/>";
 			break;
 		default: // language list
 
@@ -196,7 +204,7 @@ function transposh_widget($args)
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img src=\"$plugin_url/img/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img src=\"$plugpath/img/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 

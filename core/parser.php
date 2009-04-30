@@ -832,13 +832,6 @@ function insert_translation(&$original_text, &$translated_text, $source, $start,
 		//Insert text (either original or translated) marked by a <span>
 		update_translated_page($start, $end, $span);
 
-
-		//Insert image to allow editing this segment (only in explicit edit)
-		// TODO: check removal
-		/*if($is_edit_mode) {
-			$img = get_img_tag($original_text, $translated_text, $source, $segment_id, $is_translated);
-			update_translated_page($end + 1, - 1, $img);
-		}*/
 		//Increment only after both text and image are generated so they
 		//will be the same for each translated segement
 		$segment_id++;
@@ -943,42 +936,4 @@ function process_anchor_tag($start, $end)
 	update_translated_page($start, $end, $href);
 	logger(__METHOD__ . " $home_url href: $href");
 }
-/*
- * Return the img tag that will added to enable editing a translatable
- * item on the page.
- * param segement_id The id (number) identifying this segment. Needs to be
- * placed within the img tag for use on client side operation (jquery)
- */
-/*function get_img_tag($original, $translation, $source, $segment_id, $is_translated = FALSE)
-{
-	global $plugin_url, $lang, $home_url;
-	$url = $home_url . '/index.php';
-
-	//For use in javascript, make the following changes:
-	//1. Add slashes to escape the inner text
-	//2. Convert the html special characters
-	//The browser will take decode step 2 and pass it to the js engine which decode step 1 - a bit tricky
-	$translation = htmlspecialchars(addslashes($translation));
-	//TODO: Need to check this one delicate point
-	// $original    = htmlspecialchars(addslashes($original));
-
-	if ($is_translated)
-	{
-		$add_img = "_fix";
-	}
-
-	if ($source == 1) {
-		$add_img = "_auto";
-	}
-
-	$img = "<img src=\"$plugin_url/img/translate$add_img.png\" alt=\"translate\" class=\"".IMG_PREFIX."\" id=\"" . IMG_PREFIX . "$segment_id\" ".
-           "onclick=\"translate_dialog('$segment_id'); return false;\" ".
-		   "title=\"$original\"".
-           //"onmouseover=\"hint('$original'); return true;\" ".
-           //"onmouseout=\"nd()\"
-           "/>";
-
-	return $img;
-}*/
-
 ?>

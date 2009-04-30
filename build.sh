@@ -82,6 +82,12 @@ else
   echo "removed screenshots"
 fi
 
+echo "Minify .js files"
+for file in `find . -maxdepth 2 -iname '*.js'`; do 
+  echo "minifying $file"
+  java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file > $TRANSPOSH_DIR/$file
+done;
+
 # Remove .svn dirs
 find $TRANSPOSH_DIR -name "*.svn*" -exec rm -rf {} 2>/dev/null \;
 echo "removed .svn dirs"

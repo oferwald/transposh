@@ -19,9 +19,9 @@
 function getgt()
 {
 	jQuery(":button:contains('Suggest - Google')").attr("disabled","disabled").addClass("ui-state-disabled");
-	google.language.translate(jQuery("#"+transposh_params['prefix']+"original").val(), "", transposh_params['lang'], function(result) {
+	google.language.translate(jQuery("#"+transposh_params.prefix+"original").val(), "", transposh_params.lang, function(result) {
 		if (!result.error) {
-			jQuery("#"+transposh_params['prefix']+"translation").val(jQuery("<div>"+result.translation+"</div>").text())
+			jQuery("#"+transposh_params.prefix+"translation").val(jQuery("<div>"+result.translation+"</div>").text())
 			.keyup();
 		} 
 	});
@@ -33,47 +33,43 @@ var togo = 0;
 function ajax_translate(original,translation,source,segment_id) {
     jQuery.ajax({  
         type: "POST",
-        url: transposh_params['post_url'],
-        data: {token: jQuery("#"+transposh_params['prefix'] + segment_id).attr('token'),
+        url: transposh_params.post_url,
+        data: {token: jQuery("#"+transposh_params.prefix + segment_id).attr('token'),
 				translation: translation,
-				lang: transposh_params['lang'],
+				lang: transposh_params.lang,
 				source: source,
 				translation_posted: "1"},
         success: function(req) {
-        	var pre_translated = jQuery("#"+transposh_params['prefix'] + segment_id).html();
+        	var pre_translated = jQuery("#"+transposh_params.prefix + segment_id).html();
         	var new_text = translation;
         	//reset to the original content - the unescaped version if translation is empty
             if(jQuery.trim(translation).length == 0) {
             	new_text = original;
             }
             // rewrite text for all matching items at once
-        	jQuery("."+transposh_params['prefix']+"t,."+transposh_params['prefix']+"u").filter(function() {return jQuery(this).html() == pre_translated;}).html(new_text)
+        	jQuery("."+transposh_params.prefix+"t,."+transposh_params.prefix+"u").filter(function() {return jQuery(this).html() == pre_translated;}).html(new_text)
         		.each(function (i) { // handle the image changes
         			var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-        			jQuery("#"+transposh_params['prefix']+"img_" + img_segment_id).removeClass('tr-icon-yellow').removeClass('tr-icon-green');
+        			jQuery("#"+transposh_params.prefix+"img_" + img_segment_id).removeClass('tr-icon-yellow').removeClass('tr-icon-green');
                 	if(jQuery.trim(translation).length != 0) {
                    		if (source == 1) {
                    			//switch to the auto img
-                   			jQuery("#"+transposh_params['prefix']+"img_" + img_segment_id).addClass('tr-icon-yellow');                		
+                   			jQuery("#"+transposh_params.prefix+"img_" + img_segment_id).addClass('tr-icon-yellow');
                    		} else {
                     		//	switch to the fix img
-                   			jQuery("#"+transposh_params['prefix']+"img_" + img_segment_id).addClass('tr-icon-green');                		
+                   			jQuery("#"+transposh_params.prefix+"img_" + img_segment_id).addClass('tr-icon-green');
                    		}
                    	}
         		});
 
             // Progress bar of saving
-            if (transposh_params['progress']) {
+            if (transposh_params.progress) {
                     done_p++;
                     if (togo > 4) {
                         jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
                     }
                 }
 
-            //TODO: fix close dialog
-        	/*if (typeof cClick == 'function' && source == 0) {
-        		cClick();
-        	}*/
     	},
                 
         error: function(req) {
@@ -86,11 +82,11 @@ function ajax_translate(original,translation,source,segment_id) {
 
 //function for auto translation
 function do_auto_translate() {
-    if (transposh_params['progress']) {
-        togo = jQuery("."+transposh_params['prefix']+"u").size();
+    if (transposh_params.progress) {
+        togo = jQuery("."+transposh_params.prefix+"u").size();
         // progress bar is for alteast 5 items
         if (togo > 4) {
-            jQuery("#"+transposh_params['prefix']+"credit").after('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="float:left;width: 90%;height: 10px" id="progress_bar2"/>')
+            jQuery("#"+transposh_params.prefix+"credit").after('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="float:left;width: 90%;height: 10px" id="progress_bar2"/>')
             jQuery("#progress_bar").progressbar({
                 value: 0
             });
@@ -102,15 +98,15 @@ function do_auto_translate() {
         }
         var done = 0;
     }
-	jQuery("."+transposh_params['prefix']+"u").each(function (i) {
+	jQuery("."+transposh_params.prefix+"u").each(function (i) {
 		var translated_id = jQuery(this).attr('id');
-		google.language.translate(jQuery(this).text(), "", transposh_params['lang'], function(result) {
+		google.language.translate(jQuery(this).text(), "", transposh_params.lang, function(result) {
 			if (!result.error) {
 				var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
 		        ajax_translate(jQuery("#"+translated_id).text(),jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
-		        jQuery("#"+translated_id).addClass(transposh_params['prefix']+"t").removeClass(transposh_params['prefix']+"u");
-                if (transposh_params['progress']) {
-                    done = togo - jQuery("."+transposh_params['prefix']+"u").size();
+		        jQuery("#"+translated_id).addClass(transposh_params.prefix+"t").removeClass(transposh_params.prefix+"u");
+                if (transposh_params.progress) {
+                    done = togo - jQuery("."+transposh_params.prefix+"u").size();
                     if (togo > 4) {
                         jQuery("#progress_bar").progressbar('value' , done/togo*100);
                     }
@@ -132,9 +128,9 @@ function confirm_close() {
 			},
 			buttons: {
 				'Discard': function() {
-					jQuery("#"+transposh_params['prefix']+"translation").data("edit", { changed: false});
+					jQuery("#"+transposh_params.prefix+"translation").data("edit", { changed: false});
 					jQuery(this).dialog('close');
-					jQuery("#"+transposh_params['prefix']+"d-tabs").dialog('close');
+					jQuery("#"+transposh_params.prefix+"d-tabs").dialog('close');
 				},
 				Cancel: function() {
 					jQuery(this).dialog('close');
@@ -145,59 +141,59 @@ function confirm_close() {
 
 //Open translation dialog 
 function translate_dialog(segment_id) {
-	jQuery("#"+transposh_params['prefix']+"d-tabs").remove();
-	jQuery('<div id="'+transposh_params['prefix']+'d-tabs" title="Edit Translation"/>').appendTo("body");
-	jQuery("#"+transposh_params['prefix']+"d-tabs").append('<ul/>').tabs({ cache: true })
-		.tabs('add',"#"+transposh_params['prefix']+"d-tabs-1",'Translate')
-		.tabs('add',transposh_params['post_url']+'?tr_token_hist='+jQuery("#"+transposh_params['prefix'] + segment_id).attr('token')+'&lang='+transposh_params['lang'],'History')
+	jQuery("#"+transposh_params.prefix+"d-tabs").remove();
+	jQuery('<div id="'+transposh_params.prefix+'d-tabs" title="Edit Translation"/>').appendTo("body");
+	jQuery("#"+transposh_params.prefix+"d-tabs").append('<ul/>').tabs({ cache: true })
+		.tabs('add',"#"+transposh_params.prefix+"d-tabs-1",'Translate')
+		.tabs('add',transposh_params.post_url+'?tr_token_hist='+jQuery("#"+transposh_params.prefix + segment_id).attr('token')+'&lang='+transposh_params.lang,'History')
 		.css("text-align","left")
 		.css("padding",0)
 		.bind('tabsload', function(event, ui) {
 			//TODO, formatting here, not server side
 			jQuery("table",ui.panel).addClass("ui-widget ui-widget-content").css({'width' : '95%', 'padding' : '0'});
-			jQuery("table thead th:last",ui.panel).after("<th/>");
+			//jQuery("table thead th:last",ui.panel).after("<th/>");
 			jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
-			jQuery("table tbody tr",ui.panel).append('<td/>');
-			jQuery("table tbody td[source='1']",ui.panel).append('<img size="16x16" src="'+transposh_params['post_url']+'?tp_gif=y" title="computer" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-gear"/>');
-			jQuery("table tbody td[source='0']",ui.panel).append('<img size="16x16" src="'+transposh_params['post_url']+'?tp_gif=y" title="human" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-person"/>');
-			//jQuery("table tbody tr:first td:last",ui.panel).append('<span title="remove this translation" id="'+transposh_params['prefix']+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
-			jQuery("#"+transposh_params['prefix']+"revert").click(function () { 
-		      alert ('hi'); 
-			});
+			//jQuery("table tbody tr",ui.panel).append('<td/>');
+			jQuery("table tbody td[source='1']",ui.panel).append('<img size="16x16" src="'+transposh_params.post_url+'?tp_gif=y" title="computer" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-gear"/>');
+			jQuery("table tbody td[source='0']",ui.panel).append('<img size="16x16" src="'+transposh_params.post_url+'?tp_gif=y" title="human" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-person"/>');
+			//jQuery("table tbody tr:first td:last",ui.panel).append('<span title="remove this translation" id="'+transposh_params.prefix+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
+			//jQuery("#"+transposh_params.prefix+"revert").click(function () {
+		      //alert ('hi');
+			//});
 		})
 		.bind('tabsselect', function(event, ui) {
 			// Change buttons
 			if (jQuery(ui.tab).text() == 'Translate') {
-				jQuery("#"+transposh_params['prefix']+"d-tabs").dialog('option', 'buttons', tButtons);
+				jQuery("#"+transposh_params.prefix+"d-tabs").dialog('option', 'buttons', tButtons);
 			} else {
-				jQuery("#"+transposh_params['prefix']+"d-tabs").dialog('option', 'buttons', hButtons);
+				jQuery("#"+transposh_params.prefix+"d-tabs").dialog('option', 'buttons', hButtons);
 			}
 		})
 		.bind('dialogbeforeclose', function(event, ui) {
-			if(jQuery("#"+transposh_params['prefix']+"translation").data("edit").changed) {
+			if(jQuery("#"+transposh_params.prefix+"translation").data("edit").changed) {
 				confirm_close();
 				return false;
 			}
             return true;
 		});
 	// fix for templates messing with li
-	jQuery("#"+transposh_params['prefix']+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
-	jQuery("#"+transposh_params['prefix']+"d-tabs-1").append(
-			'<form id="'+transposh_params['prefix']+'form">' +	
+	jQuery("#"+transposh_params.prefix+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
+	jQuery("#"+transposh_params.prefix+"d-tabs-1").append(
+			'<form id="'+transposh_params.prefix+'form">' +
 			'<fieldset>' +
 			'<label for="original">Original Text</label>' +
-			'<textarea cols="80" row="3" name="original" id="'+transposh_params['prefix']+'original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
+			'<textarea cols="80" row="3" name="original" id="'+transposh_params.prefix+'original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
 			'<label for="translation">Translate To</label>' +
-			'<textarea cols="80" row="3" name="translation" id="'+transposh_params['prefix']+'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
+			'<textarea cols="80" row="3" name="translation" id="'+transposh_params.prefix+'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
 			'</fieldset>' +
 			'</form>');
-	jQuery("#"+transposh_params['prefix']+"d-tabs-1 label").css("display","block");
-	jQuery("#"+transposh_params['prefix']+"d-tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
-	jQuery("#"+transposh_params['prefix']+"original").val(jQuery("#"+transposh_params['prefix'] + segment_id).attr('orig'));
-	jQuery("#"+transposh_params['prefix']+"translation").val(jQuery("#"+transposh_params['prefix'] + segment_id).html());
-	jQuery("#"+transposh_params['prefix']+"translation").data("edit", { changed: false});
-	jQuery("#"+transposh_params['prefix']+"translation").keyup(function(e){
-		if (jQuery("#"+transposh_params['prefix'] + segment_id).text() != jQuery(this).val()) {
+	jQuery("#"+transposh_params.prefix+"d-tabs-1 label").css("display","block");
+	jQuery("#"+transposh_params.prefix+"d-tabs-1 textarea.text").css({'margin-bottom':'12px', 'width' : '95%', 'padding' : '.4em'});
+	jQuery("#"+transposh_params.prefix+"original").val(jQuery("#"+transposh_params.prefix + segment_id).attr('orig'));
+	jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).html());
+	jQuery("#"+transposh_params.prefix+"translation").data("edit", { changed: false});
+	jQuery("#"+transposh_params.prefix+"translation").keyup(function(e){
+		if (jQuery("#"+transposh_params.prefix + segment_id).text() != jQuery(this).val()) {
 			jQuery(this).css("background","yellow");
 			jQuery(this).data("edit", { changed: true});
 		} else {
@@ -205,25 +201,39 @@ function translate_dialog(segment_id) {
 			jQuery(this).data("edit", { changed: false});			
 		}
     });
-	var tButtons =	{
+    var tButtons;
+    if (google.language.isTranslatable(transposh_params.lang) || transposh_params.lang == 'he') {
+    	tButtons =	{
 			'Suggest - Google': function() {
 				getgt();
 			},
 			Ok: function() {
-				var translation = jQuery('#'+transposh_params['prefix']+'translation').val();
-				if(jQuery('#'+transposh_params['prefix']+'translation').data("edit").changed) {
-					ajax_translate(jQuery("#"+transposh_params['prefix'] + segment_id).attr('orig'),translation,0,segment_id);
-					jQuery("#"+transposh_params['prefix']+"translation").data("edit", { changed: false});
+				var translation = jQuery('#'+transposh_params.prefix+'translation').val();
+				if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
+					ajax_translate(jQuery("#"+transposh_params.prefix + segment_id).attr('orig'),translation,0,segment_id);
+					jQuery("#"+transposh_params.prefix+"translation").data("edit", { changed: false});
 				}
 				jQuery(this).dialog('close');
 			}
 		}; 
+    }  else {
+    	tButtons =	{
+			Ok: function() {
+				var translation = jQuery('#'+transposh_params.prefix+'translation').val();
+				if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
+					ajax_translate(jQuery("#"+transposh_params.prefix + segment_id).attr('orig'),translation,0,segment_id);
+					jQuery("#"+transposh_params.prefix+"translation").data("edit", { changed: false});
+				}
+				jQuery(this).dialog('close');
+			}
+		};
+    }
 	var hButtons =	{
 			Close: function() {
 				jQuery(this).dialog('close');
 			}
 		}; 
-	jQuery("#"+transposh_params['prefix']+"d-tabs").dialog({
+	jQuery("#"+transposh_params.prefix+"d-tabs").dialog({
 		bgiframe: true,
 		modal: true,
 		//width: 'auto',
@@ -253,24 +263,27 @@ google.load("language", "1");
 jQuery(document).ready(
 	function() {
         // an implicit param
-        if (typeof(jQuery().progressbar) != 'undefined')
-            transposh_params['progress'] = true;
-        
-		do_auto_translate();
-		if (transposh_params['edit']) {
+        if (typeof(jQuery().progressbar) != 'undefined') {
+            transposh_params.progress = true;
+        }
+        // TODO: he, iw? :)
+        if (google.language.isTranslatable(transposh_params.lang) || transposh_params.lang == 'he') {
+            do_auto_translate();
+        }
+		if (transposh_params.edit) {
 			// lets add the images
-			jQuery("."+transposh_params['prefix']+"t,."+transposh_params['prefix']+"u").each(function (i) {
+			jQuery("."+transposh_params.prefix+"t,."+transposh_params.prefix+"u").each(function (i) {
 				var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-				jQuery(this).after('<img id="'+transposh_params['prefix']+'img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params['post_url']+'?tp_gif=y"/>');
-				jQuery('#'+transposh_params['prefix']+'img_'+translated_id).click(function () {
+				jQuery(this).after('<img id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params.post_url+'?tp_gif=y"/>');
+				jQuery('#'+transposh_params.prefix+'img_'+translated_id).click(function () {
 				      translate_dialog(translated_id);
 				      return false;
-				      });
-				if (jQuery(this).hasClass(transposh_params['prefix']+'t')) {
+				      }).css({'border':'0px','margin':'1px','padding':'0px'});
+				if (jQuery(this).hasClass(transposh_params.prefix+'t')) {
 				if (jQuery(this).attr('source') == '1')
-					jQuery('#'+transposh_params['prefix']+'img_'+translated_id).addClass('tr-icon-yellow');
+					jQuery('#'+transposh_params.prefix+'img_'+translated_id).addClass('tr-icon-yellow');
 				else
-					jQuery('#'+transposh_params['prefix']+'img_'+translated_id).addClass('tr-icon-green');
+					jQuery('#'+transposh_params.prefix+'img_'+translated_id).addClass('tr-icon-green');
 				}
 			});
 		}

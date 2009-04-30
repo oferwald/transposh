@@ -30,7 +30,7 @@ $home_url;
 //Home url of the blog - already quoted and ready for regex
 $home_url_quoted;
 
-//The url pointing to the base of the plugin. Used for generatint urls to resources
+//The url pointing to the base of the plugin. Used for generating urls to resources
 $plugin_url;
 
 //The language to which the current page will be translated to.

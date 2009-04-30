@@ -29,49 +29,50 @@ define("ENABLE_APC", TRUE);
 define("NO_TRANSLATE_CLASS", "no_translate");
 
 //Supported languages, new languages can be added here
-//the array directs from language code to - Native name, flag
-$languages = array("en" => "English,us",
-					"sq" => "Shqip,al",
-					"ar" => "العربية,sa",
-					"bg" => "Български,bg",
-					"ca" => "Català,catalonia",
-					"zh" => "中文(简体),cn",
-					"zh-tw" => "中文(漢字),tw",
-					"hr" => "Hrvatski,hr",
-					"cs" => "čeština,cz",
-					"da" => "dansk,dk",
-					"nl" => "Nederlands,nl",
-					"et" => "Eesti keel,ee",
-					"fi" => "Suomi,fi",
-					"fr" => "Français,fr",
-					"gl" => "Galego,galicia",
-					"de" => "Deutsch,de",
-					"el" => "Ελληνικά,gr",
-					"he" => "עברית,il",
-					"hi" => "हिन्दी; हिंदी,in",
-					"hu" => "magyar,hu",
-					"id" => "Bahasa Indonesia,id",
-					"it" => "Italiano,it",
-					"ja" => "日本語 (にほんご／にっぽんご),jp",
-					"ko" => "우리말,kr",
-					"lv" => "latviešu valoda,lv",
-					"lt" => "lietuvių kalba,lt",
-					"mt" => "Malti,mt",
-					"no" => "Norsk,no",
-					"pl" => "Polski,pl",
-					"pt" => "Português,pt",
-					"ro" => "Română,ro",
-					"ru" => "Русский,ru",
-					"sr" => "српски језик,rs",
-					"sk" => "slovenčina,sk",
-					"sl" => "slovenščina,sl",
-					"es" => "Español,es",
-					"sv" => "svenska,se",
-					"tl" => "Tagalog,ph",
-					"th" => "ภาษาไทย,th",
-					"tr" => "Türkçe,tr",
-					"uk" => "Українська,ua",
-					"vi" => "Tiếng Việt,vn");
+//the array directs from language code to - Native name, flag, auto-translatable
+$languages = array("en" => "English,us,1",
+					"sq" => "Shqip,al,1",
+					"ar" => "العربية,sa,1",
+					"bg" => "Български,bg,1",
+					"ca" => "Català,catalonia,1",
+					"zh" => "中文(简体),cn,1",
+					"zh-tw" => "中文(漢字),tw,1",
+					"hr" => "Hrvatski,hr,1",
+					"cs" => "čeština,cz,1",
+					"da" => "dansk,dk,1",
+					"nl" => "Nederlands,nl,1",
+					"et" => "Eesti keel,ee,1",
+					"fi" => "Suomi,fi,1",
+					"fr" => "Français,fr,1",
+					"gl" => "Galego,galicia,1",
+					"de" => "Deutsch,de,1",
+					"el" => "Ελληνικά,gr,1",
+					"he" => "עברית,il,1",
+					"hi" => "हिन्दी; हिंदी,in,1",
+					"hu" => "magyar,hu,1",
+					"id" => "Bahasa Indonesia,id,1",
+					"it" => "Italiano,it,1",
+					"is" => "íslenska,is,0",
+					"ja" => "日本語 (にほんご／にっぽんご),jp,1",
+					"ko" => "우리말,kr,1",
+					"lv" => "latviešu valoda,lv,1",
+					"lt" => "lietuvių kalba,lt,1",
+					"mt" => "Malti,mt,1",
+					"no" => "Norsk,no,1",
+					"pl" => "Polski,pl,1",
+					"pt" => "Português,pt,1",
+					"ro" => "Română,ro,1",
+					"ru" => "Русский,ru,1",
+					"sr" => "српски језик,rs,1",
+					"sk" => "slovenčina,sk,1",
+					"sl" => "slovenščina,sl,1",
+					"es" => "Español,es,1",
+					"sv" => "svenska,se,1",
+					"tl" => "Tagalog,ph,1",
+					"th" => "ภาษาไทย,th,1",
+					"tr" => "Türkçe,tr,1",
+					"uk" => "Українська,ua,1",
+					"vi" => "Tiếng Việt,vn,1");
 
 //Language which are read from right to left (rtl)
 $rtl_languages =  array("ar", "he");
@@ -102,8 +103,4 @@ define("WIDGET_TRANSPOSH", "transposh_widget");
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define("SPAN_PREFIX", "tr_");
-
-//Define segment id prefix, will be included in img tag.
-define("IMG_PREFIX", "tr_img_");
-
 ?>
