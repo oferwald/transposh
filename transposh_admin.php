@@ -90,14 +90,14 @@ function insert_supported_langs()
 	for($hdr=0; $hdr < $columns; $hdr++)
 	{
 		echo '<th>Language</th><th>Viewable</th><th>Translatable</th>'.
-             '<th>Default</th><th style="padding-right: 80px"></th>';
+             '<th>Default</th><th>Auto?</th><th style="padding-right: 80px"></th>';
 	}
 
 	echo '</tr>';
 
 	foreach($languages as $code => $lang)
 	{
-		list ($language,$flag) = explode (",",$lang);
+		list ($language,$flag,$autot) = explode (",",$lang);
 		if($i % $columns == 0)
 		{
 			echo '<tr>';
@@ -115,6 +115,12 @@ function insert_supported_langs()
 		echo "\n";
 		echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
 		is_default_lang($code). "/></td>";
+        // TODO: Add icons?
+        if ($autot) {
+            echo "<td>Y</td>";
+        } else {
+            echo "<td>N</td>";
+        }
 
 		if($i % $columns == 0)
 		{

@@ -80,7 +80,7 @@ Please be reminded of the following “rules”
 1. A language marked for editing will allow a translator (anyone marked in the ‘who can translate’ section) to manually edit the page. i.e. the translate check-box will appear in the widget.
 1. Enabling automatic translation will automatically translate a page (without requiring entering edit mode) for EVERYONE viewing the page regardless of the their role. However it will only take place for languages marked as editable.
 
-If everything is setup correctly and still nothing happens, please contact us.
+Also - please take extra care to validate your html, adding extra tags that are unclosed in the template may lead to our parser breaking. Use the w3c validator service for more details. If everything is setup correctly and still nothing happens, please contact us.
 
 == Screenshots ==
 
@@ -92,6 +92,13 @@ If everything is setup correctly and still nothing happens, please contact us.
 
 == Release notes ==
 
+* 2009/04/30 - 0.1.4
+ * Moved to jQuery UI instead of overlibmws
+ * Reduced code generated for faster page loading
+ * History is now visible for translated phrases
+ * An optional progress bar shows advancing auto-translation
+ * Script is now minified by default
+ * Better support for not-auto-translatable languages, added islandic
 * 2009/04/02 - 0.1.3
  * Fix for mysql 4.1 (thanks [Amit](http://landscaping-blog.com/))
 * 2009/03/31 - 0.1.2
