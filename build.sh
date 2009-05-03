@@ -77,6 +77,8 @@ echo "fixing version in readme.txt to $VERSION"
 if [ "$DEBUG" != 'debug' ]; then
   rm $TRANSPOSH_DIR/core/logging.php
   echo "removed logging.php"
+  rm $TRANSPOSH_DIR/core/FirePHP.class.php
+  echo "removed FirePHP.class.php"
 else
   rm $TRANSPOSH_DIR/screenshot*.png
   echo "removed screenshots"
