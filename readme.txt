@@ -92,6 +92,8 @@ Also - please take extra care to validate your html, adding extra tags that are 
 
 == Release notes ==
 
+* 2009/05/03 - 0.1.5
+ * Improved end-user experience by switching order of posts and page changes
 * 2009/04/30 - 0.1.4
  * Moved to jQuery UI instead of overlibmws
  * Reduced code generated for faster page loading

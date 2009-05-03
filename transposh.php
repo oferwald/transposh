@@ -352,8 +352,8 @@ function add_transposh_css() {
 		return;
 	}
 	//include the transposh.css
-	wp_enqueue_style("transposh","$plugin_url/css/transposh.css",array(),'1.0.1');
-	wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/ui-lightness/jquery-ui.css",array(),'1.0.1');
+	wp_enqueue_style("transposh","$plugin_url/css/transposh.css",array(),'<%VERSION%>');
+	wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/ui-lightness/jquery-ui.css",array(),'1.0');
 	logger("Added transposh_css");
 }
 
@@ -396,7 +396,7 @@ function add_transposh_js() {
 		wp_deregister_script('jquery');
 		wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
 		wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1');
-		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$lang}&prefix=".SPAN_PREFIX,array("jquery"),'1.0');
+		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$lang}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>');
 	}
 }
 
