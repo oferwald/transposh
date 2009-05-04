@@ -82,14 +82,16 @@ function process_html()
 
 		//Get the element identifying this tag
 		$element = get_element();
+		logger ("element is: $element",5);
 
 		if(should_skip_element($element))
 		{
-			logger ("skipping element: $element");
+			logger ("skipping element: $element",4);
 			//do nothing
 		}
-		else if($element == '![CDATA[')
+        if($element == '![CDATA[')
 		{
+			logger ("cdata section: $element",4);
 			process_cdata_section();
 		}
 		else
@@ -175,6 +177,7 @@ function should_skip_element(&$element)
 	else if(strncmp($element, "!--", 3) == 0)
 	{
 		$pos = strpos($page, '-->', $pos);
+    	logger ("new position after skipping: $pos",5);
 	}
 	else
 	{
