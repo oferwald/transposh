@@ -176,7 +176,8 @@ function should_skip_element(&$element)
 	}
 	else if(strncmp($element, "!--", 3) == 0)
 	{
-		$pos = strpos($page, '-->', $pos);
+        // the -3 here is for elements like <!--hello-->
+		$pos = strpos($page, '-->', $pos - 3);
     	logger ("new position after skipping: $pos",5);
 	}
 	else
