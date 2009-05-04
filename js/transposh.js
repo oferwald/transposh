@@ -235,7 +235,7 @@ function translate_dialog(segment_id) {
         }
     });
     var tButtons;
-    if (google.language.isTranslatable(transposh_params.lang) || transposh_params.lang == 'he') {
+    if (google.language.isTranslatable(transposh_params.lang) || transposh_params.lang == 'he' || transposh_params.lang == 'zh-tw') {
         tButtons =	{
             'Suggest - Google': function() {
                 getgt();
@@ -304,7 +304,7 @@ jQuery(document).ready(
             transposh_params.progress = true;
         }
         // TODO: he, iw? :)
-        if (google.language.isTranslatable(transposh_params.lang) || transposh_params.lang == 'he') {
+        if (google.language.isTranslatable(transposh_params.lang) || transposh_params.lang == 'he' || transposh_params.lang == 'zh-tw') {
             do_auto_translate();
         }
         if (transposh_params.edit) {
