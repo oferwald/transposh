@@ -16,7 +16,9 @@ define ("DEBUG" , 3);
 
 require_once('FirePHP.class.php');
 require_once("parser.php");
-ob_start();
+if (!defined('PRINTOUT')) {
+    ob_start();
+}
 
 $firephp = FirePHP::getInstance(true);
 /*
@@ -27,8 +29,12 @@ function logger($msg, $severity=3)
     global $firephp;
     if($severity <= DEBUG)
     {
-        $firephp->log($msg);
         error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/tmp/transposh.log");
+        if (defined('PRINTOUT')) {
+            echo $msg."<br/>";
+        } else {
+           $firephp->log($msg);
+        }
     }
 }
 
