@@ -1,7 +1,7 @@
 === Transposh - translation filter for wordpress ===
 Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/
-Tags: translation, widget, filter, bilingual, multilingual, transposh, language, RTL, Hebrew, Spanish, French, Russian, English, Arabic, crowdsourcing, context, wiki
+Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
 Tested up to: 2.7.1
 Stable tag: <%VERSION%>
@@ -91,7 +91,9 @@ Also - please take extra care to validate your html, adding extra tags that are 
 5. Widget style selection
 
 == Release notes ==
-
+* 2009/05/05 - 0.1.6
+ * Fix a problem with translating Traditional Chinese and Portuguese  (thanks Fernanda)
+ * Fixed several issues with html comment tags (thanks [ekerem](http://www.top100freesoftware.com))
 * 2009/05/03 - 0.1.5
  * Improved end-user experience by switching order of posts and page changes
 * 2009/04/30 - 0.1.4
