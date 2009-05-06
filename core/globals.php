@@ -31,7 +31,7 @@ $home_url;
 $home_url_quoted;
 
 //The url pointing to the base of the plugin. Used for generating urls to resources
-$plugin_url;
+$tr_plugin_url;
 
 //The language to which the current page will be translated to.
 $lang;

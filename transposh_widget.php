@@ -82,10 +82,10 @@ function transposh_widget_init()
  * Add custom css, i.e. transposh.css
  */
 function add_transposh_widget_css() {
-	global $plugin_url;
+	global $tr_plugin_url;
 	
 	//include the transposh_widget.css 
-	wp_enqueue_style("transposh_widget","$plugin_url/css/transposh_widget.css",array(),'1.0.1');
+	wp_enqueue_style("transposh_widget","$tr_plugin_url/css/transposh_widget.css",array(),'<%VERSION%>');
 	logger("Added transposh_widget_css");
 }
 
@@ -95,7 +95,7 @@ function add_transposh_widget_css() {
 function transposh_widget($args)
 {
 	logger("Enter " . __METHOD__, 4);
-	global $languages, $wp_query, $plugin_url,$lang;
+	global $languages, $wp_query, $tr_plugin_url,$lang;
 	extract($args);
 
 	$page_url =  ($_SERVER['HTTPS'] == 'on' ?
@@ -113,7 +113,7 @@ function transposh_widget($args)
 
     $is_showing_languages = FALSE;
     //TODO: improve this shortening
-    $plugpath = parse_url($plugin_url, PHP_URL_PATH);
+    $plugpath = parse_url($tr_plugin_url, PHP_URL_PATH);
 
 	echo $before_widget . $before_title . __("Translation") . $after_title;
 

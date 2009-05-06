@@ -70,7 +70,7 @@ function transposh_admin_page()
  */
 function insert_supported_langs()
 {
-	global $languages, $plugin_url;
+	global $languages, $tr_plugin_url;
 
 	echo '<script type="text/javascript">'.
         'function chbx_change(lang)'.
@@ -106,7 +106,7 @@ function insert_supported_langs()
 
 		$i++;
 
-		echo "<td><img src=\"$plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
+		echo "<td><img src=\"$tr_plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
 		echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
 		$code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
 		echo "\n";
