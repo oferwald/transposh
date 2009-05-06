@@ -40,7 +40,7 @@ $admin_msg;
  */
 function process_page(&$buffer) {
 
-	global $wp_query, $tr_page, $page, $pos, $lang, $plugin_url, $is_edit_mode;
+	global $wp_query, $tr_page, $page, $lang, $is_edit_mode;
 
 	$start_time = microtime(TRUE);
 
@@ -88,12 +88,17 @@ function process_page(&$buffer) {
  */
 function init_global_vars()
 {
-	global $home_url, $home_url_quoted, $plugin_url, $enable_permalinks_rewrite, $wp_rewrite;
+	global $home_url, $home_url_quoted, $tr_plugin_url, $enable_permalinks_rewrite, $wp_rewrite;
 
 	$home_url = get_option('home');
-	$local_dir = preg_replace("/.*\//", "", dirname(__FILE__));
+    // Handle windows ('C:\wordpress')
 
-	$plugin_url= $home_url . "/wp-content/plugins/$local_dir";
+    $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
+	$local_dir = preg_replace("/.*\//", "", $local_dir);
+    // FIXME!
+    //$local_dir = 'transposh-translation';
+	$tr_plugin_url= WP_PLUGIN_URL .'/'. $local_dir;
+    logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,3);
 	$home_url_quoted = preg_quote($home_url);
 	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
@@ -344,7 +349,7 @@ function get_plugin_name()
  * Add custom css, i.e. transposh.css
  */
 function add_transposh_css() {
-	global $plugin_url;
+	global $tr_plugin_url;
 
 	if(!is_editing_permitted() && !is_auto_translate_permitted())
 	{
@@ -352,7 +357,7 @@ function add_transposh_css() {
 		return;
 	}
 	//include the transposh.css
-	wp_enqueue_style("transposh","$plugin_url/css/transposh.css",array(),'<%VERSION%>');
+	wp_enqueue_style("transposh","$tr_plugin_url/css/transposh.css",array(),'<%VERSION%>');
 	wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/ui-lightness/jquery-ui.css",array(),'1.0');
 	logger("Added transposh_css");
 }
@@ -362,7 +367,7 @@ function add_transposh_css() {
  * version of the page.
  */
 function add_transposh_js() {
-	global $plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
+	global $tr_plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate;
 
 	$enable_auto_translate = is_auto_translate_permitted();
 	if(!is_editing_permitted() && !$enable_auto_translate)
@@ -396,7 +401,7 @@ function add_transposh_js() {
 		wp_deregister_script('jquery');
 		wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
 		wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1');
-		wp_enqueue_script("transposh","$plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$lang}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>');
+		wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$lang}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>');
 	}
 }
 

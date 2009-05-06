@@ -910,7 +910,7 @@ function update_translated_page($start, $end, $translated_text)
  */
 function process_anchor_tag($start, $end)
 {
-	global $home_url, $home_url_quoted, $lang, $is_edit_mode, $enable_permalinks_rewrite;
+	global $home_url, $lang, $is_edit_mode, $enable_permalinks_rewrite;
 
 	$href = get_attribute($start, $end, 'href');
 
