@@ -93,6 +93,7 @@ Also - please take extra care to validate your html, adding extra tags that are 
 == Release notes ==
 * 2009/05/07 - 0.1.7
  * Fix issues with IIS/Windows/Non standard installations (thanks [Fabrizio](http://www.sulmare.it/))
+ * Fixed namespace conflict with more plugins (For example - Lazyest Gallery)
 * 2009/05/05 - 0.1.6
  * Fix a problem with translating Traditional Chinese and Portuguese  (thanks Fernanda)
  * Fixed several issues with html comment tags (thanks [ekerem](http://www.top100freesoftware.com/))

@@ -22,8 +22,8 @@
  * 
  */
 
-require_once ('constants.php');
-//require_once ('logging.php');
+require_once("constants.php");
+require_once("logging.php");
 
 /*
  * Update the given url to include language params.
@@ -39,10 +39,10 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
     //logger("home url: $home_url",3);
     //logger("home url_quoted: $home_url_quoted",3);
     //logger("enable_permalinks_rewrite: $enable_permalinks_rewrite",3);
-    //logger("url: $url",5);
+    logger("url: $url",5);
 	$url = html_entity_decode($url, ENT_NOQUOTES);
     $url = str_replace('&#038;', '&', $url);
-   // logger("urldec: $url",5);
+    logger("urldec: $url",5);
 
     //remove prev lang and edit params?
     $url = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $url);

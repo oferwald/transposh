@@ -92,11 +92,9 @@ function init_global_vars()
 
 	$home_url = get_option('home');
     // Handle windows ('C:\wordpress')
-
     $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
+    // Get last directory name
 	$local_dir = preg_replace("/.*\//", "", $local_dir);
-    // FIXME!
-    //$local_dir = 'transposh-translation';
 	$tr_plugin_url= WP_PLUGIN_URL .'/'. $local_dir;
     logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,3);
 	$home_url_quoted = preg_quote($home_url);
