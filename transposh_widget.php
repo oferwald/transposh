@@ -204,7 +204,7 @@ function transposh_widget($args)
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img src=\"$plugpath/img/tplogo.png\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 
