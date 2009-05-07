@@ -91,9 +91,11 @@ Also - please take extra care to validate your html, adding extra tags that are 
 5. Widget style selection
 
 == Release notes ==
+* 2009/05/07 - 0.1.7
+ * Fix issues with IIS/Windows/Non standard installations (thanks [Fabrizio](http://www.sulmare.it/))
 * 2009/05/05 - 0.1.6
  * Fix a problem with translating Traditional Chinese and Portuguese  (thanks Fernanda)
- * Fixed several issues with html comment tags (thanks [ekerem](http://www.top100freesoftware.com))
+ * Fixed several issues with html comment tags (thanks [ekerem](http://www.top100freesoftware.com/))
 * 2009/05/03 - 0.1.5
  * Improved end-user experience by switching order of posts and page changes
 * 2009/04/30 - 0.1.4
