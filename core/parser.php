@@ -250,6 +250,10 @@ function process_span_or_div_tag(&$element, $start, $end)
 function process_html_tag($start, $end)
 {
 	global $lang, $rtl_languages;
+    //TODO: Come on!
+    $keep_start = $start;
+    $keep_end = $end;
+    logger ("lang_attr $lang_attr $start $end");
 
 	if(!(in_array ($lang, $rtl_languages)))
 	{
@@ -273,6 +277,17 @@ function process_html_tag($start, $end)
 
 	}
 	logger(__METHOD__ . " Changed page direction to rtl");
+
+   	$lang_attr = get_attribute($keep_start, $keep_end, 'lang');
+    logger ("lang_attr $lang_attr $keep_start $keep_end");
+    if ($lang_attr)
+    {
+		$lang_attr= $lang;
+
+		//rewrite url in translated page
+		update_translated_page($keep_start, $keep_end, $lang_attr);
+    	logger(__METHOD__ . " Changed page lang attr to $lang");
+    }
 }
 
 
@@ -878,7 +893,7 @@ function scrub_text(&$text)
  * back in buffer.
  * param start - marks the starting position of the replaced string in the original page.
  * param end - marks the end position of the replaced string in the original page.
- Use -1 to do insert instead of replace.
+ *             Use -1 to do insert instead of replace.
  * param translated_text - text to be inserted.
  */
 function update_translated_page($start, $end, $translated_text)
@@ -895,7 +910,7 @@ function update_translated_page($start, $end, $translated_text)
 
 	if($end > $start)
 	{
-		//Move mark to correlate the posistion between the two pages.
+		//Move mark to correlate the position between the two pages.
 		//Only do this when some content has been replaced, i.e. not
 		//an insert.
 		$tr_mark = $end + 1;
@@ -938,6 +953,6 @@ function process_anchor_tag($start, $end)
 
 	//rewrite url in translated page
 	update_translated_page($start, $end, $href);
-	logger(__METHOD__ . " $home_url href: $href");
+	logger(__METHOD__ . " $home_url href: $href",4);
 }
 ?>
