@@ -35,32 +35,30 @@ require_once("transposh_admin.php");
 $admin_msg;
 
 /*
- * Called when the buffer containing the original page is flused. Triggers the
+ * Called when the buffer containing the original page is flushed. Triggers the
  * translation process.
  */
 function process_page(&$buffer) {
 
-	global $wp_query, $tr_page, $page, $lang, $is_edit_mode;
+	global $wp_query, $lang, $is_edit_mode, $rtl_languages, $enable_auto_translate;
 
+	logger("Translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
 	$start_time = microtime(TRUE);
 
+	// No language code - avoid further processing.
 	if (!isset($wp_query->query_vars[LANG_PARAM]))
 	{
-		//No language code - avoid further processing.
 		return $buffer;
-
 	}
 
 	$lang = $wp_query->query_vars[LANG_PARAM];
 	$default_lang = get_default_lang();
+	// Don't translate the default language
 	if($lang == $default_lang)
 	{
-		//Don't translate the default language
 		logger("Skipping translation for default language $default_lang", 3);
 		return $buffer;
 	}
-
-	$page = $buffer;
 
 	if (($wp_query->query_vars[EDIT_PARAM] == "1" || $wp_query->query_vars[EDIT_PARAM] == "true") &&
 	     is_editing_permitted())
@@ -68,17 +66,21 @@ function process_page(&$buffer) {
 		$is_edit_mode = TRUE;
 	}
 
-	logger("translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
 
 	//translate the entire page
-	process_html();
+    $parse = new parser();
+    $parse->fetch_translate_func = 'fetch_translation';
+    $parse->url_rewrite_func = 'rewrite_url';
+   	$parse->dir_rtl = (in_array ($lang, $rtl_languages));
+    $parse->lang = $lang;
+    $parse->is_edit_mode = $is_edit_mode;
+    $parse->is_auto_translate = $enable_auto_translate;
+    $buffer = $parse->fix_html($buffer);
 
 	$end_time = microtime(TRUE);
-
 	logger("Translation completed in " . ($end_time - $start_time) . " seconds", 1);
 
-	//return the translated page unless it is empty, othewise return the original
-	return (strlen($tr_page) > 0 ? $tr_page : $page);
+	return $buffer;
 }
 
 /*
@@ -96,7 +98,7 @@ function init_global_vars()
     // Get last directory name
 	$local_dir = preg_replace("/.*\//", "", $local_dir);
 	$tr_plugin_url= WP_PLUGIN_URL .'/'. $local_dir;
-    logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,3);
+    logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,4);
 	$home_url_quoted = preg_quote($home_url);
 	$home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
@@ -130,7 +132,7 @@ function get_default_lang()
  */
 function on_init()
 {
-	logger(__METHOD__ . $_SERVER['REQUEST_URI']);
+	logger(__METHOD__ . $_SERVER['REQUEST_URI'], 4);
 	init_global_vars();
 
 	if ($_POST['translation_posted'])
@@ -339,7 +341,7 @@ function get_plugin_name()
 
 	//keep only the file name and its parent directory
 	$file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
-	logger("Plugin path $file", 3);
+	logger("Plugin path - $file", 4);
 	return $file;
 }
 
@@ -357,7 +359,7 @@ function add_transposh_css() {
 	//include the transposh.css
 	wp_enqueue_style("transposh","$tr_plugin_url/css/transposh.css",array(),'<%VERSION%>');
 	wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/ui-lightness/jquery-ui.css",array(),'1.0');
-	logger("Added transposh_css");
+	logger("Added transposh_css",4);
 }
 
 /*
@@ -477,21 +479,32 @@ function is_auto_translate_permitted()
  * @param $href
  * @return TRUE if parameters should be used instead of rewriting as a permalink
  */
-function is_url_excluded_from_permalink_rewrite($href)
+function rewrite_url($href)
 {
+    global $lang, $is_edit_mode, $enable_permalinks_rewrite, $home_url;
 	$use_params = FALSE;
+    logger ("got: $href",5);
 
-	//don't fix links pointing to real files as it will cause that the
-	//web server will not be able to locate them
+    // Ignore urls not from this site
+	if(stripos($href, $home_url) === FALSE)
+	{
+		return $href;
+	}
+
+	// don't fix links pointing to real files as it will cause that the
+	// web server will not be able to locate them
 	if(stripos($href, '/wp-admin') !== FALSE   ||
 	   stripos($href, '/wp-content') !== FALSE ||
 	   stripos($href, '/wp-login') !== FALSE   ||
 	   stripos($href, '/.php') !== FALSE)
 	{
-		$use_params = TRUE;
+		return $href;
 	}
+	$use_params = !$enable_permalinks_rewrite;
 
-	return $use_params;
+    $href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
+    logger ("rewritten: $href",4);
+    return $href;
 }
 
 //Register callbacks

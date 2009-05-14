@@ -86,7 +86,7 @@ function add_transposh_widget_css() {
 	
 	//include the transposh_widget.css 
 	wp_enqueue_style("transposh_widget","$tr_plugin_url/css/transposh_widget.css",array(),'<%VERSION%>');
-	logger("Added transposh_widget_css");
+	logger("Added transposh_widget_css", 4);
 }
 
 /*
@@ -204,7 +204,7 @@ function transposh_widget($args)
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img class=".NO_TRANSLATE_CLASS." src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 
