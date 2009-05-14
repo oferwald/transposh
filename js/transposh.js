@@ -46,7 +46,7 @@ function ajax_translate(translation,source,segment_id) {
             fix_page(translation,source,segment_id);
             // Progress bar of saving
             if (transposh_params.progress) {
-                 var token = jQuery("#"+transposh_params.prefix + segment_id).attr('token');
+                var token = jQuery("#"+transposh_params.prefix + segment_id).attr('token');
                 done_p += jQuery("*[token='"+token+"']").size();
                 //done_p++;
                 if (togo > 4) {
@@ -71,28 +71,50 @@ function fix_page(translation,source,segment_id) {
         new_text = jQuery("#"+transposh_params.prefix + segment_id).attr('orig');
     }
     // rewrite text for all matching items at once
-    jQuery("*[token='"+token+"']")
+    jQuery("*[token='"+token+"'][hidden!='y']")
     .html(new_text)
     .each(function (i) { // handle the image changes
         var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-        jQuery("#"+transposh_params.prefix+img_segment_id).addClass(transposh_params.prefix+"t").removeClass(transposh_params.prefix+"u");
-        jQuery("#"+transposh_params.prefix+"img_" + img_segment_id).removeClass('tr-icon-yellow').removeClass('tr-icon-green');
+        jQuery("#"+transposh_params.prefix+img_segment_id).attr('source',source);
+        var img = jQuery("#"+transposh_params.prefix+"img_" + img_segment_id);
+        img.removeClass('tr-icon-yellow').removeClass('tr-icon-green');
         if(jQuery.trim(translation).length !== 0) {
             if (source == 1) {
                 //switch to the auto img
-                jQuery("#"+transposh_params.prefix+"img_" + img_segment_id).addClass('tr-icon-yellow');
+                img.addClass('tr-icon-yellow');
             } else {
                 //	switch to the fix img
-                jQuery("#"+transposh_params.prefix+"img_" + img_segment_id).addClass('tr-icon-green');
+                img.addClass('tr-icon-green');
             }
         }
     });
+
+    // FIX hidden elements too (need to update father's title)
+    jQuery("*[token='"+token+"'][hidden='y']")
+    .attr('trans',new_text)
+    .each(function (i) { // handle the image changes
+        var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
+        jQuery("#"+transposh_params.prefix+img_segment_id).attr('source',source);
+        var img = jQuery("#"+transposh_params.prefix+"img_" + img_segment_id);
+        img.removeClass('tr-icon-yellow').removeClass('tr-icon-green');
+        if(jQuery.trim(translation).length !== 0) {
+            if (source == 1) {
+                //switch to the auto img
+                img.addClass('tr-icon-yellow');
+            } else {
+                //	switch to the fix img
+                img.addClass('tr-icon-green');
+            }
+        }
+    });
+
 }
 
 //function for auto translation
 function do_auto_translate() {
     if (transposh_params.progress) {
-        togo = jQuery("."+transposh_params.prefix+"u").size();
+        togo = jQuery("."+transposh_params.prefix+'[source=""]').size();
+        //alert(togo);
         // progress bar is for alteast 5 items
         if (togo > 4) {
             jQuery("#"+transposh_params.prefix+"credit").append('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="progress_bar2"/>')
@@ -110,12 +132,14 @@ function do_auto_translate() {
         }
         var done = 0;
     }
+    // auto_translated_previously...
     var auto_t_p = new Array();
-    jQuery("."+transposh_params.prefix+"u").each(function (i) {
+    jQuery("."+transposh_params.prefix+'[source=""]').each(function (i) {
         var translated_id = jQuery(this).attr('id');
-        if (!(auto_t_p[jQuery(this).text()] == 1)) {
-            auto_t_p[jQuery(this).text()] = 1;
-            google.language.translate(jQuery(this).text(), "", transposh_params.lang, function(result) {
+        //alert(translated_id);
+        if (!(auto_t_p[jQuery(this).attr('orig')] == 1)) {
+            auto_t_p[jQuery(this).attr('orig')] = 1;
+            google.language.translate(jQuery(this).attr('orig'), "", transposh_params.lang, function(result) {
                 if (!result.error) {
                     var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
                     fix_page(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
@@ -218,6 +242,9 @@ function translate_dialog(segment_id) {
     });
     jQuery("#"+transposh_params.prefix+"original").val(jQuery("#"+transposh_params.prefix + segment_id).attr('orig'));
     jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).html());
+    if (jQuery("#"+transposh_params.prefix + segment_id).attr('trans')) {
+    jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).attr('trans'));
+    }
     jQuery("#"+transposh_params.prefix+"translation").data("edit", {
         changed: false
     });
@@ -309,10 +336,12 @@ jQuery(document).ready(
         }
         if (transposh_params.edit) {
             // lets add the images
-            jQuery("."+transposh_params.prefix+"t,."+transposh_params.prefix+"u").each(function (i) {
+            jQuery("."+transposh_params.prefix).each(function (i) {
                 var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
+                //if (translated_id == 353) alert (translated_id);
                 jQuery(this).after('<img id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params.post_url+'?tp_gif=y"/>');
-                jQuery('#'+transposh_params.prefix+'img_'+translated_id).click(function () {
+                var img = jQuery('#'+transposh_params.prefix+'img_'+translated_id);
+                img.click(function () {
                     translate_dialog(translated_id);
                     return false;
                 }).css({
@@ -320,11 +349,15 @@ jQuery(document).ready(
                     'margin':'1px',
                     'padding':'0px'
                 });
-                if (jQuery(this).hasClass(transposh_params.prefix+'t')) {
-                    if (jQuery(this).attr('source') == '1')
-                        jQuery('#'+transposh_params.prefix+'img_'+translated_id).addClass('tr-icon-yellow');
-                    else
-                        jQuery('#'+transposh_params.prefix+'img_'+translated_id).addClass('tr-icon-green');
+                if (jQuery(this).attr('source') == '1')
+                    img.addClass('tr-icon-yellow');
+                else if (jQuery(this).attr('source') == '0')
+                    img.addClass('tr-icon-green');
+                // if the image is sourced from a hidden element - kinly "show" this
+                if (jQuery(this).attr('hidden') == 'y') {
+                    img.css({
+                        'opacity':'0.6'
+                    });
                 }
             });
         }
