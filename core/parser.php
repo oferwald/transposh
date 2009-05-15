@@ -16,8 +16,8 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-require_once ('shd/simple_html_dom.php');
-require_once ('logging.php');
+require_once("shd/simple_html_dom.php");
+require_once("logging.php");
 
 /**
  * Parser class - allows phrase marking and translation with callback functions
@@ -295,8 +295,9 @@ class parser {
                     $e->outertext = $right;
                 }
             }
-            if ($newtext)
-            $e->outertext = $newtext.$right;
+            if ($newtext) {
+                $e->outertext = $newtext.$right;
+            }
         }
 
         $hidden_phrases = array();
@@ -309,7 +310,7 @@ class parser {
             if ($e->parent->_[HDOM_INFO_OUTER]) {
                 $saved_outertext = $e->outertext;
             }
-            
+
             foreach ($e->nodes as $ep) {
                 if ($ep->tag == 'phrase') {
                     list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
@@ -319,7 +320,7 @@ class parser {
                             //no need to translate span the same hidden phrase more than once
                             if (!in_array($ep->phrase, $hidden_phrases)) {
                                 $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true)."</span>";
-                            //    logger ($span);
+                                //    logger ($span);
                                 $hidden_phrases[] = $ep->phrase;
                             }
                         }
@@ -331,12 +332,13 @@ class parser {
                     }
                 }
             }
-            if ($newtext)
-            $e->title = $newtext.$right;
-            $e->outertext .= $span;
-            // this is where we update in the outercase issue
-            if ($e->parent->_[HDOM_INFO_OUTER]) {
-                $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
+            if ($newtext) {
+                $e->title = $newtext.$right;
+                $e->outertext .= $span;
+                // this is where we update in the outercase issue
+                if ($e->parent->_[HDOM_INFO_OUTER]) {
+                    $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
+                }
             }
         }
 
