@@ -278,8 +278,6 @@ class parser {
         // actually translate tags
         // texts are first
         foreach ($this->html->find('text') as $e) {
-            $span = '';
-            $spanend = '';
             $right = '';
             $newtext = '';
             foreach ($e->nodes as $ep) {
@@ -288,6 +286,9 @@ class parser {
                     $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
                     $spanend = "</span>";
                     if ($translated_text == null) $translated_text = $ep->phrase;
+                } else {
+                    $span = '';
+                    $spanend = '';
                 }
                 if ($translated_text) {
                     list ($left, $right) = explode($ep->phrase, $e->outertext, 2);
@@ -300,6 +301,7 @@ class parser {
             }
         }
 
+        // now we handle the title attributes
         $hidden_phrases = array();
         foreach ($this->html->find('[title]') as $e) {
             $span = '';
@@ -332,14 +334,15 @@ class parser {
                     }
                 }
             }
-            if ($newtext) {
-                $e->title = $newtext.$right;
-                $e->outertext .= $span;
-                // this is where we update in the outercase issue
-                if ($e->parent->_[HDOM_INFO_OUTER]) {
-                    $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
-                }
+            if ($newtext)
+            $e->title = $newtext.$right;
+            
+            $e->outertext .= $span;
+            // this is where we update in the outercase issue
+            if ($e->parent->_[HDOM_INFO_OUTER]) {
+                $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
             }
+
         }
 
         return $this->html;
