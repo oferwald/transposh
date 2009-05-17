@@ -72,24 +72,32 @@ function insert_supported_langs()
 {
 	global $languages, $tr_plugin_url;
 
-	echo '<script type="text/javascript">'.
+	echo
+    '<script type="text/javascript">'.
         'function chbx_change(lang)'.
         '{'.
-            'var view = lang + "_view";'.
-            'if(document.getElementById(view).checked)'.
-            '{'.
-               'var edit = lang + "_edit";'.
-                'document.getElementById(edit).checked = true;'.
-            '}'.
+            'jQuery("#"+lang+"_edit").attr("checked",jQuery("#"+lang+"_view").attr("checked"))'.
         '}'.
+        'jQuery(document).ready(function() {'.
+            'jQuery("#tr_anon").click(function() {'.
+                'if (jQuery("#tr_anon").attr("checked")) {'.
+                    'jQuery(".tr_editable").css("display","none");'.
+                '} else {'.
+                    'jQuery(".tr_editable").css("display","");'.
+                '}'.
+            '});'.
+        '});'.
     '</script>';
 	echo '<table><tr>';
 
-	$columns = 2;
+    // we will hide the translatable column if anonymous can translate anyway
+    if (can_translate('anonymous')) $extrastyle = ' style ="display:none"';
+
+    $columns = 2;
 
 	for($hdr=0; $hdr < $columns; $hdr++)
 	{
-		echo '<th>Language</th><th>Viewable</th><th>Translatable</th>'.
+		echo '<th>Language</th><th>Viewable</th><th'.$extrastyle.' class="tr_editable">Translatable</th>'.
              '<th>Default</th><th>Auto?</th><th style="padding-right: 80px"></th>';
 	}
 
@@ -102,17 +110,13 @@ function insert_supported_langs()
 		{
 			echo '<tr>';
 		}
-		echo "\n";
-
 		$i++;
 
 		echo "<td><img src=\"$tr_plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
-		echo '<td align="center">  <input type="checkbox" id="' . $code .'_view" name="' .
+		echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
 		$code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
-		echo "\n";
-		echo '<td align="center">  <input type="checkbox" id="' . $code . '_edit" name="' .
+		echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
 		$code . '_edit" ' . is_editable($code). '/></td>';
-		echo "\n";
 		echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
 		is_default_lang($code). "/></td>";
         // TODO: Add icons?
@@ -130,7 +134,6 @@ function insert_supported_langs()
 		{
 			echo "<td style=\"padding-right: 60px\"></td>";
 		}
-		echo "\n";
 	}
 
 	echo '</table>';
@@ -202,11 +205,11 @@ function insert_permissions()
 	foreach($wp_roles->get_names() as $role_name => $something)
 	{
 		echo '<input type="checkbox" value="1" name="' . $role_name . '" ' . can_translate($role_name) .
-             '/>' . $role_name . '&nbsp;&nbsp;&nbsp;';
+             '/> ' . ucfirst($role_name) . '&nbsp;&nbsp;&nbsp;';
 	}
 
 	//Add our own custom role
-	echo '<input type="checkbox" value="1" name="anonymous" '.
+	echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" '.
 	can_translate('anonymous') . '/> Anonymous';
 }
 
@@ -223,9 +226,9 @@ function insert_permalink_rewrite_option()
 		$checked = 'checked="checked"';
 	}
 
-	echo '<input type="checkbox" value="1" name="enable_permalinks" '. $checked . '/>'.
+	echo '<input type="checkbox" value="1" name="enable_permalinks" '. $checked . '/> '.
 		 'Rewrite URLs to be search engine friendly, '.
-		 'e.g.  (http://wordpress.org/<strong> en</strong>). '.
+		 'e.g.  (http://wordpress.org/<strong>en</strong>). '.
          'Requires that permalinks will be enabled.';
 }
 
@@ -241,7 +244,7 @@ function insert_auto_translate_option()
 		$checked = 'checked="checked"';
 	}
 
-	echo '<input type="checkbox" value="1" name="enable_autotranslate" '.$checked.'/>'.
+	echo '<input type="checkbox" value="1" name="enable_autotranslate" '.$checked.'/> '.
 	     'Allow automatic translation of pages (currently using Google Translate)';
 }
 
@@ -312,12 +315,14 @@ function update_admin_options()
 	{
 		if($_POST[$code . '_view'])
 		{
-			$viewable_langs[] = $code;
+			$viewable_langs[$code] = $code;
+            // force that every viewable lang is editable
+			$editable_langs[$code] = $code;
 		}
 
 		if($_POST[$code . '_edit'])
 		{
-			$editable_langs[] = $code;
+			$editable_langs[$code] = $code;
 		}
 	}
 
