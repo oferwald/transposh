@@ -37,6 +37,7 @@ echo
 #Create core directory
 #
 mkdir $TRANSPOSH_DIR/core
+mkdir $TRANSPOSH_DIR/core/shd
 
 #
 #Add non-php files 
@@ -52,8 +53,8 @@ echo
 #
 if [ "$DEBUG" != 'debug' ]; then
   echo "Adding .php files (without logging)"
-  for file in `find . -maxdepth 2 -iname '*.php'`; do 
-    sed "s/logger.*;//;s/require_once(\"core.logging.*//;s/require_once(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
+  for file in `find . -maxdepth 3 -iname '*.php'`; do 
+    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
 else

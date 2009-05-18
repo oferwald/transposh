@@ -97,8 +97,9 @@ function insert_supported_langs()
 
 	for($hdr=0; $hdr < $columns; $hdr++)
 	{
-		echo '<th>Language</th><th>Viewable</th><th'.$extrastyle.' class="tr_editable">Translatable</th>'.
-             '<th>Default</th><th>Auto?</th><th style="padding-right: 80px"></th>';
+		echo '<th>Language</th><th title="Is this language user selectable?">Viewable</th>'.
+              '<th title="Is this language visible for translators?"'.$extrastyle.' class="tr_editable">Translatable</th>'.
+             '<th>Default</th><th title="Can we auto-translate this language?">Auto?</th><th style="padding-right: 80px"></th>';
 	}
 
 	echo '</tr>';
