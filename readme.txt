@@ -82,6 +82,12 @@ Please be reminded of the following “rules”
 
 Also - please take extra care to validate your html, adding extra tags that are unclosed in the template may lead to our parser breaking. Use the w3c validator service for more details. If everything is setup correctly and still nothing happens, please contact us.
 
+= How can I add the plugin interface without using the sidebar widget? =
+
+Just add the following line to your template:
+
+&lt;?php if(function_exists("transposh_widget")) { transposh_widget(array()); } ?&gt;
+
 == Screenshots ==
 
 1. This is a screen shot of a site using Transposh widget on the sidebar
@@ -91,6 +97,12 @@ Also - please take extra care to validate your html, adding extra tags that are 
 5. Widget style selection
 
 == Release notes ==
+* 2009/05/18 - 0.2.0
+ * Faster parser - 50% faster parsing than previous engine (thanks [Simple Html DOM](http://simplehtmldom.sourceforge.net/))
+ * Hidden elements translation (mainly tooltips specified by title attribute)
+ * Make sure viewable languages are translateable
+ * Simplify setting page
+ * Fixed various bugs (thanks [Mike](http://www.nostate.com/))
 * 2009/05/07 - 0.1.7
  * Fix issues with IIS/Windows/Non standard installations (thanks [Fabrizio](http://www.sulmare.it/))
  * Fixed namespace conflict with more plugins (For example - Lazyest Gallery)

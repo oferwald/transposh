@@ -137,15 +137,17 @@ function do_auto_translate() {
     jQuery("."+transposh_params.prefix+'[source=""]').each(function (i) {
         var translated_id = jQuery(this).attr('id');
         //alert(translated_id);
-        if (!(auto_t_p[jQuery(this).attr('orig')] == 1)) {
-            auto_t_p[jQuery(this).attr('orig')] = 1;
-            google.language.translate(jQuery(this).attr('orig'), "", transposh_params.lang, function(result) {
+        var to_trans = jQuery(this).attr('orig');
+        if (to_trans == undefined) to_trans = jQuery(this).html();
+        if (!(auto_t_p[to_trans] == 1)) {
+            auto_t_p[to_trans] = 1;
+            google.language.translate(to_trans, "", transposh_params.lang, function(result) {
                 if (!result.error) {
                     var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
                     fix_page(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
                     ajax_translate(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
                     if (transposh_params.progress) {
-                        done = togo - jQuery("."+transposh_params.prefix+"u").size();
+                        done = togo - jQuery("."+transposh_params.prefix+'[source=""]').size();
                         if (togo > 4) {
                             jQuery("#progress_bar").progressbar('value' , done/togo*100);
                         }
