@@ -33,6 +33,7 @@ class parser {
     private $inbody = false;
     public $is_edit_mode;
     public $is_auto_translate;
+    protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1);
 
     /**
      * Determine if the current position in buffer is a white space.
@@ -128,6 +129,7 @@ class parser {
             $this->currentnode->nodes[] = $node;
             $node->_[HDOM_INFO_OUTER] = '';
             $node->phrase = $phrase;
+            if ($this->inbody)
             $node->inbody = $this->inbody;
         }
     }
@@ -192,8 +194,12 @@ class parser {
         $this->currentnode = $node;
         // we don't want to translate non-translatable classes
         if (stripos($node->class,NO_TRANSLATE_CLASS) !== false) return;
-        if ($node->tag == 'style' || $node->tag == 'script') return;
+        if (isset($this->ignore_tags[$node->tag])) return;
         elseif ($node->tag == 'text') {
+            // this prevents translation of a link that just surrounds its address
+            if ($node->parent->tag == 'a' && $node->parent->href == $node->outertext) {
+                return;
+            }
             if (trim($node->outertext)) {
                 $this->parsetext($node->outertext);
             };
