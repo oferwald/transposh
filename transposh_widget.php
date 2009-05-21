@@ -157,7 +157,46 @@ function transposh_widget($args)
 			echo "<form action=\"$page_url\" method=\"post\">";
 			echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"$lang\"/>";
 			break;
-		default: // language list
+		case 2: // language list
+            //keep the flags in the same direction regardless of the overall page direction
+            echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
+
+            foreach($languages as $code => $lang2)
+			{
+				list($language,$flag) = explode (",",$lang2);
+
+                //remove any language identifier
+                $page_url = cleanup_url($page_url);
+
+				//Only show languages which are viewable or (editable and the user is a translator)
+				if(strpos($viewable_langs, $code) !== FALSE ||
+				   ($is_translator && strpos($editable_langs, $code) !== FALSE) ||
+				   (get_option(DEFAULT_LANG) == $code && $lang))
+				{
+    				$page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
+    				if (get_option(DEFAULT_LANG) == $code) {
+    					$page_url2 = $page_url;
+    				}
+                    //TODO: improve this hacky! shortening
+                    $urlpath = parse_url($page_url2, PHP_URL_PATH);
+                    if (trim(parse_url($page_url2, PHP_URL_QUERY)) != '')
+                        $urlpath .= '?'.parse_url($page_url2, PHP_URL_QUERY);
+                    if (trim(parse_url($page_url2, PHP_URL_FRAGMENT)) != '')
+                        $urlpath .= '#'.parse_url($page_url2, PHP_URL_FRAGMENT);
+
+					echo "<a href=\"" . $urlpath . "\">".
+                         "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
+                         " style=\"padding: 1px 3px;border: 0px\"/></a>$language<br/>";
+                    $is_showing_languages = TRUE;
+				}
+			}
+            echo "</div>";
+
+			// this is the form for the edit...
+			echo "<form action=\"$page_url\" method=\"post\">";
+			echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"$lang\"/>";
+			break;
+		default: // language selection
 
             echo "<form action=\"$page_url\" method=\"post\">";
             echo "<span class=\"" .NO_TRANSLATE_CLASS . "\" >";
@@ -204,7 +243,7 @@ function transposh_widget($args)
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img class=".NO_TRANSLATE_CLASS." src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+	echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img class=\"".NO_TRANSLATE_CLASS."\" src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 
@@ -269,8 +308,9 @@ function transposh_widget_control()
 
     echo '<p><label for="transposh-style">Style:<br />'.
          '<select id="transposh-style" name="transposh-style">'.
-         '<option value="0"' . ($options['style'] == 0 ? ' selected="selected"' : '').'>Language list</option>'.
+         '<option value="0"' . ($options['style'] == 0 ? ' selected="selected"' : '').'>Language selection</option>'.
          '<option value="1"' . ($options['style'] == 1 ? ' selected="selected"' : '').'>Flags</option>'.
+         '<option value="2"' . ($options['style'] == 2 ? ' selected="selected"' : '').'>Language list</option>'.
          '</select>'.
          '</label></p>'.
          '<p><label for="transposh-progress">Effects:<br/>'.
