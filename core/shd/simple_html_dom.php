@@ -530,12 +530,12 @@ class simple_html_dom {
         $this->remove_noise("'<!--(.*?)-->'is");
         // strip out cdata
         $this->remove_noise("'<!\[CDATA\[(.*?)\]\]>'is", true);
-        // strip out <style> tags
-        $this->remove_noise("'<\s*style[^>]*[^/]>(.*?)<\s*/\s*style\s*>'is");
-        $this->remove_noise("'<\s*style\s*>(.*?)<\s*/\s*style\s*>'is");
         // strip out <script> tags
         $this->remove_noise("'<\s*script[^>]*[^/]>(.*?)<\s*/\s*script\s*>'is");
         $this->remove_noise("'<\s*script\s*>(.*?)<\s*/\s*script\s*>'is");
+        // strip out <style> tags
+        $this->remove_noise("'<\s*style[^>]*[^/]>(.*?)<\s*/\s*style\s*>'is");
+        $this->remove_noise("'<\s*style\s*>(.*?)<\s*/\s*style\s*>'is");
         // strip out preformatted tags
         $this->remove_noise("'<\s*(?:code)[^>]*>(.*?)<\s*/\s*(?:code)\s*>'is");
         // strip out server side scripts
@@ -634,7 +634,7 @@ class simple_html_dom {
         // end tag
         if ($this->char==='/') {
             $this->char = (++$this->pos<$this->size) ? $this->doc[$this->pos] : null; // next
-            $this->skip($this->token_blank_t);
+            $this->skip($this->token_blank);
             $tag = $this->copy_until_char('>');
 
             // skip attributes in end tag
