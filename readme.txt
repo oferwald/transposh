@@ -97,6 +97,12 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/05/21 - 0.2.1
+ * Fixed unique breaking case in parser (style used within script and not properly terminated) (thanks again Fernanda)
+ * Added language list mode to widget
+ * Prevent translation of url that is self wrapped
+ * Added &lt;code&gt; tag to list of ignored tags (thanks again [Mike](http://www.nostate.com/))
+ * Middle dot is now a seperator
 * 2009/05/18 - 0.2.0
  * Faster parser - 50% faster parsing than previous engine (thanks [Simple Html DOM](http://simplehtmldom.sourceforge.net/))
  * Hidden elements translation (mainly tooltips specified by title attribute)
