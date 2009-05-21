@@ -103,7 +103,7 @@ class parser {
     function is_sentence_breaker($char, $nextchar)
     {
         if (($char == '.' || $char == '-') && ($this->is_white_space($nextchar))) return true;
-        return (strpos(',?()[]"!:|;',$char) !== false) ? true : false;
+        return (strpos(',?()[]"!:|;∙',$char) !== false) ? true : false;
     }
 
     /**
