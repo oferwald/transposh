@@ -98,12 +98,14 @@ class parser {
      * Note html markups are not considered sentence breaker within the scope of this function.
      * @param $char charcter checked if breaker
      * @param $nextchar needed for checking if . or - breaks
-     * @return bool true if current position marks a break in sentence
+     * @return int length of breaker if current position marks a break in sentence
      */
-    function is_sentence_breaker($char, $nextchar)
+    function is_sentence_breaker($char, $nextchar, $nextnextchar)
     {
-        if (($char == '.' || $char == '-') && ($this->is_white_space($nextchar))) return true;
-        return (strpos(',?()[]"!:|;∙',$char) !== false) ? true : false;
+        if (($char == '.' || $char == '-') && ($this->is_white_space($nextchar))) return 1;
+        if (ord($char) == 226 && ord($nextchar) == 136 && ord($nextnextchar) == 153) return 3; //∙
+        if (ord($char) == 194 && ord($nextchar) == 183) return 2; //·
+        return (strpos(',?()[]"!:|;',$char) !== false) ? 1 : 0;
     }
 
     /**
@@ -157,10 +159,10 @@ class parser {
                 $pos += $len_of_entity;
             }
             // will break translation unit when there's a breaker ",.[]()..."
-            else if($this->is_sentence_breaker($string[$pos],$string[$pos+1]))
+            else if($senb_len = $this->is_sentence_breaker($string[$pos],$string[$pos+1],$string[$pos+2]))
             {
                 $this->tag_phrase($string,$start,$pos);
-                $pos++;
+                $pos += $senb_len;
                 $start = $pos;
             }
             // Numbers also break, if they are followed by whitespace (don't break 42nd)
