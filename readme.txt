@@ -97,6 +97,8 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/05/25 - 0.2.2
+ * Fixed wrong handling of multy-byte chars as terminators (middle dots) which caused a regression bug
 * 2009/05/21 - 0.2.1
  * Fixed unique breaking case in parser (style used within script and not properly terminated) (thanks again Fernanda)
  * Added language list mode to widget
