@@ -7,4 +7,9 @@
 
 .transposh_flags a {
 	display: inline;
+	background: transparent; /* ie8 quirk */
+}
+
+.transposh_flags img:hover {
+	background: blue; /* ie8 quirk */
 }
