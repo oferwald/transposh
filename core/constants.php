@@ -53,7 +53,7 @@ $languages = array("en" => "English,us,1",
 					"id" => "Bahasa Indonesia,id,1",
 					"it" => "Italiano,it,1",
 					"is" => "íslenska,is,0",
-					"ja" => "日本語 (にほんご／にっぽんご),jp,1",
+					"ja" => "日本語,jp,1",
 					"ko" => "우리말,kr,1",
 					"lv" => "latviešu valoda,lv,1",
 					"lt" => "lietuvių kalba,lt,1",
@@ -95,6 +95,9 @@ define("ENABLE_AUTO_TRANSLATE", "transposh_enable_autotranslate");
 //Option to enable/disable rewrite of permalinks
 define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
 
+//Option to enable/disable default language translation
+define("ENABLE_DEFAULT_TRANSLATE", "transposh_enable_default_translate");
+
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
 
@@ -103,4 +106,8 @@ define("WIDGET_TRANSPOSH", "transposh_widget");
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define("SPAN_PREFIX", "tr_");
+
+//The name of our admin page
+define('TRANSPOSH_ADMIN_PAGE_NAME', 'transposh');
+
 ?>
