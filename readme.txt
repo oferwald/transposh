@@ -97,6 +97,13 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/06/04 - 0.2.3
+ * Revamped plugin setting page to a more useful one (code adapted from [code-styling.de](http://www.code-styling.de/))
+ * Widget settings may be changed from settings page (thanks [Db0](http://dbzer0.com/))
+ * Allow default language to be translated (for multilingual blogs) (thanks [Db0](http://dbzer0.com/))
+ * Setting page shows database statistics
+ * Fixed IE8 hover quirk in flags widget
+ * Avoid translating admin pages (even if we can)
 * 2009/05/25 - 0.2.2
  * Fixed wrong handling of multy-byte chars as terminators (middle dots) which caused a regression bug
 * 2009/05/21 - 0.2.1

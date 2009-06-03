@@ -105,6 +105,7 @@ function transposh_widget($args)
 
 	$is_edit = ($wp_query->query_vars[EDIT_PARAM] == "1" ? TRUE : FALSE);
 	$lang = $wp_query->query_vars[LANG_PARAM];
+    if (get_option(ENABLE_DEFAULT_TRANSLATE) && !$lang) $lang = get_default_lang();
 
 	$options = get_option(WIDGET_TRANSPOSH);
 	$viewable_langs = get_option(VIEWABLE_LANGS);
@@ -284,27 +285,23 @@ function no_translate($text)
 	return "<span class=\"" . NO_TRANSLATE_CLASS . "\">$text</span>";
 }
 
+function transposh_widget_post()
+{
+	$options = $newoptions = get_option(WIDGET_TRANSPOSH);
+	$newoptions['style'] = $_POST['transposh-style'];
+    $newoptions['progressbar'] = ($_POST['transposh-progress']) ? 1 : 0;
+
+	if ($options != $newoptions) update_option(WIDGET_TRANSPOSH, $newoptions);
+    logger ('handled post');
+}
+
 /*
  * This is the widget control, allowing the selection of presentation type.
  */
 function transposh_widget_control()
 {
-	$options = $newoptions = get_option(WIDGET_TRANSPOSH);
-
-	if ( isset($_POST['transposh-submit']) )
-    {
-		$newoptions['style'] = $_POST['transposh-style'];
-        if ($_POST['transposh-progress'])
-            $newoptions['progressbar'] = 1;
-        else
-            $newoptions['progressbar'] = 0;
-	}
-
-	if ( $options != $newoptions )
-    {
-		$options = $newoptions;
-		update_option(WIDGET_TRANSPOSH, $options);
-	}
+	if (isset($_POST['transposh-submit'])) transposh_widget_post();
+	$options = get_option(WIDGET_TRANSPOSH);
 
     echo '<p><label for="transposh-style">Style:<br />'.
          '<select id="transposh-style" name="transposh-style">'.
