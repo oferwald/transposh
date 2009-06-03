@@ -97,7 +97,7 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
-* 2009/06/04 - 0.2.3
+* 2009/06/03 - 0.2.3
  * Revamped plugin setting page to a more useful one (code adapted from [code-styling.de](http://www.code-styling.de/))
  * Widget settings may be changed from settings page (thanks [Db0](http://dbzer0.com/))
  * Allow default language to be translated (for multilingual blogs) (thanks [Db0](http://dbzer0.com/))
