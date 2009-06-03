@@ -42,19 +42,27 @@ function process_page(&$buffer) {
 
 	global $wp_query, $lang, $is_edit_mode, $rtl_languages, $enable_auto_translate;
 
-	logger("Translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
 	$start_time = microtime(TRUE);
 
 	// No language code - avoid further processing.
-	if (!isset($wp_query->query_vars[LANG_PARAM]))
+	/*if (!isset($wp_query->query_vars[LANG_PARAM]) && !get_option(ENABLE_DEFAULT_TRANSLATE))
 	{
+		return $buffer;
+	}*/
+    
+    // Refrain from touching the administrative interface
+    if(stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE)
+	{
+		logger("Skipping translation for admin pages", 3);
 		return $buffer;
 	}
 
 	$lang = $wp_query->query_vars[LANG_PARAM];
 	$default_lang = get_default_lang();
-	// Don't translate the default language
-	if($lang == $default_lang)
+    if (!$lang) $lang = $default_lang;
+	logger("Translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
+	// Don't translate the default language unless specifically allowed to...
+	if($lang == $default_lang && !get_option(ENABLE_DEFAULT_TRANSLATE))
 	{
 		logger("Skipping translation for default language $default_lang", 3);
 		return $buffer;
@@ -65,7 +73,6 @@ function process_page(&$buffer) {
 	{
 		$is_edit_mode = TRUE;
 	}
-
 
 	//translate the entire page
     $parse = new parser();
@@ -213,13 +220,12 @@ function update_rewrite_rules($rules){
 }
 
 /*
- * Let WordPress which parameters are of interest to us.
+ * Let WordPress know which parameters are of interest to us.
  */
 function parameter_queryvars($qvars)
 {
 	$qvars[] = LANG_PARAM;
 	$qvars[] = EDIT_PARAM;
-
 	return $qvars;
 }
 
@@ -414,19 +420,15 @@ function add_transposh_js() {
  */
 function is_editing_permitted()
 {
-	global $wp_query;
+	global $wp_query ,$lang;
 
-	if(!is_translator())
-	{
-		return FALSE;
-	}
+	if(!is_translator()) return FALSE;
 
-	if (!isset($wp_query->query_vars[LANG_PARAM]))
-	{
-		return FALSE;
-	}
+    $lang = $wp_query->query_vars[LANG_PARAM];
+    if (get_option(ENABLE_DEFAULT_TRANSLATE) && !$lang) $lang = get_default_lang();
 
-	$lang = $wp_query->query_vars[LANG_PARAM];
+	if (!$lang)	return FALSE;
+
 	return is_editable_lang($lang);
 }
 
@@ -437,14 +439,7 @@ function is_editing_permitted()
 function is_editable_lang($lang)
 {
 	$editable_langs = get_option(EDITABLE_LANGS);
-
-	if(strpos($editable_langs, $lang) === FALSE)
-	{
-		//not an editable language
-		return FALSE;
-	}
-
-	return TRUE;
+	return (strpos($editable_langs, $lang) === FALSE) ? FALSE : TRUE;
 }
 
 
@@ -457,19 +452,16 @@ function is_editable_lang($lang)
  */
 function is_auto_translate_permitted()
 {
-	global $wp_query;
+	global $wp_query ,$lang;
+    logger('checking auto translatability');
 
-	if(!get_option(ENABLE_AUTO_TRANSLATE, 1))
-	{
-		return FALSE;
-	}
+	if(!get_option(ENABLE_AUTO_TRANSLATE, 1)) return FALSE;
 
-	if (!isset($wp_query->query_vars[LANG_PARAM]))
-	{
-		return FALSE;
-	}
+    $lang = $wp_query->query_vars[LANG_PARAM];
+    if (get_option(ENABLE_DEFAULT_TRANSLATE) && !$lang) $lang = get_default_lang();
 
-	$lang = $wp_query->query_vars[LANG_PARAM];
+	if (!$lang)	return FALSE;
+
 	return is_editable_lang($lang);
 }
 /**

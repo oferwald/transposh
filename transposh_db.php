@@ -262,10 +262,10 @@ function get_translation_history($token, $lang)
 			'</tr>'.
 		'</thead>'.
 		'<tbody>';
-		foreach ($rows as $row) :
+		foreach ($rows as $row) {
             if (is_null($row->user_login)) $row->user_login = $row->translated_by;
 			echo "<tr><td>{$row->translated}</td><td source=\"{$row->source}\"/><td user_id=\"{$row->translated_by}\">{$row->user_login}</td><td>{$row->timestamp}</td></tr>";
-		endforeach;
+        }
 		echo '</tbody></table>';
 	}
 
@@ -314,4 +314,34 @@ function setup_db()
 	logger("Exit " . __METHOD__  );
 }
 
+function db_stats () {
+	global $wpdb;
+    echo "<h4>Database stats</h4>";
+	$table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+	$log_table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+    $query = "SELECT count(*) as count FROM `$table_name`";
+	$rows = $wpdb->get_results($query);
+	foreach ($rows as $row) {
+        if ($row->count)
+        echo "<p>Total of <strong style=\"color:red\">{$row->count}</strong> translated phrases.</p>";
+    }
+
+    $query = "SELECT count(*) as count,lang FROM `$table_name` WHERE source='0' GROUP BY `lang` ORDER BY `count` DESC LIMIT 3";
+	$rows = $wpdb->get_results($query);
+	foreach ($rows as $row) {
+        if ($row->count)
+        echo "<p><strong>{$row->lang}</strong> has <strong style=\"color:red\">{$row->count}</strong> human translated phrases.</p>";
+    }
+
+    echo "<h4>Recent activity</h4>";
+    $query = "SELECT * FROM `wp_translations_log` WHERE source='0' ORDER BY `timestamp` DESC LIMIT 3";
+	$rows = $wpdb->get_results($query);
+	foreach ($rows as $row) {
+        $td = mysql2date(get_option('date_format').' '.get_option('time_format'), $row->timestamp);
+        //the_date();
+        echo "<p>On <strong>{$td}</strong><br/>user <strong>{$row->translated_by}</strong> translated<br/>".
+             "\"<strong>{$row->original}</strong>\"<br/>to ".
+             "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
+    }
+}
 ?>
