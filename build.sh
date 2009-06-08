@@ -106,7 +106,8 @@ echo "removed .svn dirs"
 # 
 if [ "$ZIPME" == 'zip' ]; then
   cd $TRANSPOSH_DIR
-  zip -rq "transposh.$VERSION.zip" .
+  cd ..
+  zip -rq "transposh.$VERSION.zip" transposh
   cd - >/dev/null
 #  mv "$TRANSPOSH_DIR/transposh.$VERSION.zip" . 
   echo
