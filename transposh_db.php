@@ -218,6 +218,7 @@ function get_translation_history($token, $lang)
 
 	$ref=getenv('HTTP_REFERER');
 	$original =  base64_url_decode($token);
+        logger ("Inside history for $original ($token)",4);
 
 	// check params
 	logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
@@ -226,6 +227,7 @@ function get_translation_history($token, $lang)
 		logger("Enter " . __FILE__ . " missing params: $original, $lang," . $ref, 0);
 		return;
 	}
+        logger ("Passed check for $lang",4);
 
 	//Check permissions, first the lanugage must be on the edit list. Then either the user
 	//is a translator or automatic translation if it is enabled.
@@ -235,8 +237,10 @@ function get_translation_history($token, $lang)
 		header("HTTP/1.0 401 Unauthorized history");
 		exit;
 	}
+        logger ("Passed check for editable and translator",4);
 
 	$table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+        logger ("table is $table_name",4);
 
 	//The original content is encoded as base64 before it is sent (i.e. token), after we
 	//decode it should just the same after it was parsed.
@@ -247,11 +251,13 @@ function get_translation_history($token, $lang)
 
 	$query = "SELECT translated, translated_by, timestamp, source, user_login ". 
              "FROM $table_name ".
-             "LEFT JOIN {$wpdb->prefix}users ON translated_by = wp_users.id ".
+             "LEFT JOIN {$wpdb->prefix}users ON translated_by = {$wpdb->prefix}users.id ".
              "WHERE original='$original' AND lang='$lang' ".
              "ORDER BY timestamp DESC";
-	//echo $query;
-	$rows = $wpdb->get_results($query);
+        logger ("query is $query");
+
+        $rows = $wpdb->get_results($query);
+        logger ($rows,4); // trying
 
 	if($rows !== FALSE)
 	{
@@ -334,7 +340,7 @@ function db_stats () {
     }
 
     echo "<h4>Recent activity</h4>";
-    $query = "SELECT * FROM `wp_translations_log` WHERE source='0' ORDER BY `timestamp` DESC LIMIT 3";
+    $query = "SELECT * FROM `$log_table_name` WHERE source='0' ORDER BY `timestamp` DESC LIMIT 3";
 	$rows = $wpdb->get_results($query);
 	foreach ($rows as $row) {
         $td = mysql2date(get_option('date_format').' '.get_option('time_format'), $row->timestamp);
