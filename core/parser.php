@@ -33,6 +33,7 @@ class parser {
     private $inbody = false;
     public $is_edit_mode;
     public $is_auto_translate;
+    public $feed_fix;
     protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1);
 
     /**
@@ -226,6 +227,9 @@ class parser {
         // titles are also good places to translate, exist in a, img, abbr, acronym
         if ($node->title) $this->parsetext($node->title);
 
+        // Meta content (keywords, description) are also good places to translate
+        if ($node->tag == 'meta' && $node->content) $this->parsetext($node->content);
+
         // recurse
         foreach($node->nodes as $c) {
             $this->translate_tagging($c);
@@ -305,7 +309,13 @@ class parser {
                 }
             }
             if ($newtext) {
+                if ($this->feed_fix) {
+                    if (substr($newtext, 0, 4) == '&lt;') {
+                       $newtext = html_entity_decode($newtext);
+                    }
+                }
                 $e->outertext = $newtext.$right;
+                logger ("phrase: $newtext",4);
             }
         }
 
@@ -342,13 +352,38 @@ class parser {
                     }
                 }
             }
-            if ($newtext)
-            $e->title = $newtext.$right;
+            if ($newtext) {
+                $e->title = $newtext.$right;
+                logger ("title-phrase: $newtext",4);
+            }
             
             $e->outertext .= $span;
             // this is where we update in the outercase issue
             if ($e->parent->_[HDOM_INFO_OUTER]) {
                 $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
+            }
+
+        }
+
+        // now we handle the meta content - which is simpler because they can't be edited or auto-translated
+        // we also don't expect any father modifications here
+        foreach ($this->html->find('[content]') as $e) {
+            $right = '';
+            $newtext = '';
+
+            foreach ($e->nodes as $ep) {
+                if ($ep->tag == 'phrase') {
+                    list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
+                    if ($translated_text) {
+                        list ($left, $right) = explode($ep->phrase, $e->content, 2);
+                        $newtext .= $left.$translated_text;
+                        $e->content = $right;
+                    }
+                }
+            }
+            if ($newtext) {
+                $e->content = $newtext.$right;
+                logger ("content-phrase: $newtext",3);
             }
 
         }
