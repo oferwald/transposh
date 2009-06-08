@@ -150,6 +150,17 @@ function insert_permalink_rewrite_option()
 }
 
 /*
+ * Insert the option to enable/disable pushing of scripts to footer.
+ */
+function insert_script_footer_option()
+{
+    $checked = (get_option(ENABLE_FOOTER_SCRIPTS)) ? 'checked="checked"' :'';
+    echo '<input type="checkbox" value="1" name="enable_footer_scripts" '. $checked . '/> '.
+         'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
+         'Requires that your theme should have proper footer support.';
+}
+
+/*
  * Insert the option to enable/disable automatic translation.
  * Enabled by default.
  */
@@ -241,6 +252,9 @@ function update_admin_options()
         add_filter('rewrite_rules_array', 'update_rewrite_rules');
         $wp_rewrite->flush_rules();
     }
+
+    if(get_option(ENABLE_FOOTER_SCRIPTS) != $_POST['enable_footer_scripts'])
+    update_option(ENABLE_FOOTER_SCRIPTS, $_POST['enable_footer_scripts']);
 
     if(get_option(ENABLE_AUTO_TRANSLATE,1) != $_POST['enable_autotranslate'])
     update_option(ENABLE_AUTO_TRANSLATE, $_POST['enable_autotranslate']);
@@ -418,8 +432,14 @@ class transposh_plugin {
 
     }
     function on_contentbox_generic_content($data) {
+        global $wp_version;
         echo '<h4>Rewrite URLs</h4>';
         insert_permalink_rewrite_option();
+
+        if (floatval($wp_version) >= 2.8) {
+            echo '<h4>Add scripts to footer</h4>';
+            insert_script_footer_option();
+        }
     }
     function on_contentbox_community_content($data) {
         echo "<p>This space is reserved for the coming community features of Transposh that will help you find translators to help with your site.</p>";
