@@ -98,6 +98,9 @@ define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
 //Option to enable/disable default language translation
 define("ENABLE_DEFAULT_TRANSLATE", "transposh_enable_default_translate");
 
+//Option to enable/disable footer scripts (2.8 and up)
+define("ENABLE_FOOTER_SCRIPTS", "transposh_enable_footer_scripts");
+
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
 
