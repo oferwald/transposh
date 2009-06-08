@@ -91,7 +91,87 @@ class parser {
      * @return - true if not a breaker (apostrophy)
      */
     function is_entity_breaker($entity) {
-        return !(strpos('&#8217;&apos;&#039;&#39;', $entity) !== FALSE);
+        return !(stripos('&#8217;&apos;&#039;&#39;', $entity) !== FALSE);
+    }
+
+/**
+ * Some entities are to be regarded as simple letters in most cases
+&Agrave;    &#192;  	À  	À  	latin capital letter A with grave
+&Aacute;    &#193; 	Á 	Á 	latin capital letter A with acute
+&Acirc;     &#194; 	Â 	Â 	latin capital letter A with circumflex
+&Atilde;    &#195; 	Ã 	Ã 	latin capital letter A with tilde
+&Auml;      &#196; 	Ä 	Ä 	latin capital letter A with diaeresis
+&Aring;     &#197; 	Å 	Å 	latin capital letter A with ring above
+&AElig;     &#198; 	Æ 	Æ 	latin capital letter AE
+&Ccedil;    &#199; 	Ç 	Ç 	latin capital letter C with cedilla
+&Egrave;    &#200; 	È 	È 	latin capital letter E with grave
+&Eacute;    &#201; 	É 	É 	latin capital letter E with acute
+&Ecirc;     &#202; 	Ê 	Ê 	latin capital letter E with circumflex
+&Euml;      &#203; 	Ë 	Ë 	latin capital letter E with diaeresis
+&Igrave;    &#204; 	Ì 	Ì 	latin capital letter I with grave
+&Iacute;    &#205; 	Í 	Í 	latin capital letter I with acute
+&Icirc;     &#206; 	Î 	Î 	latin capital letter I with circumflex
+&Iuml;      &#207; 	Ï 	Ï 	latin capital letter I with diaeresis
+&ETH;       &#208; 	Ð 	Ð 	latin capital letter ETH
+&Ntilde;    &#209; 	Ñ 	Ñ 	latin capital letter N with tilde
+&Ograve;    &#210; 	Ò 	Ò 	latin capital letter O with grave
+&Oacute;    &#211; 	Ó 	Ó 	latin capital letter O with acute
+&Ocirc;     &#212; 	Ô 	Ô 	latin capital letter O with circumflex
+&Otilde;    &#213; 	Õ 	Õ 	latin capital letter O with tilde
+&Ouml;      &#214; 	Ö 	Ö 	latin capital letter O with diaeresis
+//&times;     &#215; 	× 	× 	multiplication sign
+&Oslash;    &#216; 	Ø 	Ø 	latin capital letter O with stroke
+&Ugrave;    &#217; 	Ù 	Ù 	latin capital letter U with grave
+&Uacute;    &#218; 	Ú 	Ú 	latin capital letter U with acute
+&Ucirc;     &#219; 	Û 	Û 	latin capital letter U with circumflex
+&Uuml;      &#220; 	Ü 	Ü 	latin capital letter U with diaeresis
+&Yacute;    &#221; 	Ý 	Ý 	latin capital letter Y with acute
+&THORN;     &#222; 	Þ 	Þ 	latin capital letter THORN
+&szlig;     &#223; 	ß 	ß 	latin small letter sharp s
+&agrave;    &#224; 	à 	à 	latin small letter a with grave
+&aacute;    &#225; 	á 	á 	latin small letter a with acute
+&acirc;     &#226; 	â 	â 	latin small letter a with circumflex
+&atilde;    &#227; 	ã 	ã 	latin small letter a with tilde
+&auml;      &#228; 	ä 	ä 	latin small letter a with diaeresis
+&aring;     &#229; 	å 	å 	latin small letter a with ring above
+&aelig;     &#230; 	æ 	æ 	latin small letter ae
+&ccedil;    &#231; 	ç 	ç 	latin small letter c with cedilla
+&egrave;    &#232; 	è 	è 	latin small letter e with grave
+&eacute;    &#233; 	é 	é 	latin small letter e with acute
+&ecirc;     &#234; 	ê 	ê 	latin small letter e with circumflex
+&euml;      &#235; 	ë 	ë 	latin small letter e with diaeresis
+&igrave;    &#236; 	ì 	ì 	latin small letter i with grave
+&iacute;    &#237; 	í 	í 	latin small letter i with acute
+&icirc;     &#238; 	î 	î 	latin small letter i with circumflex
+&iuml;      &#239; 	ï 	ï 	latin small letter i with diaeresis
+&eth;       &#240; 	ð 	ð 	latin small letter eth
+&ntilde;    &#241; 	ñ 	ñ 	latin small letter n with tilde
+&ograve;    &#242; 	ò 	ò 	latin small letter o with grave
+&oacute;    &#243; 	ó 	ó 	latin small letter o with acute
+&ocirc;     &#244; 	ô 	ô 	latin small letter o with circumflex
+&otilde;    &#245; 	õ 	õ 	latin small letter o with tilde
+&ouml;      &#246; 	ö 	ö 	latin small letter o with diaeresis
+//&divide;  &#247; 	÷ 	÷ 	division sign
+&oslash;    &#248; 	ø 	ø 	latin small letter o with stroke
+&ugrave;    &#249; 	ù 	ù 	latin small letter u with grave
+&uacute;    &#250; 	ú 	ú 	latin small letter u with acute
+&ucirc;     &#251; 	û 	û 	latin small letter u with circumflex
+&uuml;      &#252; 	ü 	ü 	latin small letter u with diaeresis
+&yacute;    &#253; 	ý 	ý 	latin small letter y with acute
+&thorn;     &#254; 	þ 	þ 	latin small letter thorn
+&yuml;      &#255; 	ÿ 	ÿ 	latin small letter y with diaeresis
+ */
+
+    function is_entity_letter($entity) {
+        logger ("checking ($entity) - ".htmlentities($entity));
+        $entnum = (int)substr($entity,2);
+        if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 255)) {
+            return true;
+        }
+        $entities = '&Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;'.
+            '&Ntilde;&Ograve;&Oacute;&Ocirc;&Otilde;&Ouml;&Oslash;&Ugrave;&Uacute;&Ucirc;&Uuml;&Yacute;&THORN;&szlig;'.
+            '&oslash;&ugrave;&yuml;';
+        return (stripos($entities, $entity) !== FALSE);
     }
 
     /**
@@ -151,8 +231,10 @@ class parser {
             // Some HTML entities make us break, almost all but apostrophies
             if($len_of_entity = $this->is_html_entity($string,$pos))
             {
-                if($this->is_white_space($string[$pos+$len_of_entity]) || $this->is_entity_breaker(substr($string,$pos,$len_of_entity)))
+                $entity = substr($string,$pos,$len_of_entity);
+                if(($this->is_white_space($string[$pos+$len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity))
                 {
+                    logger ("entity ($entity) breaks",5);
                     $this->tag_phrase($string,$start,$pos);
                     $start = $pos + $len_of_entity;
                 }
