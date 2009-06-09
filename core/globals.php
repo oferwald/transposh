@@ -18,10 +18,10 @@
 
 
 /**
- * 
+ *
  * Contains the global settings which are shared among the different tasks
  * of this plugin.
- * 
+ *
  */
 
 //Home (root) url of the site/blog under which translation will take place. 

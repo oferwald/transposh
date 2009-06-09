@@ -29,26 +29,25 @@ require_once("core/logging.php");
 /*
  * Insert supported languages section in admin page
  */
-function insert_supported_langs()
-{
+function insert_supported_langs() {
     global $languages, $tr_plugin_url;
 
     echo
     '<script type="text/javascript">'.
         'function chbx_change(lang)'.
         '{'.
-            'jQuery("#"+lang+"_edit").attr("checked",jQuery("#"+lang+"_view").attr("checked"))'.
+        'jQuery("#"+lang+"_edit").attr("checked",jQuery("#"+lang+"_view").attr("checked"))'.
         '}'.
         'jQuery(document).ready(function() {'.
-            'jQuery("#tr_anon").click(function() {'.
-                'if (jQuery("#tr_anon").attr("checked")) {'.
-                    'jQuery(".tr_editable").css("display","none");'.
-                '} else {'.
-                    'jQuery(".tr_editable").css("display","");'.
-                '}'.
-            '});'.
+        'jQuery("#tr_anon").click(function() {'.
+        'if (jQuery("#tr_anon").attr("checked")) {'.
+        'jQuery(".tr_editable").css("display","none");'.
+        '} else {'.
+        'jQuery(".tr_editable").css("display","");'.
+        '}'.
         '});'.
-    '</script>';
+        '});'.
+        '</script>';
     echo '<table class="'.NO_TRANSLATE_CLASS.'" style="width: 100%"><tr>';
 
     // we will hide the translatable column if anonymous can translate anyway
@@ -58,26 +57,25 @@ function insert_supported_langs()
     for($hdr=0; $hdr < $columns; $hdr++) {
         $extrapad = ($hdr != $columns - 1) ? ";padding-right: 40px" : '';
         echo '<th style="text-align:left; width:'.(100/$columns).'%">Language</th>'.
-             '<th title="Is this language user selectable?">Viewable</th>'.
-             '<th title="Is this language visible for translators?"'.$extrastyle.' class="tr_editable">Translatable</th>'.
-             '<th>Default</th>'.
-             '<th style="text-align:left;width: 80px'.$extrapad.'" title="Can we auto-translate this language?">Auto?</th>';
+            '<th title="Is this language user selectable?">Viewable</th>'.
+            '<th title="Is this language visible for translators?"'.$extrastyle.' class="tr_editable">Translatable</th>'.
+            '<th>Default</th>'.
+            '<th style="text-align:left;width: 80px'.$extrapad.'" title="Can we auto-translate this language?">Auto?</th>';
     }
     echo '</tr>';
 
-    foreach($languages as $code => $lang)
-    {
+    foreach($languages as $code => $lang) {
         list ($language,$flag,$autot) = explode (",",$lang);
         if(!($i % $columns)) echo '<tr>';
         $i++;
 
         echo "<td><img src=\"$tr_plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
         echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
-        $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
+            $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
         echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
-        $code . '_edit" ' . is_editable($code). '/></td>';
+            $code . '_edit" ' . is_editable($code). '/></td>';
         echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
-        is_default_lang($code). "/></td>";
+            is_default_lang($code). "/></td>";
         // TODO: Add icons?
         echo "<td>".($autot ? "Y" : "N")."</td>";
 
@@ -92,8 +90,7 @@ function insert_supported_langs()
  * Determine if the given language code is currentlly editable
  * Return 'checked' if true otherwise ""
  */
-function is_editable($code)
-{
+function is_editable($code) {
     $langs = get_option(EDITABLE_LANGS);
     return (strpos($langs, $code) !== FALSE) ? 'checked="checked"' : '';
 }
@@ -102,8 +99,7 @@ function is_editable($code)
  * Determine if the given language code is currentlly viewable
  * Return 'checked' if true otherwise ""
  */
-function is_viewable($code)
-{
+function is_viewable($code) {
     $langs = get_option(VIEWABLE_LANGS);
     return (strpos($langs, $code) !== FALSE) ? 'checked="checked"' : '';
 }
@@ -112,8 +108,7 @@ function is_viewable($code)
  * Determine if the given language code is currentlly the default language
  * Return 'checked' if true otherwise ""
  */
-function is_default_lang($code)
-{
+function is_default_lang($code) {
     global $languages;
     $default = get_option(DEFAULT_LANG);
     if(!$languages[$default]) $default = "en";
@@ -123,14 +118,12 @@ function is_default_lang($code)
 /*
  * Insert permissions section in the admin page
  */
-function insert_permissions()
-{
+function insert_permissions() {
     global $wp_roles;
     //display known roles and their permission to translate
-    foreach($wp_roles->get_names() as $role_name => $something)
-    {
+    foreach($wp_roles->get_names() as $role_name => $something) {
         echo '<input type="checkbox" value="1" name="'.$role_name.'" '.can_translate($role_name).
-             '/> '.ucfirst($role_name).'&nbsp;&nbsp;&nbsp;';
+            '/> '.ucfirst($role_name).'&nbsp;&nbsp;&nbsp;';
     }
     //Add our own custom role
     echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" '.	can_translate('anonymous') . '/> Anonymous';
@@ -140,101 +133,90 @@ function insert_permissions()
  * Insert the option to enable/disable rewrite of perlmalinks.
  * When disabled only parameters will be used to identify the current language.
  */
-function insert_permalink_rewrite_option()
-{
+function insert_permalink_rewrite_option() {
     $checked = (get_option(ENABLE_PERMALINKS_REWRITE)) ? 'checked="checked"' :'';
     echo '<input type="checkbox" value="1" name="enable_permalinks" '. $checked . '/> '.
-         'Rewrite URLs to be search engine friendly, '.
-         'e.g.  (http://wordpress.org/<strong>en</strong>). '.
-         'Requires that permalinks will be enabled.';
+        'Rewrite URLs to be search engine friendly, '.
+        'e.g.  (http://wordpress.org/<strong>en</strong>). '.
+        'Requires that permalinks will be enabled.';
 }
 
 /*
  * Insert the option to enable/disable pushing of scripts to footer.
  */
-function insert_script_footer_option()
-{
+function insert_script_footer_option() {
     $checked = (get_option(ENABLE_FOOTER_SCRIPTS)) ? 'checked="checked"' :'';
     echo '<input type="checkbox" value="1" name="enable_footer_scripts" '. $checked . '/> '.
-         'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
-         'Requires that your theme should have proper footer support.';
+        'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
+        'Requires that your theme should have proper footer support.';
 }
 
 /*
  * Insert the option to enable/disable automatic translation.
  * Enabled by default.
  */
-function insert_auto_translate_option()
-{
+function insert_auto_translate_option() {
     $checked = (get_option(ENABLE_AUTO_TRANSLATE,1)) ? 'checked="checked"' : '';
     echo '<input type="checkbox" value="1" name="enable_autotranslate" '.$checked.'/> '.
-         'Allow automatic translation of pages (currently using Google Translate)';
+        'Allow automatic translation of pages (currently using Google Translate)';
 }
 
 /*
  * Insert the option to enable/disable default language translation.
  * Disabled by default.
  */
-function insert_default_translate_option()
-{
+function insert_default_translate_option() {
     $checked = (get_option(ENABLE_DEFAULT_TRANSLATE,0)) ? 'checked="checked"' : '';
     echo '<input type="checkbox" value="1" name="enable_defaulttranslate" '.$checked.'/> '.
-         'Allow translation of default language - useful for sites with more than one major language';
+        'Allow translation of default language - useful for sites with more than one major language';
 }
 //
 /*
  * Indicates whether the given role can translate.
  * Return either "checked" or ""
  */
-function can_translate($role_name)
-{
+function can_translate($role_name) {
     global $wp_roles;
-    if($role_name != 'anonymous')
-    {
+    if($role_name != 'anonymous') {
         $role = $wp_roles->get_role($role_name);
         if(isset($role) && $role->has_cap(TRANSLATOR))
-        return 'checked="checked"';
+            return 'checked="checked"';
 
     }
     else
-    return (get_option(ANONYMOUS_TRANSLATION,1)) ? 'checked="checked"' : '';
+        return (get_option(ANONYMOUS_TRANSLATION,1)) ? 'checked="checked"' : '';
 }
 //
 /*
  * Handle newly posted admin options.
  */
-function update_admin_options()
-{
+function update_admin_options() {
     logger('Entry ' . __METHOD__, 1);
     global $wp_roles, $languages;
     $viewable_langs = array();
     $editable_langs = array();
 
     //update roles and capabilities
-    foreach($wp_roles->get_names() as $role_name => $something)
-    {
+    foreach($wp_roles->get_names() as $role_name => $something) {
         $role = $wp_roles->get_role($role_name);
         if($_POST[$role_name] == "1")
-        $role->add_cap(TRANSLATOR);
+            $role->add_cap(TRANSLATOR);
         else
-        $role->remove_cap(TRANSLATOR);
+            $role->remove_cap(TRANSLATOR);
     }
 
     //Anonymous needs to be handled differently as it does not have a role
     update_option(ANONYMOUS_TRANSLATION, ($_POST['anonymous']) ? 1 : 0);
 
     //Update the list of supported/editable languages
-    foreach($languages as $code => $lang)
-    {
-        if($_POST[$code . '_view'])
-        {
+    foreach($languages as $code => $lang) {
+        if($_POST[$code . '_view']) {
             $viewable_langs[$code] = $code;
             // force that every viewable lang is editable
             $editable_langs[$code] = $code;
         }
 
-        if($_POST[$code . '_edit'])
-        {
+        if($_POST[$code . '_edit']) {
             $editable_langs[$code] = $code;
         }
     }
@@ -243,8 +225,7 @@ function update_admin_options()
     update_option(EDITABLE_LANGS, implode(',', $editable_langs));
     update_option(DEFAULT_LANG,   $_POST['default_lang']);
 
-    if(get_option(ENABLE_PERMALINKS_REWRITE) != $_POST['enable_permalinks'])
-    {
+    if(get_option(ENABLE_PERMALINKS_REWRITE) != $_POST['enable_permalinks']) {
         global $wp_rewrite;
         update_option(ENABLE_PERMALINKS_REWRITE, $_POST['enable_permalinks']);
 
@@ -254,22 +235,22 @@ function update_admin_options()
     }
 
     if(get_option(ENABLE_FOOTER_SCRIPTS) != $_POST['enable_footer_scripts'])
-    update_option(ENABLE_FOOTER_SCRIPTS, $_POST['enable_footer_scripts']);
+        update_option(ENABLE_FOOTER_SCRIPTS, $_POST['enable_footer_scripts']);
 
     if(get_option(ENABLE_AUTO_TRANSLATE,1) != $_POST['enable_autotranslate'])
-    update_option(ENABLE_AUTO_TRANSLATE, $_POST['enable_autotranslate']);
+        update_option(ENABLE_AUTO_TRANSLATE, $_POST['enable_autotranslate']);
 
     if(get_option(ENABLE_DEFAULT_TRANSLATE) != $_POST['enable_defaulttranslate'])
-    update_option(ENABLE_DEFAULT_TRANSLATE, $_POST['enable_defaulttranslate']);
+        update_option(ENABLE_DEFAULT_TRANSLATE, $_POST['enable_defaulttranslate']);
 
 }
 
 //class that reperesent the complete plugin
 class transposh_plugin {
 
-    //constructor of class, PHP4 compatible construction for backward compatibility
+//constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin() {
-        //add filter for WordPress 2.8 changed backend box system !
+    //add filter for WordPress 2.8 changed backend box system !
         add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
         //add some help
         add_filter('contextual_help_list', array(&$this, 'on_contextual_help'),100,2);
@@ -291,15 +272,15 @@ class transposh_plugin {
     function on_contextual_help($filterVal,$screen) {
         if($screen == "settings_page_transposh") {
             $filterVal["settings_page_transposh"] = '<p>Transposh makes your blog translatable</p>'.
-            '<a href="http://transposh.org/">Plugin homepage</a><br/>'.
-            '<a href="http://transposh.org/faq/">Frequently asked questions</a>';
+                '<a href="http://transposh.org/">Plugin homepage</a><br/>'.
+                '<a href="http://transposh.org/faq/">Frequently asked questions</a>';
         }
         return $filterVal;
     }
 
     //extend the admin menu
     function on_admin_menu() {
-        //add our own option page, you can also add it to different sections or use your own one
+    //add our own option page, you can also add it to different sections or use your own one
         $this->pagehook = add_options_page('Transposh control center', "Transposh", 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'));
         //register  callback gets call prior your own page gets rendered
         add_action('load-'.$this->pagehook, array(&$this, 'on_load_page'));
@@ -307,7 +288,7 @@ class transposh_plugin {
 
     //will be executed if wordpress core detects this page has to be rendered
     function on_load_page() {
-        //ensure, that the needed javascripts been loaded to allow drag/drop, expand/collapse and hide/show of boxes
+    //ensure, that the needed javascripts been loaded to allow drag/drop, expand/collapse and hide/show of boxes
         wp_enqueue_script('common');
         wp_enqueue_script('wp-lists');
         wp_enqueue_script('postbox');
@@ -324,7 +305,7 @@ class transposh_plugin {
 
     //executed to show the plugins complete admin page
     function on_show_page() {
-        //we need the global screen column value to beable to have a sidebar in WordPress 2.8
+    //we need the global screen column value to beable to have a sidebar in WordPress 2.8
         global $screen_layout_columns;
         //add a 3rd content box now for demonstration purpose, boxes added at start of page rendering can't be switched on/off,
         //may be needed to ensure that a special box is always available
@@ -333,23 +314,23 @@ class transposh_plugin {
         //$data = array('My Data 1', 'My Data 2', 'Available Data 1');
         ?>
 <div id="transposh-general" class="wrap">
-    <?php screen_icon('options-general'); ?>
+            <?php screen_icon('options-general'); ?>
     <h2>Transposh</h2>
     <form action="admin-post.php" method="post">
-        <?php wp_nonce_field(TR_NONCE); ?>
-        <?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
-        <?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
+                <?php wp_nonce_field(TR_NONCE); ?>
+                <?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
+                <?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
         <input type="hidden" name="action" value="save_transposh" />
 
         <div id="poststuff" class="metabox-holder<?php echo 2 == $screen_layout_columns ? ' has-right-sidebar' : ''; ?>">
             <div id="side-info-column" class="inner-sidebar">
-                <?php do_meta_boxes($this->pagehook, 'side', $data); ?>
+                        <?php do_meta_boxes($this->pagehook, 'side', $data); ?>
             </div>
             <div id="post-body" class="has-sidebar">
                 <div id="post-body-content" class="has-sidebar-content">
-                    <?php do_meta_boxes($this->pagehook, 'normal', $data);
+                            <?php do_meta_boxes($this->pagehook, 'normal', $data);
                                  /* Maybe add static content here later */
-                    //do_meta_boxes($this->pagehook, 'additional', $data); ?>
+                            //do_meta_boxes($this->pagehook, 'additional', $data); ?>
                     <p>
                         <input type="submit" value="Save Changes" class="button-primary" name="Submit"/>
                     </p>
@@ -371,14 +352,14 @@ class transposh_plugin {
     //]]>
 </script>
 
-        <?php
+    <?php
     }
 
     //executed if the post arrives initiated by pressing the submit button of form
     function on_save_changes() {
-        //user permission check
+    //user permission check
         if ( !current_user_can('manage_options') )
-        wp_die( __('Problems?') );
+            wp_die( __('Problems?') );
         //cross check the given referer
         check_admin_referer(TR_NONCE);
 
