@@ -348,7 +348,7 @@ class parser {
             $this->html->find('html',0)->dir="rtl";
 
         if ($this->lang)
-            $this->html->find('html',0)->lang=$lang;
+            $this->html->find('html',0)->lang=$this->lang;
 
         // not much point in further processing if we don't have a function that does it
         if ($this->fetch_translate_func == null) {
