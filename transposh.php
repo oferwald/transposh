@@ -40,15 +40,9 @@ $admin_msg;
  */
 function process_page(&$buffer) {
 
-    global $wp_query, $lang, $is_edit_mode, $rtl_languages, $enable_auto_translate;
+    global $wp_query, $rtl_languages, $enable_auto_translate;
 
     $start_time = microtime(TRUE);
-
-    // No language code - avoid further processing.
-	/*if (!isset($wp_query->query_vars[LANG_PARAM]) && !get_option(ENABLE_DEFAULT_TRANSLATE))
-	{
-		return $buffer;
-	}*/
 
     // Refrain from touching the administrative interface
     if(stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE) {
@@ -56,28 +50,21 @@ function process_page(&$buffer) {
         return $buffer;
     }
 
-    $lang = $wp_query->query_vars[LANG_PARAM];
-    $default_lang = get_default_lang();
-    if (!$lang) $lang = $default_lang;
-    logger("Translating " . $_SERVER['REQUEST_URI'] . " to: $lang", 1);
+    logger("Translating " . $_SERVER['REQUEST_URI'] . " to: {$GLOBALS['lang']}", 1);
     // Don't translate the default language unless specifically allowed to...
-    if($lang == $default_lang && !get_option(ENABLE_DEFAULT_TRANSLATE)) {
+    $default_lang = get_default_lang();
+    if($GLOBALS['lang'] == $default_lang && !get_option(ENABLE_DEFAULT_TRANSLATE)) {
         logger("Skipping translation for default language $default_lang", 3);
         return $buffer;
-    }
-
-    if (($wp_query->query_vars[EDIT_PARAM] == "1" || $wp_query->query_vars[EDIT_PARAM] == "true") &&
-        is_editing_permitted()) {
-        $is_edit_mode = TRUE;
     }
 
     //translate the entire page
     $parse = new parser();
     $parse->fetch_translate_func = 'fetch_translation';
     $parse->url_rewrite_func = 'rewrite_url';
-    $parse->dir_rtl = (in_array ($lang, $rtl_languages));
-    $parse->lang = $lang;
-    $parse->is_edit_mode = $is_edit_mode;
+    $parse->dir_rtl = (in_array ($GLOBALS['lang'], $rtl_languages));
+    $parse->lang = $GLOBALS['lang'];
+    $parse->is_edit_mode = $GLOBALS['is_edit_mode'];
     $parse->is_auto_translate = $enable_auto_translate;
     if(stripos($_SERVER['REQUEST_URI'],'/feed/') !== FALSE) {
         logger ("in feed!");
@@ -140,13 +127,13 @@ function on_init() {
     logger(__METHOD__ . $_SERVER['REQUEST_URI'], 4);
     init_global_vars();
 
-    if ($_POST['translation_posted']) {
+    if (isset($_POST['translation_posted'])) {
         update_translation();
     }
-    elseif ($_GET['tr_token_hist']) {
+    elseif (isset($_GET['tr_token_hist'])) {
         get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
     }
-    elseif ($_GET['tp_gif']) {
+    elseif (isset($_GET['tp_gif'])) {
         $trans_gif_64 = "R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
         header("Content-type: image/gif");
         print(base64_decode($trans_gif_64));
@@ -215,10 +202,30 @@ function update_rewrite_rules($rules) {
 /*
  * Let WordPress know which parameters are of interest to us.
  */
-function parameter_queryvars($qvars) {
-    $qvars[] = LANG_PARAM;
-    $qvars[] = EDIT_PARAM;
-    return $qvars;
+function parameter_queryvars($vars) {
+    logger ("inside query vars",5);
+    $vars[] = LANG_PARAM;
+    $vars[] = EDIT_PARAM;
+    logger ($vars,5);
+    return $vars;
+}
+
+/**
+ * Grabs and set the global language and edit params, they should be here
+ * @param <type> $wp - here we get the WP class
+ */
+function on_parse_request($wp) {
+    logger ("on_parse_req");
+    logger ($wp->query_vars);
+    $GLOBALS['lang'] = $wp->query_vars[LANG_PARAM];
+    if (!$GLOBALS['lang']) $GLOBALS['lang'] = get_default_lang();
+    logger ("global: ".$GLOBALS['lang'],4);
+    if ($wp->query_vars[EDIT_PARAM] && is_editing_permitted()) {
+        $GLOBALS['is_edit_mode'] = true;
+    } else {
+        $GLOBALS['is_edit_mode'] = false;
+    }
+    logger ("global-edit: ".$GLOBALS['is_edit_mode'],4);
 }
 
 /*
@@ -354,7 +361,7 @@ function add_transposh_css() {
  * version of the page.
  */
 function add_transposh_js() {
-    global $tr_plugin_url, $wp_query, $lang, $home_url,  $enable_auto_translate, $wp_version;
+    global $tr_plugin_url, $wp_query, $home_url,  $enable_auto_translate, $wp_version;
 
     $enable_auto_translate = is_auto_translate_permitted();
     if(!is_editing_permitted() && !$enable_auto_translate) {
@@ -362,29 +369,28 @@ function add_transposh_js() {
         return;
     }
 
-    $is_edit_param_enabled = $wp_query->query_vars[EDIT_PARAM];
-
-    if (!$is_edit_param_enabled && !$enable_auto_translate) {
+    if (!$GLOBALS['is_edit_mode'] && !$enable_auto_translate) {
     //Not in any translation mode - no need for any js.
         return;
     }
 
     $options = get_option(WIDGET_TRANSPOSH);
 
-    if($is_edit_param_enabled) {
+    $edit_mode = "";
+    if($GLOBALS['is_edit_mode']) {
         $edit_mode = "&".EDIT_PARAM."=y";
     }
 
-    if($is_edit_param_enabled || $options['progressbar']) {
+    if($GLOBALS['is_edit_mode'] || $options['progressbar']) {
         wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js",array("jquery"),'1.7.1',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 
-    if($is_edit_param_enabled || $enable_auto_translate) {
+    if($GLOBALS['is_edit_mode'] || $enable_auto_translate) {
         $post_url = $home_url . '/index.php';
         wp_deregister_script('jquery');
         wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', get_option(ENABLE_FOOTER_SCRIPTS));
         wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
-        wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$lang}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
+        wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 }
 
@@ -396,25 +402,22 @@ function add_transposh_js() {
  * @return TRUE if translation allowed otherwise FALSE
  */
 function is_editing_permitted() {
-    global $wp_query ,$lang;
-
+    global $wp_query;
+    // editing is permitted for translators only
     if(!is_translator()) return FALSE;
-
-    $lang = $wp_query->query_vars[LANG_PARAM];
-    if (get_option(ENABLE_DEFAULT_TRANSLATE) && !$lang) $lang = get_default_lang();
-
-    if (!$lang)	return FALSE;
-
-    return is_editable_lang($lang);
+    // and only on the non-default lang (unless strictly specified)
+    if (!get_option(ENABLE_DEFAULT_TRANSLATE) && $GLOBALS['lang'] == get_default_lang()) return false;
+    
+    return is_editable_lang($GLOBALS['lang']);
 }
 
 /**
  * Determine if the given language in on the list of editable languages
  * @return TRUE if editable othewise FALSE
  */
-function is_editable_lang($lang) {
+function is_editable_lang($language) {
     $editable_langs = get_option(EDITABLE_LANGS);
-    return (strpos($editable_langs, $lang) === FALSE) ? FALSE : TRUE;
+    return (strpos($editable_langs, $language) === FALSE) ? FALSE : TRUE;
 }
 
 
@@ -426,17 +429,12 @@ function is_editable_lang($lang) {
  * @return TRUE if automatic translation allowed otherwise FALSE
  */
 function is_auto_translate_permitted() {
-    global $wp_query ,$lang;
+    global $wp_query;
     logger('checking auto translatability');
 
     if(!get_option(ENABLE_AUTO_TRANSLATE, 1)) return FALSE;
 
-    $lang = $wp_query->query_vars[LANG_PARAM];
-    if (get_option(ENABLE_DEFAULT_TRANSLATE) && !$lang) $lang = get_default_lang();
-
-    if (!$lang)	return FALSE;
-
-    return is_editable_lang($lang);
+    return is_editable_lang($GLOBALS['lang']);
 }
 /**
  * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
@@ -446,7 +444,7 @@ function is_auto_translate_permitted() {
  * @return TRUE if parameters should be used instead of rewriting as a permalink
  */
 function rewrite_url($href) {
-    global $lang, $is_edit_mode, $enable_permalinks_rewrite, $home_url;
+    global $enable_permalinks_rewrite, $home_url;
     $use_params = FALSE;
     logger ("got: $href",5);
 
@@ -465,7 +463,7 @@ function rewrite_url($href) {
     }
     $use_params = !$enable_permalinks_rewrite;
 
-    $href = rewrite_url_lang_param($href, $lang, $is_edit_mode, $use_params);
+    $href = rewrite_url_lang_param($href, $GLOBALS['lang'], $GLOBALS['is_edit_mode'], $use_params);
     logger ("rewritten: $href",4);
     return $href;
 }
@@ -477,6 +475,7 @@ function plugin_action_links( $links ) {
 
 //Register callbacks
 add_filter('query_vars', 'parameter_queryvars' );
+add_action('parse_request', 'on_parse_request');
 logger (preg_replace( '|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__ ));
 add_filter('plugin_action_links_' .preg_replace( '|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__ ), 'plugin_action_links');
 add_action('wp_print_styles', 'add_transposh_css');

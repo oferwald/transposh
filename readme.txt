@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.7.1
+Tested up to: 2.8
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -97,6 +97,15 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/06/09 - 0.2.4
+ * Fixed bugs with database prefixes (thanks again [Mike](http://www.nostate.com/))
+ * Translation of keywords and description meta tags (thanks again [Mike](http://www.nostate.com/))
+ * Fix for RSS feeds provided in other languages
+ * Fixed compatability to show support for wordpress 2.8
+ * Support footer insertion of scripts in wordpress 2.8
+ * Fixed issues of html entities breaking when they should not (thanks [Karl](http://www.wp-plugin-archive.de/))
+ * Lang is now set in the headers for real
+ * Fixed compatability with themes using annoying query_posts with no consideration (thanks [Karl](http://www.wp-plugin-archive.de/))
 * 2009/06/03 - 0.2.3
  * Revamped plugin setting page to a more useful one (code adapted from [code-styling.de](http://www.code-styling.de/))
  * Widget settings may be changed from settings page (thanks [Db0](http://dbzer0.com/))

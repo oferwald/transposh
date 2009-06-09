@@ -29,7 +29,7 @@ require_once("transposh.php");
  *
  */
 function init_transposh() {
-    if ($_POST['transposh_widget_posted']) {
+    if (isset ($_POST['transposh_widget_posted'])) {
         logger("Enter " . __METHOD__, 4);
 
         $ref=getenv('HTTP_REFERER');
@@ -39,8 +39,7 @@ function init_transposh() {
         $ref = cleanup_url($ref);
 
         if($lang != "none") {
-            $is_edit = $_POST[EDIT_PARAM];
-            $ref = rewrite_url_lang_param($ref, $lang, $is_edit);
+            $ref = rewrite_url_lang_param($ref, $lang, $_POST[EDIT_PARAM]);
 
             //ref is generated with html entities encoded, needs to be
             //decoded when used in the http header (i.e. 302 redirect)
@@ -89,17 +88,15 @@ function add_transposh_widget_css() {
  */
 function transposh_widget($args) {
     logger("Enter " . __METHOD__, 4);
-    global $languages, $wp_query, $tr_plugin_url,$lang;
+    global $languages, $wp_query, $tr_plugin_url; 
     extract($args);
 
-    $page_url =  ($_SERVER['HTTPS'] == 'on' ?
-        'https://' : 'http://') . $_SERVER["SERVER_NAME"];
+    //$page_url = "http://";
+    $page_url = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://') ;
+    $page_url .= $_SERVER["SERVER_NAME"];
     $page_url .= ($_SERVER["SERVER_PORT"] != "80" ? ":" .$_SERVER["SERVER_PORT"] : "");
     $page_url .= $_SERVER["REQUEST_URI"];
-
-    $is_edit = ($wp_query->query_vars[EDIT_PARAM] == "1" ? TRUE : FALSE);
-    $lang = $wp_query->query_vars[LANG_PARAM];
-    if (get_option(ENABLE_DEFAULT_TRANSLATE) && !$lang) $lang = get_default_lang();
+    logger ("p3:".$page_url, 6);
 
     $options = get_option(WIDGET_TRANSPOSH);
     $viewable_langs = get_option(VIEWABLE_LANGS);
@@ -121,13 +118,14 @@ function transposh_widget($args) {
                 list($language,$flag) = explode (",",$lang2);
 
                 //remove any language identifier
+                logger ("p1:".$page_url,6);
                 $page_url = cleanup_url($page_url);
+                logger ("p2:".$page_url,6);
 
                 //Only show languages which are viewable or (editable and the user is a translator)
-                if(strpos($viewable_langs, $code) !== FALSE ||
-                    ($is_translator && strpos($editable_langs, $code) !== FALSE) ||
-                    (get_option(DEFAULT_LANG) == $code && $lang)) {
-                    $page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
+                if(strpos($viewable_langs, $code) !== FALSE || is_editable_lang($code) || (get_option(DEFAULT_LANG) == $code)) {
+                    logger ("code = ".$code,5);
+                    $page_url2 = rewrite_url_lang_param($page_url, $code, $GLOBALS['is_edit_mode']);
                     if (get_option(DEFAULT_LANG) == $code) {
                         $page_url2 = $page_url;
                     }
@@ -138,6 +136,7 @@ function transposh_widget($args) {
                     if (trim(parse_url($page_url2, PHP_URL_FRAGMENT)) != '')
                         $urlpath .= '#'.parse_url($page_url2, PHP_URL_FRAGMENT);
 
+                    logger ("urlpath = ".$urlpath,6);
                     echo "<a href=\"" . $urlpath . "\">".
                         "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
                         " style=\"padding: 1px 3px;border: 0px\"/></a>";
@@ -148,7 +147,7 @@ function transposh_widget($args) {
 
             // this is the form for the edit...
             echo "<form action=\"$page_url\" method=\"post\">";
-            echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"$lang\"/>";
+            echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"{$GLOBALS['lang']}\"/>";
             break;
         case 2: // language list
         //keep the flags in the same direction regardless of the overall page direction
@@ -161,10 +160,8 @@ function transposh_widget($args) {
                 $page_url = cleanup_url($page_url);
 
                 //Only show languages which are viewable or (editable and the user is a translator)
-                if(strpos($viewable_langs, $code) !== FALSE ||
-                    ($is_translator && strpos($editable_langs, $code) !== FALSE) ||
-                    (get_option(DEFAULT_LANG) == $code && $lang)) {
-                    $page_url2 = rewrite_url_lang_param($page_url, $code, $is_edit);
+                if(strpos($viewable_langs, $code) !== FALSE || is_editable_lang($code) || (get_option(DEFAULT_LANG) == $code)) {
+                    $page_url2 = rewrite_url_lang_param($page_url, $code, $GLOBALS['is_edit_mode']);
                     if (get_option(DEFAULT_LANG) == $code) {
                         $page_url2 = $page_url;
                     }
@@ -175,6 +172,7 @@ function transposh_widget($args) {
                     if (trim(parse_url($page_url2, PHP_URL_FRAGMENT)) != '')
                         $urlpath .= '#'.parse_url($page_url2, PHP_URL_FRAGMENT);
 
+                    logger ("urlpath = ".$urlpath);
                     echo "<a href=\"" . $urlpath . "\">".
                         "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
                         " style=\"padding: 1px 3px;border: 0px\"/></a>$language<br/>";
@@ -185,7 +183,7 @@ function transposh_widget($args) {
 
             // this is the form for the edit...
             echo "<form action=\"$page_url\" method=\"post\">";
-            echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"$lang\"/>";
+            echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"{$GLOBALS['lang']}\"/>";
             break;
         default: // language selection
 
@@ -198,10 +196,8 @@ function transposh_widget($args) {
                 list($language,$flag) = explode (",",$lang2);
 
                 //Only show languages which are viewable or (editable and the user is a translator)
-                if(strpos($viewable_langs, $code) !== FALSE ||
-                    ($is_translator && strpos($editable_langs, $code) !== FALSE) ||
-                    (get_option(DEFAULT_LANG) == $code && $lang)) {
-                    $is_selected = ($lang == $code ? "selected=\"selected\"" : "" );
+                if(strpos($viewable_langs, $code) !== FALSE || is_editable_lang($code) || (get_option(DEFAULT_LANG) == $code)) {
+                    $is_selected = ($GLOBALS['lang'] == $code ? "selected=\"selected\"" : "" );
                     echo "<option value=\"$code\" $is_selected>" . $language . "</option>";
                     $is_showing_languages = TRUE;
                 }
@@ -214,9 +210,9 @@ function transposh_widget($args) {
     //at least one language showing - add the edit box if applicable
     if($is_showing_languages) {
     //Add the edit checkbox only for translators  on languages marked as editable
-        if($is_translator && strpos($editable_langs, $lang) !== FALSE) {
+        if(is_editing_permitted()) {
             echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\" " .
-                ($is_edit ? "checked=\"checked\"" : "") .
+                ($GLOBALS['is_edit_mode'] ? "checked=\"checked\"" : "") .
                 " onclick=\"this.form.submit();\"/>&nbsp;Edit Translation";
         }
 
@@ -224,7 +220,7 @@ function transposh_widget($args) {
     }
     else {
     //no languages configured - error message
-        echo '<p> No languages available for display. Check the Transposh settings (Admin).</p>';
+        echo '<p>No languages available for display. Check the Transposh settings (Admin).</p>';
     }
 
     echo "</form>";
