@@ -79,7 +79,7 @@ $languages = array(
 $rtl_languages =  array("ar", "he");
 
 //Define the new capability that will be assigned to roles - translator
-define("TRANLSLATOR", 'translator');
+define("TRANSLATOR", 'translator');
 
 //Option defining whether anonymous translation is allowed.
 define("ANONYMOUS_TRANSLATION", "transposh_allow_anonymous_translation");
