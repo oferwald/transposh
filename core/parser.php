@@ -41,8 +41,7 @@ class parser {
      * @param $char
      * @return bool true if current position marks a white space
      */
-    function is_white_space($char)
-    {
+    function is_white_space($char) {
         if (!$char) return TRUE;
         return strspn($char, " \t\r\n\0\x0B");
     }
@@ -52,8 +51,7 @@ class parser {
      * range of a-z (case insensetive).
      * @return bool true if a-z
      */
-    function is_a_to_z_character($char)
-    {
+    function is_a_to_z_character($char) {
         return (($char >= 'a' && $char <= 'z') || ($char >= 'A' && $char <= 'Z')) ? true : false;
     }
 
@@ -61,8 +59,7 @@ class parser {
      * Determine if the current position is a digit.
      * @return bool true if a digit
      */
-    function is_digit($char)
-    {
+    function is_digit($char) {
         return (($char >= '0' && $char <= '9')) ? true : false;
     }
 
@@ -72,10 +69,8 @@ class parser {
      * @param $position where to check for entities
      * @return int length of entity
      */
-    function is_html_entity($string, $position)
-    {
-        if ($string[$position] == "&")
-        {
+    function is_html_entity($string, $position) {
+        if ($string[$position] == "&") {
             $end_pos = $position + 1;
             while($string[$end_pos] == "#" || $this->is_digit($string[$end_pos]) || $this->is_a_to_z_character($string[$end_pos])) ++$end_pos;
             if ($string[$end_pos] == ';') return $end_pos - $position +1;
@@ -94,73 +89,73 @@ class parser {
         return !(stripos('&#8217;&apos;&#039;&#39;', $entity) !== FALSE);
     }
 
-/**
- * Some entities are to be regarded as simple letters in most cases
-&Agrave;    &#192;  	À  	À  	latin capital letter A with grave
-&Aacute;    &#193; 	Á 	Á 	latin capital letter A with acute
-&Acirc;     &#194; 	Â 	Â 	latin capital letter A with circumflex
-&Atilde;    &#195; 	Ã 	Ã 	latin capital letter A with tilde
-&Auml;      &#196; 	Ä 	Ä 	latin capital letter A with diaeresis
-&Aring;     &#197; 	Å 	Å 	latin capital letter A with ring above
-&AElig;     &#198; 	Æ 	Æ 	latin capital letter AE
-&Ccedil;    &#199; 	Ç 	Ç 	latin capital letter C with cedilla
-&Egrave;    &#200; 	È 	È 	latin capital letter E with grave
-&Eacute;    &#201; 	É 	É 	latin capital letter E with acute
-&Ecirc;     &#202; 	Ê 	Ê 	latin capital letter E with circumflex
-&Euml;      &#203; 	Ë 	Ë 	latin capital letter E with diaeresis
-&Igrave;    &#204; 	Ì 	Ì 	latin capital letter I with grave
-&Iacute;    &#205; 	Í 	Í 	latin capital letter I with acute
-&Icirc;     &#206; 	Î 	Î 	latin capital letter I with circumflex
-&Iuml;      &#207; 	Ï 	Ï 	latin capital letter I with diaeresis
-&ETH;       &#208; 	Ð 	Ð 	latin capital letter ETH
-&Ntilde;    &#209; 	Ñ 	Ñ 	latin capital letter N with tilde
-&Ograve;    &#210; 	Ò 	Ò 	latin capital letter O with grave
-&Oacute;    &#211; 	Ó 	Ó 	latin capital letter O with acute
-&Ocirc;     &#212; 	Ô 	Ô 	latin capital letter O with circumflex
-&Otilde;    &#213; 	Õ 	Õ 	latin capital letter O with tilde
-&Ouml;      &#214; 	Ö 	Ö 	latin capital letter O with diaeresis
-//&times;     &#215; 	× 	× 	multiplication sign
-&Oslash;    &#216; 	Ø 	Ø 	latin capital letter O with stroke
-&Ugrave;    &#217; 	Ù 	Ù 	latin capital letter U with grave
-&Uacute;    &#218; 	Ú 	Ú 	latin capital letter U with acute
-&Ucirc;     &#219; 	Û 	Û 	latin capital letter U with circumflex
-&Uuml;      &#220; 	Ü 	Ü 	latin capital letter U with diaeresis
-&Yacute;    &#221; 	Ý 	Ý 	latin capital letter Y with acute
-&THORN;     &#222; 	Þ 	Þ 	latin capital letter THORN
-&szlig;     &#223; 	ß 	ß 	latin small letter sharp s
-&agrave;    &#224; 	à 	à 	latin small letter a with grave
-&aacute;    &#225; 	á 	á 	latin small letter a with acute
-&acirc;     &#226; 	â 	â 	latin small letter a with circumflex
-&atilde;    &#227; 	ã 	ã 	latin small letter a with tilde
-&auml;      &#228; 	ä 	ä 	latin small letter a with diaeresis
-&aring;     &#229; 	å 	å 	latin small letter a with ring above
-&aelig;     &#230; 	æ 	æ 	latin small letter ae
-&ccedil;    &#231; 	ç 	ç 	latin small letter c with cedilla
-&egrave;    &#232; 	è 	è 	latin small letter e with grave
-&eacute;    &#233; 	é 	é 	latin small letter e with acute
-&ecirc;     &#234; 	ê 	ê 	latin small letter e with circumflex
-&euml;      &#235; 	ë 	ë 	latin small letter e with diaeresis
-&igrave;    &#236; 	ì 	ì 	latin small letter i with grave
-&iacute;    &#237; 	í 	í 	latin small letter i with acute
-&icirc;     &#238; 	î 	î 	latin small letter i with circumflex
-&iuml;      &#239; 	ï 	ï 	latin small letter i with diaeresis
-&eth;       &#240; 	ð 	ð 	latin small letter eth
-&ntilde;    &#241; 	ñ 	ñ 	latin small letter n with tilde
-&ograve;    &#242; 	ò 	ò 	latin small letter o with grave
-&oacute;    &#243; 	ó 	ó 	latin small letter o with acute
-&ocirc;     &#244; 	ô 	ô 	latin small letter o with circumflex
-&otilde;    &#245; 	õ 	õ 	latin small letter o with tilde
-&ouml;      &#246; 	ö 	ö 	latin small letter o with diaeresis
-//&divide;  &#247; 	÷ 	÷ 	division sign
-&oslash;    &#248; 	ø 	ø 	latin small letter o with stroke
-&ugrave;    &#249; 	ù 	ù 	latin small letter u with grave
-&uacute;    &#250; 	ú 	ú 	latin small letter u with acute
-&ucirc;     &#251; 	û 	û 	latin small letter u with circumflex
-&uuml;      &#252; 	ü 	ü 	latin small letter u with diaeresis
-&yacute;    &#253; 	ý 	ý 	latin small letter y with acute
-&thorn;     &#254; 	þ 	þ 	latin small letter thorn
-&yuml;      &#255; 	ÿ 	ÿ 	latin small letter y with diaeresis
- */
+    /**
+     * Some entities are to be regarded as simple letters in most cases
+     &Agrave;    &#192;  	À  	À  	latin capital letter A with grave
+     &Aacute;    &#193; 	Á 	Á 	latin capital letter A with acute
+     &Acirc;     &#194; 	Â 	Â 	latin capital letter A with circumflex
+     &Atilde;    &#195; 	Ã 	Ã 	latin capital letter A with tilde
+     &Auml;      &#196; 	Ä 	Ä 	latin capital letter A with diaeresis
+     &Aring;     &#197; 	Å 	Å 	latin capital letter A with ring above
+     &AElig;     &#198; 	Æ 	Æ 	latin capital letter AE
+     &Ccedil;    &#199; 	Ç 	Ç 	latin capital letter C with cedilla
+     &Egrave;    &#200; 	È 	È 	latin capital letter E with grave
+     &Eacute;    &#201; 	É 	É 	latin capital letter E with acute
+     &Ecirc;     &#202; 	Ê 	Ê 	latin capital letter E with circumflex
+     &Euml;      &#203; 	Ë 	Ë 	latin capital letter E with diaeresis
+     &Igrave;    &#204; 	Ì 	Ì 	latin capital letter I with grave
+     &Iacute;    &#205; 	Í 	Í 	latin capital letter I with acute
+     &Icirc;     &#206; 	Î 	Î 	latin capital letter I with circumflex
+     &Iuml;      &#207; 	Ï 	Ï 	latin capital letter I with diaeresis
+     &ETH;       &#208; 	Ð 	Ð 	latin capital letter ETH
+     &Ntilde;    &#209; 	Ñ 	Ñ 	latin capital letter N with tilde
+     &Ograve;    &#210; 	Ò 	Ò 	latin capital letter O with grave
+     &Oacute;    &#211; 	Ó 	Ó 	latin capital letter O with acute
+     &Ocirc;     &#212; 	Ô 	Ô 	latin capital letter O with circumflex
+     &Otilde;    &#213; 	Õ 	Õ 	latin capital letter O with tilde
+     &Ouml;      &#214; 	Ö 	Ö 	latin capital letter O with diaeresis
+     //&times;     &#215; 	× 	× 	multiplication sign
+     &Oslash;    &#216; 	Ø 	Ø 	latin capital letter O with stroke
+     &Ugrave;    &#217; 	Ù 	Ù 	latin capital letter U with grave
+     &Uacute;    &#218; 	Ú 	Ú 	latin capital letter U with acute
+     &Ucirc;     &#219; 	Û 	Û 	latin capital letter U with circumflex
+     &Uuml;      &#220; 	Ü 	Ü 	latin capital letter U with diaeresis
+     &Yacute;    &#221; 	Ý 	Ý 	latin capital letter Y with acute
+     &THORN;     &#222; 	Þ 	Þ 	latin capital letter THORN
+     &szlig;     &#223; 	ß 	ß 	latin small letter sharp s
+     &agrave;    &#224; 	à 	à 	latin small letter a with grave
+     &aacute;    &#225; 	á 	á 	latin small letter a with acute
+     &acirc;     &#226; 	â 	â 	latin small letter a with circumflex
+     &atilde;    &#227; 	ã 	ã 	latin small letter a with tilde
+     &auml;      &#228; 	ä 	ä 	latin small letter a with diaeresis
+     &aring;     &#229; 	å 	å 	latin small letter a with ring above
+     &aelig;     &#230; 	æ 	æ 	latin small letter ae
+     &ccedil;    &#231; 	ç 	ç 	latin small letter c with cedilla
+     &egrave;    &#232; 	è 	è 	latin small letter e with grave
+     &eacute;    &#233; 	é 	é 	latin small letter e with acute
+     &ecirc;     &#234; 	ê 	ê 	latin small letter e with circumflex
+     &euml;      &#235; 	ë 	ë 	latin small letter e with diaeresis
+     &igrave;    &#236; 	ì 	ì 	latin small letter i with grave
+     &iacute;    &#237; 	í 	í 	latin small letter i with acute
+     &icirc;     &#238; 	î 	î 	latin small letter i with circumflex
+     &iuml;      &#239; 	ï 	ï 	latin small letter i with diaeresis
+     &eth;       &#240; 	ð 	ð 	latin small letter eth
+     &ntilde;    &#241; 	ñ 	ñ 	latin small letter n with tilde
+     &ograve;    &#242; 	ò 	ò 	latin small letter o with grave
+     &oacute;    &#243; 	ó 	ó 	latin small letter o with acute
+     &ocirc;     &#244; 	ô 	ô 	latin small letter o with circumflex
+     &otilde;    &#245; 	õ 	õ 	latin small letter o with tilde
+     &ouml;      &#246; 	ö 	ö 	latin small letter o with diaeresis
+     //&divide;  &#247; 	÷ 	÷ 	division sign
+     &oslash;    &#248; 	ø 	ø 	latin small letter o with stroke
+     &ugrave;    &#249; 	ù 	ù 	latin small letter u with grave
+     &uacute;    &#250; 	ú 	ú 	latin small letter u with acute
+     &ucirc;     &#251; 	û 	û 	latin small letter u with circumflex
+     &uuml;      &#252; 	ü 	ü 	latin small letter u with diaeresis
+     &yacute;    &#253; 	ý 	ý 	latin small letter y with acute
+     &thorn;     &#254; 	þ 	þ 	latin small letter thorn
+     &yuml;      &#255; 	ÿ 	ÿ 	latin small letter y with diaeresis
+     */
 
     function is_entity_letter($entity) {
         logger ("checking ($entity) - ".htmlentities($entity));
@@ -181,8 +176,7 @@ class parser {
      * @param $nextchar needed for checking if . or - breaks
      * @return int length of breaker if current position marks a break in sentence
      */
-    function is_sentence_breaker($char, $nextchar, $nextnextchar)
-    {
+    function is_sentence_breaker($char, $nextchar, $nextnextchar) {
         if (($char == '.' || $char == '-') && ($this->is_white_space($nextchar))) return 1;
         if (ord($char) == 226 && ord($nextchar) == 136 && ord($nextnextchar) == 153) return 3; //∙
         if (ord($char) == 194 && ord($nextchar) == 183) return 2; //·
@@ -193,8 +187,7 @@ class parser {
      * Determines if the current position marks the begining of a number, e.g. 123 050-391212232
      * @return length of number.
      */
-    function is_number($page, $position)
-    {
+    function is_number($page, $position) {
         return strspn($page,'0123456789-+,.\\/',$position);
     }
 
@@ -213,7 +206,7 @@ class parser {
             $node->_[HDOM_INFO_OUTER] = '';
             $node->phrase = $phrase;
             if ($this->inbody)
-            $node->inbody = $this->inbody;
+                $node->inbody = $this->inbody;
         }
     }
 
@@ -226,14 +219,11 @@ class parser {
         //	$pos = skip_white_space($string, $pos);
         $start = $pos;
 
-        while($pos < strlen($string))
-        {
-            // Some HTML entities make us break, almost all but apostrophies
-            if($len_of_entity = $this->is_html_entity($string,$pos))
-            {
+        while($pos < strlen($string)) {
+        // Some HTML entities make us break, almost all but apostrophies
+            if($len_of_entity = $this->is_html_entity($string,$pos)) {
                 $entity = substr($string,$pos,$len_of_entity);
-                if(($this->is_white_space($string[$pos+$len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity))
-                {
+                if(($this->is_white_space($string[$pos+$len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
                     logger ("entity ($entity) breaks",5);
                     $this->tag_phrase($string,$start,$pos);
                     $start = $pos + $len_of_entity;
@@ -242,30 +232,26 @@ class parser {
                 $pos += $len_of_entity;
             }
             // will break translation unit when there's a breaker ",.[]()..."
-            else if($senb_len = $this->is_sentence_breaker($string[$pos],$string[$pos+1],$string[$pos+2]))
-            {
+            elseif($senb_len = $this->is_sentence_breaker($string[$pos],$string[$pos+1],$string[$pos+2])) {
                 $this->tag_phrase($string,$start,$pos);
                 $pos += $senb_len;
                 $start = $pos;
             }
             // Numbers also break, if they are followed by whitespace (don't break 42nd)
-            else if($num_len = $this->is_number($string,$pos))
-            {
+            elseif($num_len = $this->is_number($string,$pos)) {
                 if ($this->is_white_space($string[$pos+$num_len])) {
                     $this->tag_phrase($string,$start,$pos);
                     $start = $pos + $num_len + 1;
                 }
                 $pos += $num_len + 1;
             }
-            else
-            {
+            else {
                 $pos++;
             }
         }
 
         // the end is also some breaker
-        if($pos > $start)
-        {
+        if($pos > $start) {
             $this->tag_phrase($string,$start,$pos);
         }
     }
@@ -281,7 +267,7 @@ class parser {
         if (stripos($node->class,NO_TRANSLATE_CLASS) !== false) return;
         if (isset($this->ignore_tags[$node->tag])) return;
         elseif ($node->tag == 'text') {
-            // this prevents translation of a link that just surrounds its address
+        // this prevents translation of a link that just surrounds its address
             if ($node->parent->tag == 'a' && $node->parent->href == $node->outertext) {
                 return;
             }
@@ -327,8 +313,8 @@ class parser {
      * @return string
      */
     function create_edit_span ($original_text , $translated_text, $source, $for_hidden_element = false) {
-        // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
-        // get back exactlly the same string without having the client decode/encode it in anyway.
+    // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
+    // get back exactlly the same string without having the client decode/encode it in anyway.
         $span = '<span class ="'.SPAN_PREFIX.'" id="'.SPAN_PREFIX.$this->segment_id.'" token="' . base64_url_encode($original_text)."\" source=\"$source\"";
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
@@ -352,17 +338,17 @@ class parser {
      * @return string Translated content is here
      */
     function fix_html($string) {
-        // create our dom
+    // create our dom
         $this->html = str_get_html($string);
         // mark translateable elements
         $this->translate_tagging($this->html->root);
 
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
         if ($this->dir_rtl)
-        $this->html->find('html',0)->dir="rtl";
+            $this->html->find('html',0)->dir="rtl";
 
         if ($this->lang)
-        $this->html->find('html',0)->lang=$lang;
+            $this->html->find('html',0)->lang=$lang;
 
         // not much point in further processing if we don't have a function that does it
         if ($this->fetch_translate_func == null) {
@@ -393,7 +379,7 @@ class parser {
             if ($newtext) {
                 if ($this->feed_fix) {
                     if (substr($newtext, 0, 4) == '&lt;') {
-                       $newtext = html_entity_decode($newtext);
+                        $newtext = html_entity_decode($newtext);
                     }
                 }
                 $e->outertext = $newtext.$right;
@@ -417,9 +403,9 @@ class parser {
                 if ($ep->tag == 'phrase') {
                     list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
                     if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
-                        // prevent duplicate translation (title = text)
+                    // prevent duplicate translation (title = text)
                         if (strpos($e->innertext,base64_url_encode($ep->phrase)) === false) {
-                            //no need to translate span the same hidden phrase more than once
+                        //no need to translate span the same hidden phrase more than once
                             if (!in_array($ep->phrase, $hidden_phrases)) {
                                 $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true)."</span>";
                                 //    logger ($span);
@@ -438,7 +424,7 @@ class parser {
                 $e->title = $newtext.$right;
                 logger ("title-phrase: $newtext",4);
             }
-            
+
             $e->outertext .= $span;
             // this is where we update in the outercase issue
             if ($e->parent->_[HDOM_INFO_OUTER]) {

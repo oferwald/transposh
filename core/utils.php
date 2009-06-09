@@ -17,9 +17,9 @@
  */
 
 /**
- * 
+ *
  * Contains utility functions which are shared across the plugin.
- * 
+ *
  */
 
 require_once("constants.php");
@@ -32,67 +32,61 @@ require_once("logging.php");
  * param is_edit - is running in edit mode.
  * param use_params_only - use only parameters as modifiers, i.e. not permalinks
  */
-function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE)
-{
-	global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
+function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
+    global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
 
     //logger("home url: $home_url",3);
     //logger("home url_quoted: $home_url_quoted",3);
     //logger("enable_permalinks_rewrite: $enable_permalinks_rewrite",3);
     logger("url: $url",5);
-	$url = html_entity_decode($url, ENT_NOQUOTES);
+    $url = html_entity_decode($url, ENT_NOQUOTES);
     $url = str_replace('&#038;', '&', $url);
     logger("urldec: $url",5);
-
+    
     //remove prev lang and edit params?
     $url = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $url);
 
-	if(!$enable_permalinks_rewrite)
-	{
-		//override the use only params - admin configured system to not touch permalinks
-		$use_params_only = TRUE;
-	}
+    if(!$enable_permalinks_rewrite) {
+    //override the use only params - admin configured system to not touch permalinks
+        $use_params_only = TRUE;
+    }
 
-	if($is_edit)
-	{
-		$params = EDIT_PARAM . '=1&';
+    if($is_edit) {
+        $params = EDIT_PARAM . '=1&';
 
-	}
+    }
 
-	if($use_params_only)
-	{
-		$params .= LANG_PARAM . "=$lang&";
-	}
-	else
-	{
-		$url = preg_replace("/$home_url_quoted\/(..(-..)?\/)?\/?/",
-                                 "$home_url/$lang/",  $url);
-	}
+    if($use_params_only) {
+        $params .= LANG_PARAM . "=$lang&";
+    }
+    else {
+        $url = preg_replace("/$home_url_quoted\/(..(-..)?\/)?\/?/",
+            "$home_url/$lang/",  $url);
+    }
 
-	if($params)
-	{
-		//insert params to url
-		$url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
+    if($params) {
+    //insert params to url
+        $url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
 
-		//Cleanup extra &
-		$url = preg_replace("/&&+/", "&", $url);
+        //Cleanup extra &
+        $url = preg_replace("/&&+/", "&", $url);
 
-		//Cleanup extra ?
-		$url = preg_replace("/\?\?+/", "?", $url);
-	}
+        //Cleanup extra ?
+        $url = preg_replace("/\?\?+/", "?", $url);
+    }
 
-	// more cleanups
-	$url = preg_replace("/&$/", "", $url);
-	$url = preg_replace("/\?$/", "", $url);
+    // more cleanups
+    $url = preg_replace("/&$/", "", $url);
+    $url = preg_replace("/\?$/", "", $url);
 
-	$url = htmlentities($url, ENT_NOQUOTES);
+    $url = htmlentities($url, ENT_NOQUOTES);
 
-	return $url;
+    return $url;
 }
 
 
 /**
- * Encode a string as base 64 while avoiding characters which should be avoided 
+ * Encode a string as base 64 while avoiding characters which should be avoided
  * in uri, e.g. + is interpeted as a space.
  */
 function base64_url_encode($input) {
