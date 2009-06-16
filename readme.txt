@@ -97,6 +97,10 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/06/16 - 0.2.5
+ * Fixed url rewrite bug reported by ([Mike](http://www.nostate.com/))
+ * Allow translation of even more hidden elements such as keywords, descriptions and stuff inside select tags
+ * Updated to jQueryUI 1.7.2
 * 2009/06/09 - 0.2.4
  * Fixed bugs with database prefixes (thanks again [Mike](http://www.nostate.com/))
  * Translation of keywords and description meta tags (thanks again [Mike](http://www.nostate.com/))
