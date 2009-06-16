@@ -26,67 +26,146 @@ require_once("constants.php");
 require_once("logging.php");
 
 /*
+ * Remove from url any language (or editing) params that were added for our use.
+ * Return the scrubed url
+ */
+function cleanup_url($url, $remove_host = false) {
+    $parsedurl = parse_url($url);
+    //cleanup previous lang & edit parameter from url
+
+    if ($parsedurl['query']) {
+        $params = explode('&',$parsedurl['query']);
+        foreach ($params as $key => $param) {
+            if (stripos($param,LANG_PARAM) === 0) unset ($params[$key]);
+            if (stripos($param,EDIT_PARAM) === 0) unset ($params[$key]);
+        }
+    }
+    // clean the query
+    unset($parsedurl['query']);
+    if($params) {
+        $parsedurl['query'] = implode('&',$params);
+    }
+
+    //cleanup lang identifier in permalinks
+    //remove the language from the url permalink (if in start of path, and is a defined language)
+    if (strlen($parsedurl['path']) > 2) {
+        $secondslashpos = strpos($parsedurl['path'], "/",1);
+        if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+        $prevlang =  substr($parsedurl['path'],1,$secondslashpos-1);
+        if (isset ($languages[$prevlang])) {
+            logger ("prevlang: ".$prevlang,4);
+            $parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
+        }
+    }
+    if ($remove_host) {
+        unset ($parsedurl[scheme]);
+        unset ($parsedurl[host]);
+    }
+    $url = glue_url($parsedurl);
+    return $url;
+}
+
+/**
  * Update the given url to include language params.
- * param url - the original url to rewrite (expects full urls)
- * param lang - language code
- * param is_edit - is running in edit mode.
- * param use_params_only - use only parameters as modifiers, i.e. not permalinks
+ * @param string $url - Original URL to rewrite
+ * @param string $lang - Target language code
+ * @param boolean $is_edit - should url indicate editing
+ * @param boolean $use_params_only - only use paramaters and avoid permalinks
  */
 function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
-    global $home_url, $home_url_quoted, $enable_permalinks_rewrite;
-    logger("old url: $url, lang: $lang, is_edit: $is_edit",5);
-    //logger("home url: $home_url",3);
-    //logger("home url_quoted: $home_url_quoted",3);
-    //logger("enable_permalinks_rewrite: $enable_permalinks_rewrite",3);
-    logger("url: $url",6);
-    $url = html_entity_decode($url, ENT_NOQUOTES);
-    $url = str_replace('&#038;', '&', $url);
-    logger("urldec: $url",6);
-    
-    //remove prev lang and edit params?
-    $url = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $url);
+    global $home_url, $enable_permalinks_rewrite, $languages;
+    logger("rewrite old url: $url, lang: $lang, is_edit: $is_edit, home_url: $home_url",5);
 
-    if(!$enable_permalinks_rewrite) {
+    $newurl = str_replace('&#038;', '&', $url);
+    $newurl = html_entity_decode($newurl, ENT_NOQUOTES);
+    $parsedurl = parse_url($newurl);
+
+    // if we are dealing with some other url, we won't touch it!
+    if ($parsedurl['host'] && !($parsedurl['host'] == parse_url($home_url,PHP_URL_HOST))) {
+        return $url;
+    }
+
+    //remove prev lang and edit params - from query string - reserve other params
+    if ($parsedurl['query']) {
+        $params = explode('&',$parsedurl['query']);
+        foreach ($params as $key => $param) {
+            if (stripos($param,LANG_PARAM) === 0) unset ($params[$key]);
+            if (stripos($param,EDIT_PARAM) === 0) unset ($params[$key]);
+        }
+    }
+    // clean the query
+    unset($parsedurl['query']);
+
+    //remove the language from the url permalink (if in start of path, and is a defined language)
+    if (strlen($parsedurl['path']) > 2) {
+        $secondslashpos = strpos($parsedurl['path'], "/",1);
+        if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+        $prevlang =  substr($parsedurl['path'],1,$secondslashpos-1);
+        if (isset ($languages[$prevlang])) {
+            logger ("prevlang: ".$prevlang,4);
+            $parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
+        }
+    }
+
     //override the use only params - admin configured system to not touch permalinks
+    if(!$enable_permalinks_rewrite) {
         $use_params_only = TRUE;
     }
 
-    $params ="";
+    //$params ="";
     if($is_edit) {
-        $params = EDIT_PARAM . '=1&';
+        $params[edit] = EDIT_PARAM . '=1';
     }
 
     if($use_params_only) {
-        $params .= LANG_PARAM . "=$lang&";
+        $params[lang] = LANG_PARAM . "=$lang";
     }
     else {
-        $url = preg_replace("/$home_url_quoted\/(..(-..)?\/)?\/?/",
-            "$home_url/$lang/",  $url);
+        if (!$parsedurl['path']) $parsedurl['path'] = "/";
+        $parsedurl['path'] = "/".$lang.$parsedurl['path'];
     }
-    logger("params: $params",6);
+    logger("params: $params",4);
 
-    if($params) {
     //insert params to url
-        $url = preg_replace("/(.+\/[^\?\#]*[\?]?)/", '$1?' . $params, $url);
-        logger("new url2: $url",6);
-
-        //Cleanup extra &
-        $url = preg_replace("/&&+/", "&", $url);
-
-        //Cleanup extra ?
-        $url = preg_replace("/\?\?+/", "?", $url);
+    if($params) {
+        $parsedurl['query'] = implode('&',$params);
     }
 
     // more cleanups
-    $url = preg_replace("/&$/", "", $url);
-    $url = preg_replace("/\?$/", "", $url);
+    //$url = preg_replace("/&$/", "", $url);
+    //$url = preg_replace("/\?$/", "", $url);
 
-    $url = htmlentities($url, ENT_NOQUOTES);
+    //    $url = htmlentities($url, ENT_NOQUOTES);
+    $url = glue_url($parsedurl);
     logger("new url: $url",5);
     return $url;
 }
 
+/**
+ *
+ * @param <type> $parsed
+ * @return <type>
+ */
+function glue_url($parsed) {
+    if (!is_array($parsed)) {
+        return false;
+    }
 
+    $uri = isset($parsed['scheme']) ? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+    $uri .= isset($parsed['user']) ? $parsed['user'].(isset($parsed['pass']) ? ':'.$parsed['pass'] : '').'@' : '';
+    $uri .= isset($parsed['host']) ? $parsed['host'] : '';
+    $uri .= isset($parsed['port']) ? ':'.$parsed['port'] : '';
+
+    if (isset($parsed['path'])) {
+        $uri .= (substr($parsed['path'], 0, 1) == '/') ?
+            $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
+    }
+
+    $uri .= isset($parsed['query']) ? '?'.$parsed['query'] : '';
+    $uri .= isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '';
+
+    return $uri;
+}
 /**
  * Encode a string as base 64 while avoiding characters which should be avoided
  * in uri, e.g. + is interpeted as a space.
