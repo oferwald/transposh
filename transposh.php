@@ -86,7 +86,7 @@ function process_page(&$buffer) {
  * which means that query parameters are not accessiable.
  */
 function init_global_vars() {
-    global $home_url, $home_url_quoted, $tr_plugin_url, $enable_permalinks_rewrite, $wp_rewrite;
+    global $home_url, $tr_plugin_url, $enable_permalinks_rewrite, $wp_rewrite;
 
     $home_url = get_option('home');
     // Handle windows ('C:\wordpress')
@@ -95,8 +95,6 @@ function init_global_vars() {
     $local_dir = preg_replace("/.*\//", "", $local_dir);
     $tr_plugin_url= WP_PLUGIN_URL .'/'. $local_dir;
     logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,4);
-    $home_url_quoted = preg_quote($home_url);
-    $home_url_quoted = preg_replace("/\//", "\\/", $home_url_quoted);
 
     if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE)) {
         $enable_permalinks_rewrite = TRUE;
@@ -382,7 +380,7 @@ function add_transposh_js() {
     }
 
     if($GLOBALS['is_edit_mode'] || $options['progressbar']) {
-        wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js",array("jquery"),'1.7.1',get_option(ENABLE_FOOTER_SCRIPTS));
+        wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js",array("jquery"),'1.7.2',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 
     if($GLOBALS['is_edit_mode'] || $enable_auto_translate) {
@@ -456,7 +454,7 @@ function rewrite_url($href) {
     // don't fix links pointing to real files as it will cause that the
     // web server will not be able to locate them
     if(stripos($href, '/wp-admin') !== FALSE   ||
-        stripos($href, '/wp-content') !== FALSE ||
+        stripos($href, WP_CONTENT_URL) !== FALSE ||
         stripos($href, '/wp-login') !== FALSE   ||
         stripos($href, '/.php') !== FALSE) {
         return $href;
