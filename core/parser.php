@@ -31,6 +31,7 @@ class parser {
     public $dir_rtl;
     public $lang;
     private $inbody = false;
+    private $inselect;
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
@@ -158,7 +159,7 @@ class parser {
      */
 
     function is_entity_letter($entity) {
-        logger ("checking ($entity) - ".htmlentities($entity));
+        logger ("checking ($entity) - ".htmlentities($entity),4);
         $entnum = (int)substr($entity,2);
         if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 255)) {
             return true;
@@ -207,6 +208,8 @@ class parser {
             $node->phrase = $phrase;
             if ($this->inbody)
                 $node->inbody = $this->inbody;
+            if ($this->inselect)
+                $node->inselect = true;
         }
     }
 
@@ -261,12 +264,16 @@ class parser {
      * it currently also rewrites urls, and should consider if this is smart
      * @param <type> $node
      */
-    function translate_tagging($node) {
+    function translate_tagging($node, $level = 0) {
         $this->currentnode = $node;
         // we don't want to translate non-translatable classes
         if (stripos($node->class,NO_TRANSLATE_CLASS) !== false) return;
+
+        if (!($this->inselect && $level > $this->inselect))
+            $this->inselect = false;
+            
         if (isset($this->ignore_tags[$node->tag])) return;
-        elseif ($node->tag == 'text') {
+        if ($node->tag == 'text') {
         // this prevents translation of a link that just surrounds its address
             if ($node->parent->tag == 'a' && $node->parent->href == $node->outertext) {
                 return;
@@ -291,6 +298,9 @@ class parser {
         elseif ($node->tag == 'body') {
             $this->inbody = true;
         }
+        elseif ($node->tag == 'select') {
+            $this->inselect = $level;
+        }
 
         // titles are also good places to translate, exist in a, img, abbr, acronym
         if ($node->title) $this->parsetext($node->title);
@@ -300,7 +310,7 @@ class parser {
 
         // recurse
         foreach($node->nodes as $c) {
-            $this->translate_tagging($c);
+            $this->translate_tagging($c, $level +1);
         }
     }
 
@@ -362,10 +372,16 @@ class parser {
             $newtext = '';
             foreach ($e->nodes as $ep) {
                 list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
-                if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
+                if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody*/) {
                     $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
                     $spanend = "</span>";
-                    if ($translated_text == null) $translated_text = $ep->phrase;
+                    if ($ep->inselect || !$ep->inbody)  {
+                        $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source,true).$spanend;
+                        $span = '';
+                        $spanend = '';
+                    }
+                    else
+                      if ($translated_text == null) $translated_text = $ep->phrase;
                 } else {
                     $span = '';
                     $spanend = '';
@@ -385,6 +401,12 @@ class parser {
                 $e->outertext = $newtext.$right;
                 logger ("phrase: $newtext",4);
             }
+            // hmm?
+            if (!$ep->inselect && $savedspan && $ep->inbody) {
+                $e->outertext = $savedspan.$e->outertext;
+                $savedspan = "";
+            }
+
         }
 
         // now we handle the title attributes
