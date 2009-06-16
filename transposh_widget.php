@@ -138,7 +138,7 @@ function transposh_widget($args) {
                             " style=\"padding: 1px 3px;border: 0px\"/></a>";
                     }
                     else {
-                        echo "<a href=\"" . $urlpath . "\">".
+                        echo "<a href=\"" . $page_url . "\">".
                             "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
                             " style=\"padding: 1px 3px;border: 0px\"/></a>$language<br/>";
                     }
