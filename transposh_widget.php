@@ -22,6 +22,7 @@
  */
 require_once("core/logging.php");
 require_once("core/constants.php");
+require_once("core/utils.php");
 require_once("transposh.php");
 
 /*
@@ -31,19 +32,23 @@ require_once("transposh.php");
 function init_transposh() {
     if (isset ($_POST['transposh_widget_posted'])) {
         logger("Enter " . __METHOD__, 4);
+        init_global_vars();
 
         $ref=getenv('HTTP_REFERER');
         $lang = $_POST[LANG_PARAM];
+        logger("Widget referrer: $ref, lang: $lang", 4);
 
         //remove existing language settings.
         $ref = cleanup_url($ref);
+        logger("cleaned referrer: $ref, lang: $lang", 4);
 
         if($lang != "none") {
             $ref = rewrite_url_lang_param($ref, $lang, $_POST[EDIT_PARAM]);
+            logger("rewritten referrer: $ref, lang: $lang", 4);
 
-            //ref is generated with html entities encoded, needs to be
-            //decoded when used in the http header (i.e. 302 redirect)
-            $ref = html_entity_decode($ref, ENT_NOQUOTES);
+        //ref is generated with html entities encoded, needs to be
+        //decoded when used in the http header (i.e. 302 redirect)
+        //$ref = html_entity_decode($ref, ENT_NOQUOTES);
         }
 
         logger("Widget redirect url: $ref", 3);
@@ -88,14 +93,10 @@ function add_transposh_widget_css() {
  */
 function transposh_widget($args) {
     logger("Enter " . __METHOD__, 4);
-    global $languages, $wp_query, $tr_plugin_url; 
+    global $languages, $wp_query, $tr_plugin_url;
     extract($args);
 
-    //$page_url = "http://";
-    $page_url = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://') ;
-    $page_url .= $_SERVER["SERVER_NAME"];
-    $page_url .= ($_SERVER["SERVER_PORT"] != "80" ? ":" .$_SERVER["SERVER_PORT"] : "");
-    $page_url .= $_SERVER["REQUEST_URI"];
+    $page_url = $_SERVER["REQUEST_URI"];
     logger ("p3:".$page_url, 6);
 
     $options = get_option(WIDGET_TRANSPOSH);
@@ -109,46 +110,12 @@ function transposh_widget($args) {
 
     echo $before_widget . $before_title . __("Translation") . $after_title;
 
+    //remove any language identifier
+    $clean_page_url = cleanup_url($page_url, true);
+    logger ("WIDGET: clean page url: $clean_page_url ,orig: $page_url");
+
     switch ($options['style']) {
         case 1: // flags
-        //keep the flags in the same direction regardless of the overall page direction
-            echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
-
-            foreach($languages as $code => $lang2) {
-                list($language,$flag) = explode (",",$lang2);
-
-                //remove any language identifier
-                logger ("p1:".$page_url,6);
-                $page_url = cleanup_url($page_url);
-                logger ("p2:".$page_url,6);
-
-                //Only show languages which are viewable or (editable and the user is a translator)
-                if(strpos($viewable_langs, $code) !== FALSE || is_editable_lang($code) || (get_option(DEFAULT_LANG) == $code)) {
-                    logger ("code = ".$code,5);
-                    $page_url2 = rewrite_url_lang_param($page_url, $code, $GLOBALS['is_edit_mode']);
-                    if (get_option(DEFAULT_LANG) == $code) {
-                        $page_url2 = $page_url;
-                    }
-                    //TODO: improve this hacky! shortening
-                    $urlpath = parse_url($page_url2, PHP_URL_PATH);
-                    if (trim(parse_url($page_url2, PHP_URL_QUERY)) != '')
-                        $urlpath .= '?'.parse_url($page_url2, PHP_URL_QUERY);
-                    if (trim(parse_url($page_url2, PHP_URL_FRAGMENT)) != '')
-                        $urlpath .= '#'.parse_url($page_url2, PHP_URL_FRAGMENT);
-
-                    logger ("urlpath = ".$urlpath,6);
-                    echo "<a href=\"" . $urlpath . "\">".
-                        "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
-                        " style=\"padding: 1px 3px;border: 0px\"/></a>";
-                    $is_showing_languages = TRUE;
-                }
-            }
-            echo "</div>";
-
-            // this is the form for the edit...
-            echo "<form action=\"$page_url\" method=\"post\">";
-            echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"{$GLOBALS['lang']}\"/>";
-            break;
         case 2: // language list
         //keep the flags in the same direction regardless of the overall page direction
             echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
@@ -156,38 +123,37 @@ function transposh_widget($args) {
             foreach($languages as $code => $lang2) {
                 list($language,$flag) = explode (",",$lang2);
 
-                //remove any language identifier
-                $page_url = cleanup_url($page_url);
-
                 //Only show languages which are viewable or (editable and the user is a translator)
                 if(strpos($viewable_langs, $code) !== FALSE || is_editable_lang($code) || (get_option(DEFAULT_LANG) == $code)) {
-                    $page_url2 = rewrite_url_lang_param($page_url, $code, $GLOBALS['is_edit_mode']);
+                    logger ("code = ".$code,5);
+                    $page_url = rewrite_url_lang_param($clean_page_url, $code, $GLOBALS['is_edit_mode']);
                     if (get_option(DEFAULT_LANG) == $code) {
-                        $page_url2 = $page_url;
+                        $page_url = $clean_page_url;
                     }
-                    //TODO: improve this hacky! shortening
-                    $urlpath = parse_url($page_url2, PHP_URL_PATH);
-                    if (trim(parse_url($page_url2, PHP_URL_QUERY)) != '')
-                        $urlpath .= '?'.parse_url($page_url2, PHP_URL_QUERY);
-                    if (trim(parse_url($page_url2, PHP_URL_FRAGMENT)) != '')
-                        $urlpath .= '#'.parse_url($page_url2, PHP_URL_FRAGMENT);
 
-                    logger ("urlpath = ".$urlpath);
-                    echo "<a href=\"" . $urlpath . "\">".
-                        "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
-                        " style=\"padding: 1px 3px;border: 0px\"/></a>$language<br/>";
+                    logger ("urlpath = ".$page_url,5);
+                    if ($options['style'] == 1) {
+                        echo "<a href=\"" . $page_url . "\">".
+                            "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
+                            " style=\"padding: 1px 3px;border: 0px\"/></a>";
+                    }
+                    else {
+                        echo "<a href=\"" . $urlpath . "\">".
+                            "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
+                            " style=\"padding: 1px 3px;border: 0px\"/></a>$language<br/>";
+                    }
                     $is_showing_languages = TRUE;
                 }
             }
             echo "</div>";
 
             // this is the form for the edit...
-            echo "<form action=\"$page_url\" method=\"post\">";
+            echo "<form action=\"$clean_page_url\" method=\"post\">";
             echo "<input type=\"hidden\" name=\"lang\" id=\"lang\" value=\"{$GLOBALS['lang']}\"/>";
             break;
         default: // language selection
 
-            echo "<form action=\"$page_url\" method=\"post\">";
+            echo "<form action=\"$clean_page_url\" method=\"post\">";
             echo "<span class=\"" .NO_TRANSLATE_CLASS . "\" >";
             echo "<select name=\"lang\"	id=\"lang\" onchange=\"Javascript:this.form.submit();\">";
             echo "<option value=\"none\">[Language]</option>";
@@ -205,7 +171,6 @@ function transposh_widget($args) {
             echo "</select><br/>";
             echo "</span>"; // the no_translate for the language list
     }
-
 
     //at least one language showing - add the edit box if applicable
     if($is_showing_languages) {
@@ -227,40 +192,6 @@ function transposh_widget($args) {
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
     echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img class=\"".NO_TRANSLATE_CLASS."\" src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
-}
-
-/*
- * Remove from url any language (or editing) params that were added for our use.
- * Return the scrubed url
- */
-function cleanup_url($url) {
-    global $home_url, $home_url_quoted;
-
-    //cleanup previous lang & edit parameter from url
-    $url = preg_replace("/(" . LANG_PARAM . "|" . EDIT_PARAM . ")=[^&]*/i", "", $url);
-
-
-    if(!$home_url) {
-    //make sure required home urls are fetched - as they are need now
-        init_global_vars();
-    }
-
-    //cleanup lang identifier in permalinks
-    $url = preg_replace("/$home_url_quoted\/(..\/)/", "$home_url/",  $url);
-
-    //some more cleans
-    $url = preg_replace("/&$/", "", $url);
-    $url = preg_replace("/\?$/", "", $url);
-
-    return $url;
-}
-
-/*
- * Mark the given text so it will not subject to translation.
- * Return the text with the required tags
- */
-function no_translate($text) {
-    return "<span class=\"" . NO_TRANSLATE_CLASS . "\">$text</span>";
 }
 
 function transposh_widget_post() {
