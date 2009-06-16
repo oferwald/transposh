@@ -27,9 +27,6 @@
 //Home (root) url of the site/blog under which translation will take place. 
 $home_url;
 
-//Home url of the blog - already quoted and ready for regex
-$home_url_quoted;
-
 //The url pointing to the base of the plugin. Used for generating urls to resources
 $tr_plugin_url;
 
