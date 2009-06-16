@@ -66,9 +66,8 @@ function insert_supported_langs() {
 
     foreach($languages as $code => $lang) {
         list ($language,$flag,$autot) = explode (",",$lang);
-        if(!($i % $columns)) echo '<tr>';
+        if(!($i % $columns)) echo '<tr'.(!($i/2 % $columns) ? ' class="alternate"':'').'>';
         $i++;
-
         echo "<td><img src=\"$tr_plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
         echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
             $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
