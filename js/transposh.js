@@ -333,7 +333,7 @@ jQuery("script[src*='transposh.js']").each(function (j) {
     }
 });
 
-transposh_params.blank = "transposh_params.post_url+'?tp_gif=y";
+transposh_params.blank = transposh_params.post_url+'?tp_gif=y';
 //transposh_params.blank = "http://www.wp-plugin-archive.de/wp-includes/images/blank.gif";
 
 google.load("language", "1");
