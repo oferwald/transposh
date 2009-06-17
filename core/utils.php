@@ -30,6 +30,8 @@ require_once("logging.php");
  * Return the scrubed url
  */
 function cleanup_url($url, $remove_host = false) {
+    global $languages;
+    
     $parsedurl = parse_url($url);
     //cleanup previous lang & edit parameter from url
 
