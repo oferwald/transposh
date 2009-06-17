@@ -12,7 +12,7 @@
 
 //Enable tracing level.
 //0 - disabled. Higher numbers will show more debug information.
-define ("DEBUG" , 3);
+if (!defined('DEBUG')) define ("DEBUG" , 3);
 
 require_once('FirePHP.class.php');
 require_once("parser.php");
@@ -29,7 +29,8 @@ function logger($msg, $severity=3) {
     if($severity <= DEBUG) {
         error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/tmp/transposh.log");
         if (defined('PRINTOUT')) {
-            echo $msg."<br/>";
+            echo $msg;
+            echo (defined('EOLPRINT')) ? "\n" : "<br/>";
         } else {
             $firephp->log($msg);
         }
