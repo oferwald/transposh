@@ -97,6 +97,9 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/06/17 - 0.2.6
+ * Fixed regressions in urls reported by ([Mike](http://www.nostate.com/)) and ([Julian](http://julianmegson.com/blog/about/))
+ * Will not push jQuery to the bottom, as it might conflict with other plugins
 * 2009/06/16 - 0.2.5
  * Fixed url rewrite bug reported by ([Mike](http://www.nostate.com/))
  * Allow translation of even more hidden elements such as keywords, descriptions and stuff inside select tags

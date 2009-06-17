@@ -35,7 +35,7 @@ function cleanup_url($url, $remove_host = false) {
     $parsedurl = parse_url($url);
     //cleanup previous lang & edit parameter from url
 
-    if ($parsedurl['query']) {
+    if (isset($parsedurl['query'])) {
         $params = explode('&',$parsedurl['query']);
         foreach ($params as $key => $param) {
             if (stripos($param,LANG_PARAM) === 0) unset ($params[$key]);
@@ -44,7 +44,7 @@ function cleanup_url($url, $remove_host = false) {
     }
     // clean the query
     unset($parsedurl['query']);
-    if($params) {
+    if(isset($params) && $params) {
         $parsedurl['query'] = implode('&',$params);
     }
 
@@ -60,8 +60,8 @@ function cleanup_url($url, $remove_host = false) {
         }
     }
     if ($remove_host) {
-        unset ($parsedurl[scheme]);
-        unset ($parsedurl[host]);
+        unset ($parsedurl['scheme']);
+        unset ($parsedurl['host']);
     }
     $url = glue_url($parsedurl);
     return $url;
@@ -83,12 +83,12 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
     $parsedurl = parse_url($newurl);
 
     // if we are dealing with some other url, we won't touch it!
-    if ($parsedurl['host'] && !($parsedurl['host'] == parse_url($home_url,PHP_URL_HOST))) {
+    if (isset($parsedurl['host']) && !($parsedurl['host'] == parse_url($home_url,PHP_URL_HOST))) {
         return $url;
     }
 
     //remove prev lang and edit params - from query string - reserve other params
-    if ($parsedurl['query']) {
+    if (isset($parsedurl['query'])) {
         $params = explode('&',$parsedurl['query']);
         foreach ($params as $key => $param) {
             if (stripos($param,LANG_PARAM) === 0) unset ($params[$key]);
@@ -99,6 +99,13 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
     unset($parsedurl['query']);
 
     //remove the language from the url permalink (if in start of path, and is a defined language)
+    $home_path = rtrim(parse_url($home_url,PHP_URL_PATH),"/");
+    logger ("home: $home_path ".$parsedurl['path'],5);
+    if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
+        logger ("homein!: $home_path",5);
+        $parsedurl['path'] = substr($parsedurl['path'],strlen($home_path));
+        $gluebackhome = true;
+    }
     if (strlen($parsedurl['path']) > 2) {
         $secondslashpos = strpos($parsedurl['path'], "/",1);
         if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
@@ -120,16 +127,17 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
     }
 
     if($use_params_only) {
-        $params[lang] = LANG_PARAM . "=$lang";
+        $params['lang'] = LANG_PARAM . "=$lang";
     }
     else {
         if (!$parsedurl['path']) $parsedurl['path'] = "/";
         $parsedurl['path'] = "/".$lang.$parsedurl['path'];
+        if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
     }
     logger("params: $params",4);
 
     //insert params to url
-    if($params) {
+    if(isset($params) && $params) {
         $parsedurl['query'] = implode('&',$params);
     }
 

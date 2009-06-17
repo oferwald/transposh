@@ -64,6 +64,7 @@ function insert_supported_langs() {
     }
     echo '</tr>';
 
+    $i=0;
     foreach($languages as $code => $lang) {
         list ($language,$flag,$autot) = explode (",",$lang);
         if(!($i % $columns)) echo '<tr'.(!($i/2 % $columns) ? ' class="alternate"':'').'>';
@@ -323,11 +324,11 @@ class transposh_plugin {
 
         <div id="poststuff" class="metabox-holder<?php echo 2 == $screen_layout_columns ? ' has-right-sidebar' : ''; ?>">
             <div id="side-info-column" class="inner-sidebar">
-                        <?php do_meta_boxes($this->pagehook, 'side', $data); ?>
+                        <?php do_meta_boxes($this->pagehook, 'side', ""); ?>
             </div>
             <div id="post-body" class="has-sidebar">
                 <div id="post-body-content" class="has-sidebar-content">
-                            <?php do_meta_boxes($this->pagehook, 'normal', $data);
+                            <?php do_meta_boxes($this->pagehook, 'normal', "");
                                  /* Maybe add static content here later */
                             //do_meta_boxes($this->pagehook, 'additional', $data); ?>
                     <p>
