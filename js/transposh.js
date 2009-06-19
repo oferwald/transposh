@@ -227,7 +227,8 @@ function translate_dialog(segment_id) {
     });
     // fix for templates messing with li
     jQuery("#"+transposh_params.prefix+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
-    jQuery("#"+transposh_params.prefix+"d-tabs-1").append(
+    jQuery("#"+transposh_params.prefix+"d-tabs-1").css("padding", "1px").append(
+        /*'<table><tr><td>'+*/
         '<form id="'+transposh_params.prefix+'form">' +
         '<fieldset>' +
         '<label for="original">Original Text</label>' +
@@ -235,7 +236,13 @@ function translate_dialog(segment_id) {
         '<label for="translation">Translate To</label>' +
         '<textarea cols="80" row="3" name="translation" id="'+transposh_params.prefix+'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
         '</fieldset>' +
-        '</form>');
+        '</form>'/*+
+        '</td><td style="width:32px">'+
+        '<img src="/wp-content/plugins/transposh/img/knob/knobs/left.png"/>'+
+        '<img src="/wp-content/plugins/transposh/img/knob/knobs/right.png"/>'+
+        '<img src="/wp-content/plugins/transposh/img/knob/knobs/smart.png"/>'+
+        '<img src="/wp-content/plugins/transposh/img/knob/knobs/merge.png"/>'+
+        '</td></tr></table>'*/);
     jQuery("#"+transposh_params.prefix+"d-tabs-1 label").css("display","block");
     jQuery("#"+transposh_params.prefix+"d-tabs-1 textarea.text").css({
         'margin-bottom':'12px',
@@ -245,7 +252,7 @@ function translate_dialog(segment_id) {
     jQuery("#"+transposh_params.prefix+"original").val(jQuery("#"+transposh_params.prefix + segment_id).attr('orig'));
     jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).html());
     if (jQuery("#"+transposh_params.prefix + segment_id).attr('trans')) {
-    jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).attr('trans'));
+        jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).attr('trans'));
     }
     jQuery("#"+transposh_params.prefix+"translation").data("edit", {
         changed: false
@@ -264,9 +271,9 @@ function translate_dialog(segment_id) {
         }
     });
     var tButtons;
-    if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt'.indexOf(transposh_params.lang) > -1) {
+    if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt|fa'.indexOf(transposh_params.lang) > -1) {
         tButtons =	{
-        /*    'Next': function() {
+            /*    'Next': function() {
                 alert(parseInt(segment_id)+1);
                 translate_dialog(parseInt(segment_id)+1);
             },
@@ -344,7 +351,7 @@ jQuery(document).ready(
             transposh_params.progress = true;
         }
         // TODO: he, iw? :)
-        if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt'.indexOf(transposh_params.lang) > -1) {
+        if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt|fa'.indexOf(transposh_params.lang) > -1) {
             do_auto_translate();
         }
         if (transposh_params.edit) {

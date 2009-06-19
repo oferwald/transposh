@@ -97,6 +97,8 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/06/20 - 0.2.7
+ * Added Persian (Farsi) support to auto translation (thanks to google and Iranian "elections")
 * 2009/06/17 - 0.2.6
  * Fixed regressions in urls reported by ([Mike](http://www.nostate.com/)) and ([Julian](http://julianmegson.com/blog/about/))
  * Will not push jQuery to the bottom, as it might conflict with other plugins

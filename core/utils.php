@@ -134,11 +134,11 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
         $parsedurl['path'] = "/".$lang.$parsedurl['path'];
         if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
     }
-    logger("params: $params",4);
 
     //insert params to url
     if(isset($params) && $params) {
         $parsedurl['query'] = implode('&',$params);
+        logger("params: $params",4);
     }
 
     // more cleanups
