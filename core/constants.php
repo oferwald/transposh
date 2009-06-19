@@ -60,6 +60,7 @@ $languages = array(
     "lt" => "lietuvių kalba,lt,1",
     "mt" => "Malti,mt,1",
     "no" => "Norsk,no,1",
+    "fa" => "فارسی,ir,1",
     "pl" => "Polski,pl,1",
     "pt" => "Português,pt,1",
     "ro" => "Română,ro,1",
@@ -76,7 +77,7 @@ $languages = array(
     "vi" => "Tiếng Việt,vn,1");
 
 //Language which are read from right to left (rtl)
-$rtl_languages =  array("ar", "he");
+$rtl_languages =  array("ar", "he", "fa");
 
 //Define the new capability that will be assigned to roles - translator
 define("TRANSLATOR", 'translator');
