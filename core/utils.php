@@ -191,4 +191,13 @@ function base64_url_decode($input) {
     return base64_decode(strtr($input, '-_,', '+/='));
 }
 
+function display_flag ($path, $flag, $language, $css = false, $blank_gif = "") {
+    if (!$css) {
+        return  "<img src=\"$path/$flag.png\" title=\"$language\" alt=\"$language\"/>";
+    } else {
+        return "<img size=\"16x11\" title=\"$language\" alt=\"$language\" src=\"$blank_gif\" class=\"trf trf-{$flag}\"/>";
+        //return "<div title=\"$language\" class=\"trf trf-{$flag}\"><br/></div>";
+    }
+}
+
 ?>
