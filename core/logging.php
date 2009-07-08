@@ -15,24 +15,24 @@
 if (!defined('DEBUG')) define ("DEBUG" , 3);
 
 require_once('FirePHP.class.php');
-require_once("parser.php");
+//require_once("parser.php");
 if (!defined('PRINTOUT')) {
     ob_start();
 }
 
-$firephp = FirePHP::getInstance(true);
+$GLOBALS['firephp'] = FirePHP::getInstance(true);
+//$GLOBALS['firephp']->registerErrorHandler();
 /*
  * Print a message to log.
  */
 function logger($msg, $severity=3) {
-    global $firephp;
     if($severity <= DEBUG) {
         error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/tmp/transposh.log");
-        if (defined('PRINTOUT')) {
+        if (defined('PRINTOUT') || !isset($GLOBALS['firephp'])) {
             echo $msg;
             echo (defined('EOLPRINT')) ? "\n" : "<br/>";
         } else {
-            $firephp->log($msg);
+            $GLOBALS['firephp']->log($msg);
         }
     }
 }
