@@ -88,17 +88,24 @@ function process_page(&$buffer) {
 function init_global_vars() {
     global $home_url, $tr_plugin_url, $enable_permalinks_rewrite, $wp_rewrite;
 
-    $home_url = get_option('home');
+    if (!$GLOBALS['home_url'])
+        $GLOBALS['home_url'] = get_option('home');
     // Handle windows ('C:\wordpress')
-    $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
+    //plugin_dir_url($file);
+    //$local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
     // Get last directory name
-    $local_dir = preg_replace("/.*\//", "", $local_dir);
-    $tr_plugin_url= WP_PLUGIN_URL .'/'. $local_dir;
-    logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,4);
+    //$local_dir = preg_replace("/.*\//", "", $local_dir);
+    // TODO - test on more platforms
+    $tr_plugin_url= plugins_url('', __FILE__);
+    if (!$GLOBALS['blank_gif'])
+        $GLOBALS['blank_gif'] = parse_url(get_option('siteurl')."/".WPINC."/images/blank.gif",PHP_URL_PATH);
+    logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,3);
+    //logger(plugins_url('', __FILE__));
 
-    if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE)) {
-        $enable_permalinks_rewrite = TRUE;
-    }
+    if (is_object($wp_rewrite))
+        if($wp_rewrite->using_permalinks() && get_option(ENABLE_PERMALINKS_REWRITE)) {
+            $enable_permalinks_rewrite = TRUE;
+        }
 }
 
 /*
@@ -184,13 +191,13 @@ function update_rewrite_rules($rules) {
 
         $value .= $lang_parameter;
 
-        logger("\t" . $key . "  --->  " . $value);
+        logger("\t" . $key . "  --->  " . $value,4);
 
 
         $newRules[$key] = $value;
         $newRules[$original_key] = $original_value;
 
-        logger("\t" . $original_key . "  --->  " . $original_value);
+        logger("\t" . $original_key . "  --->  " . $original_value,4);
     }
 
     logger("Exit update_rewrite_rules");
@@ -258,6 +265,9 @@ function plugin_activate() {
     $wp_rewrite->flush_rules();
 
     logger("plugin_activate exit: " . dirname(__FILE__));
+    logger("testing name:".plugin_basename(__FILE__));
+    logger("testing name2:".get_plugin_name());
+//activate_plugin($plugin);
 }
 
 /*
@@ -390,7 +400,10 @@ function add_transposh_js() {
         // jQuery pushing below might cause issues
         //wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', get_option(ENABLE_FOOTER_SCRIPTS));
         wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
-        wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
+        // TODO : check blank/remove
+        if ($GLOBALS['blank_gif'])
+        $blank_param = "&blank=".$GLOBALS['blank_gif'];
+        wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}{$blank_param}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 }
 
@@ -407,7 +420,7 @@ function is_editing_permitted() {
     if(!is_translator()) return FALSE;
     // and only on the non-default lang (unless strictly specified)
     if (!get_option(ENABLE_DEFAULT_TRANSLATE) && $GLOBALS['lang'] == get_default_lang()) return false;
-    
+
     return is_editable_lang($GLOBALS['lang']);
 }
 
@@ -484,8 +497,8 @@ add_action('init', 'on_init');
 add_action('shutdown', 'on_shutdown');
 
 add_action( 'plugins_loaded', 'plugin_loaded');
-register_activation_hook(get_plugin_name(), 'plugin_activate');
-register_deactivation_hook(get_plugin_name(),'plugin_deactivate');
+register_activation_hook(__FILE__, 'plugin_activate');
+register_deactivation_hook(__FILE__,'plugin_deactivate');
 
 add_filter('rewrite_rules_array', 'update_rewrite_rules');
 ?>

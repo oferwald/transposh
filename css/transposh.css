@@ -15,10 +15,11 @@
 	background-repeat:no-repeat;
 	overflow:hidden;
 	text-indent:-99999px;
+        display:inline-block;
 }
 .tr-icon-yellow {
-	background-position:-12px -0px;
+	background-position:-12px 0;
 }
 .tr-icon-green {
-	background-position:-24px -0px;
+	background-position:-24px 0;
 }

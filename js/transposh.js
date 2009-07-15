@@ -240,9 +240,12 @@ function translate_dialog(segment_id) {
         '</td><td style="width:32px">'+
         '<img src="/wp-content/plugins/transposh/img/knob/knobs/left.png"/>'+
         '<img src="/wp-content/plugins/transposh/img/knob/knobs/right.png"/>'+
-        '<img src="/wp-content/plugins/transposh/img/knob/knobs/smart.png"/>'+
+        '<img id="smart" src="/wp-content/plugins/transposh/img/knob/knobs/smart.png"/>'+
         '<img src="/wp-content/plugins/transposh/img/knob/knobs/merge.png"/>'+
         '</td></tr></table>'*/);
+    /*jQuery("#smart").click(function() {
+        grabnext(segment_id);
+    });*/
     jQuery("#"+transposh_params.prefix+"d-tabs-1 label").css("display","block");
     jQuery("#"+transposh_params.prefix+"d-tabs-1 textarea.text").css({
         'margin-bottom':'12px',
@@ -340,7 +343,10 @@ jQuery("script[src*='transposh.js']").each(function (j) {
     }
 });
 
+// TODO - rid of blank
+if (!transposh_params.blank) {
 transposh_params.blank = transposh_params.post_url+'?tp_gif=y';
+}
 //transposh_params.blank = "http://www.wp-plugin-archive.de/wp-includes/images/blank.gif";
 
 google.load("language", "1");
@@ -359,7 +365,8 @@ jQuery(document).ready(
             jQuery("."+transposh_params.prefix).each(function (i) {
                 var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
                 //if (translated_id == 353) alert (translated_id);
-                jQuery(this).after('<img id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params.blank+'"/>');
+//                jQuery(this).after('<img id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params.blank+'"/>');
+                jQuery(this).after('<span id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" title="'+jQuery(this).attr('orig')+'"></span>');
                 var img = jQuery('#'+transposh_params.prefix+'img_'+translated_id);
                 img.click(function () {
                     translate_dialog(translated_id);

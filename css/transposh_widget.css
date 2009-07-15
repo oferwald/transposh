@@ -4,12 +4,14 @@
 .transposh_flags {
 	direction: ltr;
 }
-
-.transposh_flags a {
-	display: inline;
-	background: transparent; /* ie8 quirk */
+/* TODO - test hover over non css flags */
+.transposh_flags a span {
+        border-color:transparent;
+        border-style:solid;
+        border-width:1px 3px;
+        padding: 0;
 }
 
-.transposh_flags img:hover {
-	background: blue; /* ie8 quirk */
+.transposh_flags a span:hover {
+        border-color:blue;
 }

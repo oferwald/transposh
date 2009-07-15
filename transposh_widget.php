@@ -81,10 +81,14 @@ function transposh_widget_init() {
  * Add custom css, i.e. transposh.css
  */
 function add_transposh_widget_css() {
-    global $tr_plugin_url;
-
     //include the transposh_widget.css
-    wp_enqueue_style("transposh_widget","$tr_plugin_url/css/transposh_widget.css",array(),'<%VERSION%>');
+    // TODO: user generated version
+    $options = get_option(WIDGET_TRANSPOSH);
+    if ($options['style'] == 1 || $options['style'] == 2) {
+        wp_enqueue_style("transposh_widget","{$GLOBALS['tr_plugin_url']}/css/transposh_widget.css",array(),'<%VERSION%>');
+        if (get_option(ENABLE_CSS_FLAGS))
+            wp_enqueue_style("transposh_flags", "{$GLOBALS['tr_plugin_url']}/css/transposh_flags.css",array(),'<%VERSION%>');
+    }
     logger("Added transposh_widget_css", 4);
 }
 
@@ -132,15 +136,11 @@ function transposh_widget($args) {
                     }
 
                     logger ("urlpath = ".$page_url,5);
-                    if ($options['style'] == 1) {
                         echo "<a href=\"" . $page_url . "\">".
-                            "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
-                            " style=\"padding: 1px 3px;border: 0px\"/></a>";
-                    }
-                    else {
-                        echo "<a href=\"" . $page_url . "\">".
-                            "<img src=\"$plugpath/img/flags/$flag.png\" title=\"$language\" alt=\"$language\"".
-                            " style=\"padding: 1px 3px;border: 0px\"/></a>$language<br/>";
+                            display_flag("$plugpath/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS),$GLOBALS['blank_gif']).
+                            "</a>";
+                    if ($options['style'] != 1) {
+                            echo "$language<br/>";
                     }
                     $is_showing_languages = TRUE;
                 }
@@ -190,7 +190,7 @@ function transposh_widget($args) {
 
     echo "</form>";
     //echo "<button onClick=\"do_auto_translate();\">translate all</button>";
-    echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img class=\"".NO_TRANSLATE_CLASS."\" src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
+    echo "<div id=\"".SPAN_PREFIX."credit\">by <a href=\"http://transposh.org\"><img class=\"".NO_TRANSLATE_CLASS."\" height=\"16\" width=\"16\" src=\"$plugpath/img/tplogo.png\" style=\"padding:1px;border:0px\" title=\"Transposh\" alt=\"Transposh\"/></a></div>";
     echo $after_widget;
 }
 
