@@ -53,13 +53,13 @@ echo
 #
 if [ "$DEBUG" != 'debug' ]; then
   echo "Adding .php files (without logging)"
-  for file in `find . -maxdepth 3 -iname '*.php'`; do 
+  for file in `find . -maxdepth 4 -iname '*.php'`; do 
     sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
 else
   echo "Adding .php files (with logging)"
-  for file in `find . -maxdepth 2 -iname '*.php'`; do 
+  for file in `find . -maxdepth 4 -iname '*.php'`; do 
     cp $file $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
@@ -85,17 +85,19 @@ else
   echo "removed screenshots"
 fi
 
-echo "Minify .js files"
-for file in `find . -maxdepth 2 -iname '*.js'`; do 
-  echo "minifying $file"
-  java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
-done;
+if [ "$DEBUG" != 'debug' ]; then
+  echo "Minify .js files"
+  for file in `find . -maxdepth 2 -iname '*.js'`; do 
+    echo "minifying $file"
+    java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
+  done;
 
-echo "Minify .css files"
-for file in `find . -maxdepth 2 -iname '*.css'`; do 
-  echo "minifying $file"
-  java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
-done;
+  echo "Minify .css files"
+  for file in `find . -maxdepth 2 -iname '*.css'`; do 
+    echo "minifying $file"
+    java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
+  done;
+fi
 
 # Remove .svn dirs
 find $TRANSPOSH_DIR -name "*.svn*" -exec rm -rf {} 2>/dev/null \;

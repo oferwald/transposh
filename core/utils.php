@@ -195,8 +195,9 @@ function display_flag ($path, $flag, $language, $css = false, $blank_gif = "") {
     if (!$css) {
         return  "<img src=\"$path/$flag.png\" title=\"$language\" alt=\"$language\"/>";
     } else {
-        return "<img size=\"16x11\" title=\"$language\" alt=\"$language\" src=\"$blank_gif\" class=\"trf trf-{$flag}\"/>";
-        //return "<div title=\"$language\" class=\"trf trf-{$flag}\"><br/></div>";
+        //return "<img size=\"16x11\" title=\"$language\" alt=\"$language\" src=\"$blank_gif\" class=\"trf trf-{$flag}\"/>";
+        //return "<a href=\"\" title=\"$language\" class=\"trf trf-{$flag}\"/>";
+        return "<span title=\"$language\" class=\"trf trf-{$flag}\"></span>";
     }
 }
 

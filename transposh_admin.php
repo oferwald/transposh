@@ -69,7 +69,8 @@ function insert_supported_langs() {
         list ($language,$flag,$autot) = explode (",",$lang);
         if(!($i % $columns)) echo '<tr'.(!($i/2 % $columns) ? ' class="alternate"':'').'>';
         $i++;
-        echo "<td><img src=\"$tr_plugin_url/img/flags/$flag.png\" alt=\"\"/>&nbsp;$language</td>";
+
+        echo "<td>".display_flag("$tr_plugin_url/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS),$GLOBALS['blank_gif'])."&nbsp;$language</td>";
         echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
             $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
         echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
@@ -149,6 +150,16 @@ function insert_script_footer_option() {
     echo '<input type="checkbox" value="1" name="enable_footer_scripts" '. $checked . '/> '.
         'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
         'Requires that your theme should have proper footer support.';
+}
+
+/*
+ * Insert the option to enable/disable css flags.
+ */
+function insert_css_flags_option() {
+    $checked = (get_option(ENABLE_CSS_FLAGS)) ? 'checked="checked"' :'';
+    echo '<input type="checkbox" value="1" name="enable_css_flags" '. $checked . '/> '.
+        'Use a single sprite with all flags, makes pages load faster. '.
+        'Requires that your theme should have imagick/gd support.';
 }
 
 /*
@@ -237,6 +248,9 @@ function update_admin_options() {
     if(get_option(ENABLE_FOOTER_SCRIPTS) != $_POST['enable_footer_scripts'])
         update_option(ENABLE_FOOTER_SCRIPTS, $_POST['enable_footer_scripts']);
 
+    if(get_option(ENABLE_CSS_FLAGS) != $_POST['enable_css_flags'])
+        update_option(ENABLE_CSS_FLAGS, $_POST['enable_css_flags']);
+
     if(get_option(ENABLE_AUTO_TRANSLATE,1) != $_POST['enable_autotranslate'])
         update_option(ENABLE_AUTO_TRANSLATE, $_POST['enable_autotranslate']);
 
@@ -250,7 +264,9 @@ class transposh_plugin {
 
 //constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin() {
-    //add filter for WordPress 2.8 changed backend box system !
+        if (get_option(ENABLE_CSS_FLAGS))
+            wp_enqueue_style("transposh-flags",plugins_url('', __FILE__)."/css/transposh_flags.css",array(),'<%VERSION%>');
+        //add filter for WordPress 2.8 changed backend box system !
         add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
         //add some help
         add_filter('contextual_help_list', array(&$this, 'on_contextual_help'),100,2);
@@ -281,6 +297,8 @@ class transposh_plugin {
     //extend the admin menu
     function on_admin_menu() {
     //add our own option page, you can also add it to different sections or use your own one
+    // TODO (Will I? hardcoded path)
+    //    $this->pagehook = add_menu_page('Transposh control center', "Transposh", 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'),WP_PLUGIN_URL .'/transposh/img/tplogo.png');
         $this->pagehook = add_options_page('Transposh control center', "Transposh", 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'));
         //register  callback gets call prior your own page gets rendered
         add_action('load-'.$this->pagehook, array(&$this, 'on_load_page'));
@@ -389,8 +407,31 @@ class transposh_plugin {
 
     function on_sidebox_news_content($data) {
         require_once(ABSPATH . WPINC . '/rss.php');
+        // Ugly hack copy of RSS because of Unicode chars misprinting
+        function wp_rss2( $url, $num_items = -1 ) {
+            if ( $rss = fetch_rss( $url ) ) {
+                echo '<ul>';
+
+                if ( $num_items !== -1 ) {
+                    $rss->items = array_slice( $rss->items, 0, $num_items );
+                }
+
+                foreach ( (array) $rss->items as $item ) {
+                    printf(
+                        '<li><a href="%1$s" title="%2$s">%3$s</a></li>',
+                        esc_url( $item['link'] ),
+                        esc_attr( strip_tags( $item['description'] ) ),
+                        htmlentities( $item['title'],ENT_COMPAT,'UTF-8' )
+                    );
+                }
+
+                echo '</ul>';
+            } else {
+                _e( 'An error has occurred, which probably means the feed is down. Try again later.' );
+            }
+        }
         echo '<div style="margin:6px">';
-        wp_rss('http://feeds2.feedburner.com/transposh', 5);
+        wp_rss2('http://feeds2.feedburner.com/transposh', 5);
         echo '</div>';
     }
     function on_sidebox_stats_content($data) {
@@ -421,6 +462,10 @@ class transposh_plugin {
             echo '<h4>Add scripts to footer</h4>';
             insert_script_footer_option();
         }
+
+        echo '<h4>Use css flags (experimental)</h4>';
+        insert_css_flags_option();
+
     }
     function on_contentbox_community_content($data) {
         echo "<p>This space is reserved for the coming community features of Transposh that will help you find translators to help with your site.</p>";

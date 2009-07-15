@@ -103,6 +103,9 @@ define("ENABLE_DEFAULT_TRANSLATE", "transposh_enable_default_translate");
 //Option to enable/disable footer scripts (2.8 and up)
 define("ENABLE_FOOTER_SCRIPTS", "transposh_enable_footer_scripts");
 
+//Use CSS sprites for flags if available
+define("ENABLE_CSS_FLAGS", "transposh_enable_css_flags");
+
 //Option defining the default language
 define("DEFAULT_LANG", "transposh_default_language");
 
