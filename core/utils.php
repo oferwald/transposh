@@ -30,7 +30,7 @@ require_once("logging.php");
  * Return the scrubed url
  */
 function cleanup_url($url, $remove_host = false) {
-    global $languages;
+    global $languages, $home_url;
     
     $parsedurl = parse_url($url);
     //cleanup previous lang & edit parameter from url
@@ -50,6 +50,14 @@ function cleanup_url($url, $remove_host = false) {
 
     //cleanup lang identifier in permalinks
     //remove the language from the url permalink (if in start of path, and is a defined language)
+    $home_path = rtrim(parse_url($home_url,PHP_URL_PATH),"/");
+    logger ("home: $home_path ".$parsedurl['path'],5);
+    if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
+        logger ("homein!: $home_path",5);
+        $parsedurl['path'] = substr($parsedurl['path'],strlen($home_path));
+        $gluebackhome = true;
+    }
+    
     if (strlen($parsedurl['path']) > 2) {
         $secondslashpos = strpos($parsedurl['path'], "/",1);
         if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
@@ -57,6 +65,7 @@ function cleanup_url($url, $remove_host = false) {
         if (isset ($languages[$prevlang])) {
             logger ("prevlang: ".$prevlang,4);
             $parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
+            if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
         }
     }
     if ($remove_host) {
