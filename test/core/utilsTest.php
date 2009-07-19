@@ -1,7 +1,7 @@
 <?php
 ini_set("include_path", "../core".PATH_SEPARATOR."../../core".PATH_SEPARATOR.ini_get("include_path"));
+define ("DEBUG" , 5);
 require_once 'PHPUnit/Framework.php';
-
 require_once 'utils.php';
 
 /**
@@ -163,5 +163,13 @@ class utilsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("http://transposh.org/test/he/?cat=y",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y","he", $edit,$params_only));
     }
 
+    public function testCleanupURL()
+    {
+        $GLOBALS[home_url] = "http://www.algarve-abc.de/ferienhaus-westalgarve/";
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/test",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/test"));
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en"));
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/"));
+        $this->assertEquals("/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/", true));
+    }
 }
 ?>
