@@ -2,8 +2,7 @@
  * Widget's css 
  */
 .transposh_flags {
-	direction: ltr;
-    line-height:11px;
+    direction: ltr
 }
 /*.transposh_flags a  {
     line-height:11px;*/
@@ -12,7 +11,8 @@
 /*}*/
 
 .transposh_flags a:hover {
-    background:none;
+    /* ie8 quirk */
+    background:transparent
 }
 
 .transposh_flags a span, .transposh_flags a img {
@@ -23,6 +23,5 @@
 }
 
 .transposh_flags a span:hover, .transposh_flags a img:hover {
-    border-color:blue;
-    height: 11px;
+    border-color:blue
 }
