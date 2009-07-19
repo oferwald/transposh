@@ -419,8 +419,11 @@ class transposh_plugin {
                 foreach ( (array) $rss->items as $item ) {
                     printf(
                         '<li><a href="%1$s" title="%2$s">%3$s</a></li>',
-                        esc_url( $item['link'] ),
-                        esc_attr( strip_tags( $item['description'] ) ),
+                        //esc_url( $item['link'] ),
+                        //esc_attr( strip_tags( $item['description'] ) ),
+                        // Switched to 2.7 compatability functions
+                        clean_url( $item['link'] ),
+                        attribute_escape( strip_tags( $item['description'] ) ),
                         htmlentities( $item['title'],ENT_COMPAT,'UTF-8' )
                     );
                 }
