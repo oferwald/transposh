@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.8
+Tested up to: 2.8.1
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -88,6 +88,19 @@ Just add the following line to your template:
 
 &lt;?php if(function_exists("transposh_widget")) { transposh_widget(array()); } ?&gt;
 
+= I have php speedy (http://aciddrop.com/php-speedy/) and the plugin does not work =
+
+Users of php speedy will have to deactivate it, add “transposh.js” in the ignore list, click on “Test configuration” then reactivate it.
+
+= I want my own css image with less flags =
+
+This is coming soon
+
+= css flags have issues on IE6 for my users =
+
+First, there's always the ability to use another option for the plugin which is more compatible, such as the selection box. Second, you can
+change the .css from transparent background to your page background color. And last - we urge anyone using IE6 to upgrade...
+
 == Screenshots ==
 
 1. This is a screen shot of a site using Transposh widget on the sidebar
@@ -97,6 +110,13 @@ Just add the following line to your template:
 5. Widget style selection
 
 == Release notes ==
+* 2009/07/19 - 0.2.8
+ * Don't touch XML RPC
+ * Allow usage of CSS sprites when available
+ * Removed use of local blank image (thanks [Marek](http://marenkuv.blogspot.com/))
+ * Fixed unicode in Transposh RSS feed (Admin panel)
+ * Smarter inclusion of .css files (only when needed)
+ * Fixed bug with url_cleanup which prevented return to original language when blog was installed in a subdir
 * 2009/06/20 - 0.2.7
  * Added Persian (Farsi) support to auto translation (thanks to google and Iranian "elections")
 * 2009/06/17 - 0.2.6

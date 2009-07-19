@@ -158,8 +158,7 @@ function insert_script_footer_option() {
 function insert_css_flags_option() {
     $checked = (get_option(ENABLE_CSS_FLAGS)) ? 'checked="checked"' :'';
     echo '<input type="checkbox" value="1" name="enable_css_flags" '. $checked . '/> '.
-        'Use a single sprite with all flags, makes pages load faster. '.
-        'Requires that your theme should have imagick/gd support.';
+        'Use a single sprite with all flags, makes pages load faster. Currently not suitable if you made changes to the flags.';
 }
 
 /*
