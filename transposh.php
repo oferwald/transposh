@@ -91,12 +91,12 @@ function init_global_vars() {
     if (!$GLOBALS['home_url'])
         $GLOBALS['home_url'] = get_option('home');
     // Handle windows ('C:\wordpress')
-    //plugin_dir_url($file);
-    //$local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
+    $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
     // Get last directory name
-    //$local_dir = preg_replace("/.*\//", "", $local_dir);
-    // TODO - test on more platforms
-    $tr_plugin_url= plugins_url('', __FILE__);
+    $local_dir = preg_replace("/.*\//", "", $local_dir);
+    $tr_plugin_url= WP_PLUGIN_URL .'/'. $local_dir;
+    // TODO - test on more platforms - this failed in 2.7.1 so I am reverting for now...
+    //$tr_plugin_url= plugins_url('', __FILE__);
     logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,3);
     //logger(plugins_url('', __FILE__));
 
