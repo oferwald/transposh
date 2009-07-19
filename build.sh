@@ -7,10 +7,11 @@
 VERSION=$1;
 DEBUG=$2;
 ZIPME=$3;
+COPYTO=$4;
 
 if [ -z $VERSION ]; then
   echo "Must enter a version number !!!"
-  echo "Usage: $0 0.1.0 [[debug] zip]"
+  echo "Usage: $0 0.1.0 [[debug] [zip] [targetdir]]"
   exit
 fi
 
@@ -114,4 +115,15 @@ if [ "$ZIPME" == 'zip' ]; then
 #  mv "$TRANSPOSH_DIR/transposh.$VERSION.zip" . 
   echo
   echo "transposh.$VERSION.zip is ready"
+fi
+
+#
+#Copy to targer
+#
+
+if [ "$COPYTO" != '' ]; then
+  echo "should copy to $COPYTO"
+  cd $TRANSPOSH_DIR
+  cp -rp * $COPYTO
+  cd - >/dev/null
 fi
