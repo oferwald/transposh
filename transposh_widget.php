@@ -86,8 +86,11 @@ function add_transposh_widget_css() {
     $options = get_option(WIDGET_TRANSPOSH);
     if ($options['style'] == 1 || $options['style'] == 2) {
         wp_enqueue_style("transposh_widget","{$GLOBALS['tr_plugin_url']}/css/transposh_widget.css",array(),'<%VERSION%>');
-        if (get_option(ENABLE_CSS_FLAGS))
+        if (get_option(ENABLE_CSS_FLAGS)) {
             wp_enqueue_style("transposh_flags", "{$GLOBALS['tr_plugin_url']}/css/transposh_flags.css",array(),'<%VERSION%>');
+            if (file_exists("{$GLOBALS['tr_plugin_url']}/css/transposh_flags_u.css"))
+                wp_enqueue_style("transposh_flags", "{$GLOBALS['tr_plugin_url']}/css/transposh_flags_u.css",array(),'<%VERSION%>');
+        }
     }
     logger("Added transposh_widget_css", 4);
 }
