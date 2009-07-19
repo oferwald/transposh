@@ -97,8 +97,6 @@ function init_global_vars() {
     //$local_dir = preg_replace("/.*\//", "", $local_dir);
     // TODO - test on more platforms
     $tr_plugin_url= plugins_url('', __FILE__);
-    if (!$GLOBALS['blank_gif'])
-        $GLOBALS['blank_gif'] = parse_url(get_option('siteurl')."/".WPINC."/images/blank.gif",PHP_URL_PATH);
     logger("home_url: $home_url, local_dir: $local_dir tr_plugin_url: $tr_plugin_url ".WP_PLUGIN_URL,3);
     //logger(plugins_url('', __FILE__));
 
@@ -137,12 +135,6 @@ function on_init() {
     }
     elseif (isset($_GET['tr_token_hist'])) {
         get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
-    }
-    elseif (isset($_GET['tp_gif'])) {
-        $trans_gif_64 = "R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
-        header("Content-type: image/gif");
-        print(base64_decode($trans_gif_64));
-        exit;
     }
     else {
     //set the callback for translating the page when it's done
@@ -400,10 +392,7 @@ function add_transposh_js() {
         // jQuery pushing below might cause issues
         //wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', get_option(ENABLE_FOOTER_SCRIPTS));
         wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
-        // TODO : check blank/remove
-        if ($GLOBALS['blank_gif'])
-        $blank_param = "&blank=".$GLOBALS['blank_gif'];
-        wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}{$blank_param}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
+        wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 }
 

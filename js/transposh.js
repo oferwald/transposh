@@ -203,8 +203,8 @@ function translate_dialog(segment_id) {
         //jQuery("table thead th:last",ui.panel).after("<th/>");
         jQuery("table thead tr",ui.panel).addClass("ui-widget-header");
         //jQuery("table tbody tr",ui.panel).append('<td/>');
-        jQuery("table tbody td[source='1']",ui.panel).append('<img size="16x16" src="'+transposh_params.blank+'" title="computer" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-gear"/>');
-        jQuery("table tbody td[source='0']",ui.panel).append('<img size="16x16" src="'+transposh_params.blank+'" title="human" style="display: inline; margin-right: 0.3em;" class="ui-icon ui-icon-person"/>');
+        jQuery("table tbody td[source='1']",ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
+        jQuery("table tbody td[source='0']",ui.panel).append('<span title="human" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-person"></span>');
     //jQuery("table tbody tr:first td:last",ui.panel).append('<span title="remove this translation" id="'+transposh_params.prefix+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
     //jQuery("#"+transposh_params.prefix+"revert").click(function () {
     //alert ('hi');
@@ -343,12 +343,6 @@ jQuery("script[src*='transposh.js']").each(function (j) {
     }
 });
 
-// TODO - rid of blank
-if (!transposh_params.blank) {
-transposh_params.blank = transposh_params.post_url+'?tp_gif=y';
-}
-//transposh_params.blank = "http://www.wp-plugin-archive.de/wp-includes/images/blank.gif";
-
 google.load("language", "1");
 jQuery(document).ready(
     function() {
@@ -364,8 +358,6 @@ jQuery(document).ready(
             // lets add the images
             jQuery("."+transposh_params.prefix).each(function (i) {
                 var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-                //if (translated_id == 353) alert (translated_id);
-//                jQuery(this).after('<img id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" size="12x12" title="'+jQuery(this).attr('orig')+'" src="'+transposh_params.blank+'"/>');
                 jQuery(this).after('<span id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" title="'+jQuery(this).attr('orig')+'"></span>');
                 var img = jQuery('#'+transposh_params.prefix+'img_'+translated_id);
                 img.click(function () {
