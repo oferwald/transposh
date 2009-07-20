@@ -140,7 +140,7 @@ function transposh_widget($args) {
 
                     logger ("urlpath = ".$page_url,5);
                         echo "<a href=\"" . $page_url . "\">".
-                            display_flag("$plugpath/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS),$GLOBALS['blank_gif']).
+                            display_flag("$plugpath/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS)).
                             "</a>";
                     if ($options['style'] != 1) {
                             echo "$language<br/>";

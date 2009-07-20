@@ -32,7 +32,7 @@ require_once("logging.php");
 function cleanup_url($url, $remove_host = false) {
     global $languages, $home_url;
     
-    $parsedurl = parse_url($url);
+    $parsedurl = @parse_url($url);
     //cleanup previous lang & edit parameter from url
 
     if (isset($parsedurl['query'])) {
@@ -161,9 +161,9 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
 }
 
 /**
- *
- * @param <type> $parsed
- * @return <type>
+ * glue a parse_url array back to a url
+ * @param array $parsed url_parse style array
+ * @return combined url
  */
 function glue_url($parsed) {
     if (!is_array($parsed)) {
@@ -200,12 +200,18 @@ function base64_url_decode($input) {
     return base64_decode(strtr($input, '-_,', '+/='));
 }
 
-function display_flag ($path, $flag, $language, $css = false, $blank_gif = "") {
+/**
+ * Function to display a flag
+ * @param string $path path to flag images
+ * @param string $flag the flag (normally iso code)
+ * @param string $language the name of the lanaguage
+ * @param boolean $css using css code?
+ * @return string Html with flag
+ */
+function display_flag ($path, $flag, $language, $css = false) {
     if (!$css) {
         return  "<img src=\"$path/$flag.png\" title=\"$language\" alt=\"$language\"/>";
     } else {
-        //return "<img size=\"16x11\" title=\"$language\" alt=\"$language\" src=\"$blank_gif\" class=\"trf trf-{$flag}\"/>";
-        //return "<a href=\"\" title=\"$language\" class=\"trf trf-{$flag}\"/>";
         return "<span title=\"$language\" class=\"trf trf-{$flag}\"></span>";
     }
 }
