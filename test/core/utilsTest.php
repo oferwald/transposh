@@ -167,6 +167,7 @@ class utilsTest extends PHPUnit_Framework_TestCase
     {
         $GLOBALS[home_url] = "http://www.algarve-abc.de/ferienhaus-westalgarve/";
         $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/test",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/test"));
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve"));
         $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en"));
         $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/"));
         $this->assertEquals("/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/", true));
