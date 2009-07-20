@@ -70,7 +70,7 @@ function insert_supported_langs() {
         if(!($i % $columns)) echo '<tr'.(!($i/2 % $columns) ? ' class="alternate"':'').'>';
         $i++;
 
-        echo "<td>".display_flag("$tr_plugin_url/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS),$GLOBALS['blank_gif'])."&nbsp;$language</td>";
+        echo "<td>".display_flag("$tr_plugin_url/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS))."&nbsp;$language</td>";
         echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
             $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
         echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
