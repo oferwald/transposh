@@ -65,9 +65,9 @@ function cleanup_url($url, $remove_host = false) {
         if (isset ($languages[$prevlang])) {
             logger ("prevlang: ".$prevlang,4);
             $parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
-            if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
         }
     }
+    if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
     if ($remove_host) {
         unset ($parsedurl['scheme']);
         unset ($parsedurl['host']);
