@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.8.1
+Tested up to: 2.8.2
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -110,6 +110,10 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Release notes ==
+* 2009/07/21 - 0.2.9
+ * Supress warning on parse_url (thanks [Mike](http://www.nostate.com/))
+ * Fix the urls generated for the widget with subdir blogs (thanks [Peter](http://www.algarve-abc.de/ferienhaus-westalgarve))
+ * Fix issue when object->tostring didn't work correctly (thanks [Anthony](http://gratiswork.com))
 * 2009/07/19 - 0.2.8
  * Don't touch XML RPC
  * Allow usage of CSS sprites when available
