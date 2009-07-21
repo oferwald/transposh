@@ -478,7 +478,9 @@ class parser {
 
         }
 
-        return $this->html;
+        // Changed because of places where tostring failed
+        //return $this->html;
+        return $this->html->outertext;
     }
 }
 ?>
