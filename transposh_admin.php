@@ -172,6 +172,17 @@ function insert_auto_translate_option() {
 }
 
 /*
+ * Insert the option to enable/disable msn translations.
+ * Disabled by default because an API key is needed.
+ */
+function insert_msn_translate_option() {
+    $checked = (get_option(ENABLE_MSN_TRANSLATE)) ? 'checked="checked"' : '';
+    echo '<input type="checkbox" value="1" name="enable_msntranslate" '.$checked.'/> '.
+        'Allow MSN (Bing) translator hinting (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>'.
+        'Key: <input type="text" size="35" class="regular-text" value="'.get_option(MSN_TRANSLATE_KEY).'" id="transposh_msn_key" name="transposh_msn_key"/>';
+}
+
+/*
  * Insert the option to enable/disable default language translation.
  * Disabled by default.
  */
@@ -255,6 +266,12 @@ function update_admin_options() {
 
     if(get_option(ENABLE_DEFAULT_TRANSLATE) != $_POST['enable_defaulttranslate'])
         update_option(ENABLE_DEFAULT_TRANSLATE, $_POST['enable_defaulttranslate']);
+
+    if(get_option(ENABLE_MSN_TRANSLATE) != $_POST['enable_msntranslate'])
+        update_option(ENABLE_MSN_TRANSLATE, $_POST['enable_msntranslate']);
+
+    if(get_option(MSN_TRANSLATE_KEY) != $_POST['transposh_msn_key'])
+        update_option(MSN_TRANSLATE_KEY, $_POST['transposh_msn_key']);
 
 }
 
@@ -450,6 +467,9 @@ class transposh_plugin {
 
         echo '<h4>Enable automatic translation</h4>';
         insert_auto_translate_option();
+
+        echo '<h4>Support for Bing (MSN) translation hinting (experimental)</h4>';
+        insert_msn_translate_option();
 
         echo '<h4>Enable default language translation</h4>';
         insert_default_translate_option();

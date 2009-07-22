@@ -1,6 +1,6 @@
 === Transposh - translation filter for wordpress ===
 Contributors: oferwald, amirperlman
-Donate link: http://transposh.org/
+Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
 Tested up to: 2.8.2
@@ -109,28 +109,30 @@ change the .css from transparent background to your page background color. And l
 4. Management of languages in the settings page
 5. Widget style selection
 
-== Release notes ==
-* 2009/07/21 - 0.2.9
+== Changelog ==
+= 2009/07/23 - 0.3.0 =
+ * Support Bing (MSN) translator as a hinting facilitator
+= 2009/07/21 - 0.2.9 =
  * Supress warning on parse_url (thanks [Mike](http://www.nostate.com/))
  * Fix the urls generated for the widget with subdir blogs (thanks [Peter](http://www.algarve-abc.de/ferienhaus-westalgarve))
  * Fix issue when object->tostring didn't work correctly (thanks [Anthony](http://gratiswork.com))
-* 2009/07/19 - 0.2.8
+= 2009/07/19 - 0.2.8 =
  * Don't touch XML RPC
  * Allow usage of CSS sprites when available
  * Removed use of local blank image (thanks [Marek](http://marenkuv.blogspot.com/))
  * Fixed unicode in Transposh RSS feed (Admin panel)
  * Smarter inclusion of .css files (only when needed)
  * Fixed bug with url_cleanup which prevented return to original language when blog was installed in a subdir
-* 2009/06/20 - 0.2.7
+= 2009/06/20 - 0.2.7 =
  * Added Persian (Farsi) support to auto translation (thanks to google and Iranian "elections")
-* 2009/06/17 - 0.2.6
+= 2009/06/17 - 0.2.6 =
  * Fixed regressions in urls reported by ([Mike](http://www.nostate.com/)) and ([Julian](http://julianmegson.com/blog/about/))
  * Will not push jQuery to the bottom, as it might conflict with other plugins
-* 2009/06/16 - 0.2.5
+= 2009/06/16 - 0.2.5 =
  * Fixed url rewrite bug reported by ([Mike](http://www.nostate.com/))
  * Allow translation of even more hidden elements such as keywords, descriptions and stuff inside select tags
  * Updated to jQueryUI 1.7.2
-* 2009/06/09 - 0.2.4
+= 2009/06/09 - 0.2.4 =
  * Fixed bugs with database prefixes (thanks again [Mike](http://www.nostate.com/))
  * Translation of keywords and description meta tags (thanks again [Mike](http://www.nostate.com/))
  * Fix for RSS feeds provided in other languages
@@ -139,63 +141,63 @@ change the .css from transparent background to your page background color. And l
  * Fixed issues of html entities breaking when they should not (thanks [Karl](http://www.wp-plugin-archive.de/))
  * Lang is now set in the headers for real
  * Fixed compatability with themes using annoying query_posts with no consideration (thanks [Karl](http://www.wp-plugin-archive.de/))
-* 2009/06/03 - 0.2.3
+= 2009/06/03 - 0.2.3 =
  * Revamped plugin setting page to a more useful one (code adapted from [code-styling.de](http://www.code-styling.de/))
  * Widget settings may be changed from settings page (thanks [Db0](http://dbzer0.com/))
  * Allow default language to be translated (for multilingual blogs) (thanks [Db0](http://dbzer0.com/))
  * Setting page shows database statistics
  * Fixed IE8 hover quirk in flags widget
  * Avoid translating admin pages (even if we can)
-* 2009/05/25 - 0.2.2
+= 2009/05/25 - 0.2.2 =
  * Fixed wrong handling of multy-byte chars as terminators (middle dots) which caused a regression bug
-* 2009/05/21 - 0.2.1
+= 2009/05/21 - 0.2.1 =
  * Fixed unique breaking case in parser (style used within script and not properly terminated) (thanks again Fernanda)
  * Added language list mode to widget
  * Prevent translation of url that is self wrapped
  * Added &lt;code&gt; tag to list of ignored tags (thanks again [Mike](http://www.nostate.com/))
  * Middle dot is now a seperator
-* 2009/05/18 - 0.2.0
+= 2009/05/18 - 0.2.0 =
  * Faster parser - 50% faster parsing than previous engine (thanks [Simple Html DOM](http://simplehtmldom.sourceforge.net/))
  * Hidden elements translation (mainly tooltips specified by title attribute)
  * Make sure viewable languages are translateable
  * Simplify setting page
  * Fixed various bugs (thanks [Mike](http://www.nostate.com/))
-* 2009/05/07 - 0.1.7
+= 2009/05/07 - 0.1.7 =
  * Fix issues with IIS/Windows/Non standard installations (thanks [Fabrizio](http://www.sulmare.it/))
  * Fixed namespace conflict with more plugins (For example - Lazyest Gallery)
-* 2009/05/05 - 0.1.6
+= 2009/05/05 - 0.1.6 =
  * Fix a problem with translating Traditional Chinese and Portuguese  (thanks Fernanda)
  * Fixed several issues with html comment tags (thanks [ekerem](http://www.top100freesoftware.com/))
-* 2009/05/03 - 0.1.5
+= 2009/05/03 - 0.1.5 =
  * Improved end-user experience by switching order of posts and page changes
-* 2009/04/30 - 0.1.4
+= 2009/04/30 - 0.1.4 =
  * Moved to jQuery UI instead of overlibmws
  * Reduced code generated for faster page loading
  * History is now visible for translated phrases
  * An optional progress bar shows advancing auto-translation
  * Script is now minified by default
  * Better support for not-auto-translatable languages, added islandic
-* 2009/04/02 - 0.1.3
+= 2009/04/02 - 0.1.3 =
  * Fix for mysql 4.1 (thanks [Amit](http://landscaping-blog.com/))
-* 2009/03/31 - 0.1.2
+= 2009/03/31 - 0.1.2 =
  * Made sure our code passes w3c validation
  * Added missing flags for two languages
  * Auto translation should always work if set (even to non translators)
-* 2009/03/24 - 0.1.1
+= 2009/03/24 - 0.1.1 =
  * Fixed compatibility issues with other scripts (thanks [Eike](http://spotterblog.de/))
  * Fixed minor issues with encoding some strings
  * Verify UTF charset and collation upon database creation
  * Some CSS improvements
-* 2009/03/22 - 0.1.0
+= 2009/03/22 - 0.1.0 =
  * Enabled automatic translation for site readers
  * Added many languages to the default list
  * Upgrade database for supporting translation "sources"
  * Fixed installation bug
-* 2009/03/07 - 0.0.3
+= 2009/03/07 - 0.0.3 =
  * Added ability to get suggestions from Google Translate
  * Improved support for RSS feeds translation 
-* 2009/03/01 - 0.0.2
+= 2009/03/01 - 0.0.2 =
  * Fixed bug with hard coded plugin path (thanks [Atomboy](http://politicalnewsblogs.com/))
  * Support for AJAX replacement of content using jQuery 
-* 2009/02/28 - 0.0.1
+= 2009/02/28 - 0.0.1 =
  * Initial release

@@ -27,6 +27,19 @@ function getgt()
     });
 }
 
+// fetch translation from bing... google translate...
+function getbt()
+{
+    jQuery(":button:contains('Suggest - Bing')").attr("disabled","disabled").addClass("ui-state-disabled");
+    var binglang = transposh_params.lang;
+    if (binglang == 'zh') {binglang = 'zh-chs'}
+    if (binglang == 'zh-tw') {binglang = 'zh-cht'}
+    Microsoft.Translator.translate(jQuery("#"+transposh_params.prefix+"original").val(), "", binglang, function(translation) {
+        jQuery("#"+transposh_params.prefix+"translation").val(jQuery("<div>"+translation+"</div>").text())
+        .keyup();
+    });
+}
+
 //Ajax translation
 var done_p = 0;
 var togo = 0;
@@ -273,9 +286,15 @@ function translate_dialog(segment_id) {
             });
         }
     });
-    var tButtons;
+    var tButtons = {};
+    if (binglangs.indexOf(transposh_params.lang+',',0) > -1) {
+    //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
+        tButtons['Suggest - Bing'] = function() {getbt();};
+    }
+
     if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt|fa'.indexOf(transposh_params.lang) > -1) {
-        tButtons =	{
+        tButtons['Suggest - Google'] = function() {getgt();};
+    }
             /*    'Next': function() {
                 alert(parseInt(segment_id)+1);
                 translate_dialog(parseInt(segment_id)+1);
@@ -284,10 +303,7 @@ function translate_dialog(segment_id) {
                 getgt();
                 //.next? .next all?
             },*/
-            'Suggest - Google': function() {
-                getgt();
-            },
-            Ok: function() {
+    tButtons['Ok'] = function() {
                 var translation = jQuery('#'+transposh_params.prefix+'translation').val();
                 if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
                     ajax_translate(translation,0,segment_id);
@@ -296,22 +312,8 @@ function translate_dialog(segment_id) {
                     });
                 }
                 jQuery(this).dialog('close');
-            }
-        };
-    }  else {
-        tButtons =	{
-            Ok: function() {
-                var translation = jQuery('#'+transposh_params.prefix+'translation').val();
-                if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
-                    ajax_translate(translation,0,segment_id);
-                    jQuery("#"+transposh_params.prefix+"translation").data("edit", {
-                        changed: false
-                    });
-                }
-                jQuery(this).dialog('close');
-            }
-        };
-    }
+            };
+    //tButtons["beep"] = function() {alert(Microsoft.Translator.GetLanguages())};
     var hButtons =	{
         Close: function() {
             jQuery(this).dialog('close');
@@ -344,6 +346,17 @@ jQuery("script[src*='transposh.js']").each(function (j) {
 });
 
 google.load("language", "1");
+// first we check if msn was even included
+var binglangs = '';
+if (typeof(Microsoft) != 'undefined') {
+    try {
+        binglangs = String(Microsoft.Translator.GetLanguages())+',zh,zh-tw,';        
+    }
+    catch (err) {
+        alert("There was an error using Microsoft.Translator - probably a bad key or URL used in key. ("+err+")");
+    }
+}
+
 jQuery(document).ready(
     function() {
         // an implicit param
