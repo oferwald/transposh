@@ -392,6 +392,12 @@ function add_transposh_js() {
         // jQuery pushing below might cause issues
         //wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', get_option(ENABLE_FOOTER_SCRIPTS));
         wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
+        //Jz4CwPJ1EGBpLsO1kF0S0d2WCkcD1uqP
+        // islands
+        if (get_option(ENABLE_MSN_TRANSLATE)) {
+            wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=".get_option(MSN_TRANSLATE_KEY),array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
+        }
+        // tp- wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=EZk3Dg_20L13AlMsobGl4N2WCkecC1Vs",array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
         wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 }

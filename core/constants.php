@@ -91,8 +91,14 @@ define("VIEWABLE_LANGS", "transposh_viewable_languages");
 //Option defining the list of currentlly editable languages
 define("EDITABLE_LANGS", "transposh_editable_languages");
 
-//Option to enable/disable rewrite of permalinks
+//Option to enable/disable auto translation
 define("ENABLE_AUTO_TRANSLATE", "transposh_enable_autotranslate");
+
+//Option to enable/disable msn translation
+define("ENABLE_MSN_TRANSLATE", "transposh_enable_msntranslate");
+
+//Option to store the msn API key
+define("MSN_TRANSLATE_KEY", "transposh_msn_key");
 
 //Option to enable/disable rewrite of permalinks
 define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
