@@ -43,28 +43,64 @@ function getbt()
 //Ajax translation
 var done_p = 0;
 var togo = 0;
+//Timer for translation aggregation
+var timer;
+function do_timer(translation) {
+    alert ("timer..."+translation);
+}
+
+var tokens = new Array();
+var translations = new Array();
+
 function ajax_translate(translation,source,segment_id) {
-    jQuery.ajax({  
+    clearTimeout(timer);
+    // push translations
+    tokens.push(jQuery("#"+transposh_params.prefix + segment_id).attr('token'));
+    translations.push(translation);
+    // TODO
+    fix_page(translation,source,segment_id);
+    timer = setTimeout(function() {
+        //alert ("timer..."+translations);
+        var data = {lang: transposh_params.lang,
+            source: source,
+            translation_posted: "1",
+            items: tokens.length
+            };
+        for (var i = 0; i < tokens.length; i++) {
+            data["tk"+i] = tokens[i];
+            data["tr"+i] = translations[i];
+            // UGLY
+                done_p += jQuery("*[token='"+tokens[i]+"']").size();
+               // console.log (done_p +" "+token);
+        }
+    jQuery.ajax({
         type: "POST",
         url: transposh_params.post_url,
-        data: {
-            token: jQuery("#"+transposh_params.prefix + segment_id).attr('token'),
-            translation: translation,
+        data: data/*{
+            token: tokens,
+            translation: translations,
             lang: transposh_params.lang,
             source: source,
             translation_posted: "1"
-        },
-        success: function(req) {
+        }*/,
+        success: function() {
             // this is here for manual translation too
-            fix_page(translation,source,segment_id);
+            // TODO!
             // Progress bar of saving
+                //console.log(url);
             if (transposh_params.progress) {
-                var token = jQuery("#"+transposh_params.prefix + segment_id).attr('token');
-                done_p += jQuery("*[token='"+token+"']").size();
+                //for (var i = 0; i < tokens.length; i++) {
+                //var token = tokens[i];
+                //done_p += jQuery("*[token='"+token+"']").size();
+                //console.log (done_p +" "+token);
+                //}
+                //console.log (done_p +":end");
+                //console.log(tokens);
                 //done_p++;
                 if (togo > 4) {
                     jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
                 }
+            
             }
         },
                 
@@ -74,6 +110,9 @@ function ajax_translate(translation,source,segment_id) {
             }
         }
     });
+    translations = [];
+    tokens = [];
+    }, 200); // wait 120 ms...
 }
 
 function fix_page(translation,source,segment_id) {
@@ -344,6 +383,8 @@ jQuery("script[src*='transposh.js']").each(function (j) {
         }
     }
 });
+
+//console.log('hi');
 
 google.load("language", "1");
 // first we check if msn was even included
