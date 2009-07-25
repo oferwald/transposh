@@ -98,15 +98,18 @@ function update_translation() {
     global $wpdb;
 
     $ref=getenv('HTTP_REFERER');
-    $original =  base64_url_decode($_POST['token']);
-    $translation = $_POST['translation'];
+    $items = $_POST['items'];
+    //$original =  base64_url_decode($_POST['token']);
+    //$translation = $_POST['translation'];
     $lang = $_POST['lang'];
     $source = $_POST['source'];
-
+    logger ($_POST);
     // check params
-    logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
-    if(!isset($original) || !isset($translation) || !isset($lang)) {
-        logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
+    logger("Enter " . __FILE__ . " Params: $items, $lang, $ref", 3);
+    //    if(!isset($original) || !isset($translation) || !isset($lang)) {
+    if(!isset($items) || !isset($lang)) {
+        logger("Enter " . __FILE__ . " missing Params: $items, $lang, $ref", 1);
+        //logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
         return;
     }
 
@@ -121,40 +124,74 @@ function update_translation() {
 
     $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
 
-    //Decode & remove already escaped character to avoid double escaping
-    $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
-
-    //The original content is encoded as base64 before it is sent (i.e. token), after we
-    //decode it should just the same after it was parsed.
-    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-
     //add  our own custom header - so we will know that we got here
     header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
 
-    list($translated_text, $old_source) = fetch_translation($original, $lang);
-    if ($translated_text) {
-        if ($source == 1) {
-            logger("Warning " . __METHOD__ . " auto-translation for already translated: $original", 0);
-            return;
-        }
-        if ($translation == $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
-            logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
-            return;
-        }
-    }
+    // transaction log stuff
+    global $user_ID;
+    get_currentuserinfo();
 
+    // log either the user ID or his IP
+    if ('' == $user_ID) {
+        $loguser = $_SERVER['REMOTE_ADDR'];
+    }
+    else {
+        $loguser = $user_ID;
+    }
+    // end tl
+
+    for ($i=0;$i<$items;$i++) {
+        $original =  base64_url_decode($_POST["tk$i"]);
+        $translation = $_POST["tr$i"];
+        //Decode & remove already escaped character to avoid double escaping
+        $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
+
+        //The original content is encoded as base64 before it is sent (i.e. token), after we
+        //decode it should just the same after it was parsed.
+        $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+
+        list($translated_text, $old_source) = fetch_translation($original, $lang);
+        if ($translated_text) {
+            if ($source == 1) {
+                logger("Warning " . __METHOD__ . " auto-translation for already translated: $original", 0);
+                return;
+            }
+            if ($translation == $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
+                logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
+                return;
+            }
+        }
+        $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')".(($items != $i+1) ?', ':'');
+// TL
+        $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')".(($items != $i+1) ?', ':'');
+
+// TODO - check place
+//Delete entry from cache
+        if(ENABLE_APC && function_exists('apc_store')) {
+            apc_delete($original .'___'. $lang);
+        }
+
+    }
     $update = "REPLACE INTO  $table_name (original, translated, lang, source)
-                VALUES ('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
+                VALUES $values";
+    logger($update);
+    // TODO!!! :)
+    //exit;
 
     $result = $wpdb->query($update);
 
     if($result !== FALSE) {
-        update_transaction_log($original, $translation, $lang, $source);
+         $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
+        "VALUES $logvalues";
+        $result = $wpdb->query($log);
 
-        //Delete entry from cache
+        ////update_transaction_log($original, $translation, $lang, $source);
+
+        /*//Delete entry from cache
         if(ENABLE_APC && function_exists('apc_store')) {
             apc_delete($original .'___'. $lang);
-        }
+        }*/
 
         logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
     }
