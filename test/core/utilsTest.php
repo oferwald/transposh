@@ -163,6 +163,37 @@ class utilsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("http://transposh.org/test/he/?cat=y",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y","he", $edit,$params_only));
     }
 
+    public function testRewriteURLwithsubdir2()
+    {
+        $GLOBALS[home_url] = "http://transposh.org/test/";
+        $edit = false;
+        $params_only = true;
+        $this->assertEquals("?lang=he",rewrite_url_lang_param("","he", $edit, $params_only));
+        $this->assertEquals("/?lang=he",rewrite_url_lang_param("/","he", $edit, $params_only));
+        $this->assertEquals("/test?lang=he",rewrite_url_lang_param("/test","he", $edit,$params_only));
+        $this->assertEquals("/test/?lang=he",rewrite_url_lang_param("/test/","he", $edit,$params_only));
+        $this->assertEquals("/test/?lang=he",rewrite_url_lang_param("/test/?lang=en","he", $edit,$params_only));
+        $this->assertEquals("/test/?lang=he",rewrite_url_lang_param("/test/en/?lang=en","he", $edit,$params_only));
+        $this->assertEquals("http://www.islands.co.il/",rewrite_url_lang_param("http://www.islands.co.il/","he", $edit,$params_only));
+        $this->assertEquals("http://www.islands.co.il/he",rewrite_url_lang_param("http://www.islands.co.il/he","he", $edit,$params_only));
+        $this->assertEquals("http://www.islands.co.il/fr",rewrite_url_lang_param("http://www.islands.co.il/fr","he", $edit,$params_only));
+        $this->assertEquals("http://www.islands.co.il/he/",rewrite_url_lang_param("http://www.islands.co.il/he/","he", $edit,$params_only));
+        $this->assertEquals("http://www.islands.co.il/fr/",rewrite_url_lang_param("http://www.islands.co.il/fr/","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test?lang=he",rewrite_url_lang_param("http://transposh.org/test/he","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/he/","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/zh-tw/","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/37/?lang=he",rewrite_url_lang_param("http://transposh.org/test/37/","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&edit=1","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh-tw&edit=1","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&amp;edit=1","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1","he", $edit,$params_only));
+        $this->assertEquals("http://transposh.org/test/?cat=y&lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y","he", $edit,$params_only));
+    }
+
     public function testCleanupURL()
     {
         $GLOBALS[home_url] = "http://www.algarve-abc.de/ferienhaus-westalgarve/";
@@ -172,5 +203,17 @@ class utilsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/"));
         $this->assertEquals("/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/", true));
     }
+
+    public function testCleanupURL2()
+    {
+        $GLOBALS[home_url] = "http://www.algarve-abc.de/ferienhaus-westalgarve/";
+        $params_only = true;
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/test",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/test"));
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve"));
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en"));
+        $this->assertEquals("http://www.algarve-abc.de/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/"));
+        $this->assertEquals("/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/", true));
+    }
+
 }
 ?>

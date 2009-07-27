@@ -141,8 +141,8 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
     else {
         if (!$parsedurl['path']) $parsedurl['path'] = "/";
         $parsedurl['path'] = "/".$lang.$parsedurl['path'];
-        if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
     }
+        if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
 
     //insert params to url
     if(isset($params) && $params) {
