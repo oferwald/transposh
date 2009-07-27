@@ -53,66 +53,50 @@ var tokens = new Array();
 var translations = new Array();
 
 function ajax_translate(translation,source,segment_id) {
+    // we aggregate translations together, 200ms from the last translation we will send the timer
+    // so here we remove it so nothing unexpected happens
     clearTimeout(timer);
     // push translations
     tokens.push(jQuery("#"+transposh_params.prefix + segment_id).attr('token'));
     translations.push(translation);
-    // TODO
+    // This is a change - as we fix the pages before we got actual confirmation (worked well for auto-translation)
     fix_page(translation,source,segment_id);
     timer = setTimeout(function() {
-        //alert ("timer..."+translations);
-        var data = {lang: transposh_params.lang,
+        var data = {
+            lang: transposh_params.lang,
             source: source,
             translation_posted: "1",
             items: tokens.length
-            };
+        };
         for (var i = 0; i < tokens.length; i++) {
             data["tk"+i] = tokens[i];
             data["tr"+i] = translations[i];
-            // UGLY
-                done_p += jQuery("*[token='"+tokens[i]+"']").size();
-               // console.log (done_p +" "+token);
+            // We are pre-accounting the progress bar here - which is not very nice
+            done_p += jQuery("*[token='"+tokens[i]+"']").size();
         }
-    jQuery.ajax({
-        type: "POST",
-        url: transposh_params.post_url,
-        data: data/*{
-            token: tokens,
-            translation: translations,
-            lang: transposh_params.lang,
-            source: source,
-            translation_posted: "1"
-        }*/,
-        success: function() {
-            // this is here for manual translation too
-            // TODO!
-            // Progress bar of saving
-                //console.log(url);
-            if (transposh_params.progress) {
-                //for (var i = 0; i < tokens.length; i++) {
-                //var token = tokens[i];
-                //done_p += jQuery("*[token='"+token+"']").size();
-                //console.log (done_p +" "+token);
-                //}
-                //console.log (done_p +":end");
-                //console.log(tokens);
-                //done_p++;
-                if (togo > 4) {
-                    jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
-                }
+        jQuery.ajax({
+            type: "POST",
+            url: transposh_params.post_url,
+            data: data,
+            success: function() {
+                // Success now only updates the save progress bar (green)
+                if (transposh_params.progress) {
+                    if (togo > 4) {
+                        jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
+                    }
             
-            }
-        },
+                }
+            },
                 
-        error: function(req) {
-            if (source == 0) {
-                alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+            error: function(req) {
+                if (source == 0) {
+                    alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+                }
             }
-        }
-    });
-    translations = [];
-    tokens = [];
-    }, 200); // wait 120 ms...
+        });
+        translations = [];
+        tokens = [];
+    }, 200); // wait 200 ms...
 }
 
 function fix_page(translation,source,segment_id) {
@@ -196,7 +180,8 @@ function do_auto_translate() {
             google.language.translate(to_trans, "", transposh_params.lang, function(result) {
                 if (!result.error) {
                     var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
-                    fix_page(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
+                    // No longer need because now included in the ajax translate
+                    //fix_page(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
                     ajax_translate(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
                     if (transposh_params.progress) {
                         done = togo - jQuery("."+transposh_params.prefix+'[source=""]').size();
@@ -327,14 +312,14 @@ function translate_dialog(segment_id) {
     });
     var tButtons = {};
     if (binglangs.indexOf(transposh_params.lang+',',0) > -1) {
-    //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
+        //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
         tButtons['Suggest - Bing'] = function() {getbt();};
     }
 
     if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt|fa'.indexOf(transposh_params.lang) > -1) {
         tButtons['Suggest - Google'] = function() {getgt();};
     }
-            /*    'Next': function() {
+    /*    'Next': function() {
                 alert(parseInt(segment_id)+1);
                 translate_dialog(parseInt(segment_id)+1);
             },
@@ -343,15 +328,15 @@ function translate_dialog(segment_id) {
                 //.next? .next all?
             },*/
     tButtons['Ok'] = function() {
-                var translation = jQuery('#'+transposh_params.prefix+'translation').val();
-                if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
-                    ajax_translate(translation,0,segment_id);
-                    jQuery("#"+transposh_params.prefix+"translation").data("edit", {
-                        changed: false
-                    });
-                }
-                jQuery(this).dialog('close');
-            };
+        var translation = jQuery('#'+transposh_params.prefix+'translation').val();
+        if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
+            ajax_translate(translation,0,segment_id);
+            jQuery("#"+transposh_params.prefix+"translation").data("edit", {
+                changed: false
+            });
+        }
+        jQuery(this).dialog('close');
+    };
     //tButtons["beep"] = function() {alert(Microsoft.Translator.GetLanguages())};
     var hButtons =	{
         Close: function() {

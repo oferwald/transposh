@@ -110,6 +110,10 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/07/27 - 0.3.1 =
+ * Much faster caching of auto translation results on server with reduced server load
+ * Mark active language in the widget for css usage
+ * Fixed url code with paramaters and subdirectories
 = 2009/07/23 - 0.3.0 =
  * Support Bing (MSN) translator as a hinting facilitator
 = 2009/07/21 - 0.2.9 =

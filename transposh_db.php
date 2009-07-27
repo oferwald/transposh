@@ -93,23 +93,19 @@ function fetch_translation($original, $lang) {
 
 /*
  * A new translation has been posted, update the translation database.
+ * This has changed since we now accept multiple translations at once
  */
 function update_translation() {
     global $wpdb;
 
     $ref=getenv('HTTP_REFERER');
     $items = $_POST['items'];
-    //$original =  base64_url_decode($_POST['token']);
-    //$translation = $_POST['translation'];
     $lang = $_POST['lang'];
     $source = $_POST['source'];
-    logger ($_POST);
     // check params
-    logger("Enter " . __FILE__ . " Params: $items, $lang, $ref", 3);
-    //    if(!isset($original) || !isset($translation) || !isset($lang)) {
+    logger("Enter " . __FILE__ . " Params: $items, $lang, $ref", 53);
     if(!isset($items) || !isset($lang)) {
         logger("Enter " . __FILE__ . " missing Params: $items, $lang, $ref", 1);
-        //logger("Enter " . __FILE__ . " missing params: $original , $translation, $lang," . $ref, 0);
         return;
     }
 
@@ -122,9 +118,7 @@ function update_translation() {
         exit;
     }
 
-    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
-
-    //add  our own custom header - so we will know that we got here
+    //add our own custom header - so we will know that we got here
     header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
 
     // transaction log stuff
@@ -140,6 +134,7 @@ function update_translation() {
     }
     // end tl
 
+    // We are now passing all posted items
     for ($i=0;$i<$items;$i++) {
         $original =  base64_url_decode($_POST["tk$i"]);
         $translation = $_POST["tr$i"];
@@ -150,7 +145,7 @@ function update_translation() {
         //decode it should just the same after it was parsed.
         $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
 
-
+        //Here we check we are not redoing stuff
         list($translated_text, $old_source) = fetch_translation($original, $lang);
         if ($translated_text) {
             if ($source == 1) {
@@ -162,75 +157,43 @@ function update_translation() {
                 return;
             }
         }
+        // Setting the values string for the database (notice how concatanation is handled)
         $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')".(($items != $i+1) ?', ':'');
-// TL
+        // Setting the transaction log records
         $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')".(($items != $i+1) ?', ':'');
 
-// TODO - check place
-//Delete entry from cache
+        // If we have caching - we remove previous entry from cache
         if(ENABLE_APC && function_exists('apc_store')) {
             apc_delete($original .'___'. $lang);
         }
-
     }
-    $update = "REPLACE INTO  $table_name (original, translated, lang, source)
+
+    // perform insertion to the database, with one query :)
+    $update = "REPLACE INTO ".$wpdb->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
                 VALUES $values";
-    logger($update);
-    // TODO!!! :)
-    //exit;
+    logger($update,4);
 
     $result = $wpdb->query($update);
 
     if($result !== FALSE) {
-         $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
-        "VALUES $logvalues";
+        // update the transaction log too
+        $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
+            "VALUES $logvalues";
         $result = $wpdb->query($log);
 
-        ////update_transaction_log($original, $translation, $lang, $source);
-
-        /*//Delete entry from cache
-        if(ENABLE_APC && function_exists('apc_store')) {
-            apc_delete($original .'___'. $lang);
-        }*/
-
-        logger("Inserted to db '$original' , '$translation', '$lang' " , 3);
+        logger("Inserted to db '$values'" , 3);
     }
     else {
+        logger(mysql_error(),0);
         logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
         header("HTTP/1.0 404 Failed to update language database ".mysql_error());
     }
-
+    // this is a termination for the ajax sequence
     exit;
 }
 
 /*
- * Update the transaction log
- */
-function update_transaction_log(&$original, &$translation, &$lang, $source) {
-    global $wpdb, $user_ID;
-    get_currentuserinfo();
-
-    // log either the user ID or his IP
-    if ('' == $user_ID) {
-        $loguser = $_SERVER['REMOTE_ADDR'];
-    }
-    else {
-        $loguser = $user_ID;
-    }
-
-    $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
-        "VALUES ('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')";
-
-    $result = $wpdb->query($log);
-
-    if($result === FALSE) {
-        logger(mysql_error(),0);
-        logger("Error !!! failed to update transaction log:  $loguser, $original ,$translation, $lang, $source" , 0);
-    }
-}
-
-/*
- * A new translation has been posted, update the translation database.
+ * Get translation history for some translation.
  */
 function get_translation_history($token, $lang) {
     global $wpdb;
