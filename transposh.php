@@ -222,6 +222,9 @@ function on_parse_request($wp) {
     } else {
         $GLOBALS['is_edit_mode'] = false;
     }
+    // We are removing our query vars since they are no longer needed and also make issues when a user select a static page as his home
+    unset ($wp->query_vars[LANG_PARAM]);
+    unset ($wp->query_vars[EDIT_PARAM]);
     logger ("global-edit: ".$GLOBALS['is_edit_mode'],4);
 }
 
