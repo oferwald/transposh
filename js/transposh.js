@@ -72,7 +72,9 @@ function ajax_translate(translation,source,segment_id) {
             data["tk"+i] = tokens[i];
             data["tr"+i] = translations[i];
             // We are pre-accounting the progress bar here - which is not very nice
-            done_p += jQuery("*[token='"+tokens[i]+"']").size();
+            if (source > 0) {
+                done_p += jQuery("*[token='"+tokens[i]+"']").size();
+            }
         }
         jQuery.ajax({
             type: "POST",
@@ -81,7 +83,7 @@ function ajax_translate(translation,source,segment_id) {
             success: function() {
                 // Success now only updates the save progress bar (green)
                 if (transposh_params.progress) {
-                    if (togo > 4) {
+                    if (togo > 4 && source > 0) {
                         jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
                     }
             
