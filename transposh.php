@@ -45,7 +45,9 @@ function process_page(&$buffer) {
     $start_time = microtime(TRUE);
 
     // Refrain from touching the administrative interface
-    if(stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE || stripos($_SERVER['REQUEST_URI'],'/xmlrpc.php') !== FALSE) {
+    if(stripos($_SERVER['REQUEST_URI'],'/wp-login.php') !== FALSE || 
+       stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE ||
+       stripos($_SERVER['REQUEST_URI'],'/xmlrpc.php') !== FALSE) {
         logger("Skipping translation for admin pages", 3);
         return $buffer;
     }
