@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.8.2
+Tested up to: 2.8.3
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -82,6 +82,11 @@ Please be reminded of the following “rules”
 
 Also - please take extra care to validate your html, adding extra tags that are unclosed in the template may lead to our parser breaking. Use the w3c validator service for more details. If everything is setup correctly and still nothing happens, please contact us.
 
+= I have installed the plugin - nothing happens - themes related =
+
+The plugin works on one theme yet seems to fail on another. This might be caused by themes which don't include the wp_head and/or wp_foot
+functions so the transposh.js file is not being included, try to include it manually by modifying your theme
+
 = How can I add the plugin interface without using the sidebar widget? =
 
 Just add the following line to your template:
@@ -110,6 +115,10 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/08/03 - 0.3.2 =
+ * Fixed issue with plugin that made login unavailable at some situations
+ * Fixed issue with static first page
+ * Manual translate will not make progress bar move
 = 2009/07/27 - 0.3.1 =
  * Much faster caching of auto translation results on server with reduced server load
  * Mark active language in the widget for css usage
