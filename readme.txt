@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.8.3
+Tested up to: 2.8.4
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -115,6 +115,9 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/09/06 - 0.3.3 =
+ * 9 More languages supported by google translate
+ * Further compressed images with punypng (808 bytes saved!)
 = 2009/08/03 - 0.3.2 =
  * Fixed issue with plugin that made login unavailable at some situations
  * Fixed issue with static first page

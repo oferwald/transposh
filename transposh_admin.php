@@ -70,7 +70,7 @@ function insert_supported_langs() {
         if(!($i % $columns)) echo '<tr'.(!($i/2 % $columns) ? ' class="alternate"':'').'>';
         $i++;
 
-        echo "<td>".display_flag("$tr_plugin_url/img/flags/", $flag, $language,get_option(ENABLE_CSS_FLAGS))."&nbsp;$language</td>";
+        echo "<td>".display_flag("$tr_plugin_url/img/flags", $flag, $language,get_option(ENABLE_CSS_FLAGS))."&nbsp;$language</td>";
         echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
             $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . is_viewable($code) . '/></td>';
         echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
@@ -476,7 +476,7 @@ class transposh_plugin {
 
     }
     function on_contentbox_generic_content($data) {
-        global $wp_version;
+        global $wp_version;//, $languages;
         echo '<h4>Rewrite URLs</h4>';
         insert_permalink_rewrite_option();
 
@@ -487,6 +487,11 @@ class transposh_plugin {
 
         echo '<h4>Use css flags (experimental)</h4>';
         insert_css_flags_option();
+        /*foreach($languages as $code => $lang) {
+            list ($language,$flag,$autot) = explode (",",$lang);
+            $flags .= $flag.',';
+        }
+        echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>';*/
 
     }
     function on_contentbox_community_content($data) {

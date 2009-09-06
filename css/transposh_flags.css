@@ -7,46 +7,54 @@
         display:inline-block;
  }
 
-.trf-al { background-position: -24px 0}
-.trf-sa { background-position: -48px 0}
-.trf-bg { background-position: -72px 0}
-.trf-catalonia { background-position: -96px 0}
-.trf-cn { background-position: -120px 0}
-.trf-tw { background-position: -144px 0}
-.trf-hr { background-position: -168px 0}
-.trf-cz { background-position: -192px 0}
-.trf-dk { background-position: -216px 0}
-.trf-nl { background-position: -240px 0}
-.trf-ee { background-position: -264px 0}
-.trf-fi { background-position: -288px 0}
-.trf-fr { background-position: -312px 0}
-.trf-galicia { background-position: -336px 0}
-.trf-de { background-position: -360px 0}
-.trf-gr { background-position: -384px 0}
-.trf-il { background-position: -408px 0}
-.trf-in { background-position: -432px 0}
-.trf-hu { background-position: -456px 0}
-.trf-id { background-position: -480px 0}
-.trf-it { background-position: -504px 0}
-.trf-is { background-position: -528px 0}
-.trf-jp { background-position: -552px 0}
-.trf-kr { background-position: -576px 0}
-.trf-lv { background-position: -600px 0}
-.trf-lt { background-position: -624px 0}
-.trf-mt { background-position: -648px 0}
-.trf-no { background-position: -672px 0}
-.trf-ir { background-position: -696px 0}
-.trf-pl { background-position: -720px 0}
-.trf-pt { background-position: -744px 0}
-.trf-ro { background-position: -768px 0}
-.trf-ru { background-position: -792px 0}
-.trf-rs { background-position: -816px 0}
-.trf-sk { background-position: -840px 0}
-.trf-sl { background-position: -864px 0}
-.trf-es { background-position: -888px 0}
-.trf-se { background-position: -912px 0}
-.trf-ph { background-position: -936px 0}
-.trf-th { background-position: -960px 0}
-.trf-tr { background-position: -984px 0}
-.trf-ua { background-position: -1008px 0}
-.trf-vn { background-position: -1032px 0}
+.trf-za {background-position: -24px 0}
+.trf-al {background-position: -48px 0}
+.trf-sa {background-position: -72px 0}
+.trf-by {background-position: -96px 0}
+.trf-bg {background-position: -120px 0}
+.trf-catalonia {background-position: -144px 0}
+.trf-cn {background-position: -168px 0}
+.trf-tw {background-position: -192px 0}
+.trf-hr {background-position: -216px 0}
+.trf-cz {background-position: -240px 0}
+.trf-dk {background-position: -264px 0}
+.trf-nl {background-position: -288px 0}
+.trf-ee {background-position: -312px 0}
+.trf-fi {background-position: -336px 0}
+.trf-fr {background-position: -360px 0}
+.trf-galicia {background-position: -384px 0}
+.trf-de {background-position: -408px 0}
+.trf-gr {background-position: -432px 0}
+.trf-il {background-position: -456px 0}
+.trf-in {background-position: -480px 0}
+.trf-hu {background-position: -504px 0}
+.trf-id {background-position: -528px 0}
+.trf-it {background-position: -552px 0}
+.trf-is {background-position: -576px 0}
+.trf-ie {background-position: -600px 0}
+.trf-jp {background-position: -624px 0}
+.trf-kr {background-position: -648px 0}
+.trf-lv {background-position: -672px 0}
+.trf-lt {background-position: -696px 0}
+.trf-mk {background-position: -720px 0}
+.trf-my {background-position: -744px 0}
+.trf-mt {background-position: -768px 0}
+.trf-no {background-position: -792px 0}
+.trf-ir {background-position: -816px 0}
+.trf-pl {background-position: -840px 0}
+.trf-pt {background-position: -864px 0}
+.trf-ro {background-position: -888px 0}
+.trf-ru {background-position: -912px 0}
+.trf-rs {background-position: -936px 0}
+.trf-sk {background-position: -960px 0}
+.trf-sl {background-position: -984px 0}
+.trf-es {background-position: -1008px 0}
+.trf-ke {background-position: -1032px 0}
+.trf-se {background-position: -1056px 0}
+.trf-ph {background-position: -1080px 0}
+.trf-th {background-position: -1104px 0}
+.trf-tr {background-position: -1128px 0}
+.trf-ua {background-position: -1152px 0}
+.trf-vn {background-position: -1176px 0}
+.trf-wales {background-position: -1200px 0}
+.trf-europeanunion {background-position: -1224px 0}
