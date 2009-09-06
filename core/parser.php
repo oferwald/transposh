@@ -83,11 +83,12 @@ class parser {
      * Some entities will not cause a break if they don't have whitespace after them
      * such as Jack`s apple.
      * `uncatagorized` will break on the later entity
+     * Added " quotes to this claim, as it is used in some languages in a similar fashion
      * @param $entity - html entity to check
      * @return - true if not a breaker (apostrophy)
      */
     function is_entity_breaker($entity) {
-        return !(stripos('&#8217;&apos;&#039;&#39;', $entity) !== FALSE);
+        return !(stripos('&#8217;&apos;&quot;&#039;&#39;', $entity) !== FALSE);
     }
 
     /**
