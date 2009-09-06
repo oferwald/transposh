@@ -318,7 +318,7 @@ function translate_dialog(segment_id) {
         tButtons['Suggest - Bing'] = function() {getbt();};
     }
 
-    if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt|fa'.indexOf(transposh_params.lang) > -1) {
+    if (google.language.isTranslatable(transposh_params.lang) || ext_langs.indexOf(transposh_params.lang) > -1) {
         tButtons['Suggest - Google'] = function() {getgt();};
     }
     /*    'Next': function() {
@@ -357,7 +357,8 @@ function translate_dialog(segment_id) {
 //to run at start
 jQuery.noConflict();
 //read parameters
-var transposh_params = new Array(); 
+var transposh_params = new Array();
+var ext_langs = 'he|zh-tw|pt|fa|af|be|is|ga|mk|ms|sw|ws|cy|yi';
 jQuery("script[src*='transposh.js']").each(function (j) {
     var query_string = unescape(this.src.substring(this.src.indexOf('?')+1));
     var parms = query_string.split('&');
@@ -392,7 +393,7 @@ jQuery(document).ready(
             transposh_params.progress = true;
         }
         // TODO: he, iw? :)
-        if (google.language.isTranslatable(transposh_params.lang) || 'he|zh-tw|pt|fa'.indexOf(transposh_params.lang) > -1) {
+        if (google.language.isTranslatable(transposh_params.lang) || ext_langs.indexOf(transposh_params.lang) > -1) {
             do_auto_translate();
         }
         if (transposh_params.edit) {

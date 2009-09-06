@@ -32,8 +32,10 @@ define("NO_TRANSLATE_CLASS", "no_translate");
 //the array directs from language code to - Native name, flag, auto-translatable
 $languages = array(
     "en" => "English,us,1",
+    "af" => "Afrikaans,za,1", //
     "sq" => "Shqip,al,1",
     "ar" => "العربية,sa,1",
+    "be" => "Belarusian,by,1", //
     "bg" => "Български,bg,1",
     "ca" => "Català,catalonia,1",
     "zh" => "中文(简体),cn,1",
@@ -53,11 +55,14 @@ $languages = array(
     "hu" => "magyar,hu,1",
     "id" => "Bahasa Indonesia,id,1",
     "it" => "Italiano,it,1",
-    "is" => "íslenska,is,0",
+    "is" => "íslenska,is,1", //
+    "ga" => "Irish,ie,1", //
     "ja" => "日本語,jp,1",
     "ko" => "우리말,kr,1",
     "lv" => "latviešu valoda,lv,1",
     "lt" => "lietuvių kalba,lt,1",
+    "mk" => "Macedonian,mk,1", //
+    "ms" => "Malay,my,1", //
     "mt" => "Malti,mt,1",
     "no" => "Norsk,no,1",
     "fa" => "فارسی,ir,1",
@@ -69,15 +74,19 @@ $languages = array(
     "sk" => "slovenčina,sk,1",
     "sl" => "slovenščina,sl,1",
     "es" => "Español,es,1",
+    "sw" => "Swahili,ke,1",
     "sv" => "svenska,se,1",
     "tl" => "Tagalog,ph,1",
     "th" => "ภาษาไทย,th,1",
     "tr" => "Türkçe,tr,1",
     "uk" => "Українська,ua,1",
-    "vi" => "Tiếng Việt,vn,1");
+    "vi" => "Tiếng Việt,vn,1",
+    "cy" => "Welsh,wales,1", //
+    "yi" => "Yiddish,europeanunion,1" //
+);
 
 //Language which are read from right to left (rtl)
-$rtl_languages =  array("ar", "he", "fa");
+$rtl_languages =  array("ar", "he", "fa", "yi");
 
 //Define the new capability that will be assigned to roles - translator
 define("TRANSLATOR", 'translator');
