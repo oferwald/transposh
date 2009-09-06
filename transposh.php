@@ -391,7 +391,7 @@ function add_transposh_js() {
     }
 
     if($GLOBALS['is_edit_mode'] || $enable_auto_translate) {
-        $post_url = $home_url . '/index.php';
+        $post_url = $home_url;// . '/index.php'; pay attention here - might be damaging
         wp_deregister_script('jquery');
         wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
         // jQuery pushing below might cause issues
