@@ -52,6 +52,10 @@ function process_page(&$buffer) {
         return $buffer;
     }
 
+    // This one fixed a bug transposh created with other pages (xml generator for other plugins - such as the nextgen gallery)
+    // TODO: need to further investigate
+    if($GLOBALS['lang'] == "")
+        return $buffer;
     logger("Translating " . $_SERVER['REQUEST_URI'] . " to: {$GLOBALS['lang']}", 1);
     // Don't translate the default language unless specifically allowed to...
     $default_lang = get_default_lang();
@@ -390,6 +394,7 @@ function add_transposh_js() {
         wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js",array("jquery"),'1.7.2',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 
+//TODO!
     if($GLOBALS['is_edit_mode'] || $enable_auto_translate) {
         $post_url = $home_url;// . '/index.php'; pay attention here - might be damaging
         wp_deregister_script('jquery');
