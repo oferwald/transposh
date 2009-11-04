@@ -357,6 +357,8 @@ class parser {
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
         if ($this->dir_rtl)
             $this->html->find('html',0)->dir="rtl";
+        else
+            $this->html->find('html',0)->dir="ltr";
 
         if ($this->lang)
             $this->html->find('html',0)->lang=$this->lang;
@@ -394,11 +396,11 @@ class parser {
                 }
             }
             if ($newtext) {
-                if ($this->feed_fix) {
+               /* if ($this->feed_fix) {
                     if (substr($newtext, 0, 4) == '&lt;') {
                         $newtext = html_entity_decode($newtext);
                     }
-                }
+                }*/
                 $e->outertext = $newtext.$right;
                 logger ("phrase: $newtext",4);
             }
