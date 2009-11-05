@@ -394,7 +394,6 @@ function add_transposh_js() {
         wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js",array("jquery"),'1.7.2',get_option(ENABLE_FOOTER_SCRIPTS));
     }
 
-//TODO!
     if($GLOBALS['is_edit_mode'] || $enable_auto_translate) {
         $post_url = $home_url;// . '/index.php'; pay attention here - might be damaging
         wp_deregister_script('jquery');
@@ -402,7 +401,8 @@ function add_transposh_js() {
         // jQuery pushing below might cause issues
         //wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', get_option(ENABLE_FOOTER_SCRIPTS));
         wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
-        if (get_option(ENABLE_MSN_TRANSLATE)) {
+        // Make sure msn translate is not needlessly loaded when we are only auto translating
+        if (get_option(ENABLE_MSN_TRANSLATE) && $GLOBALS['is_edit_mode']) {
             wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=".get_option(MSN_TRANSLATE_KEY),array(),'1',get_option(ENABLE_FOOTER_SCRIPTS));
         }
         wp_enqueue_script("transposh","$tr_plugin_url/js/transposh.js?post_url=$post_url{$edit_mode}&lang={$GLOBALS['lang']}&prefix=".SPAN_PREFIX,array("jquery"),'<%VERSION%>',get_option(ENABLE_FOOTER_SCRIPTS));
