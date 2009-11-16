@@ -340,7 +340,7 @@ class transposh_plugin_admin {
             echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
                 $code . '_edit" ' . $this->checked($this->transposh->options->is_editable_language($code)). '/></td>';
             echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
-                checked($this->transposh->options->is_default_language($code)). "/></td>";
+                $this->checked($this->transposh->options->is_default_language($code)). "/></td>";
             // TODO: Add icons?
             echo "<td>".($autot ? "Y" : "N")."</td>";
 
@@ -443,8 +443,8 @@ class transposh_plugin_admin {
  * Insert the option to enable/disable css flags.
  */
 // was function insert_css_flags_option() {
-        echo '<input type="checkbox" value="1" name="'.ENABLE_CSS_FLAGS.'" '. $this->checked ($this->transposh->options->get_widget_css_flags()) . '/> '.
-            'Use a single sprite with all flags, makes pages load faster. Currently not suitable if you made changes to the flags.';
+        //echo '<input type="checkbox" value="1" name="'.ENABLE_CSS_FLAGS.'" '. $this->checked ($this->transposh->options->get_widget_css_flags()) . '/> '.
+//            'Use a single sprite with all flags, makes pages load faster. Currently not suitable if you made changes to the flags.';
 
         /*foreach($languages as $code => $lang) {
             list ($language,$flag,$autot) = explode (",",$lang);

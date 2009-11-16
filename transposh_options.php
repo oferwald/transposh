@@ -61,25 +61,27 @@ define("ENABLE_DEFAULT_TRANSLATE", "enable_default_translate");
 //Option to enable/disable footer scripts (2.8 and up)
 define("ENABLE_FOOTER_SCRIPTS", "enable_footer_scripts");
 //Use CSS sprites for flags if available
-define("ENABLE_CSS_FLAGS", "enable_css_flags");
+//define("ENABLE_CSS_FLAGS", "enable_css_flags");
 //Option defining the default language
 define("DEFAULT_LANG", "default_language");
 //Option defining transposh widget appearance
-define("WIDGET_TRANSPOSH", "widget");
-define("WIDGET_STYLE", "style");
-define("WIDGET_PROGRESSBAR", "progressbar");
+//define("WIDGET_TRANSPOSH", "widget");
+define("WIDGET_STYLE", "widget_style");
+define("WIDGET_PROGRESSBAR", "widget_progressbar");
+//Use CSS sprites for flags if available
+define("WIDGET_CSS_FLAGS", "widget_css_flags");
 
 
 class transposh_plugin_options {
 //constructor of class, PHP4 compatible construction for backward compatibility
-    private $options; // array storing all our options
+    private $options = array(); // array storing all our options
     private $changed = false;
 
     function transposh_plugin_options() {
         logger ("creating options");
-        $this->migrate_old_config();
         // load them here
         $this->options = get_option(TRANSPOSH_OPTIONS);
+        $this->migrate_old_config();
         logger($this->options);
     }
 
@@ -108,9 +110,23 @@ class transposh_plugin_options {
             logger($this->options);
             update_option(TRANSPOSH_OPTIONS, $this->options);
         }
-        //    $this->options[SPAN_PREFIX] =
-        //    $this->options[ENABLE_CSS_FLAGS] =
-
+        //some options were moved
+         logger('1');
+         logger($this->options);
+        if (isset($this->options['widget'])) {
+            logger ('isset');
+            $this->set_widget_style($this->options['widget']['style']);
+            $this->get_widget_progressbar($this->options['widget']['progressbar']);
+            unset($this->options['widget']);
+         logger('2');
+            logger($this->options);
+        }
+        if (array_key_exists('enable_css_flags',$this->options)) {
+          $this->set_widget_css_flags($this->options['enable_css_flags']);
+            unset($this->options['enable_css_flags']);
+         logger('3');
+            logger($this->options);
+        }
     }
 
     function get_anonymous_translation() {
@@ -127,16 +143,16 @@ class transposh_plugin_options {
     }
 
     function get_widget_progressbar() {
-        return $this->options[WIDGET_TRANSPOSH][WIDGET_PROGRESSBAR];
+        return $this->options[WIDGET_PROGRESSBAR];
     }
 
     function get_widget_style() {
         //logger ("widgetstyle".$this->options[WIDGET_TRANSPOSH][WIDGET_STYLE]);
-        return $this->options[WIDGET_TRANSPOSH][WIDGET_STYLE];
+        return $this->options[WIDGET_STYLE];
     }
 
     function get_widget_css_flags() { // FIX!
-        return $this->options[ENABLE_CSS_FLAGS];
+        return $this->options[WIDGET_CSS_FLAGS];
     }
 
     function get_enable_permalinks() {
@@ -200,17 +216,16 @@ class transposh_plugin_options {
 
     function set_widget_progressbar($val) {
         $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_TRANSPOSH][WIDGET_PROGRESSBAR]);
+        $this->set_value($val, $this->options[WIDGET_PROGRESSBAR]);
     }
 
     function set_widget_style($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_TRANSPOSH][WIDGET_STYLE]);
+        $this->set_value($val, $this->options[WIDGET_STYLE]);
     }
 
     function set_widget_css_flags($val) { // FIX!
         $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_CSS_FLAGS]);
+        $this->set_value($val, $this->options[WIDGET_CSS_FLAGS]);
     }
 
     function set_enable_permalinks($val) {
