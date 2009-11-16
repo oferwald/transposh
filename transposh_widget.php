@@ -215,9 +215,9 @@ class transposh_plugin_widget {
     function transposh_widget_post($save = true) {
         logger ($_POST);
         logger (__LINE__.': handled widget post');
-        $this->transposh->options->set_widget_style($_POST['transposh-style']);
-        $this->transposh->options->set_widget_progressbar($_POST['transposh-progress']);
-        //$this->transposh->options->set_widget_css_flags($_POST['transposh-css']);
+        $this->transposh->options->set_widget_style($_POST[WIDGET_STYLE]);
+        $this->transposh->options->set_widget_progressbar($_POST[WIDGET_PROGRESSBAR]);
+        $this->transposh->options->set_widget_css_flags($_POST[WIDGET_CSS_FLAGS]);
         if ($save)
             $this->transposh->options->update_options();
         // Avoid coming here twice...
@@ -231,20 +231,19 @@ class transposh_plugin_widget {
         if (isset($_POST['transposh-submit'])) $this->transposh_widget_post();
         //$options = get_option(WIDGET_TRANSPOSH);
 
-        echo '<p><label for="transposh-style">Style:<br />'.
-            '<select id="transposh-style" name="transposh-style">'.
+        echo '<p><label for="'.WIDGET_STYLE.'">Style:<br />'.
+            '<select id="transposh-style" name="'.WIDGET_STYLE.'">'.
             '<option value="0"' . ($this->transposh->options->get_widget_style() == 0 ? ' selected="selected"' : '').'>Language selection</option>'.
             '<option value="1"' . ($this->transposh->options->get_widget_style() == 1 ? ' selected="selected"' : '').'>Flags</option>'.
             '<option value="2"' . ($this->transposh->options->get_widget_style() == 2 ? ' selected="selected"' : '').'>Language list</option>'.
             '</select>'.
             '</label></p>'.
             '<p><label for="transposh-progress">Effects:</label><br/>'.
-            '<input type="checkbox" id="transposh-progress" name="transposh-progress"'.($this->transposh->options->get_widget_progressbar() ? ' checked="checked"' : '').'/>'.
+            '<input type="checkbox" id="'.WIDGET_PROGRESSBAR.'" name="'.WIDGET_PROGRESSBAR.'"'.($this->transposh->options->get_widget_progressbar() ? ' checked="checked"' : '').'/>'.
             '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Show progress bar when a client triggers automatic translation">Show progress bar</span><br/>'.
-/*TODO- just do it :)
-            '<input type="checkbox" id="transposh-css" name="transposh-css"'.($this->transposh->options->get_widget_css_flags() ? ' checked="checked"' : '').'/>'.
+            '<input type="checkbox" id="'.WIDGET_CSS_FLAGS.'" name="'.WIDGET_CSS_FLAGS.'"'.($this->transposh->options->get_widget_css_flags() ? ' checked="checked"' : '').'/>'.
             '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Use a single sprite with all flags, makes pages load faster. Currently not suitable if you made changes to the flags.">Use CSS flags</span>'.
-*/            '</p>'.
+            '</p>'.
             '<input type="hidden" name="transposh-submit" id="transposh-submit" value="1"/>';
     }
 }
