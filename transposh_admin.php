@@ -47,22 +47,6 @@ class transposh_plugin_admin {
     }
 
 /*
- * Determine if the given language code is currentlly editable
- * Return 'checked' if true otherwise ""
- */
-    function is_editable($code) {
-        return checked($this->transposh->options->is_editable_language($code));
-    }
-
-/*
- * Determine if the given language code is currentlly viewable
- * Return 'checked' if true otherwise ""
- */
-    function is_viewable($code) {
-        return checked($this->transposh->options->is_viewable_language($code));
-    }
-
-/*
  * Indicates whether the given role can translate.
  * Return either "checked" or ""
  */
@@ -352,9 +336,9 @@ class transposh_plugin_admin {
 
             echo "<td>".display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $language,$this->transposh->options->get_widget_css_flags())."&nbsp;$language</td>";
             echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
-                $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . $this->is_viewable($code) . '/></td>';
+                $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . $this->checked($this->transposh->options->is_viewable_language($code)) . '/></td>';
             echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
-                $code . '_edit" ' . $this->is_editable($code). '/></td>';
+                $code . '_edit" ' . $this->checked($this->transposh->options->is_editable_language($code)). '/></td>';
             echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
                 checked($this->transposh->options->is_default_language($code)). "/></td>";
             // TODO: Add icons?
