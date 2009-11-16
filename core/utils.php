@@ -29,8 +29,7 @@ require_once("logging.php");
  * Remove from url any language (or editing) params that were added for our use.
  * Return the scrubed url
  */
-function cleanup_url($url, $remove_host = false) {
-    global $languages, $home_url;
+function cleanup_url($url, $home_url, $remove_host = false) {
     
     $parsedurl = @parse_url($url);
     //cleanup previous lang & edit parameter from url
@@ -62,7 +61,7 @@ function cleanup_url($url, $remove_host = false) {
         $secondslashpos = strpos($parsedurl['path'], "/",1);
         if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
         $prevlang =  substr($parsedurl['path'],1,$secondslashpos-1);
-        if (isset ($languages[$prevlang])) {
+        if (isset ($GLOBALS['languages'][$prevlang])) {
             logger ("prevlang: ".$prevlang,4);
             $parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
         }
@@ -83,9 +82,9 @@ function cleanup_url($url, $remove_host = false) {
  * @param boolean $is_edit - should url indicate editing
  * @param boolean $use_params_only - only use paramaters and avoid permalinks
  */
-function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
-    global $home_url, $enable_permalinks_rewrite, $languages;
-    logger("rewrite old url: $url, lang: $lang, is_edit: $is_edit, home_url: $home_url",5);
+// Should send a transposh interface to here TODO - enable permalinks rewrite
+function rewrite_url_lang_param($url,$home_url, $enable_permalinks_rewrite, $lang, $is_edit, $use_params_only=FALSE) {
+    logger("rewrite old url: $url, permalinks: $enable_permalinks_rewrite, lang: $lang, is_edit: $is_edit, home_url: $home_url",5);
 
     $newurl = str_replace('&#038;', '&', $url);
     $newurl = html_entity_decode($newurl, ENT_NOQUOTES);
@@ -119,7 +118,7 @@ function rewrite_url_lang_param($url, $lang, $is_edit, $use_params_only=FALSE) {
         $secondslashpos = strpos($parsedurl['path'], "/",1);
         if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
         $prevlang =  substr($parsedurl['path'],1,$secondslashpos-1);
-        if (isset ($languages[$prevlang])) {
+        if (isset ($GLOBALS['languages'][$prevlang])) {
             logger ("prevlang: ".$prevlang,4);
             $parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
         }

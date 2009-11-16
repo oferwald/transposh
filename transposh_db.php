@@ -41,291 +41,294 @@ define("DB_VERSION", "1.03");
 //Constant used as key in options database
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
 
+class transposh_database {
+    /** @property transposh_plugin $transposh father class */
+    private $transposh;
+//constructor of class, PHP4 compatible construction for backward compatibility
+    function transposh_database(&$transposh) {
+        $this->transposh = &$transposh;
+    }
 /*
  * Fetch translation from db or cache.
  * Returns An array that contains the translated string and it source.
  *   Will return NULL if no translation is available.
  */
-function fetch_translation($original, $lang) {
-    global $wpdb;
-    $translated = NULL;
-    logger("Enter " . __METHOD__ . ": $original", 4);
 
-    //The original is saved in db in its escaped form
-    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+    function fetch_translation($original, $lang) {
+        $translated = NULL;
+        logger("Enter " . __METHOD__ . ": $original", 4);
 
-    if(ENABLE_APC && function_exists('apc_fetch')) {
-        $cached = apc_fetch($original .'___'. $lang, $rc);
-        if($rc === TRUE) {
-            logger("Exit from cache " . __METHOD__ . ": $cached", 4);
-            return $cached;
-        }
-    }
+        //The original is saved in db in its escaped form
+        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
 
-    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
-    $query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' ";
-    $row = $wpdb->get_row($query);
-
-    if($row !== FALSE) {
-        $translated_text = stripslashes($row->translated);
-        $translated = array($translated_text, $row->source);
-
-        logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 3);
-    }
-
-    if(ENABLE_APC && function_exists('apc_store')) {
-    //If we don't have translation still we want to have it in cache
-        $cache_entry = $translated;
-        if($cache_entry == NULL) {
-            $cache_entry = "";
+        if(ENABLE_APC && function_exists('apc_fetch')) {
+            $cached = apc_fetch($original .'___'. $lang, $rc);
+            if($rc === TRUE) {
+                logger("Exit from cache " . __METHOD__ . ": $cached", 4);
+                return $cached;
+            }
         }
 
-        //update cache
-        $rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
-        if($rc === TRUE) {
-            logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
-        }
-    }
+        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
+        $query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' ";
+        $row = $GLOBALS['wpdb']->get_row($query);
 
-    logger("Exit " . __METHOD__ . ": $translated", 4);
-    return $translated;
-}
+        if($row !== FALSE) {
+            $translated_text = stripslashes($row->translated);
+            $translated = array($translated_text, $row->source);
+
+            logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 3);
+        }
+
+        if(ENABLE_APC && function_exists('apc_store')) {
+            //If we don't have translation still we want to have it in cache
+            $cache_entry = $translated;
+            if($cache_entry == NULL) {
+                $cache_entry = "";
+            }
+
+            //update cache
+            $rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
+            if($rc === TRUE) {
+                logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
+            }
+        }
+
+        logger("Exit " . __METHOD__ . ": $translated", 4);
+        return $translated;
+    }
 
 /*
  * A new translation has been posted, update the translation database.
  * This has changed since we now accept multiple translations at once
  */
-function update_translation() {
-    global $wpdb;
+    function update_translation() {
 
-    $ref=getenv('HTTP_REFERER');
-    $items = $_POST['items'];
-    $lang = $_POST['lang'];
-    $source = $_POST['source'];
-    // check params
-    logger("Enter " . __FILE__ . " Params: $items, $lang, $ref", 53);
-    if(!isset($items) || !isset($lang)) {
-        logger("Enter " . __FILE__ . " missing Params: $items, $lang, $ref", 1);
-        return;
-    }
+        $ref=getenv('HTTP_REFERER');
+        $items = $_POST['items'];
+        $lang = $_POST['lang'];
+        $source = $_POST['source'];
+        // check params
+        logger("Enter " . __FILE__ . " Params: $items, $lang, $ref", 53);
+        if(!isset($items) || !isset($lang)) {
+            logger("Enter " . __FILE__ . " missing Params: $items, $lang, $ref", 1);
+            return;
+        }
 
-    //Check permissions, first the lanugage must be on the edit list. Then either the user
-    //is a translator or automatic translation if it is enabled.
-    if(!(is_editable_lang($lang) &&
-        (is_translator() || ($source == 1 && get_option(ENABLE_AUTO_TRANSLATE, 1))))) {
-        logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
-        header("HTTP/1.0 401 Unauthorized translation");
+        //Check permissions, first the lanugage must be on the edit list. Then either the user
+        //is a translator or automatic translation if it is enabled.
+        if(!($this->transposh->options->is_editable_language($lang) &&
+            ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
+            logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+            header("HTTP/1.0 401 Unauthorized translation");
+            exit;
+        }
+
+        //add our own custom header - so we will know that we got here
+        header("Transposh: v-".TRANSPOSH_PLUGIN_VER." db_version-". DB_VERSION);
+
+        // transaction log stuff
+        global $user_ID;
+        get_currentuserinfo();
+
+        // log either the user ID or his IP
+        if ('' == $user_ID) {
+            $loguser = $_SERVER['REMOTE_ADDR'];
+        }
+        else {
+            $loguser = $user_ID;
+        }
+        // end tl
+
+        // We are now passing all posted items
+        for ($i=0;$i<$items;$i++) {
+            $original =  base64_url_decode($_POST["tk$i"]);
+            $translation = $_POST["tr$i"];
+            //Decode & remove already escaped character to avoid double escaping
+            $translation = $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translation))));
+
+            //The original content is encoded as base64 before it is sent (i.e. token), after we
+            //decode it should just the same after it was parsed.
+            $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+            //Here we check we are not redoing stuff
+            list($translated_text, $old_source) = $this->fetch_translation($original, $lang);
+            if ($translated_text) {
+                if ($source == 1) {
+                    logger("Warning " . __METHOD__ . " auto-translation for already translated: $original", 0);
+                    return;
+                }
+                if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
+                    logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
+                    return;
+                }
+            }
+            // Setting the values string for the database (notice how concatanation is handled)
+            $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')".(($items != $i+1) ?', ':'');
+            // Setting the transaction log records
+            $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')".(($items != $i+1) ?', ':'');
+
+            // If we have caching - we remove previous entry from cache
+            if(ENABLE_APC && function_exists('apc_store')) {
+                apc_delete($original .'___'. $lang);
+            }
+        }
+
+        // perform insertion to the database, with one query :)
+        $update = "REPLACE INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
+                VALUES $values";
+        logger($update,4);
+
+        $result = $GLOBALS['wpdb']->query($update);
+
+        if($result !== FALSE) {
+            // update the transaction log too
+            $log = "INSERT INTO ".$GLOBALS['wpdb']->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
+                "VALUES $logvalues";
+            $result = $GLOBALS['wpdb']->query($log);
+
+            logger("Inserted to db '$values'" , 3);
+        }
+        else {
+            logger(mysql_error(),0);
+            logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
+            header("HTTP/1.0 404 Failed to update language database ".mysql_error());
+        }
+        // this is a termination for the ajax sequence
         exit;
     }
-
-    //add our own custom header - so we will know that we got here
-    header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
-
-    // transaction log stuff
-    global $user_ID;
-    get_currentuserinfo();
-
-    // log either the user ID or his IP
-    if ('' == $user_ID) {
-        $loguser = $_SERVER['REMOTE_ADDR'];
-    }
-    else {
-        $loguser = $user_ID;
-    }
-    // end tl
-
-    // We are now passing all posted items
-    for ($i=0;$i<$items;$i++) {
-        $original =  base64_url_decode($_POST["tk$i"]);
-        $translation = $_POST["tr$i"];
-        //Decode & remove already escaped character to avoid double escaping
-        $translation = $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translation))));
-
-        //The original content is encoded as base64 before it is sent (i.e. token), after we
-        //decode it should just the same after it was parsed.
-        $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-
-        //Here we check we are not redoing stuff
-        list($translated_text, $old_source) = fetch_translation($original, $lang);
-        if ($translated_text) {
-            if ($source == 1) {
-                logger("Warning " . __METHOD__ . " auto-translation for already translated: $original", 0);
-                return;
-            }
-            if ($translation == $wpdb->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
-                logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
-                return;
-            }
-        }
-        // Setting the values string for the database (notice how concatanation is handled)
-        $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')".(($items != $i+1) ?', ':'');
-        // Setting the transaction log records
-        $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')".(($items != $i+1) ?', ':'');
-
-        // If we have caching - we remove previous entry from cache
-        if(ENABLE_APC && function_exists('apc_store')) {
-            apc_delete($original .'___'. $lang);
-        }
-    }
-
-    // perform insertion to the database, with one query :)
-    $update = "REPLACE INTO ".$wpdb->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
-                VALUES $values";
-    logger($update,4);
-
-    $result = $wpdb->query($update);
-
-    if($result !== FALSE) {
-        // update the transaction log too
-        $log = "INSERT INTO ".$wpdb->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
-            "VALUES $logvalues";
-        $result = $wpdb->query($log);
-
-        logger("Inserted to db '$values'" , 3);
-    }
-    else {
-        logger(mysql_error(),0);
-        logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
-        header("HTTP/1.0 404 Failed to update language database ".mysql_error());
-    }
-    // this is a termination for the ajax sequence
-    exit;
-}
 
 /*
  * Get translation history for some translation.
  */
-function get_translation_history($token, $lang) {
-    global $wpdb;
+    function get_translation_history($token, $lang) {
 
-    $ref=getenv('HTTP_REFERER');
-    $original =  base64_url_decode($token);
-    logger ("Inside history for $original ($token)",4);
+        $ref=getenv('HTTP_REFERER');
+        $original =  base64_url_decode($token);
+        logger ("Inside history for $original ($token)",4);
 
-    // check params
-    logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
-    if(!isset($original) || !isset($lang)) {
-        logger("Enter " . __FILE__ . " missing params: $original, $lang," . $ref, 0);
-        return;
-    }
-    logger ("Passed check for $lang",4);
+        // check params
+        logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
+        if(!isset($original) || !isset($lang)) {
+            logger("Enter " . __FILE__ . " missing params: $original, $lang," . $ref, 0);
+            return;
+        }
+        logger ("Passed check for $lang",4);
 
-    //Check permissions, first the lanugage must be on the edit list. Then either the user
-    //is a translator or automatic translation if it is enabled.
-    if(!(is_editable_lang($lang) && is_translator())) {
-        logger("Unauthorized history request " . $_SERVER['REMOTE_ADDR'] , 1);
-        header("HTTP/1.0 401 Unauthorized history");
+        //Check permissions, first the lanugage must be on the edit list. Then either the user
+        //is a translator or automatic translation if it is enabled.
+        if(!($this->transposh->options->is_editable_language($lang) && $this->transposh->is_translator())) {
+            logger("Unauthorized history request " . $_SERVER['REMOTE_ADDR'] , 1);
+            header("HTTP/1.0 401 Unauthorized history");
+            exit;
+        }
+        logger ("Passed check for editable and translator",4);
+
+        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
+        logger ("table is $table_name",4);
+
+        //The original content is encoded as base64 before it is sent (i.e. token), after we
+        //decode it should just the same after it was parsed.
+        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+        //add  our own custom header - so we will know that we got here
+        header("Transposh: v-".TRANSPOSH_PLUGIN_VER." db_version-". DB_VERSION);
+
+        $query = "SELECT translated, translated_by, timestamp, source, user_login ".
+            "FROM $table_name ".
+            "LEFT JOIN {$GLOBALS['wpdb']->prefix}users ON translated_by = {$GLOBALS['wpdb']->prefix}users.id ".
+            "WHERE original='$original' AND lang='$lang' ".
+            "ORDER BY timestamp DESC";
+        logger ("query is $query");
+
+        $rows = $GLOBALS['wpdb']->get_results($query);
+        logger ($rows,4); // trying
+
+        if($rows !== FALSE) {
+            echo '<table>' .
+                '<thead>'.
+                '<tr>'.
+                '<th>Translated</th><th/><th>By</th><th>At</th>'.
+                '</tr>'.
+                '</thead>'.
+                '<tbody>';
+            foreach ($rows as $row) {
+                if (is_null($row->user_login)) $row->user_login = $row->translated_by;
+                echo "<tr><td>{$row->translated}</td><td source=\"{$row->source}\"/><td user_id=\"{$row->translated_by}\">{$row->user_login}</td><td>{$row->timestamp}</td></tr>";
+            }
+            echo '</tbody></table>';
+        }
+
         exit;
     }
-    logger ("Passed check for editable and translator",4);
-
-    $table_name = $wpdb->prefix . TRANSLATIONS_LOG;
-    logger ("table is $table_name",4);
-
-    //The original content is encoded as base64 before it is sent (i.e. token), after we
-    //decode it should just the same after it was parsed.
-    $original = $wpdb->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-
-    //add  our own custom header - so we will know that we got here
-    header("Transposh: ver-<%VERSION%> db_version-". DB_VERSION);
-
-    $query = "SELECT translated, translated_by, timestamp, source, user_login ".
-        "FROM $table_name ".
-        "LEFT JOIN {$wpdb->prefix}users ON translated_by = {$wpdb->prefix}users.id ".
-        "WHERE original='$original' AND lang='$lang' ".
-        "ORDER BY timestamp DESC";
-    logger ("query is $query");
-
-    $rows = $wpdb->get_results($query);
-    logger ($rows,4); // trying
-
-    if($rows !== FALSE) {
-        echo '<table>' .
-            '<thead>'.
-            '<tr>'.
-            '<th>Translated</th><th/><th>By</th><th>At</th>'.
-            '</tr>'.
-            '</thead>'.
-            '<tbody>';
-        foreach ($rows as $row) {
-            if (is_null($row->user_login)) $row->user_login = $row->translated_by;
-            echo "<tr><td>{$row->translated}</td><td source=\"{$row->source}\"/><td user_id=\"{$row->translated_by}\">{$row->user_login}</td><td>{$row->timestamp}</td></tr>";
-        }
-        echo '</tbody></table>';
-    }
-
-    exit;
-}
 
 /*
  * Setup the translation database.
  */
-function setup_db() {
-    logger("Enter " . __METHOD__  );
-    global $wpdb;
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    function setup_db() {
+        logger("Enter " . __METHOD__  );
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-    $installed_ver = get_option(TRANSPOSH_DB_VERSION);
+        $installed_ver = get_option(TRANSPOSH_DB_VERSION);
 
-    if( $installed_ver != DB_VERSION ) {
-        $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
+        if( $installed_ver != DB_VERSION ) {
+            $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
 
-        logger("Attempting to create table $table_name", 0);
-        $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
-            "lang CHAR(5) NOT NULL,".
-            "translated VARCHAR(255),".
-            "source TINYINT NOT NULL,".
-            "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+            logger("Attempting to create table $table_name", 0);
+            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
+                "lang CHAR(5) NOT NULL,".
+                "translated VARCHAR(255),".
+                "source TINYINT NOT NULL,".
+                "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
-        dbDelta($sql);
+            dbDelta($sql);
 
+            $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
 
-        $table_name = $wpdb->prefix . TRANSLATIONS_LOG;
+            logger("Attempting to create table $table_name", 0);
+            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
+                "lang CHAR(5) NOT NULL,".
+                "translated VARCHAR(255),".
+                "translated_by VARCHAR(15),".
+                "source TINYINT NOT NULL,".
+                "timestamp TIMESTAMP,".
+                "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
-        logger("Attempting to create table $table_name", 0);
-        $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
-            "lang CHAR(5) NOT NULL,".
-            "translated VARCHAR(255),".
-            "translated_by VARCHAR(15),".
-            "source TINYINT NOT NULL,".
-            "timestamp TIMESTAMP,".
-            "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+            dbDelta($sql);
+            update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
+        }
 
-        dbDelta($sql);
-        update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
+        logger("Exit " . __METHOD__  );
     }
 
-    logger("Exit " . __METHOD__  );
-}
+    function db_stats () {
+        echo "<h4>Database stats</h4>";
+        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
+        $log_table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
+        $query = "SELECT count(*) as count FROM `$table_name`";
+        $rows = $GLOBALS['wpdb']->get_results($query);
+        foreach ($rows as $row) {
+            if ($row->count)
+                echo "<p>Total of <strong style=\"color:red\">{$row->count}</strong> translated phrases.</p>";
+        }
 
-function db_stats () {
-    global $wpdb;
-    echo "<h4>Database stats</h4>";
-    $table_name = $wpdb->prefix . TRANSLATIONS_TABLE;
-    $log_table_name = $wpdb->prefix . TRANSLATIONS_LOG;
-    $query = "SELECT count(*) as count FROM `$table_name`";
-    $rows = $wpdb->get_results($query);
-    foreach ($rows as $row) {
-        if ($row->count)
-            echo "<p>Total of <strong style=\"color:red\">{$row->count}</strong> translated phrases.</p>";
-    }
+        $query = "SELECT count(*) as count,lang FROM `$table_name` WHERE source='0' GROUP BY `lang` ORDER BY `count` DESC LIMIT 3";
+        $rows = $GLOBALS['wpdb']->get_results($query);
+        foreach ($rows as $row) {
+            if ($row->count)
+                echo "<p><strong>{$row->lang}</strong> has <strong style=\"color:red\">{$row->count}</strong> human translated phrases.</p>";
+        }
 
-    $query = "SELECT count(*) as count,lang FROM `$table_name` WHERE source='0' GROUP BY `lang` ORDER BY `count` DESC LIMIT 3";
-    $rows = $wpdb->get_results($query);
-    foreach ($rows as $row) {
-        if ($row->count)
-            echo "<p><strong>{$row->lang}</strong> has <strong style=\"color:red\">{$row->count}</strong> human translated phrases.</p>";
-    }
-
-    echo "<h4>Recent activity</h4>";
-    $query = "SELECT * FROM `$log_table_name` WHERE source='0' ORDER BY `timestamp` DESC LIMIT 3";
-    $rows = $wpdb->get_results($query);
-    foreach ($rows as $row) {
-        $td = mysql2date(get_option('date_format').' '.get_option('time_format'), $row->timestamp);
-        //the_date();
-        echo "<p>On <strong>{$td}</strong><br/>user <strong>{$row->translated_by}</strong> translated<br/>".
-            "\"<strong>{$row->original}</strong>\"<br/>to ".
-            "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
+        echo "<h4>Recent activity</h4>";
+        $query = "SELECT * FROM `$log_table_name` WHERE source='0' ORDER BY `timestamp` DESC LIMIT 3";
+        $rows = $GLOBALS['wpdb']->get_results($query);
+        foreach ($rows as $row) {
+            $td = mysql2date(get_option('date_format').' '.get_option('time_format'), $row->timestamp);
+            //the_date();
+            echo "<p>On <strong>{$td}</strong><br/>user <strong>{$row->translated_by}</strong> translated<br/>".
+                "\"<strong>{$row->original}</strong>\"<br/>to ".
+                "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
+        }
     }
 }
 ?>
