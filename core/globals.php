@@ -25,22 +25,22 @@
  */
 
 //Home (root) url of the site/blog under which translation will take place. 
-$home_url;
+//$home_url;
 
 //The url pointing to the base of the plugin. Used for generating urls to resources
-$tr_plugin_url;
+//$tr_plugin_url;
 
 //The language to which the current page will be translated to.
-$lang;
+//$lang;
 
 //Is the current user is in edit mode.
-$is_edit_mode = FALSE;
+//$is_edit_mode = FALSE;
 
 //Indicates whether automatic translation (i.e. google) is enabled for this page
-$enable_auto_translate = FALSE;
+//$enable_auto_translate = FALSE;
 
 //Indicates whether to use parameters when rewriting url as oppposed to using permalinks format
 // http://wordpress?lang=he vs. http://wordpress/he/ when flag is set to TRUE
-$enable_permalinks_rewrite = FALSE;
+//$enable_permalinks_rewrite = FALSE;
 
 ?>

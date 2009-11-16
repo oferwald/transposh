@@ -91,46 +91,15 @@ $rtl_languages =  array("ar", "he", "fa", "yi");
 //Define the new capability that will be assigned to roles - translator
 define("TRANSLATOR", 'translator');
 
-//Option defining whether anonymous translation is allowed.
-define("ANONYMOUS_TRANSLATION", "transposh_allow_anonymous_translation");
-
-//Option defining the list of currentlly viewable languages
-define("VIEWABLE_LANGS", "transposh_viewable_languages");
-
-//Option defining the list of currentlly editable languages
-define("EDITABLE_LANGS", "transposh_editable_languages");
-
-//Option to enable/disable auto translation
-define("ENABLE_AUTO_TRANSLATE", "transposh_enable_autotranslate");
-
-//Option to enable/disable msn translation
-define("ENABLE_MSN_TRANSLATE", "transposh_enable_msntranslate");
-
-//Option to store the msn API key
-define("MSN_TRANSLATE_KEY", "transposh_msn_key");
-
-//Option to enable/disable rewrite of permalinks
-define("ENABLE_PERMALINKS_REWRITE", "transposh_enable_permalinks");
-
-//Option to enable/disable default language translation
-define("ENABLE_DEFAULT_TRANSLATE", "transposh_enable_default_translate");
-
-//Option to enable/disable footer scripts (2.8 and up)
-define("ENABLE_FOOTER_SCRIPTS", "transposh_enable_footer_scripts");
-
-//Use CSS sprites for flags if available
-define("ENABLE_CSS_FLAGS", "transposh_enable_css_flags");
-
-//Option defining the default language
-define("DEFAULT_LANG", "transposh_default_language");
-
-//Option defining transposh widget appearance
-define("WIDGET_TRANSPOSH", "transposh_widget");
+define("TRANSPOSH_PLUGIN_VER",'<%VERSION%>');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define("SPAN_PREFIX", "tr_");
 
 //The name of our admin page
 define('TRANSPOSH_ADMIN_PAGE_NAME', 'transposh');
+
+//0.3.5 - Storing all options in this config option
+define("TRANSPOSH_OPTIONS", "transposh_options");
 
 ?>
