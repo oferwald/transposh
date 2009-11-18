@@ -64,7 +64,7 @@ class transposh_plugin_admin {
  * Handle newly posted admin options.
  */
     function update_admin_options() {
-        logger('Enter", 1);
+        logger('Enter', 1);
         logger($_POST);
         $viewable_langs = array();
         $editable_langs = array();
