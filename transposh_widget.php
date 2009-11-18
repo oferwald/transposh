@@ -44,7 +44,7 @@ class transposh_plugin_widget {
  */
     function init_transposh() {
         if (isset ($_POST['transposh_widget_posted'])) {
-            logger("Enter " . __METHOD__, 4);
+            logger("Enter", 4);
             // FIX! yes, this is needed (not with peiorty!
             //transposh_plugin::init_global_vars();
             //$this->transposh->init_global_vars();
@@ -77,7 +77,7 @@ class transposh_plugin_widget {
  * Register the widget.
  */
     function transposh_widget_init() {
-        logger("Enter " . __METHOD__, 4);
+        logger("Enter", 4);
         if (!function_exists('register_sidebar_widget')) {
             return;
         }
@@ -113,7 +113,7 @@ class transposh_plugin_widget {
  * The actual widget implementation.
  */
     function transposh_widget($args) {
-        logger("Enter " . __METHOD__, 4);
+        logger("Enter", 4);
         extract($args);
 
         $page_url = $_SERVER["REQUEST_URI"];
@@ -122,8 +122,8 @@ class transposh_plugin_widget {
         //$options = get_option(WIDGET_TRANSPOSH);
         $viewable_langs = $this->transposh->options->get_viewable_langs();
         $editable_langs = $this->transposh->options->get_editable_langs();
-        logger (__LINE__."$viewable_langs");
-        logger (__LINE__."$editable_langs");
+        logger ("$viewable_langs",4);
+        logger ("$editable_langs",4);
         $is_translator = $this->transposh->is_translator();
 
         $is_showing_languages = FALSE;
@@ -214,7 +214,7 @@ class transposh_plugin_widget {
 
     function transposh_widget_post($save = true) {
         logger ($_POST);
-        logger (__LINE__.': handled widget post');
+        logger ('handled widget post');
         $this->transposh->options->set_widget_style($_POST[WIDGET_STYLE]);
         $this->transposh->options->set_widget_progressbar($_POST[WIDGET_PROGRESSBAR]);
         $this->transposh->options->set_widget_css_flags($_POST[WIDGET_CSS_FLAGS]);
