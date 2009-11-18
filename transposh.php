@@ -38,6 +38,7 @@ require_once("transposh_db.php");
 require_once("transposh_widget.php");
 require_once("transposh_admin.php");
 require_once("transposh_options.php");
+require_once("transposh_postpublish.php");
 
 /**
  * This class represents the complete plugin
@@ -52,6 +53,8 @@ class transposh_plugin {
     public $widget;
     /** @property transposh_database $database the database class*/
     public $database;
+
+    public $postpublish;
 
     // list of properties
     /** @var string $home_url the site url*/
@@ -77,6 +80,7 @@ class transposh_plugin {
         $this->database = new transposh_database($this);
         $this->admin =  new transposh_plugin_admin($this);
         $this->widget = new transposh_plugin_widget($this);
+        $this->postpublish = new transposh_postpublish($this);
 
         // "global" vars
         $this->home_url = get_option('home');
@@ -89,7 +93,7 @@ class transposh_plugin {
         // TODO - test on more platforms - this failed in 2.7.1 so I am reverting for now...
         //$tr_plugin_url= plugins_url('', __FILE__);
 
-        logger(__LINE__.": ".__METHOD__ .": Object created". $_SERVER['REQUEST_URI'], 3);
+        logger("Object created". $_SERVER['REQUEST_URI'], 3);
 
         //Register some functions into wordpress
         logger (preg_replace( '|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__ ),4); // includes transposh dir and php
@@ -119,7 +123,7 @@ class transposh_plugin {
         if(stripos($_SERVER['REQUEST_URI'],'/wp-login.php') !== FALSE ||
             stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE ||
             stripos($_SERVER['REQUEST_URI'],'/xmlrpc.php') !== FALSE) {
-            logger(__LINE__.": ".__METHOD__ .": Skipping translation for admin pages", 3);
+            logger("Skipping translation for admin pages", 3);
             return $buffer;
         }
 
@@ -129,11 +133,11 @@ class transposh_plugin {
             return $buffer;
         // Don't translate the default language unless specifically allowed to...
         if($this->options->is_default_language($this->target_language) && !$this->options->get_enable_default_translate()) {
-            logger(__LINE__.": ".__METHOD__ .": Skipping translation for default language {$this->target_language}", 3);
+            logger("Skipping translation for default language {$this->target_language}", 3);
             return $buffer;
         }
 
-        logger(__LINE__.": ".__METHOD__ .": Translating " . $_SERVER['REQUEST_URI'] . " to: {$this->target_language}", 1);
+        logger("Translating " . $_SERVER['REQUEST_URI'] . " to: {$this->target_language}", 1);
 
         //translate the entire page
         $parse = new parser();
@@ -153,7 +157,7 @@ class transposh_plugin {
         $buffer = $parse->fix_html($buffer);
 
         $end_time = microtime(TRUE);
-        logger(__LINE__.": ".__METHOD__ .": Translation completed in " . ($end_time - $start_time) . " seconds", 1);
+        logger("Translation completed in " . ($end_time - $start_time) . " seconds", 1);
 
         return $buffer;
     }
@@ -163,12 +167,12 @@ class transposh_plugin {
      * Once processing is completed the buffer will go into the translation process.
      */
     function on_init() {
-        logger(__LINE__.": ".__METHOD__ .": " . $_SERVER['REQUEST_URI'], 4);
+        logger($_SERVER['REQUEST_URI'], 4);
 
         // the wp_rewrite is not available earlier so we can only set the enable_permalinks here
         if (is_object($GLOBALS['wp_rewrite']))
             if($GLOBALS['wp_rewrite']->using_permalinks() && $this->options->get_enable_permalinks()) {
-                logger (__LINE__.": ".__METHOD__ .": enabling permalinks");
+                logger ("enabling permalinks");
                 $this->enable_permalinks_rewrite = TRUE;
             }
 //        logger("home_url: {$this->home_url}\n, local_dir: $local_dir tr_plugin_url: $this->transposh_plugin_url ".WP_PLUGIN_URL,3);
@@ -234,10 +238,10 @@ class transposh_plugin {
             $newRules[$key] = $value;
             $newRules[$original_key] = $original_value;
 
-            logger(__LINE__.": ".__METHOD__ .": \t" . $original_key . "  --->  " . $original_value,4);
+            logger(": \t{$original_key} ---> {$original_value}",4);
         }
 
-        logger(__LINE__.": ".__METHOD__ .": Exit update_rewrite_rules");
+        logger("Exit update_rewrite_rules");
         return $newRules;
     }
 
@@ -264,7 +268,7 @@ class transposh_plugin {
         $this->target_language = $wp->query_vars[LANG_PARAM];
         if (!$this->target_language)
             $this->target_language = $this->options->get_default_language();
-        logger (__LINE__.": ".__METHOD__ .": requested language: ".$this->target_language);
+        logger ("requested language: ".$this->target_language);
         if (isset($wp->query_vars[EDIT_PARAM]) && $wp->query_vars[EDIT_PARAM] && $this->is_editing_permitted()) {
             $this->edit_mode = true;
         }
@@ -274,7 +278,7 @@ class transposh_plugin {
         // We are removing our query vars since they are no longer needed and also make issues when a user select a static page as his home
         unset ($wp->query_vars[LANG_PARAM]);
         unset ($wp->query_vars[EDIT_PARAM]);
-        logger (__LINE__.": ".__METHOD__ .":  edit mode: ".$this->edit_mode);
+        logger ("edit mode: ".$this->edit_mode);
     }
 
     // TODO ? move to options?
@@ -297,16 +301,16 @@ class transposh_plugin {
      * Plugin activation
      */
     function plugin_activate() {
-        logger(__LINE__.": ".__METHOD__ .": plugin_activate enter: " . dirname(__FILE__));
+        logger("plugin_activate enter: " . dirname(__FILE__));
 
         $this->database->setup_db();
         // is it needed? the filter is already there? // TODO
         add_filter('rewrite_rules_array', array(&$this,'update_rewrite_rules'));
         $GLOBALS['wp_rewrite']->flush_rules();
 
-        logger(__LINE__.": ".__METHOD__ .": plugin_activate exit: " . dirname(__FILE__));
-        logger(__LINE__.": ".__METHOD__ .": testing name:".plugin_basename(__FILE__));
-        logger(__LINE__.": ".__METHOD__ .": testing name2:".get_plugin_name());
+        logger("plugin_activate exit: " . dirname(__FILE__));
+        logger("testing name:".plugin_basename(__FILE__));
+        logger("testing name2:".get_plugin_name());
         //activate_plugin($plugin);
     }
 
@@ -314,20 +318,20 @@ class transposh_plugin {
      * Plugin deactivation
      */
     function plugin_deactivate() {
-        logger(__LINE__.": ".__METHOD__ .": plugin_deactivate enter: " . dirname(__FILE__));
+        logger("plugin_deactivate enter: " . dirname(__FILE__));
 
         // is it needed? the filter is already there? // TODO
         add_filter('rewrite_rules_array', array(&$this,'update_rewrite_rules'));
         $GLOBALS['wp_rewrite']->flush_rules();
 
-        logger(__LINE__.": ".__METHOD__ .": plugin_deactivate exit: " . dirname(__FILE__));
+        logger("plugin_deactivate exit: " . dirname(__FILE__));
     }
 
     /**
      * Callback from admin_notices - display error message to the admin.
      */
     function plugin_install_error() {
-        logger(__LINE__.": ".__METHOD__, 0);
+        logger("install error!", 0);
 
         echo '<div class="updated"><p>';
         echo 'Error has occured in the installation process of the translation plugin: <br>';
@@ -350,7 +354,7 @@ class transposh_plugin {
      * TODO - needs revisiting!
      */
     function plugin_loaded() {
-        logger("Enter " . __METHOD__, 4);
+        logger("Enter", 4);
 
         //TODO: fix this...
         $db_version = get_option(TRANSPOSH_DB_VERSION);
@@ -470,7 +474,7 @@ class transposh_plugin {
      * @return TRUE if automatic translation allowed otherwise FALSE
      */
     function is_auto_translate_permitted() {
-        logger(__LINE__.": ".__METHOD__ .": checking auto translatability",4);
+        logger("checking auto translatability",4);
 
         if(!$this->options->get_enable_auto_translate()) return FALSE;
 
@@ -485,7 +489,7 @@ class transposh_plugin {
      */
     function rewrite_url($href) {
         $use_params = FALSE;
-        logger (__LINE__.": ".__METHOD__ .": got: $href",5);
+        logger ("got: $href",5);
 
         // Ignore urls not from this site
         if(stripos($href, $this->home_url) === FALSE) {
@@ -503,7 +507,7 @@ class transposh_plugin {
         $use_params = !$this->enable_permalinks_rewrite;
 
         $href = rewrite_url_lang_param($href,$this->home_url,$this->enable_permalinks_rewrite, $this->target_language, $this->edit_mode, $use_params);
-        logger (__LINE__.": ".__METHOD__ .": rewritten: $href",4);
+        logger ("rewritten: $href",4);
         return $href;
     }
 

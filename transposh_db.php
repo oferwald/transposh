@@ -56,7 +56,7 @@ class transposh_database {
 
     function fetch_translation($original, $lang) {
         $translated = NULL;
-        logger("Enter " . __METHOD__ . ": $original", 4);
+        logger("Enter: $original", 4);
 
         //The original is saved in db in its escaped form
         $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
@@ -64,7 +64,7 @@ class transposh_database {
         if(ENABLE_APC && function_exists('apc_fetch')) {
             $cached = apc_fetch($original .'___'. $lang, $rc);
             if($rc === TRUE) {
-                logger("Exit from cache " . __METHOD__ . ": $cached", 4);
+                logger("Exit from cache: $cached", 4);
                 return $cached;
             }
         }
@@ -94,7 +94,7 @@ class transposh_database {
             }
         }
 
-        logger("Exit " . __METHOD__ . ": $translated", 4);
+        logger("Exit: $translated", 4);
         return $translated;
     }
 
@@ -155,11 +155,11 @@ class transposh_database {
             list($translated_text, $old_source) = $this->fetch_translation($original, $lang);
             if ($translated_text) {
                 if ($source == 1) {
-                    logger("Warning " . __METHOD__ . " auto-translation for already translated: $original", 0);
+                    logger("Warning auto-translation for already translated: $original", 0);
                     return;
                 }
                 if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
-                    logger("Warning " . __METHOD__ . " attempt to retranslate with same text: $original, $translation", 0);
+                    logger("Warning attempt to retranslate with same text: $original, $translation", 0);
                     return;
                 }
             }
@@ -266,7 +266,7 @@ class transposh_database {
  * Setup the translation database.
  */
     function setup_db() {
-        logger("Enter " . __METHOD__  );
+        logger("Enter");
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
         $installed_ver = get_option(TRANSPOSH_DB_VERSION);
@@ -298,7 +298,7 @@ class transposh_database {
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
         }
 
-        logger("Exit " . __METHOD__  );
+        logger("Exit" );
     }
 
     function db_stats () {

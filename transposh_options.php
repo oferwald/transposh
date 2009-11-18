@@ -134,7 +134,6 @@ class transposh_plugin_options {
     }
 
     function get_viewable_langs() {
-        // logger (__LINE__.": vlangs :".$this->options[VIEWABLE_LANGS].VIEWABLE_LANGS);
         return $this->options[VIEWABLE_LANGS];
     }
 
@@ -147,11 +146,10 @@ class transposh_plugin_options {
     }
 
     function get_widget_style() {
-        //logger ("widgetstyle".$this->options[WIDGET_TRANSPOSH][WIDGET_STYLE]);
         return $this->options[WIDGET_STYLE];
     }
 
-    function get_widget_css_flags() { // FIX!
+    function get_widget_css_flags() { 
         return $this->options[WIDGET_CSS_FLAGS];
     }
 
@@ -274,7 +272,7 @@ class transposh_plugin_options {
             update_option(TRANSPOSH_OPTIONS, $this->options);
         }
         else {
-            logger (__METHOD__." no changes and no updates done");
+            logger ("no changes and no updates done");
         }
         $this->changed = false;
     }

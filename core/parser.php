@@ -476,7 +476,7 @@ class parser {
             }
             if ($newtext) {
                 $e->content = $newtext.$right;
-                logger ("content-phrase: $newtext",3);
+                logger ("content-phrase: $newtext",4);
             }
 
         }

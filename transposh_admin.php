@@ -64,7 +64,7 @@ class transposh_plugin_admin {
  * Handle newly posted admin options.
  */
     function update_admin_options() {
-        logger('Entry ' . __METHOD__, 1);
+        logger('Enter", 1);
         logger($_POST);
         $viewable_langs = array();
         $editable_langs = array();
@@ -436,16 +436,7 @@ class transposh_plugin_admin {
         }
 
 /*        echo '<h4>Show original language first</h4>';
-        insert_css_flags_option();
 */
-        echo '<h4>Use css flags</h4>';
-/*
- * Insert the option to enable/disable css flags.
- */
-// was function insert_css_flags_option() {
-        //echo '<input type="checkbox" value="1" name="'.ENABLE_CSS_FLAGS.'" '. $this->checked ($this->transposh->options->get_widget_css_flags()) . '/> '.
-//            'Use a single sprite with all flags, makes pages load faster. Currently not suitable if you made changes to the flags.';
-
         /*foreach($languages as $code => $lang) {
             list ($language,$flag,$autot) = explode (",",$lang);
             $flags .= $flag.',';
