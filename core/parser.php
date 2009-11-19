@@ -26,7 +26,9 @@ class parser {
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
     private $segment_id = 0;
+    /** @var simple_html_dom_node contains the current node */
     private $currentnode;
+    /** @var simple_html_dom contains the document dom model */
     private $html; // the document
     public $dir_rtl;
     public $lang;
@@ -39,8 +41,8 @@ class parser {
 
     /**
      * Determine if the current position in buffer is a white space.
-     * @param $char
-     * @return bool true if current position marks a white space
+     * @param char $char
+     * @return boolean true if current position marks a white space
      */
     function is_white_space($char) {
         if (!$char) return TRUE;
@@ -50,7 +52,7 @@ class parser {
     /**
      * Determine if the current position in page points to a character in the
      * range of a-z (case insensetive).
-     * @return bool true if a-z
+     * @return boolean true if a-z
      */
     function is_a_to_z_character($char) {
         return (($char >= 'a' && $char <= 'z') || ($char >= 'A' && $char <= 'Z')) ? true : false;
@@ -58,7 +60,7 @@ class parser {
 
     /**
      * Determine if the current position is a digit.
-     * @return bool true if a digit
+     * @return boolean true if a digit
      */
     function is_digit($char) {
         return (($char >= '0' && $char <= '9')) ? true : false;
@@ -66,8 +68,8 @@ class parser {
 
     /**
      * Determine if the current position is an html entity - such as &amp; or &#8220;.
-     * @param $string string to evalute
-     * @param $position where to check for entities
+     * @param string $string string to evalute
+     * @param int $position where to check for entities
      * @return int length of entity
      */
     function is_html_entity($string, $position) {
@@ -84,8 +86,8 @@ class parser {
      * such as Jack`s apple.
      * `uncatagorized` will break on the later entity
      * Added " quotes to this claim, as it is used in some languages in a similar fashion
-     * @param $entity - html entity to check
-     * @return - true if not a breaker (apostrophy)
+     * @param string $entity - html entity to check
+     * @return boolean true if not a breaker (apostrophy)
      */
     function is_entity_breaker($entity) {
         return !(stripos('&#8217;&apos;&quot;&#039;&#39;', $entity) !== FALSE);
@@ -174,8 +176,8 @@ class parser {
     /**
      * Determine if the current position in buffer is a sentence breaker, e.g. '.' or ',' .
      * Note html markups are not considered sentence breaker within the scope of this function.
-     * @param $char charcter checked if breaker
-     * @param $nextchar needed for checking if . or - breaks
+     * @param char $char charcter checked if breaker
+     * @param char $nextchar needed for checking if . or - breaks
      * @return int length of breaker if current position marks a break in sentence
      */
     function is_sentence_breaker($char, $nextchar, $nextnextchar) {
@@ -187,7 +189,7 @@ class parser {
 
     /**
      * Determines if the current position marks the begining of a number, e.g. 123 050-391212232
-     * @return length of number.
+     * @return int length of number.
      */
     function is_number($page, $position) {
         return strspn($page,'0123456789-+,.\\/',$position);
@@ -224,7 +226,7 @@ class parser {
         $start = $pos;
 
         while($pos < strlen($string)) {
-        // Some HTML entities make us break, almost all but apostrophies
+            // Some HTML entities make us break, almost all but apostrophies
             if($len_of_entity = $this->is_html_entity($string,$pos)) {
                 $entity = substr($string,$pos,$len_of_entity);
                 if(($this->is_white_space($string[$pos+$len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
@@ -263,7 +265,7 @@ class parser {
     /**
      * This recursive function works on the $html dom and adds phrase nodes to translate as needed
      * it currently also rewrites urls, and should consider if this is smart
-     * @param <type> $node
+     * @param simple_html_dom_node $node
      */
     function translate_tagging($node, $level = 0) {
         $this->currentnode = $node;
@@ -272,10 +274,10 @@ class parser {
 
         if (!($this->inselect && $level > $this->inselect))
             $this->inselect = false;
-            
+
         if (isset($this->ignore_tags[$node->tag])) return;
         if ($node->tag == 'text') {
-        // this prevents translation of a link that just surrounds its address
+            // this prevents translation of a link that just surrounds its address
             if ($node->parent->tag == 'a' && $node->parent->href == $node->outertext) {
                 return;
             }
@@ -324,8 +326,8 @@ class parser {
      * @return string
      */
     function create_edit_span ($original_text , $translated_text, $source, $for_hidden_element = false) {
-    // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
-    // get back exactlly the same string without having the client decode/encode it in anyway.
+        // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
+        // get back exactlly the same string without having the client decode/encode it in anyway.
         $span = '<span class ="'.SPAN_PREFIX.'" id="'.SPAN_PREFIX.$this->segment_id.'" token="' . base64_url_encode($original_text)."\" source=\"$source\"";
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
@@ -345,11 +347,11 @@ class parser {
 
     /**
      * Main function - actually translates a given HTML
-     * @param string $string
+     * @param string $string containing HTML
      * @return string Translated content is here
      */
     function fix_html($string) {
-    // create our dom
+        // create our dom
         $this->html = str_get_html($string);
         // mark translateable elements
         $this->translate_tagging($this->html->root);
@@ -378,13 +380,13 @@ class parser {
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody*/) {
                     $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
                     $spanend = "</span>";
-                    if ($ep->inselect || !$ep->inbody)  {
+                    if ($ep->inselect || !$ep->inbody) {
                         $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source,true).$spanend;
                         $span = '';
                         $spanend = '';
                     }
                     else
-                      if ($translated_text == null) $translated_text = $ep->phrase;
+                    if ($translated_text == null) $translated_text = $ep->phrase;
                 } else {
                     $span = '';
                     $spanend = '';
@@ -428,9 +430,9 @@ class parser {
                 if ($ep->tag == 'phrase') {
                     list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
                     if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
-                    // prevent duplicate translation (title = text)
+                        // prevent duplicate translation (title = text)
                         if (strpos($e->innertext,base64_url_encode($ep->phrase)) === false) {
-                        //no need to translate span the same hidden phrase more than once
+                            //no need to translate span the same hidden phrase more than once
                             if (!in_array($ep->phrase, $hidden_phrases)) {
                                 $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true)."</span>";
                                 //    logger ($span);
@@ -484,6 +486,25 @@ class parser {
         // Changed because of places where tostring failed
         //return $this->html;
         return $this->html->outertext;
+    }
+
+    /**
+     * This functions returns a list of phrases from a given HTML string
+     * @param string $string Html with phrases to extract
+     * @return array List of phrases
+     * @since 0.3.5
+     */
+    function get_phrases_list($string) {
+        // create our dom
+        $this->html = str_get_html($string);
+        // mark translateable elements
+        $this->translate_tagging($this->html->root);
+        foreach ($this->html->nodes as $ep) {
+            if ($ep->tag == 'phrase') {
+                $result[$ep->phrase] = $ep->phrase;
+            }
+        }
+        return $result;
     }
 }
 ?>
