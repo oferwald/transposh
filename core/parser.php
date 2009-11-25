@@ -491,10 +491,11 @@ class parser {
     /**
      * This functions returns a list of phrases from a given HTML string
      * @param string $string Html with phrases to extract
-     * @return array List of phrases
+     * @return array List of phrases (or an empty one)
      * @since 0.3.5
      */
     function get_phrases_list($string) {
+        $result = array();
         // create our dom
         $this->html = str_get_html($string);
         // mark translateable elements
