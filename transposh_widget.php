@@ -109,12 +109,14 @@ class transposh_plugin_widget {
         logger("Added transposh_widget_css", 4);
     }
 
-/*
- * The actual widget implementation.
- */
+    /**
+     * Creates the widget html
+     * @param array $args Contains such as $before_widget, $after_widget, $before_title, $after_title, etc
+     */
     function transposh_widget($args) {
-        logger("Enter", 4);
+        logger("Enter widget", 4);
         extract($args);
+        logger($args,4);
 
         $page_url = $_SERVER["REQUEST_URI"];
         logger ("p3:".$page_url, 6);
@@ -246,5 +248,13 @@ class transposh_plugin_widget {
             '</p>'.
             '<input type="hidden" name="transposh-submit" id="transposh-submit" value="1"/>';
     }
+}
+
+/**
+ * Function provided for old widget include code compatability
+ * @param array $args Not needed
+ */
+function transposh_widget($args = array()) {
+    $my_transposh_plugin->widget->transposh_widget($args);
 }
 ?>

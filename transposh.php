@@ -45,30 +45,31 @@ require_once("transposh_postpublish.php");
  */
 class transposh_plugin {
     // List of contained objects
-    /** @property transposh_plugin_options $options an options object*/
+    /** @var transposh_plugin_options An options object*/
     public $options;
-    /** @property transposh_plugin_admin $admin admin page*/
+    /** @var transposh_plugin_admin Admin page*/
     private $admin;
-    /** @property transposh_plugin_widget $widget a widget control*/
+    /** @var transposh_plugin_widget Widget control*/
     public $widget;
-    /** @property transposh_database $database the database class*/
+    /** @var transposh_database The database class*/
     public $database;
-
+    /** @var transposh_postpublish Happens after editing*/
     public $postpublish;
 
     // list of properties
-    /** @var string $home_url the site url*/
+    /** @var string The site url*/
     public $home_url;
-    /** @var string $transposh_plugin_url the url to the plugin directory*/
+    /** @var string Where the javascript should post to*/
+    public $post_url;
+    /** @var string The url to the plugin directory*/
     public $transposh_plugin_url;
-    /** @var boolean */
+    /** @var boolean Enable rewriting of URLs*/
     public $enable_permalinks_rewrite;
-    /** @var string $target_language the language to translate the page to*/
+    /** @var string The language to translate the page to*/
     public $target_language;
-    /** @var boolean $edit_mode are we currently editing the page?*/
+    /** @var boolean Are we currently editing the page?*/
     public $edit_mode;
-
-    //Error message displayed for the admin in case of failure
+    /** @var string Error message displayed for the admin in case of failure*/
     private $admin_msg;
 
     /**
@@ -84,6 +85,9 @@ class transposh_plugin {
 
         // "global" vars
         $this->home_url = get_option('home');
+        $this->post_url = $this->home_url;
+        if ($this->options->get_alternate_post() == 1) $this->post_url .= "/";
+        if ($this->options->get_alternate_post() == 2) $this->post_url .= "/index.php";
 
         // Handle windows ('C:\wordpress')
         $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
@@ -112,8 +116,8 @@ class transposh_plugin {
 
     /**
      * Called when the buffer containing the original page is flushed. Triggers the translation process.
-     * @param <type> $buffer
-     * @return <type>
+     * @param string $buffer Original page
+     * @return string Modified page buffer
      */
     function process_page(&$buffer) {
 
@@ -175,13 +179,23 @@ class transposh_plugin {
                 logger ("enabling permalinks");
                 $this->enable_permalinks_rewrite = TRUE;
             }
-//        logger("home_url: {$this->home_url}\n, local_dir: $local_dir tr_plugin_url: $this->transposh_plugin_url ".WP_PLUGIN_URL,3);
 
         if (isset($_POST['translation_posted'])) {
-            $this->database->update_translation();
+            if ($_POST['translation_posted'] == 2) {
+                $this->database->update_translation_new();
+            }
+            else {
+                $this->database->update_translation();
+            }
+            exit;
         }
         elseif (isset($_GET['tr_token_hist'])) {
             $this->database->get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
+            exit;
+        }
+        elseif (isset($_GET['tr_phrases_post'])) {
+            $this->postpublish->get_post_phrases($_GET['post']);
+            exit;
         }
         else {
             //set the callback for translating the page when it's done
@@ -198,8 +212,8 @@ class transposh_plugin {
 
     /**
      * Update the url rewrite rules to include language identifier
-     * @param <type> $rules
-     * @return <type>
+     * @param array $rules Old rewrite rules
+     * @return array New rewrite rules
      */
     function update_rewrite_rules($rules) {
         logger("Enter update_rewrite_rules");
@@ -247,8 +261,8 @@ class transposh_plugin {
 
     /**
      * Let WordPress know which parameters are of interest to us.
-     * @param <type> $vars
-     * @return <type>
+     * @param array $vars Original queried variables
+     * @return array Modified array
      */
     function parameter_queryvars($vars) {
         logger ("inside query vars",5);
@@ -260,7 +274,7 @@ class transposh_plugin {
 
     /**
      * Grabs and set the global language and edit params, they should be here
-     * @param <type> $wp - here we get the WP class
+     * @param WP $wp - here we get the WP class
      */
     function on_parse_request($wp) {
         logger ("on_parse_req");
@@ -284,7 +298,7 @@ class transposh_plugin {
     // TODO ? move to options?
     /**
      * Determine if the current user is allowed to translate.
-     * @return <type> TRUE if allowed to translate otherwise FALSE
+     * @return boolean Is allowed to translate?
      */
     function is_translator() {
         //if anonymous translation is allowed - let anyone enjoy it
@@ -382,7 +396,7 @@ class transposh_plugin {
      * Keep only the file name and its containing directory. Don't use the full
      * path as it will break when using symbollic links.
      * TODO - check!!!
-     * @return <type>
+     * @return string
      */
     function get_plugin_name() {
         $file = __FILE__;
@@ -397,7 +411,6 @@ class transposh_plugin {
 
     /**
      * Add custom css, i.e. transposh.css
-     * @return <type>
      */
     function add_transposh_css() {
         if(!$this->is_editing_permitted() && !$this->is_auto_translate_permitted()) {
@@ -412,7 +425,6 @@ class transposh_plugin {
 
     /**
      * Insert references to the javascript files used in the translated version of the page.
-     * @return <type>
      */
     function add_transposh_js() {
         //translation not allowed - no need for any js.
@@ -435,7 +447,7 @@ class transposh_plugin {
         }
 
         if($this->edit_mode || $this->is_auto_translate_permitted()) {
-            $post_url = $this->home_url;// . '/index.php'; pay attention here - might be damaging CHECK
+            //TODO - fix (onetime var)
             wp_deregister_script('jquery');
             wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
             // jQuery pushing below might cause issues
@@ -445,7 +457,7 @@ class transposh_plugin {
             if ($this->options->get_enable_msn_translate() && $this->edit_mode) {
                 wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=".$this->options->get_msn_key(),array(),'1',$this->options->get_enable_footer_scripts());
             }
-            wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js?post_url=$post_url{$edit_param}&lang={$this->target_language}&prefix=".SPAN_PREFIX,array("jquery"),TRANSPOSH_PLUGIN_VER,$this->options->get_enable_footer_scripts());
+            wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js?post_url={$this->post_url}{$edit_param}&lang={$this->target_language}&prefix=".SPAN_PREFIX,array("jquery"),TRANSPOSH_PLUGIN_VER,$this->options->get_enable_footer_scripts());
         }
     }
 
@@ -453,8 +465,7 @@ class transposh_plugin {
     /**
      * Determine if the currently selected language (taken from the query parameters) is in the admin's list
      * of editable languages and the current user is allowed to translate.
-     *
-     * @return TRUE if translation allowed otherwise FALSE
+     * @return boolean Is translation allowed?
      */
     // TODO????
     function is_editing_permitted() {
@@ -470,8 +481,7 @@ class transposh_plugin {
      * Determine if the currently selected language (taken from the query parameters) is in the admin's list
      * of editable languages and that automatic translation has been enabled.
      * Note that any user can auto translate. i.e. ignore permissions.
-     *
-     * @return TRUE if automatic translation allowed otherwise FALSE
+     * @return boolean Is automatic translation allowed?
      */
     function is_auto_translate_permitted() {
         logger("checking auto translatability",4);
@@ -480,12 +490,13 @@ class transposh_plugin {
 
         return $this->options->is_editable_language($this->target_language);
     }
+
     /**
      * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
      * Some urls should be modified only by adding parameters and should be identified by this
      * function.
-     * @param $href
-     * @return TRUE if parameters should be used instead of rewriting as a permalink
+     * @param $href Original href
+     * @return boolean Modified href
      */
     function rewrite_url($href) {
         $use_params = FALSE;
@@ -513,8 +524,8 @@ class transposh_plugin {
 
     /**
      * This function adds the word setting in the plugin list page
-     * @param <type> $links
-     * @return <type>
+     * @param array $links Links that appear next to the plugin
+     * @return array Now with settings
      */
     function plugin_action_links( $links ) {
         logger ("in plugin action");

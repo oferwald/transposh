@@ -50,23 +50,25 @@ define("VIEWABLE_LANGS", "viewable_languages");
 define("EDITABLE_LANGS", "editable_languages");
 //Option to enable/disable auto translation
 define("ENABLE_AUTO_TRANSLATE", "enable_autotranslate");
+//Option to enable/disable auto translation
+define("ENABLE_AUTO_POST_TRANSLATE", "enable_autoposttranslate");
 //Option to enable/disable msn translation
 define("ENABLE_MSN_TRANSLATE", "enable_msntranslate");
 //Option to store the msn API key
 define("MSN_TRANSLATE_KEY", "msn_key");
-//Option to enable/disable rewrite of permalinks
-define("ENABLE_PERMALINKS", "enable_permalinks");
 //Option to enable/disable default language translation
 define("ENABLE_DEFAULT_TRANSLATE", "enable_default_translate");
+//Option to enable/disable rewrite of permalinks
+define("ENABLE_PERMALINKS", "enable_permalinks");
 //Option to enable/disable footer scripts (2.8 and up)
 define("ENABLE_FOOTER_SCRIPTS", "enable_footer_scripts");
-//Use CSS sprites for flags if available
-//define("ENABLE_CSS_FLAGS", "enable_css_flags");
+//Option to enable/disable footer scripts (2.8 and up)
+define("ALTERNATE_POST", "alternate_post_method");
 //Option defining the default language
 define("DEFAULT_LANG", "default_language");
 //Option defining transposh widget appearance
-//define("WIDGET_TRANSPOSH", "widget");
 define("WIDGET_STYLE", "widget_style");
+//Option allowing progress bar display
 define("WIDGET_PROGRESSBAR", "widget_progressbar");
 //Use CSS sprites for flags if available
 define("WIDGET_CSS_FLAGS", "widget_css_flags");
@@ -74,7 +76,9 @@ define("WIDGET_CSS_FLAGS", "widget_css_flags");
 
 class transposh_plugin_options {
 //constructor of class, PHP4 compatible construction for backward compatibility
-    private $options = array(); // array storing all our options
+    /** @var array storing all our options */
+    private $options = array();
+    /** @var boolean set to true if any option was changed */
     private $changed = false;
 
     function transposh_plugin_options() {
@@ -82,7 +86,7 @@ class transposh_plugin_options {
         // load them here
         $this->options = get_option(TRANSPOSH_OPTIONS);
         $this->migrate_old_config();
-        logger($this->options);
+        logger($this->options,4);
     }
 
     private function old2new($key) {
@@ -93,7 +97,7 @@ class transposh_plugin_options {
     // TODO: remove this function in a few versions (fix css, db version..., css flag
     private function migrate_old_config() {
         logger ("in migration");
-        if (get_option(OLD_ENABLE_AUTO_TRANSLATE,666) != 666) {
+        if (get_option(OLD_ENABLE_AUTO_TRANSLATE,666) != 666 || get_option(OLD_WIDGET_TRANSPOSH,666) != 666) {
             logger ("old options exist - converting");
             $this->old2new(OLD_ANONYMOUS_TRANSLATION);
             $this->old2new(OLD_VIEWABLE_LANGS);
@@ -111,20 +115,17 @@ class transposh_plugin_options {
             update_option(TRANSPOSH_OPTIONS, $this->options);
         }
         //some options were moved
-         logger('1');
-         logger($this->options);
+        logger($this->options,4);
         if (isset($this->options['widget'])) {
             logger ('isset');
             $this->set_widget_style($this->options['widget']['style']);
             $this->get_widget_progressbar($this->options['widget']['progressbar']);
             unset($this->options['widget']);
-         logger('2');
             logger($this->options);
         }
         if (array_key_exists('enable_css_flags',$this->options)) {
-          $this->set_widget_css_flags($this->options['enable_css_flags']);
+            $this->set_widget_css_flags($this->options['enable_css_flags']);
             unset($this->options['enable_css_flags']);
-         logger('3');
             logger($this->options);
         }
     }
@@ -149,7 +150,7 @@ class transposh_plugin_options {
         return $this->options[WIDGET_STYLE];
     }
 
-    function get_widget_css_flags() { 
+    function get_widget_css_flags() {
         return $this->options[WIDGET_CSS_FLAGS];
     }
 
@@ -159,6 +160,10 @@ class transposh_plugin_options {
 
     function get_enable_footer_scripts() {
         return $this->options[ENABLE_FOOTER_SCRIPTS];
+    }
+
+    function get_alternate_post() {
+        return $this->options[ALTERNATE_POST];
     }
 
     function get_enable_msn_translate() {
@@ -174,15 +179,19 @@ class transposh_plugin_options {
         return $this->options[ENABLE_AUTO_TRANSLATE];
     }
 
+    function get_enable_auto_post_translate() {
+        return $this->options[ENABLE_AUTO_POST_TRANSLATE];
+    }
+
     function get_msn_key() {
         return $this->options[MSN_TRANSLATE_KEY];
     }
 
-/*
- * Gets the default language setting, i.e. the source language which
- * should not be translated.
- * Return the default language setting
- */
+    /**
+     * Gets the default language setting, i.e. the source language which
+     * should not be translated.
+     * @return string Default language
+     */
     function get_default_language() {
         $default = $this->options[DEFAULT_LANG];
         if(!$GLOBALS['languages'][$default]) {
@@ -191,12 +200,16 @@ class transposh_plugin_options {
         return $default;
     }
 
+    /**
+     * Sets a value at the options array
+     * @param mixed $val
+     * @param pointer $option Points to the option in the options array
+     */
     private function set_value($val, &$option) {
         if ($val != $option) {
             $option = $val;
             $this->changed = true;
         }
-
     }
 
     function set_anonymous_translation($val) {
@@ -231,6 +244,10 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[ENABLE_PERMALINKS]);
     }
 
+    function set_alternate_post($val) {
+        $this->set_value($val,$this->options[ALTERNATE_POST]);
+    }
+
     function set_enable_footer_scripts($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[ENABLE_FOOTER_SCRIPTS]);
@@ -251,15 +268,20 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[ENABLE_AUTO_TRANSLATE]);
     }
 
+    function set_enable_auto_post_translate($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_AUTO_POST_TRANSLATE]);
+    }
+
     function set_msn_key($val) {
         $this->set_value($val, $this->options[MSN_TRANSLATE_KEY]);
     }
 
-/*
- * Gets the default language setting, i.e. the source language which
- * should not be translated.
- * Return the default language setting
- */
+    /**
+     * Sets the default language setting, i.e. the source language which
+     * should not be translated.
+     * @param string $val Language set as default
+     */
     function set_default_language($val) {
         if(!$GLOBALS['languages'][$val]) {
             $val = "en";
@@ -267,6 +289,9 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[DEFAULT_LANG]);
     }
 
+    /**
+     * Updates options at the wordpress options table if there was a change
+     */
     function update_options() {
         if ($this->changed) {
             update_option(TRANSPOSH_OPTIONS, $this->options);
@@ -278,9 +303,9 @@ class transposh_plugin_options {
     }
 
     /**
-     * Determine if the given language code is currentlly the default language
-     * @param <type> $language
-     * @return <type>
+     * Determine if the given language code is the default language
+     * @param string $language
+     * @return boolean Is this the default language?
      */
     function is_default_language($language) {
         return ($this->get_default_language() == $language);
@@ -288,7 +313,7 @@ class transposh_plugin_options {
 
     /**
      * Determine if the given language in on the list of editable languages
-     * @return TRUE if editable othewise FALSE
+     * @return boolean Is this language editable?
      */
     function is_editable_language($language) {
         return (strpos($this->get_editable_langs(), $language) !== false);
@@ -296,7 +321,7 @@ class transposh_plugin_options {
 
     /**
      * Determine if the given language in on the list of viewable languages
-     * @return TRUE if editable othewise FALSE
+     * @return boolean Is this language viewable?
      */
     function is_viewable_language($language) {
         return (strpos($this->get_viewable_langs(), $language) !== false);
