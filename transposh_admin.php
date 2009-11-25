@@ -28,7 +28,7 @@ define ("TR_NONCE","transposh_nonce");
 require_once("core/logging.php");
 //class that reperesent the complete plugin
 class transposh_plugin_admin {
-    /** @property transposh_plugin $transposh father class */
+    /** @var transposh_plugin $transposh father class */
     private $transposh;
 //constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
@@ -106,8 +106,9 @@ class transposh_plugin_admin {
         }
 
         $this->transposh->options->set_enable_footer_scripts($_POST[ENABLE_FOOTER_SCRIPTS]);
-        $this->transposh->options->set_widget_css_flags($_POST[ENABLE_CSS_FLAGS]);
+        $this->transposh->options->set_alternate_post($_POST[ALTERNATE_POST]);
         $this->transposh->options->set_enable_auto_translate($_POST[ENABLE_AUTO_TRANSLATE]);
+        $this->transposh->options->set_enable_auto_post_translate($_POST[ENABLE_AUTO_POST_TRANSLATE]);
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
         $this->transposh->options->set_enable_msn_translate($_POST[ENABLE_MSN_TRANSLATE]);
         $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
@@ -268,7 +269,7 @@ class transposh_plugin_admin {
                         '<li><a href="%1$s" title="%2$s">%3$s</a></li>',
                         //esc_url( $item['link'] ),
                         //esc_attr( strip_tags( $item['description'] ) ),
-                        // Switched to 2.7 compatability functions
+                        // TODO - check Switched to 2.7 compatability functions
                         clean_url( $item['link'] ),
                         attribute_escape( strip_tags( $item['description'] ) ),
                         htmlentities( $item['title'],ENT_COMPAT,'UTF-8' )
@@ -363,11 +364,10 @@ class transposh_plugin_admin {
     }
 
     function on_contentbox_translation_content($data) {
+        /*
+         * Insert permissions section in the admin page
+         */
         echo '<h4>Who can translate ?</h4>';
-/*
- * Insert permissions section in the admin page
- */
-// was function insert_permissions() {
         //display known roles and their permission to translate
         foreach($GLOBALS['wp_roles']->get_names() as $role_name => $something) {
             echo '<input type="checkbox" value="1" name="'.$role_name.'" '.$this->can_translate($role_name).
@@ -376,73 +376,82 @@ class transposh_plugin_admin {
         //Add our own custom role
         echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" '.	$this->can_translate('anonymous') . '/> Anonymous';
 
-//        insert_permissions();
-
+        /*
+         * Insert the option to enable/disable automatic translation.
+         * Enabled by default.
+         */
         echo '<h4>Enable automatic translation</h4>';
-/*
- * Insert the option to enable/disable automatic translation.
- * Enabled by default.
- */
-// was function insert_auto_translate_option() {
         echo '<input type="checkbox" value="1" name="'.ENABLE_AUTO_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_auto_translate()).'/> '.
             'Allow automatic translation of pages (currently using Google Translate)';
 
+        /**
+         * Insert the option to enable/disable automatic translation upon publishing.
+         * Disabled by default.
+         *  @since 0.3.5 */
+        echo '<h4>New - Enable automatic translation after posting</h4>';
+        echo '<input type="checkbox" value="1" name="'.ENABLE_AUTO_POST_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_auto_post_translate()).'/> '.
+            'Do automatic translation immediately after a post has been published';
+
+        /*
+         * Insert the option to enable/disable msn translations.
+         * Disabled by default because an API key is needed.
+         */
         echo '<h4>Support for Bing (MSN) translation hinting (experimental)</h4>';
-/*
- * Insert the option to enable/disable msn translations.
- * Disabled by default because an API key is needed.
- */
-// was function insert_msn_translate_option() {
         echo '<input type="checkbox" value="1" name="'.ENABLE_MSN_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_msn_translate()).'/> '.
             'Allow MSN (Bing) translator hinting (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>'.
             'Key: <input type="text" size="35" class="regular-text" value="'.$this->transposh->options->get_msn_key().'" id="'.MSN_TRANSLATE_KEY.'" name="'.MSN_TRANSLATE_KEY.'"/>';
 
+        /*
+         * Insert the option to enable/disable default language translation.
+         * Disabled by default.
+         */
         echo '<h4>Enable default language translation</h4>';
-/*
- * Insert the option to enable/disable default language translation.
- * Disabled by default.
- */
-// was function insert_default_translate_option() {
         echo '<input type="checkbox" value="1" name="'.ENABLE_DEFAULT_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_default_translate()).'/> '.
             'Allow translation of default language - useful for sites with more than one major language';
 
     }
 
     function on_contentbox_generic_content($data) {
+        /*
+         * Insert the option to enable/disable rewrite of perlmalinks.
+         * When disabled only parameters will be used to identify the current language.
+         */
         echo '<h4>Rewrite URLs</h4>';
-/*
- * Insert the option to enable/disable rewrite of perlmalinks.
- * When disabled only parameters will be used to identify the current language.
- */
-// was function insert_permalink_rewrite_option() {
         echo '<input type="checkbox" value="1" name="'.ENABLE_PERMALINKS.'" '. $this->checked($this->transposh->options->get_enable_permalinks()) . '/> '.
             'Rewrite URLs to be search engine friendly, '.
             'e.g.  (http://wordpress.org/<strong>en</strong>). '.
             'Requires that permalinks will be enabled.';
-//}
 
-
-
+        /*
+         * Insert the option to enable/disable pushing of scripts to footer.
+         * Works on wordpress 2.8 and up
+         */
         if (floatval($GLOBALS['wp_version']) >= 2.8) {
             echo '<h4>Add scripts to footer</h4>';
-/*
- * Insert the option to enable/disable pushing of scripts to footer.
- */
-// wasfunction insert_script_footer_option() {
             echo '<input type="checkbox" value="1" name="'.ENABLE_FOOTER_SCRIPTS.'" '. $this->checked($this->transposh->options->get_enable_footer_scripts()) . '/> '.
                 'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
                 'Requires that your theme should have proper footer support.';
-
         }
 
-/*        echo '<h4>Show original language first</h4>';
-*/
+        /**
+         * Allow some alternate posting methods support
+         *  @since 0.3.5 */
+        echo '<h4>Try alternate posting methods</h4>';
+
+        echo '<select name="'.ALTERNATE_POST.'" id="'.ALTERNATE_POST.'">';
+        echo '<option value="0" '.(($this->transposh->options->get_alternate_post() == 0) ? 'selected=""':'').'>Normal</option>';
+        echo '<option value="1" '.(($this->transposh->options->get_alternate_post() == 1) ? 'selected=""':'').'>Added &quot;/&quot;</option>';
+        echo '<option value="2" '.(($this->transposh->options->get_alternate_post() == 2) ? 'selected=""':'').'>Added &quot;/index.php&quot;</option>';
+        echo '</select> ';
+        echo 'Change this option only if changes fail to get saved on the database';
+
+        /* WIP        echo '<h4>Show original language first</h4>';*/
         /*foreach($languages as $code => $lang) {
             list ($language,$flag,$autot) = explode (",",$lang);
             $flags .= $flag.',';
         }
+        * WIP2
         echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>';*/
-
     }
 
     function on_contentbox_community_content($data) {

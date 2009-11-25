@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.8.5
+Tested up to: 2.8.6
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -91,11 +91,15 @@ functions so the transposh.js file is not being included, try to include it manu
 
 Just add the following line to your template:
 
-&lt;?php if(function_exists("transposh_widget")) { transposh_widget(array()); } ?&gt;
+<code><?php if(function_exists("transposh_widget")) { transposh_widget(); }?></code>
 
 = I have php speedy (http://aciddrop.com/php-speedy/) and the plugin does not work =
 
 Users of php speedy will have to deactivate it, add “transposh.js” in the ignore list, click on “Test configuration” then reactivate it.
+
+= I am getting weird errors =
+
+Please make sure you are using PHP5 and up, PHP4 is not supported
 
 = I want my own css image with less flags =
 
@@ -115,6 +119,13 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/11/26 - 0.3.5 =
+ * Enabled auto-translation to all editable languages on the admin side
+ * Alternate posting methods (thanks Andre)
+ * Fix documenation display regarding widgetless themes (thanks [Hosein-mec](http://linuxshare.org/))
+ * Make sure simple_html_dom is not loaded twice (if we can...)
+ * Large scale code refactoring
+ * Migrated css flags to the widget settings
 = 2009/11/05 - 0.3.4 =
  * Fix for nextgen gallery issue
  * Force LTR for wordpress blogs originiating in RTL
@@ -135,7 +146,7 @@ change the .css from transparent background to your page background color. And l
 = 2009/07/21 - 0.2.9 =
  * Supress warning on parse_url (thanks [Mike](http://www.nostate.com/))
  * Fix the urls generated for the widget with subdir blogs (thanks [Peter](http://www.algarve-abc.de/ferienhaus-westalgarve))
- * Fix issue when object->tostring didn't work correctly (thanks [Anthony](http://gratiswork.com))
+ * Fix issue when object->tostring didn't work correctly (thanks [Anthony](http://gratiswork.com/))
 = 2009/07/19 - 0.2.8 =
  * Don't touch XML RPC
  * Allow usage of CSS sprites when available

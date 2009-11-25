@@ -48,12 +48,14 @@ class transposh_database {
     function transposh_database(&$transposh) {
         $this->transposh = &$transposh;
     }
-/*
- * Fetch translation from db or cache.
- * Returns An array that contains the translated string and it source.
- *   Will return NULL if no translation is available.
- */
-
+    /**
+     * Fetch translation from db or cache.
+     * Returns An array that contains the translated string and it source.
+     * Will return NULL if no translation is available.
+     * @param string $original
+     * @param string $lang
+     * @return array list(translation,source)
+     */
     function fetch_translation($original, $lang) {
         $translated = NULL;
         logger("Enter: $original", 4);
@@ -77,7 +79,7 @@ class transposh_database {
             $translated_text = stripslashes($row->translated);
             $translated = array($translated_text, $row->source);
 
-            logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 3);
+            logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 4);
         }
 
         if(ENABLE_APC && function_exists('apc_store')) {
@@ -90,7 +92,7 @@ class transposh_database {
             //update cache
             $rc = apc_store($original .'___'. $lang, $cache_entry, 3600);
             if($rc === TRUE) {
-                logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
+                logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 4);
             }
         }
 
@@ -156,6 +158,129 @@ class transposh_database {
             if ($translated_text) {
                 if ($source == 1) {
                     logger("Warning auto-translation for already translated: $original", 0);
+                    return;
+                }
+                if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
+                    logger("Warning attempt to retranslate with same text: $original, $translation", 0);
+                    return;
+                }
+            }
+            // Setting the values string for the database (notice how concatanation is handled)
+            $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')".(($items != $i+1) ?', ':'');
+            // Setting the transaction log records
+            $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')".(($items != $i+1) ?', ':'');
+
+            // If we have caching - we remove previous entry from cache
+            if(ENABLE_APC && function_exists('apc_store')) {
+                apc_delete($original .'___'. $lang);
+            }
+        }
+
+        // perform insertion to the database, with one query :)
+        $update = "REPLACE INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
+                VALUES $values";
+        logger($update,4);
+
+        $result = $GLOBALS['wpdb']->query($update);
+
+        if($result !== FALSE) {
+            // update the transaction log too
+            $log = "INSERT INTO ".$GLOBALS['wpdb']->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
+                "VALUES $logvalues";
+            $result = $GLOBALS['wpdb']->query($log);
+
+            logger("Inserted to db '$values'" , 3);
+        }
+        else {
+            logger(mysql_error(),0);
+            logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
+            header("HTTP/1.0 404 Failed to update language database ".mysql_error());
+        }
+        // this is a termination for the ajax sequence
+        exit;
+    }
+
+    /**
+     * A new translation has been posted, update the translation database.
+     * This has changed since we now accept multiple translations at once
+     * This function accepts a new more "versatile" format
+     * @global <type> $user_ID - TODO
+     */
+    function update_translation_new() {
+
+        $ref=getenv('HTTP_REFERER');
+        $items = $_POST['items'];
+        $lang = $_POST['ln0'];
+        $source = $_POST['sr0'];
+        // check params
+        logger("Enter " . __FILE__ . " Params: $items, $lang, $ref", 5);
+        if(!isset($items) || !isset($lang)) {
+            logger("Enter " . __FILE__ . " missing Params: $items, $lang, $ref", 1);
+            return;
+        }
+
+        //Check permissions, first the lanugage must be on the edit list. Then either the user
+        //is a translator or automatic translation if it is enabled.
+        // we must check that all sent languages are editable
+        $all_editable = true;
+        for ($i=0;$i<$items;$i++) {
+            if (isset($_POST["ln$i"])) {
+                if (!$this->transposh->options->is_editable_language($_POST["ln$i"])) {
+                    $all_editable = false;
+                    break;
+                }
+            }
+        }
+
+        if(!($all_editable &&
+            ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
+            logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
+            header("HTTP/1.0 401 Unauthorized translation");
+            exit;
+        }
+
+        //add our own custom header - so we will know that we got here
+        header("Transposh: v-".TRANSPOSH_PLUGIN_VER." db_version-". DB_VERSION);
+
+        // transaction log stuff
+        global $user_ID;
+        get_currentuserinfo();
+
+        // log either the user ID or his IP
+        if ('' == $user_ID) {
+            $loguser = $_SERVER['REMOTE_ADDR'];
+        }
+        else {
+            $loguser = $user_ID;
+        }
+        // end tl
+
+        // We are now passing all posted items
+        for ($i=0;$i<$items;$i++) {
+            if (isset($_POST["tk$i"])) {
+                $original =  base64_url_decode($_POST["tk$i"]);
+                //The original content is encoded as base64 before it is sent (i.e. token), after we
+                //decode it should just the same after it was parsed.
+                $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+            }
+            if (isset($_POST["tr$i"])) {
+                $translation = $_POST["tr$i"];
+                //Decode & remove already escaped character to avoid double escaping
+                $translation = $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translation))));
+            }
+            if (isset($_POST["ln$i"])) {
+                $lang = $_POST["ln$i"];
+            }
+            if (isset($_POST["sr$i"])) {
+                $source = $_POST["sr$i"];
+            }
+
+
+            //Here we check we are not redoing stuff
+            list($translated_text, $old_source) = $this->fetch_translation($original, $lang);
+            if ($translated_text) {
+                if ($source == 1) {
+                    logger("Warning auto-translation for already translated: $original $lang", 0);
                     return;
                 }
                 if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
