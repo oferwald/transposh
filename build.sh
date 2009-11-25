@@ -39,6 +39,7 @@ echo
 #
 mkdir $TRANSPOSH_DIR/core
 mkdir $TRANSPOSH_DIR/core/shd
+mkdir $TRANSPOSH_DIR/core/jsonwrapper
 
 #
 #Add non-php files 
