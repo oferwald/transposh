@@ -12,6 +12,8 @@ Licensed under The MIT License
 Redistributions of files must retain the above copyright notice.
 *******************************************************************************/
 
+// avoid duplicate loading on different files
+if (!function_exists("file_get_html")) {
 define('HDOM_TYPE_ELEMENT', 1);
 define('HDOM_TYPE_COMMENT', 2);
 define('HDOM_TYPE_TEXT',    3);
@@ -527,6 +529,8 @@ class simple_html_dom {
         // prepare
         $this->prepare($str, $lowercase);
         // strip out comments
+//        logger ("hi");
+/*        $this->remove_noise("'<?xml(.*?)?>'is", true);*/
         $this->remove_noise("'<!--(.*?)-->'is");
         // strip out cdata
         $this->remove_noise("'<!\[CDATA\[(.*?)\]\]>'is", true);
@@ -927,6 +931,7 @@ class simple_html_dom {
     // remove noise from html content
     protected function remove_noise($pattern, $remove_tag=false) {
         $count = preg_match_all($pattern, $this->doc, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
+ //       logger ("meo:" . $pattern . $count);
 
         for ($i=$count-1; $i>-1; --$i) {
             $key = '___noise___'.sprintf('% 3d', count($this->noise)+100);
@@ -942,6 +947,7 @@ class simple_html_dom {
 
     // restore noise to html content
     function restore_noise($text) {
+//        logger ("noise:".$text);
         while(($pos=strpos($text, '___noise___'))!==false) {
             $key = '___noise___'.$text[$pos+11].$text[$pos+12].$text[$pos+13];
             if (isset($this->noise[$key]))
@@ -971,5 +977,6 @@ class simple_html_dom {
     function getElementByTagName($name) {return $this->find($name, 0);}
     function getElementsByTagName($name, $idx=-1) {return $this->find($name, $idx);}
     function loadFile() {$args = func_get_args();$this->load(call_user_func_array('file_get_contents', $args), true);}
+}
 }
 ?>
