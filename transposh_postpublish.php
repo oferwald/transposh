@@ -92,7 +92,7 @@ class transposh_postpublish {
                 // as we don't normally want to auto-translate the default language
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->get_enable_default_translate()) {
                     list($translation,$source) = $this->transposh->database->fetch_translation($key, $lang);
-                    if ($translation == NULL) {
+                    if (!$translation) {
                         // p stands for phrases, l stands for languages, t is token
                         if (!is_array($json['p'][$key]['l'])) {
                             $json['p'][$key]['l'] = array();
