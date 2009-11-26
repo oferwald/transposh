@@ -382,12 +382,15 @@ class transposh_plugin {
             //add_action('admin_notices', 'plugin_install_error');
         }
 
+        //TODO: fix this too...
+        $db_version = get_option(TRANSPOSH_DB_VERSION);
+
         if ($db_version != DB_VERSION) {
             $this->admin_msg = "Failed to locate the translation table  <em> " . TRANSLATIONS_TABLE . "</em> in local database. <br>";
 
             logger("Messsage to admin: {$this->admin_msg}", 0);
             //Some error occured - notify admin and deactivate plugin
-            add_action('admin_notices', 'plugin_install_error');
+            add_action('admin_notices', array(&$this,'plugin_install_error'));
         }
     }
 
