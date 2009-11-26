@@ -281,11 +281,13 @@ class transposh_database {
             if ($translated_text) {
                 if ($source == 1) {
                     logger("Warning auto-translation for already translated: $original $lang", 0);
-                    return;
+                    continue;
+                    //return; // too harsh, we just need to get to the next in for
                 }
                 if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
                     logger("Warning attempt to retranslate with same text: $original, $translation", 0);
-                    return;
+                    continue;
+                    //return; // too harsh, we just need to get to the next in for
                 }
             }
             // Setting the values string for the database (notice how concatanation is handled)
