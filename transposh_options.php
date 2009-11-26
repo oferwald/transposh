@@ -119,11 +119,11 @@ class transposh_plugin_options {
         if (isset($this->options['widget'])) {
             logger ('isset');
             $this->set_widget_style($this->options['widget']['style']);
-            $this->get_widget_progressbar($this->options['widget']['progressbar']);
+            $this->set_widget_progressbar($this->options['widget']['progressbar']);
             unset($this->options['widget']);
             logger($this->options);
         }
-        if (array_key_exists('enable_css_flags',$this->options)) {
+        if (is_array($this->options) && array_key_exists('enable_css_flags',$this->options)) {
             $this->set_widget_css_flags($this->options['enable_css_flags']);
             unset($this->options['enable_css_flags']);
             logger($this->options);
