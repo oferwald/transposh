@@ -255,6 +255,6 @@ class transposh_plugin_widget {
  * @param array $args Not needed
  */
 function transposh_widget($args = array()) {
-    $my_transposh_plugin->widget->transposh_widget($args);
+    $GLOBALS['my_transposh_plugin']->widget->transposh_widget($args);
 }
 ?>
