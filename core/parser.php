@@ -37,8 +37,8 @@ class parser {
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
-    protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1);
-
+    //first three are html, later 4 come from feeds xml
+    protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1,'link'=>1,'wfw:commentrss'=>1,'comments'=>1,'guid'=>1);
     /**
      * Determine if the current position in buffer is a white space.
      * @param char $char
@@ -283,7 +283,7 @@ class parser {
             }
             if (trim($node->outertext)) {
                 $this->parsetext($node->outertext);
-            };
+            }
         }
         // for anchors we will rewrite urls if we can
         elseif ($node->tag == 'a') {
@@ -370,6 +370,16 @@ class parser {
             return $this->html;
         }
 
+        // fix urls on feed
+        if ($this->feed_fix) {
+            logger ("in feed");
+            foreach (array('link','wfw:commentrss','comments','guid') as $tag) {
+                foreach ($this->html->find($tag) as $e) {
+                    $e->innertext = call_user_func_array($this->url_rewrite_func,array($e->innertext));
+                }
+            }
+        }
+
         // actually translate tags
         // texts are first
         foreach ($this->html->find('text') as $e) {
@@ -387,7 +397,8 @@ class parser {
                     }
                     else
                     if ($translated_text == null) $translated_text = $ep->phrase;
-                } else {
+                }
+                else {
                     $span = '';
                     $spanend = '';
                 }
