@@ -18,6 +18,7 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 * Multiple selection for widget appearances
 * Translation of external plugins with no changes
 * Automatic translation mode for all content (including comments!)
+* Translated languages are searchable
 * Fine grained control for advanced users
 
 ***We are focused on:***
@@ -119,6 +120,10 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/12/02 - 0.3.6 =
+ * Translated language posts are now searchable with the default wordpress search box
+ * Rewrite urls inside feeds so translated feeds become a much more valid option (thanks datapharmer)
+ * Fixed transposh_widget global bug
 = 2009/11/26 - 0.3.5 =
  * Enabled auto-translation to all editable languages on the admin side
  * Alternate posting methods (thanks Andre)

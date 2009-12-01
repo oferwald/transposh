@@ -7,7 +7,7 @@
 	Version: <%VERSION%>
 	Author URI: http://transposh.org/
 	License: GPL (http://www.gnu.org/licenses/gpl.txt)
- */
+*/
 
 /*  Copyright © 2009 Transposh Team (website : http://transposh.org)
  *
@@ -24,7 +24,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 //avoid direct calls to this file where wp core files not present
 if (!function_exists ('add_action')) {
@@ -71,6 +71,8 @@ class transposh_plugin {
     public $edit_mode;
     /** @var string Error message displayed for the admin in case of failure*/
     private $admin_msg;
+    /** @var string Saved search variables*/
+    private $search_s;
 
     /**
      * class constructor
@@ -110,6 +112,10 @@ class transposh_plugin {
         add_action('shutdown', array(&$this,'on_shutdown'));
         add_action('wp_print_styles', array(&$this,'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this,'add_transposh_js'));
+        if ($this->options->get_enable_search_translate()) {
+            add_action('pre_get_posts', array(&$this,'pre_post_search'));
+            add_action('posts_where_request', array(&$this,'posts_where_request'));
+        }
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
     }
@@ -125,8 +131,8 @@ class transposh_plugin {
 
         // Refrain from touching the administrative interface and important pages
         if(stripos($_SERVER['REQUEST_URI'],'/wp-login.php') !== FALSE ||
-            stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE ||
-            stripos($_SERVER['REQUEST_URI'],'/xmlrpc.php') !== FALSE) {
+                stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE ||
+                stripos($_SERVER['REQUEST_URI'],'/xmlrpc.php') !== FALSE) {
             logger("Skipping translation for admin pages", 3);
             return $buffer;
         }
@@ -279,6 +285,14 @@ class transposh_plugin {
     function on_parse_request($wp) {
         logger ("on_parse_req");
         logger ($wp->query_vars);
+        // this method allows posts from the search box to maintain the language,
+        // TODO - it has a bug of returning to original language following search, which can be resolved by removing search from widget urls, but maybe later...
+        if (isset($wp->query_vars['s'])) {
+            if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url) && !get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url)) {
+                wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), false));//."&stop=y");
+                exit;
+            }
+        }
         $this->target_language = $wp->query_vars[LANG_PARAM];
         if (!$this->target_language)
             $this->target_language = $this->options->get_default_language();
@@ -513,9 +527,9 @@ class transposh_plugin {
         // don't fix links pointing to real files as it will cause that the
         // web server will not be able to locate them
         if(stripos($href, '/wp-admin') !== FALSE   ||
-            stripos($href, WP_CONTENT_URL) !== FALSE ||
-            stripos($href, '/wp-login') !== FALSE   ||
-            stripos($href, '/.php') !== FALSE) {
+                stripos($href, WP_CONTENT_URL) !== FALSE ||
+                stripos($href, '/wp-login') !== FALSE   ||
+                stripos($href, '/.php') !== FALSE) {
             return $href;
         }
         $use_params = !$this->enable_permalinks_rewrite;
@@ -535,6 +549,70 @@ class transposh_plugin {
         return array_merge( array('<a href="' . admin_url('options-general.php?page='.TRANSPOSH_ADMIN_PAGE_NAME) . '">Settings</a>'), $links );
     }
 
+    /**
+     * We use this to "steal" the search variables
+     * @param WP_Query $query
+     */
+    function pre_post_search ($query) {
+        logger ('pre post',4);
+        logger ($query->query_vars);
+        // we hide the search query var from further proccesing, because we do this later
+        if ($query->query_vars['s']) {
+            $this->search_s = $query->query_vars['s'];
+            $query->query_vars['s'] = "";
+        }
+    }
+
+    /**
+     * This is where we change the logic to include originals for search translation
+     * @param string $where Original where clause for getting posts
+     * @return string Modified where
+     */
+    function posts_where_request ($where) {
+
+        logger ($where);
+        // from query.php line 1742 (v2.8.6)
+        // If a search pattern is specified, load the posts that match
+        $q = &$GLOBALS['wp_query']->query_vars;
+        // returning the saved query strings
+        $q['s'] = $this->search_s;
+        if ( !empty($q['s']) ) {
+            // added slashes screw with quote grouping when done early, so done later
+            $q['s'] = stripslashes($q['s']);
+            if ( !empty($q['sentence']) ) {
+                $q['search_terms'] = array($q['s']);
+            } else {
+                preg_match_all('/".*?("|$)|((?<=[\\s",+])|^)[^\\s",+]+/', $q['s'], $matches);
+                $q['search_terms'] = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
+            }
+            $n = !empty($q['exact']) ? '' : '%';
+            $searchand = '';
+            foreach( (array) $q['search_terms'] as $term) {
+                // now we'll get possible translations for this term
+                $possible_original_terms = $this->database->get_orignal_phrases_for_search_term($term, $this->target_language);
+                $term = addslashes_gpc($term);
+                $search .= "{$searchand}(({$GLOBALS['wpdb']->posts}.post_title LIKE '{$n}{$term}{$n}') OR ({$GLOBALS['wpdb']->posts}.post_content LIKE '{$n}{$term}{$n}')";
+                foreach( (array) $possible_original_terms as $term) {
+                    $term = addslashes_gpc($term);
+                    $search .= " OR ({$GLOBALS['wpdb']->posts}.post_title LIKE '{$n}{$term}{$n}') OR ({$GLOBALS['wpdb']->posts}.post_content LIKE '{$n}{$term}{$n}')";
+                }
+                // we moved this to here, so it really closes all of them
+                $search .= ")";
+                $searchand = ' AND ';
+            }
+            $term = $GLOBALS['wpdb']->escape($q['s']);
+            if (empty($q['sentence']) && count($q['search_terms']) > 1 && $q['search_terms'][0] != $q['s'] )
+                $search .= " OR ({$GLOBALS['wpdb']->posts}.post_title LIKE '{$n}{$term}{$n}') OR ({$GLOBALS['wpdb']->posts}.post_content LIKE '{$n}{$term}{$n}')";
+
+            if ( !empty($search) ) {
+                $search = " AND ({$search}) ";
+                if ( !is_user_logged_in() )
+                    $search .= " AND ({$GLOBALS['wpdb']->posts}.post_password = '') ";
+            }
+        }
+        logger ($search);
+        return $search.$where;
+    }
 }
 $my_transposh_plugin = new transposh_plugin();
 

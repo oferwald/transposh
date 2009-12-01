@@ -58,6 +58,8 @@ define("ENABLE_MSN_TRANSLATE", "enable_msntranslate");
 define("MSN_TRANSLATE_KEY", "msn_key");
 //Option to enable/disable default language translation
 define("ENABLE_DEFAULT_TRANSLATE", "enable_default_translate");
+//Option to enable/disable default language translation @since 0.3.6
+define("ENABLE_SEARCH_TRANSLATE", "enable_search_translate");
 //Option to enable/disable rewrite of permalinks
 define("ENABLE_PERMALINKS", "enable_permalinks");
 //Option to enable/disable footer scripts (2.8 and up)
@@ -174,6 +176,11 @@ class transposh_plugin_options {
         return $this->options[ENABLE_DEFAULT_TRANSLATE];
     }
 
+    function get_enable_search_translate() {
+        if (!isset($this->options[ENABLE_SEARCH_TRANSLATE])) return 1; // default is true
+        return $this->options[ENABLE_SEARCH_TRANSLATE];
+    }
+
     function get_enable_auto_translate() {
         if (!isset($this->options[ENABLE_AUTO_TRANSLATE])) return 1; // default is true
         return $this->options[ENABLE_AUTO_TRANSLATE];
@@ -206,7 +213,7 @@ class transposh_plugin_options {
      * @param pointer $option Points to the option in the options array
      */
     private function set_value($val, &$option) {
-        if ($val != $option) {
+        if ($val !== $option) {
             $option = $val;
             $this->changed = true;
         }
@@ -261,6 +268,11 @@ class transposh_plugin_options {
     function set_enable_default_translate($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[ENABLE_DEFAULT_TRANSLATE]);
+    }
+
+    function set_enable_search_translate($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_SEARCH_TRANSLATE]);
     }
 
     function set_enable_auto_translate($val) {

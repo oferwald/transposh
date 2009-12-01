@@ -100,7 +100,7 @@ class transposh_plugin_admin {
 
         if($this->transposh->options->get_enable_permalinks() != $_POST[ENABLE_PERMALINKS]) {
             $this->transposh->options->set_enable_permalinks($_POST[ENABLE_PERMALINKS]);
-            //rewrite rules - refresh.? //TODO ---???
+            //rewrite rules - refresh. - because we want them set or unset upon this change
             add_filter('rewrite_rules_array', 'update_rewrite_rules');
             $GLOBALS['wp_rewrite']->flush_rules();
         }
@@ -110,6 +110,7 @@ class transposh_plugin_admin {
         $this->transposh->options->set_enable_auto_translate($_POST[ENABLE_AUTO_TRANSLATE]);
         $this->transposh->options->set_enable_auto_post_translate($_POST[ENABLE_AUTO_POST_TRANSLATE]);
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
+        $this->transposh->options->set_enable_search_translate($_POST[ENABLE_SEARCH_TRANSLATE]);
         $this->transposh->options->set_enable_msn_translate($_POST[ENABLE_MSN_TRANSLATE]);
         $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
         $this->transposh->options->update_options();
@@ -408,6 +409,15 @@ class transposh_plugin_admin {
         echo '<h4>Enable default language translation</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_DEFAULT_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_default_translate()).'/> '.
             'Allow translation of default language - useful for sites with more than one major language';
+
+        /**
+         * Insert the option to enable search in translated languages
+         * Enabled by default.
+         * @since 0.3.6
+         */
+        echo '<h4>Enable search in translated languages</h4>';
+        echo '<input type="checkbox" value="1" name="'.ENABLE_SEARCH_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_search_translate()).'/> '.
+            'Allow search of translated languages, in those languages (and the original language)';
 
     }
 

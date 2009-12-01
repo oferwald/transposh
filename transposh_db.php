@@ -14,7 +14,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 
 /**
@@ -100,10 +100,10 @@ class transposh_database {
         return $translated;
     }
 
-/*
+    /*
  * A new translation has been posted, update the translation database.
  * This has changed since we now accept multiple translations at once
- */
+    */
     function update_translation() {
 
         $ref=getenv('HTTP_REFERER');
@@ -120,7 +120,7 @@ class transposh_database {
         //Check permissions, first the lanugage must be on the edit list. Then either the user
         //is a translator or automatic translation if it is enabled.
         if(!($this->transposh->options->is_editable_language($lang) &&
-            ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
+                ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
             logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
             header("HTTP/1.0 401 Unauthorized translation");
             exit;
@@ -186,7 +186,7 @@ class transposh_database {
         if($result !== FALSE) {
             // update the transaction log too
             $log = "INSERT INTO ".$GLOBALS['wpdb']->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
-                "VALUES $logvalues";
+                    "VALUES $logvalues";
             $result = $GLOBALS['wpdb']->query($log);
 
             logger("Inserted to db '$values'" , 3);
@@ -233,7 +233,7 @@ class transposh_database {
         }
 
         if(!($all_editable &&
-            ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
+                ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
             logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'] , 1);
             header("HTTP/1.0 401 Unauthorized translation");
             exit;
@@ -311,7 +311,7 @@ class transposh_database {
         if($result !== FALSE) {
             // update the transaction log too
             $log = "INSERT INTO ".$GLOBALS['wpdb']->prefix.TRANSLATIONS_LOG." (original, translated, lang, translated_by, source) ".
-                "VALUES $logvalues";
+                    "VALUES $logvalues";
             $result = $GLOBALS['wpdb']->query($log);
 
             logger("Inserted to db '$values'" , 3);
@@ -325,9 +325,9 @@ class transposh_database {
         exit;
     }
 
-/*
+    /*
  * Get translation history for some translation.
- */
+    */
     function get_translation_history($token, $lang) {
 
         $ref=getenv('HTTP_REFERER');
@@ -362,10 +362,10 @@ class transposh_database {
         header("Transposh: v-".TRANSPOSH_PLUGIN_VER." db_version-". DB_VERSION);
 
         $query = "SELECT translated, translated_by, timestamp, source, user_login ".
-            "FROM $table_name ".
-            "LEFT JOIN {$GLOBALS['wpdb']->prefix}users ON translated_by = {$GLOBALS['wpdb']->prefix}users.id ".
-            "WHERE original='$original' AND lang='$lang' ".
-            "ORDER BY timestamp DESC";
+                "FROM $table_name ".
+                "LEFT JOIN {$GLOBALS['wpdb']->prefix}users ON translated_by = {$GLOBALS['wpdb']->prefix}users.id ".
+                "WHERE original='$original' AND lang='$lang' ".
+                "ORDER BY timestamp DESC";
         logger ("query is $query");
 
         $rows = $GLOBALS['wpdb']->get_results($query);
@@ -373,12 +373,12 @@ class transposh_database {
 
         if($rows !== FALSE) {
             echo '<table>' .
-                '<thead>'.
-                '<tr>'.
-                '<th>Translated</th><th/><th>By</th><th>At</th>'.
-                '</tr>'.
-                '</thead>'.
-                '<tbody>';
+                    '<thead>'.
+                    '<tr>'.
+                    '<th>Translated</th><th/><th>By</th><th>At</th>'.
+                    '</tr>'.
+                    '</thead>'.
+                    '<tbody>';
             foreach ($rows as $row) {
                 if (is_null($row->user_login)) $row->user_login = $row->translated_by;
                 echo "<tr><td>{$row->translated}</td><td source=\"{$row->source}\"/><td user_id=\"{$row->translated_by}\">{$row->user_login}</td><td>{$row->timestamp}</td></tr>";
@@ -389,9 +389,9 @@ class transposh_database {
         exit;
     }
 
-/*
+    /*
  * Setup the translation database.
- */
+    */
     function setup_db() {
         logger("Enter");
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -403,10 +403,10 @@ class transposh_database {
 
             logger("Attempting to create table $table_name", 0);
             $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
-                "lang CHAR(5) NOT NULL,".
-                "translated VARCHAR(255),".
-                "source TINYINT NOT NULL,".
-                "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+                    "lang CHAR(5) NOT NULL,".
+                    "translated VARCHAR(255),".
+                    "source TINYINT NOT NULL,".
+                    "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
             dbDelta($sql);
 
@@ -414,12 +414,12 @@ class transposh_database {
 
             logger("Attempting to create table $table_name", 0);
             $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
-                "lang CHAR(5) NOT NULL,".
-                "translated VARCHAR(255),".
-                "translated_by VARCHAR(15),".
-                "source TINYINT NOT NULL,".
-                "timestamp TIMESTAMP,".
-                "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+                    "lang CHAR(5) NOT NULL,".
+                    "translated VARCHAR(255),".
+                    "translated_by VARCHAR(15),".
+                    "source TINYINT NOT NULL,".
+                    "timestamp TIMESTAMP,".
+                    "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
             dbDelta($sql);
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
@@ -453,9 +453,49 @@ class transposh_database {
             $td = mysql2date(get_option('date_format').' '.get_option('time_format'), $row->timestamp);
             //the_date();
             echo "<p>On <strong>{$td}</strong><br/>user <strong>{$row->translated_by}</strong> translated<br/>".
-                "\"<strong>{$row->original}</strong>\"<br/>to ".
-                "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
+                    "\"<strong>{$row->original}</strong>\"<br/>to ".
+                    "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
         }
+    }
+
+    /**
+     * This function returns a list of candidate phrases which might contain a requested translated string
+     * @param string $term The search term
+     * @param string $language The language being searched
+     * @return array Original phrases in which $term appears
+     */
+    function get_orignal_phrases_for_search_term($term, $language) {
+        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
+        $n = '%';
+        $term = addslashes_gpc($term);
+        $query = "SELECT original
+                        FROM `$table_name`
+                        WHERE `lang` LIKE '$language'
+                        AND `translated` LIKE '{$n}{$term}{$n}'";
+        //TODO wait for feedbacks to see if we should put a limit here.
+
+        logger ($query,4);
+        $result = array();
+        $rows = $GLOBALS['wpdb']->get_results($query);
+
+        foreach ($rows as $row) {
+            $addme = true;
+            // now lets use the a-priori for reduction
+            // two possibilities for reduction, new is included in old, or some old includes this new
+            foreach ($result as $k => $r) {
+                // if our original is included in a string in the result, that is no longer needed...
+                if (stripos($r, $row->original) !== false) {
+                    unset($result[$k]);
+                }
+                // if the other way around is true, we won't have to add it
+                if (stripos($row->original,$r) !== false) {
+                    $addme = false;
+                }
+            }
+            if ($addme) $result[] = $row->original;
+        }
+
+        return $result;
     }
 }
 ?>
