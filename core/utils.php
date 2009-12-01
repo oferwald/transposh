@@ -159,6 +159,45 @@ function rewrite_url_lang_param($url,$home_url, $enable_permalinks_rewrite, $lan
     return $url;
 }
 
+function get_language_from_url($url, $home_url) {
+
+    $parsedurl = @parse_url($url);
+
+    //option 1, lanaguage is in the query ?lang=xx
+    if (isset($parsedurl['query'])) {
+        $params = explode('&',$parsedurl['query']);
+        foreach ($params as $key => $param) {
+            if (stripos($param,LANG_PARAM) === 0) {
+                return ($params[$key]);
+            }
+        }
+    }
+
+    //option 2, language is in permalink
+
+    //cleanup lang identifier in permalinks
+    //remove the language from the url permalink (if in start of path, and is a defined language)
+    $home_path = rtrim(parse_url($home_url,PHP_URL_PATH),"/");
+//    logger ("home: $home_path ".$parsedurl['path'],5);
+    if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
+//        logger ("homein!: $home_path",5);
+        $parsedurl['path'] = substr($parsedurl['path'],strlen($home_path));
+//        $gluebackhome = true;
+    }
+
+    if (strlen($parsedurl['path']) > 2) {
+        $secondslashpos = strpos($parsedurl['path'], "/",1);
+        if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+        $prevlang =  substr($parsedurl['path'],1,$secondslashpos-1);
+        if (isset ($GLOBALS['languages'][$prevlang])) {
+            //logger ("prevlang: ".$prevlang,4);
+            //$parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
+            return $prevlang;
+        }
+    }
+    return false;
+}
+
 /**
  * glue a parse_url array back to a url
  * @param array $parsed url_parse style array
