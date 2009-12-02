@@ -14,7 +14,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 require_once("shd/simple_html_dom.php");
 require_once("logging.php");
@@ -168,8 +168,8 @@ class parser {
             return true;
         }
         $entities = '&Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;'.
-            '&Ntilde;&Ograve;&Oacute;&Ocirc;&Otilde;&Ouml;&Oslash;&Ugrave;&Uacute;&Ucirc;&Uuml;&Yacute;&THORN;&szlig;'.
-            '&oslash;&ugrave;&yuml;';
+                '&Ntilde;&Ograve;&Oacute;&Ocirc;&Otilde;&Ouml;&Oslash;&Ugrave;&Uacute;&Ucirc;&Uuml;&Yacute;&THORN;&szlig;'.
+                '&oslash;&ugrave;&yuml;';
         return (stripos($entities, $entity) !== FALSE);
     }
 
@@ -304,6 +304,10 @@ class parser {
         elseif ($node->tag == 'select') {
             $this->inselect = $level;
         }
+        // in submit type inputs, we want to translate the value
+        elseif ($node->tag == 'input' && $node->type =='submit') {
+            $this->parsetext($node->value);
+        }
 
         // titles are also good places to translate, exist in a, img, abbr, acronym
         if ($node->title) $this->parsetext($node->title);
@@ -409,7 +413,7 @@ class parser {
                 }
             }
             if ($newtext) {
-               /* if ($this->feed_fix) {
+                /* if ($this->feed_fix) {
                     if (substr($newtext, 0, 4) == '&lt;') {
                         $newtext = html_entity_decode($newtext);
                     }
@@ -425,50 +429,51 @@ class parser {
 
         }
 
-        // now we handle the title attributes
-        $hidden_phrases = array();
-        foreach ($this->html->find('[title]') as $e) {
-            $span = '';
-            $spanend = '';
-            $right = '';
-            $newtext = '';
-            // when we already have a parent outertext we'll have to update it directly
-            if ($e->parent->_[HDOM_INFO_OUTER]) {
-                $saved_outertext = $e->outertext;
-            }
+        // now we handle the title attributes (and the value of submit buttons)
+        foreach (array('title','value') as $title) {
+            $hidden_phrases = array();
+            foreach ($this->html->find('['.$title.']') as $e) {
+                $span = '';
+                $spanend = '';
+                $right = '';
+                $newtext = '';
+                // when we already have a parent outertext we'll have to update it directly
+                if ($e->parent->_[HDOM_INFO_OUTER]) {
+                    $saved_outertext = $e->outertext;
+                }
 
-            foreach ($e->nodes as $ep) {
-                if ($ep->tag == 'phrase') {
-                    list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
-                    if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
-                        // prevent duplicate translation (title = text)
-                        if (strpos($e->innertext,base64_url_encode($ep->phrase)) === false) {
-                            //no need to translate span the same hidden phrase more than once
-                            if (!in_array($ep->phrase, $hidden_phrases)) {
-                                $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true)."</span>";
-                                //    logger ($span);
-                                $hidden_phrases[] = $ep->phrase;
+                foreach ($e->nodes as $ep) {
+                    if ($ep->tag == 'phrase') {
+                        list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
+                        if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
+                            // prevent duplicate translation (title = text)
+                            if (strpos($e->innertext,base64_url_encode($ep->phrase)) === false) {
+                                //no need to translate span the same hidden phrase more than once
+                                if (!in_array($ep->phrase, $hidden_phrases)) {
+                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true)."</span>";
+                                    //    logger ($span);
+                                    $hidden_phrases[] = $ep->phrase;
+                                }
                             }
                         }
-                    }
-                    if ($translated_text) {
-                        list ($left, $right) = explode($ep->phrase, $e->title, 2);
-                        $newtext .= $left.$translated_text;
-                        $e->title = $right;
+                        if ($translated_text) {
+                            list ($left, $right) = explode($ep->phrase, $e->$title, 2);
+                            $newtext .= $left.$translated_text;
+                            $e->$title = $right;
+                        }
                     }
                 }
-            }
-            if ($newtext) {
-                $e->title = $newtext.$right;
-                logger ("title-phrase: $newtext",4);
-            }
+                if ($newtext) {
+                    $e->$title = $newtext.$right;
+                    logger ("$title-phrase: $newtext",4);
+                }
 
-            $e->outertext .= $span;
-            // this is where we update in the outercase issue
-            if ($e->parent->_[HDOM_INFO_OUTER]) {
-                $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
+                $e->outertext .= $span;
+                // this is where we update in the outercase issue
+                if ($e->parent->_[HDOM_INFO_OUTER]) {
+                    $e->parent->outertext = implode ($e->outertext,explode($saved_outertext,$e->parent->outertext,2));
+                }
             }
-
         }
 
         // now we handle the meta content - which is simpler because they can't be edited or auto-translated
