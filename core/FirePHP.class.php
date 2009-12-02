@@ -8,10 +8,11 @@
  *
  * Copyright (c) 2006-2009, Christoph Dorn
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  *
+ *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *
  *     * Redistributions in binary form must reproduce the above copyright notice,
@@ -282,7 +283,7 @@ class FirePHP {
    * @return void
    */
   public function setObjectFilter($Class, $Filter) {
-    $this->objectFilters[$Class] = $Filter;
+    $this->objectFilters[strtolower($Class)] = $Filter;
   }
 
   /**
@@ -1030,6 +1031,7 @@ class FirePHP {
         array_push($this->objectStack, $Object);
 
         $return['__className'] = $class = get_class($Object);
+        $class_lower = strtolower($class);
 
         $reflectionClass = new ReflectionClass($class);
         $properties = array();
@@ -1057,9 +1059,9 @@ class FirePHP {
             $raw_name = "\0".'*'."\0".$raw_name;
           }
 
-          if(!(isset($this->objectFilters[$class])
-               && is_array($this->objectFilters[$class])
-               && in_array($raw_name,$this->objectFilters[$class]))) {
+          if(!(isset($this->objectFilters[$class_lower])
+               && is_array($this->objectFilters[$class_lower])
+               && in_array($raw_name,$this->objectFilters[$class_lower]))) {
 
             if(array_key_exists($raw_name,$members)
                && !$property->isStatic()) {
@@ -1096,9 +1098,9 @@ class FirePHP {
           if(!isset($properties[$name])) {
             $name = 'undeclared:'.$name;
 
-            if(!(isset($this->objectFilters[$class])
-                 && is_array($this->objectFilters[$class])
-                 && in_array($raw_name,$this->objectFilters[$class]))) {
+            if(!(isset($this->objectFilters[$class_lower])
+                 && is_array($this->objectFilters[$class_lower])
+                 && in_array($raw_name,$this->objectFilters[$class_lower]))) {
 
               $return[$name] = $this->encodeObject($value, $ObjectDepth + 1, 1);
             } else {
