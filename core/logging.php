@@ -28,9 +28,9 @@ class logger {
     /** @var int Tracing level, 0 is disabled (almost) and higher numbers show more debug info */
     private $debug_level = 3;
     /** @var boolean should logging be outputted to stdout */
-    private $printout = false;
+    public $printout = false;
     /** @var boolean should logging outputted to stdout include an EOL */
-    private $eolprint = false;
+    public $eolprint = false;
     /** @var boolean shell we show which function called the logger */
     public $show_caller = true;
     /** @var FirePHP used for outputing into firephp output */
@@ -60,7 +60,7 @@ class logger {
             if (!is_object($msg))
                 error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/tmp/transposh.log");
             if ($this->printout || !isset($this->firephp)) {
-                echo $msg;
+                echo "$log_prefix:$msg";
                 echo ($this->eolprint) ? "\n" : "<br/>";
             }
             else {
@@ -98,6 +98,10 @@ class logger {
      */
     public static function init() {
         return self::$instance = new self();
+    }
+
+    public function set_debug_level($int) {
+        $this->debug_level = $int;
     }
 }
 
