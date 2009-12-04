@@ -386,14 +386,20 @@ class parser {
             return $this->html;
         }
 
-        // fix urls on feed
+        // fix feed
         if ($this->feed_fix) {
+            // fix urls on feed
             logger ("in feed");
             foreach (array('link','wfw:commentrss','comments','guid') as $tag) {
                 foreach ($this->html->find($tag) as $e) {
                     $e->innertext = call_user_func_array($this->url_rewrite_func,array($e->innertext));
+                    // no need to translate anything here
+                    unset($e->nodes);
                 }
             }
+            // fix feed language
+            $this->html->find('language', 0)->innertext = $this->lang;
+            unset($this->html->find('language', 0)->nodes);
         }
 
         // actually translate tags
