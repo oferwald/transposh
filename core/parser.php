@@ -184,7 +184,7 @@ class parser {
         if (($char == '.' || $char == '-') && ($this->is_white_space($nextchar))) return 1;
         if (ord($char) == 226 && ord($nextchar) == 136 && ord($nextnextchar) == 153) return 3; //∙
         if (ord($char) == 194 && ord($nextchar) == 183) return 2; //·
-        return (strpos(',?()[]"!:|;',$char) !== false) ? 1 : 0;
+        return (strpos(',?()[]"!:|;',$char) !== false) ? 1 : 0; // TODO: might need to add < and > here
     }
 
     /**
@@ -223,6 +223,14 @@ class parser {
     function parsetext($string) {
         $pos = 0;
         //	$pos = skip_white_space($string, $pos);
+        // skip CDATA in feed_fix mode
+        if ($this->feed_fix) {
+            if (strpos($string,'<![CDATA[') === 0) {
+                $pos = 9; // CDATA length
+                $string = substr($string,0,-3); // chop the last ]]>;
+            }
+        }
+
         $start = $pos;
 
         while($pos < strlen($string)) {
@@ -237,15 +245,19 @@ class parser {
                 //skip past entity
                 $pos += $len_of_entity;
             }
+            // we have a special case for <> tags which might have came to us (maybe in xml feeds) (we'll skip them...)
+            elseif ($string[$pos] == '<') {
+                while ($string[$pos] != '>' && $pos < strlen($string)) $pos ++;
+            }
             // will break translation unit when there's a breaker ",.[]()..."
             elseif($senb_len = $this->is_sentence_breaker($string[$pos],$string[$pos+1],$string[$pos+2])) {
                 $this->tag_phrase($string,$start,$pos);
                 $pos += $senb_len;
                 $start = $pos;
             }
-            // Numbers also break, if they are followed by whitespace (don't break 42nd)
+            // Numbers also break, if they are followed by whitespace (or a sentence breaker) (don't break 42nd) // TODO: probably by breaking entities too...
             elseif($num_len = $this->is_number($string,$pos)) {
-                if ($this->is_white_space($string[$pos+$num_len])) {
+                if ($this->is_white_space($string[$pos+$num_len]) ||  $this->is_sentence_breaker($string[$pos+$num_len],$string[$pos+$num_len+1],$string[$pos+$num_len+2])) {
                     $this->tag_phrase($string,$start,$pos);
                     $start = $pos + $num_len + 1;
                 }
@@ -258,7 +270,7 @@ class parser {
 
         // the end is also some breaker
         if($pos > $start) {
-            $this->tag_phrase($string,$start,$pos);
+                $this->tag_phrase($string,$start,$pos);
         }
     }
 
@@ -413,11 +425,6 @@ class parser {
                 }
             }
             if ($newtext) {
-                /* if ($this->feed_fix) {
-                    if (substr($newtext, 0, 4) == '&lt;') {
-                        $newtext = html_entity_decode($newtext);
-                    }
-                }*/
                 $e->outertext = $newtext.$right;
                 logger ("phrase: $newtext",4);
             }
