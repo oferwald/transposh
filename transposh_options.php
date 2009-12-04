@@ -74,6 +74,8 @@ define("WIDGET_STYLE", "widget_style");
 define("WIDGET_PROGRESSBAR", "widget_progressbar");
 //Use CSS sprites for flags if available
 define("WIDGET_CSS_FLAGS", "widget_css_flags");
+//Wrap widget elements in an unordered list per #63 @since 0.3.7
+define("WIDGET_IN_LIST", "widget_in_list");
 
 
 class transposh_plugin_options {
@@ -154,6 +156,10 @@ class transposh_plugin_options {
 
     function get_widget_css_flags() {
         return $this->options[WIDGET_CSS_FLAGS];
+    }
+
+    function get_widget_in_list() {
+        return $this->options[WIDGET_IN_LIST];
     }
 
     function get_enable_permalinks() {
@@ -241,9 +247,14 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[WIDGET_STYLE]);
     }
 
-    function set_widget_css_flags($val) { // FIX!
+    function set_widget_css_flags($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[WIDGET_CSS_FLAGS]);
+    }
+
+    function set_widget_in_list($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[WIDGET_IN_LIST]);
     }
 
     function set_enable_permalinks($val) {
