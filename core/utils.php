@@ -168,7 +168,8 @@ function get_language_from_url($url, $home_url) {
         $params = explode('&',$parsedurl['query']);
         foreach ($params as $key => $param) {
             if (stripos($param,LANG_PARAM) === 0) {
-                return ($params[$key]);
+                $langa = explode("=",$params[$key]);
+                return ($langa[1]);
             }
         }
     }
