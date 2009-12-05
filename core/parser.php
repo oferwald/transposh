@@ -389,13 +389,18 @@ class parser {
         // fix feed
         if ($this->feed_fix) {
             // fix urls on feed
-            logger ("in feed");
-            foreach (array('link','wfw:commentrss','comments','guid') as $tag) {
+            logger ("fixing feed");
+            foreach (array('link','wfw:commentrss','comments') as $tag) {
                 foreach ($this->html->find($tag) as $e) {
                     $e->innertext = call_user_func_array($this->url_rewrite_func,array($e->innertext));
                     // no need to translate anything here
                     unset($e->nodes);
                 }
+            }
+            // guid is not really a url -- in some future, we can check if permalink is true and probably falsify it
+            foreach ($this->html->find('guid') as $e) {
+                    $e->innertext = $e->innertext.'-'.$this->lang;
+                    unset($e->nodes);
             }
             // fix feed language
             $this->html->find('language', 0)->innertext = $this->lang;
