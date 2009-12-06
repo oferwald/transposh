@@ -120,9 +120,16 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/12/06 - 0.3.7 =
+ * Fix feed parsing
+ * Fix issue with parsing numbers before sentence breakers
+ * Change language tag in the feed (thanks [Kevin Hart](http://gainesvillecomputer.com/))
+ * Fix bug with search when not using permalinks
+ * Allow wrapping widget with an unordered list (thanks [Kevin Hart](http://gainesvillecomputer.com/))
+ * Fix clash with other plugins using JSON_Services
 = 2009/12/02 - 0.3.6 =
  * Translated language posts are now searchable with the default wordpress search box
- * Rewrite urls inside feeds so translated feeds become a much more valid option (thanks datapharmer)
+ * Rewrite urls inside feeds so translated feeds become a much more valid option (thanks [Kevin Hart](http://gainesvillecomputer.com/))
  * Fixed transposh_widget global bug
 = 2009/11/26 - 0.3.5 =
  * Enabled auto-translation to all editable languages on the admin side
