@@ -203,6 +203,7 @@ class parser {
     function tag_phrase($string,$start, $end) {
         $phrase = trim(substr($string,$start,$end-$start));
         if ($phrase) {
+            logger ($phrase,4);
             $node = new simple_html_dom_node($this->html);
             $node->tag = 'phrase';
             $node->parent = $this->currentnode;
@@ -247,7 +248,10 @@ class parser {
             }
             // we have a special case for <> tags which might have came to us (maybe in xml feeds) (we'll skip them...)
             elseif ($string[$pos] == '<') {
+                $this->tag_phrase($string,$start,$pos);
                 while ($string[$pos] != '>' && $pos < strlen($string)) $pos ++;
+                $pos++;
+                $start = $pos;
             }
             // will break translation unit when there's a breaker ",.[]()..."
             elseif($senb_len = $this->is_sentence_breaker($string[$pos],$string[$pos+1],$string[$pos+2])) {
