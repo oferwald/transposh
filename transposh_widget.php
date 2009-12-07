@@ -214,8 +214,8 @@ class transposh_plugin_widget {
             echo '<p>No languages available for display. Check the Transposh settings (Admin).</p>';
         }
 
-        if ($this->transposh->options->get_widget_in_list()) echo "</li></ul>";
         echo "</form>";
+        if ($this->transposh->options->get_widget_in_list()) echo "</li></ul>";
         //TODO: maybe... echo "<button onClick=\"do_auto_translate();\">translate all</button>";
         if ($this->transposh->options->get_widget_in_list()) echo "<ul><li>";
         // Now this is a comment for those wishing to remove our logo (tplogo.png) and link (transposh.org) from the widget
