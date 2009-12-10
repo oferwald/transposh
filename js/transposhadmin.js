@@ -77,7 +77,7 @@ jQuery(document).ready(function() {
     var prev_name='';
     var l_count = 0;
 
-    jQuery.getJSON(transposh_params.post_url+"?tr_phrases_post=y&post="+transposh_params.post, function(json) {
+    jQuery.getJSON(transposh_params.post_url+"?tr_phrases_post=y&post="+transposh_params.post+"&random="+Math.random(), function(json) { // need to add random to avoid getting cached!
         // if we got no results than seems like we have nothing to translate
         if (json == null) {
              jQuery("#tr_loading").replaceWith('Nothing left to translate');
