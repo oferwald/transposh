@@ -301,6 +301,8 @@ class transposh_database {
             }
         }
 
+        // avoid empty work
+        if (!$values) return;
         // perform insertion to the database, with one query :)
         $update = "REPLACE INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
                 VALUES $values";
