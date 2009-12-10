@@ -73,6 +73,8 @@ class transposh_plugin {
     private $admin_msg;
     /** @var string Saved search variables*/
     private $search_s;
+    /** @var boolean If transposh.js is on the page*/
+    public $js_included = false;
 
     /**
      * class constructor
@@ -112,10 +114,6 @@ class transposh_plugin {
         add_action('shutdown', array(&$this,'on_shutdown'));
         add_action('wp_print_styles', array(&$this,'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this,'add_transposh_js'));
-        if ($this->options->get_enable_search_translate()) {
-            add_action('pre_get_posts', array(&$this,'pre_post_search'));
-            add_action('posts_where_request', array(&$this,'posts_where_request'));
-        }
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
     }
@@ -203,6 +201,17 @@ class transposh_plugin {
             $this->postpublish->get_post_phrases($_GET['post']);
             exit;
         }
+        elseif (isset($_GET['tr_cookie'])) {
+            //$_COOKIE['TR_LNG'] = get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            setcookie('TR_LNG',get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url),time()+90*24*60*60,COOKIEPATH,COOKIE_DOMAIN);
+            logger ('Cookie '.get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url));
+            exit;
+        }
+        elseif (isset($_GET['tr_cookie_bck'])) {
+            setcookie('TR_LNG',get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url),time()+90*24*60*60,COOKIEPATH,COOKIE_DOMAIN);
+            wp_redirect($_SERVER['HTTP_REFERER']);
+            exit;
+        }
         else {
             //set the callback for translating the page when it's done
             ob_start(array(&$this,"process_page"));
@@ -285,18 +294,51 @@ class transposh_plugin {
     function on_parse_request($wp) {
         logger ("on_parse_req");
         logger ($wp->query_vars);
+
+        // first we get the target language
+        $this->target_language = $wp->query_vars[LANG_PARAM];
+        if (!$this->target_language)
+            $this->target_language = $this->options->get_default_language();
+        logger ("requested language: ".$this->target_language);
+
+        // we'll go into this code of redirection only if we have options that need it
+        if ($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) {
+            // we are starting a session if needed
+            if (!session_id()) session_start();
+            // no redirections if we already redirected in this session or we suspect cyclic redirections
+            if (!$_SESSION['TR_REDIRECTED'] && !($_SERVER['HTTP_REFERER'] == $_SERVER['REQUEST_URI'])) {
+                logger ('session redirection never happened (yet)');
+                // we redirect once per session
+                $_SESSION['TR_REDIRECTED'] = true;
+                // redirect according to stored lng cookie, and than according to detection
+                if (isset($_COOKIE['TR_LNG']) && $this->options->get_widget_allow_set_default_language()) {
+                    if ($_COOKIE['TR_LNG'] != $this->target_language) {
+                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG']));
+                        exit;
+                    }
+                } else {
+                    $bestlang = prefered_language(explode(',',$this->options->get_viewable_langs()),$this->options->get_default_language());
+                    if ($bestlang != $this->target_language && $this->options->get_enable_detect_language()) {
+                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang));
+                        exit;
+                    }
+                }
+            } else {
+                logger ('session was already redirected');
+            }
+        }
         // this method allows posts from the search box to maintain the language,
         // TODO - it has a bug of returning to original language following search, which can be resolved by removing search from widget urls, but maybe later...
         if (isset($wp->query_vars['s'])) {
+            if ($this->options->get_enable_search_translate()) {
+                add_action('pre_get_posts', array(&$this,'pre_post_search'));
+                add_action('posts_where_request', array(&$this,'posts_where_request'));
+            }
             if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url) && !get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url)) {
                 wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), false));//."&stop=y");
                 exit;
             }
         }
-        $this->target_language = $wp->query_vars[LANG_PARAM];
-        if (!$this->target_language)
-            $this->target_language = $this->options->get_default_language();
-        logger ("requested language: ".$this->target_language);
         if (isset($wp->query_vars[EDIT_PARAM]) && $wp->query_vars[EDIT_PARAM] && $this->is_editing_permitted()) {
             $this->edit_mode = true;
         }
@@ -436,7 +478,9 @@ class transposh_plugin {
         }
         //include the transposh.css
         wp_enqueue_style("transposh","{$this->transposh_plugin_url}/css/transposh.css",array(),TRANSPOSH_PLUGIN_VER);
-        wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",array(),'1.0');
+        // we have to load the jquery-ui css just in some cases
+        if ($this->edit_mode || $this->options->get_widget_progressbar())
+            wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",array(),'1.0');
         logger("Added transposh_css",4);
     }
 
@@ -444,12 +488,7 @@ class transposh_plugin {
      * Insert references to the javascript files used in the translated version of the page.
      */
     function add_transposh_js() {
-        //translation not allowed - no need for any js.
-        if(!$this->is_editing_permitted() && !$this->is_auto_translate_permitted()) {
-            return;
-        }
-
-        //not in any translation mode - no need for any js.
+         //not in any translation mode - no need for any js.
         if (!$this->edit_mode && !$this->is_auto_translate_permitted()) {
             return;
         }
@@ -467,6 +506,8 @@ class transposh_plugin {
             //TODO - fix (onetime var)
             wp_deregister_script('jquery');
             wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
+            // toying around - for later...
+            //wp_enqueue_script("jquery","http://code.jquery.com/jquery-1.4a1.min.js",array(),'1.4a');
             // jQuery pushing below might cause issues
             //wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', $this->options->get_enable_footer_scripts());
             wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',$this->options->get_enable_footer_scripts());
@@ -475,6 +516,7 @@ class transposh_plugin {
                 wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=".$this->options->get_msn_key(),array(),'1',$this->options->get_enable_footer_scripts());
             }
             wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js?post_url={$this->post_url}{$edit_param}&lang={$this->target_language}&prefix=".SPAN_PREFIX,array("jquery"),TRANSPOSH_PLUGIN_VER,$this->options->get_enable_footer_scripts());
+            $this->js_included = true;
         }
     }
 
@@ -487,7 +529,7 @@ class transposh_plugin {
     // TODO????
     function is_editing_permitted() {
         // editing is permitted for translators only
-        if(!$this->is_translator()) return FALSE;
+        if(!$this->is_translator()) return false;
         // and only on the non-default lang (unless strictly specified)
         if (!$this->options->get_enable_default_translate() && $this->options->is_default_language($this->target_language)) return false;
 
@@ -503,7 +545,9 @@ class transposh_plugin {
     function is_auto_translate_permitted() {
         logger("checking auto translatability",4);
 
-        if(!$this->options->get_enable_auto_translate()) return FALSE;
+        if(!$this->options->get_enable_auto_translate()) return false;
+        // auto translate is not enabled for default target language when enable default is disabled
+        if (!$this->options->get_enable_default_translate() && $this->options->is_default_language($this->target_language)) return false;
 
         return $this->options->is_editable_language($this->target_language);
     }

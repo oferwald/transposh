@@ -14,7 +14,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 // OLD Options - To be removed
 //Option defining whether anonymous translation is allowed.
 define("OLD_ANONYMOUS_TRANSLATION", "transposh_allow_anonymous_translation");
@@ -64,8 +64,10 @@ define("ENABLE_SEARCH_TRANSLATE", "enable_search_translate");
 define("ENABLE_PERMALINKS", "enable_permalinks");
 //Option to enable/disable footer scripts (2.8 and up)
 define("ENABLE_FOOTER_SCRIPTS", "enable_footer_scripts");
-//Option to enable/disable footer scripts (2.8 and up)
+//Option to enable/disable footer scripts (2.8 and up) -- TODO should go away
 define("ALTERNATE_POST", "alternate_post_method");
+//Option to enable detect and redirect language @since 0.3.8
+define("ENABLE_DETECT_LANG_AND_REDIRECT", "enable_detect_redirect");
 //Option defining the default language
 define("DEFAULT_LANG", "default_language");
 //Option defining transposh widget appearance
@@ -76,6 +78,8 @@ define("WIDGET_PROGRESSBAR", "widget_progressbar");
 define("WIDGET_CSS_FLAGS", "widget_css_flags");
 //Wrap widget elements in an unordered list per #63 @since 0.3.7
 define("WIDGET_IN_LIST", "widget_in_list");
+//Allows user to set his default language per #63 @since 0.3.8
+define("WIDGET_ALLOW_SET_DEFLANG", "widget_allow_set_deflang");
 
 
 class transposh_plugin_options {
@@ -162,6 +166,10 @@ class transposh_plugin_options {
         return $this->options[WIDGET_IN_LIST];
     }
 
+    function get_widget_allow_set_default_language() {
+        return $this->options[WIDGET_ALLOW_SET_DEFLANG];
+    }
+
     function get_enable_permalinks() {
         return $this->options[ENABLE_PERMALINKS];
     }
@@ -172,6 +180,10 @@ class transposh_plugin_options {
 
     function get_alternate_post() {
         return $this->options[ALTERNATE_POST];
+    }
+
+    function get_enable_detect_language() {
+        return $this->options[ENABLE_DETECT_LANG_AND_REDIRECT];
     }
 
     function get_enable_msn_translate() {
@@ -257,6 +269,11 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[WIDGET_IN_LIST]);
     }
 
+    function set_widget_allow_set_default_language($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[WIDGET_ALLOW_SET_DEFLANG]);
+    }
+
     function set_enable_permalinks($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[ENABLE_PERMALINKS]);
@@ -264,6 +281,11 @@ class transposh_plugin_options {
 
     function set_alternate_post($val) {
         $this->set_value($val,$this->options[ALTERNATE_POST]);
+    }
+
+    function set_enable_detect_language($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val,$this->options[ENABLE_DETECT_LANG_AND_REDIRECT]);
     }
 
     function set_enable_footer_scripts($val) {

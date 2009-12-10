@@ -107,6 +107,7 @@ class transposh_plugin_admin {
 
         $this->transposh->options->set_enable_footer_scripts($_POST[ENABLE_FOOTER_SCRIPTS]);
         $this->transposh->options->set_alternate_post($_POST[ALTERNATE_POST]);
+        $this->transposh->options->set_enable_detect_language($_POST[ENABLE_DETECT_LANG_AND_REDIRECT]);
         $this->transposh->options->set_enable_auto_translate($_POST[ENABLE_AUTO_TRANSLATE]);
         $this->transposh->options->set_enable_auto_post_translate($_POST[ENABLE_AUTO_POST_TRANSLATE]);
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
@@ -454,6 +455,14 @@ class transposh_plugin_admin {
         echo '<option value="2" '.(($this->transposh->options->get_alternate_post() == 2) ? 'selected=""':'').'>Added &quot;/index.php&quot;</option>';
         echo '</select> ';
         echo 'Change this option only if changes fail to get saved on the database';
+
+        /**
+         * Insert the option to enable/disable language auto-detection
+         * @since 0.3.8 */
+            echo '<h4>Auto detect language for users</h4>';
+            echo '<input type="checkbox" value="1" name="'.ENABLE_DETECT_LANG_AND_REDIRECT.'" '. $this->checked($this->transposh->options->get_enable_detect_language()) . '/> '.
+                'This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. '.
+                'This will redirect the first page accessed in the session to the same page with the detected language.';
 
         /* WIP        echo '<h4>Show original language first</h4>';*/
         /*foreach($languages as $code => $lang) {
