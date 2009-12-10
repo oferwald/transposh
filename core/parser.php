@@ -37,8 +37,8 @@ class parser {
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
-    //first three are html, later 4 come from feeds xml
-    protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1,'link'=>1,'wfw:commentrss'=>1,'comments'=>1,'guid'=>1);
+    //first three are html, later 3 come from feeds xml (link is problematic...)
+    protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1,'wfw:commentrss'=>1,'comments'=>1,'guid'=>1);
     /**
      * Determine if the current position in buffer is a white space.
      * @param char $char
@@ -274,7 +274,7 @@ class parser {
 
         // the end is also some breaker
         if($pos > $start) {
-                $this->tag_phrase($string,$start,$pos);
+            $this->tag_phrase($string,$start,$pos);
         }
     }
 
@@ -295,6 +295,10 @@ class parser {
         if ($node->tag == 'text') {
             // this prevents translation of a link that just surrounds its address
             if ($node->parent->tag == 'a' && $node->parent->href == $node->outertext) {
+                return;
+            }
+            // link tags inners are to be ignored
+            if ($node->parent->tag == 'link') {
                 return;
             }
             if (trim($node->outertext)) {
@@ -403,12 +407,19 @@ class parser {
             }
             // guid is not really a url -- in some future, we can check if permalink is true and probably falsify it
             foreach ($this->html->find('guid') as $e) {
-                    $e->innertext = $e->innertext.'-'.$this->lang;
-                    unset($e->nodes);
+                $e->innertext = $e->innertext.'-'.$this->lang;
+                unset($e->nodes);
             }
             // fix feed language
             $this->html->find('language', 0)->innertext = $this->lang;
             unset($this->html->find('language', 0)->nodes);
+        } else {
+            // since this is not a feed, we might have references to such in the <link rel="alternate">
+            foreach ($this->html->find('link') as $e) {
+                if (strcasecmp($e->rel, 'alternate') == 0) {
+                    $e->href = call_user_func_array($this->url_rewrite_func,array($e->href));
+                }
+            }
         }
 
         // actually translate tags
@@ -463,7 +474,7 @@ class parser {
                 if ($e->parent->_[HDOM_INFO_OUTER]) {
                     $saved_outertext = $e->outertext;
                 }
-
+                logger ("$title-original: $e->$title}",4);
                 foreach ($e->nodes as $ep) {
                     if ($ep->tag == 'phrase') {
                         list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
