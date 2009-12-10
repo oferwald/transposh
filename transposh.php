@@ -313,13 +313,13 @@ class transposh_plugin {
                 // redirect according to stored lng cookie, and than according to detection
                 if (isset($_COOKIE['TR_LNG']) && $this->options->get_widget_allow_set_default_language()) {
                     if ($_COOKIE['TR_LNG'] != $this->target_language) {
-                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG']));
+                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'],$this->edit_mode));
                         exit;
                     }
                 } else {
                     $bestlang = prefered_language(explode(',',$this->options->get_viewable_langs()),$this->options->get_default_language());
                     if ($bestlang != $this->target_language && $this->options->get_enable_detect_language()) {
-                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang));
+                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang,$this->edit_mode));
                         exit;
                     }
                 }
