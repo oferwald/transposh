@@ -14,7 +14,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 /**
  *
@@ -28,9 +28,9 @@ require_once("logging.php");
 /*
  * Remove from url any language (or editing) params that were added for our use.
  * Return the scrubed url
- */
+*/
 function cleanup_url($url, $home_url, $remove_host = false) {
-    
+
     $parsedurl = @parse_url($url);
     //cleanup previous lang & edit parameter from url
 
@@ -56,7 +56,7 @@ function cleanup_url($url, $home_url, $remove_host = false) {
         $parsedurl['path'] = substr($parsedurl['path'],strlen($home_path));
         $gluebackhome = true;
     }
-    
+
     if (strlen($parsedurl['path']) > 2) {
         $secondslashpos = strpos($parsedurl['path'], "/",1);
         if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
@@ -141,7 +141,7 @@ function rewrite_url_lang_param($url,$home_url, $enable_permalinks_rewrite, $lan
         if (!$parsedurl['path']) $parsedurl['path'] = "/";
         $parsedurl['path'] = "/".$lang.$parsedurl['path'];
     }
-        if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
+    if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
 
     //insert params to url
     if(isset($params) && $params) {
@@ -216,7 +216,7 @@ function glue_url($parsed) {
 
     if (isset($parsed['path'])) {
         $uri .= (substr($parsed['path'], 0, 1) == '/') ?
-            $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
+                $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
     }
 
     $uri .= isset($parsed['query']) ? '?'.$parsed['query'] : '';
@@ -253,6 +253,59 @@ function display_flag ($path, $flag, $language, $css = false) {
     } else {
         return "<span title=\"$language\" class=\"trf trf-{$flag}\"></span>";
     }
+}
+
+/**
+ * determine which language out of an available set the user prefers most
+ * adapted from php documentation page
+ * @param array $available_languages array with language-tag-strings (must be lowercase) that are available
+ * @param string $default_lang Language that will be default (first in available languages if not provided)
+ * @param string $http_accept_language a HTTP_ACCEPT_LANGUAGE string (read from $_SERVER['HTTP_ACCEPT_LANGUAGE'] if left out)
+ * @return string
+ */
+function prefered_language ($available_languages,$default_lang="auto",$http_accept_language="auto") {
+    // if $http_accept_language was left out, read it from the HTTP-Header
+    if ($http_accept_language == "auto") $http_accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+
+    // standard  for HTTP_ACCEPT_LANGUAGE is defined under
+    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
+    // pattern to find is therefore something like this:
+    //    1#( language-range [ ";" "q" "=" qvalue ] )
+    // where:
+    //    language-range  = ( ( 1*8ALPHA *( "-" 1*8ALPHA ) ) | "*" )
+    //    qvalue         = ( "0" [ "." 0*3DIGIT ] )
+    //            | ( "1" [ "." 0*3("0") ] )
+    preg_match_all("/([[:alpha:]]{1,8})(-([[:alpha:]|-]{1,8}))?" .
+            "(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i",
+            $http_accept_language, $hits, PREG_SET_ORDER);
+
+    // default language (in case of no hits) is the first in the array
+    if ($default_lang=='auto') $bestlang = $available_languages[0]; else $bestlang = $default_lang;
+    $bestqval = 0;
+
+    foreach ($hits as $arr) {
+        // read data from the array of this hit
+        $langprefix = strtolower ($arr[1]);
+        if (!empty($arr[3])) {
+            $langrange = strtolower ($arr[3]);
+            $language = $langprefix . "-" . $langrange;
+        }
+        else $language = $langprefix;
+        $qvalue = 1.0;
+        if (!empty($arr[5])) $qvalue = floatval($arr[5]);
+
+        // find q-maximal language
+        if (in_array($language,$available_languages) && ($qvalue > $bestqval)) {
+            $bestlang = $language;
+            $bestqval = $qvalue;
+        }
+        // if no direct hit, try the prefix only but decrease q-value by 10% (as http_negotiate_language does)
+        else if (in_array($languageprefix,$available_languages) && (($qvalue*0.9) > $bestqval)) {
+            $bestlang = $languageprefix;
+            $bestqval = $qvalue*0.9;
+        }
+    }
+    return $bestlang;
 }
 
 ?>

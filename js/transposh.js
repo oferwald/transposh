@@ -14,6 +14,7 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+// source - 0 is human, 1 is gt - 2 and higher reserved for future engines
 
 // fetch translation from google translate...
 function getgt()
@@ -27,13 +28,17 @@ function getgt()
     });
 }
 
-// fetch translation from bing... google translate...
+// fetch translation from bing translate...
 function getbt()
 {
     jQuery(":button:contains('Suggest - Bing')").attr("disabled","disabled").addClass("ui-state-disabled");
     var binglang = transposh_params.lang;
-    if (binglang == 'zh') {binglang = 'zh-chs'}
-    if (binglang == 'zh-tw') {binglang = 'zh-cht'}
+    if (binglang == 'zh') {
+        binglang = 'zh-chs'
+    }
+    if (binglang == 'zh-tw') {
+        binglang = 'zh-cht'
+    }
     Microsoft.Translator.translate(jQuery("#"+transposh_params.prefix+"original").val(), "", binglang, function(translation) {
         jQuery("#"+transposh_params.prefix+"translation").val(jQuery("<div>"+translation+"</div>").text())
         .keyup();
@@ -45,10 +50,6 @@ var done_p = 0;
 var togo = 0;
 //Timer for translation aggregation
 var timer;
-function do_timer(translation) {
-    alert ("timer..."+translation);
-}
-
 var tokens = new Array();
 var translations = new Array();
 
@@ -315,11 +316,15 @@ function translate_dialog(segment_id) {
     var tButtons = {};
     if (binglangs.indexOf(transposh_params.lang+',',0) > -1) {
         //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
-        tButtons['Suggest - Bing'] = function() {getbt();};
+        tButtons['Suggest - Bing'] = function() {
+            getbt();
+        };
     }
 
     if (google.language.isTranslatable(transposh_params.lang) || ext_langs.indexOf(transposh_params.lang) > -1) {
-        tButtons['Suggest - Google'] = function() {getgt();};
+        tButtons['Suggest - Google'] = function() {
+            getgt();
+        };
     }
     /*    'Next': function() {
                 alert(parseInt(segment_id)+1);
@@ -392,6 +397,12 @@ jQuery(document).ready(
         if (typeof(jQuery().progressbar) != 'undefined') {
             transposh_params.progress = true;
         }
+        // attach a function to the set_defualt_language link if its there
+        jQuery('#'+transposh_params.prefix+'setdeflang').click(function () {
+            jQuery.get( transposh_params.post_url+"?tr_cookie="+Math.random());
+            jQuery(this).hide("slow");
+            return false;
+        })
         // TODO: he, iw? :)
         if (google.language.isTranslatable(transposh_params.lang) || ext_langs.indexOf(transposh_params.lang) > -1) {
             do_auto_translate();

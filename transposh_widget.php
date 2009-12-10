@@ -200,6 +200,15 @@ class transposh_plugin_widget {
 
         //at least one language showing - add the edit box if applicable
         if($is_showing_languages) {
+            if ($this->transposh->options->get_widget_allow_set_default_language()) {
+                If ((isset($_COOKIE['TR_LNG']) && $_COOKIE['TR_LNG'] != $this->transposh->target_language) || (!isset($_COOKIE['TR_LNG']) && !$this->transposh->options->is_default_language($this->transposh->target_language))) {
+                    if ($this->transposh->js_included) {
+                        echo '<a href="#" id="'.SPAN_PREFIX.'setdeflang" onClick="return false;">Set as default language</a><br/>';
+                    } else {
+                        echo '<a href="'.$this->transposh->home_url.'?tr_cookie_bck">Set as default language</a><br/>';
+                    }
+                }
+            }
             //Add the edit checkbox only for translators  on languages marked as editable
             if($this->transposh->is_editing_permitted()) {
                 echo "<input type=\"checkbox\" name=\"" . EDIT_PARAM . "\" value=\"1\" " .
@@ -238,6 +247,7 @@ class transposh_plugin_widget {
         $this->transposh->options->set_widget_progressbar($_POST[WIDGET_PROGRESSBAR]);
         $this->transposh->options->set_widget_css_flags($_POST[WIDGET_CSS_FLAGS]);
         $this->transposh->options->set_widget_in_list($_POST[WIDGET_IN_LIST]);
+        $this->transposh->options->set_widget_allow_set_default_language($_POST[WIDGET_ALLOW_SET_DEFLANG]);
         if ($save)
             $this->transposh->options->update_options();
         // Avoid coming here twice...
@@ -263,6 +273,8 @@ class transposh_plugin_widget {
                 '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Show progress bar when a client triggers automatic translation">Show progress bar</span><br/>'.
                 '<input type="checkbox" id="'.WIDGET_CSS_FLAGS.'" name="'.WIDGET_CSS_FLAGS.'"'.($this->transposh->options->get_widget_css_flags() ? ' checked="checked"' : '').'/>'.
                 '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Use a single sprite with all flags, makes pages load faster. Currently not suitable if you made changes to the flags.">Use CSS flags</span><br/>'.
+                '<input type="checkbox" id="'.WIDGET_ALLOW_SET_DEFLANG.'" name="'.WIDGET_ALLOW_SET_DEFLANG.'"'.($this->transposh->options->get_widget_allow_set_default_language() ? ' checked="checked"' : '').'/>'.
+                '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Widget will allow setting this language as user default.">Allow user to set current language as default</span><br/>'.
                 '<input type="checkbox" id="'.WIDGET_IN_LIST.'" name="'.WIDGET_IN_LIST.'"'.($this->transposh->options->get_widget_in_list() ? ' checked="checked"' : '').'/>'.
                 '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Wraps generated widget code with UL helps with some CSSs.">Wrap widget with an unordered list (UL)</span>'.
                 '</p>'.
