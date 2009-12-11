@@ -301,7 +301,7 @@ class transposh_plugin {
             $this->target_language = $this->options->get_default_language();
         logger ("requested language: ".$this->target_language);
 
-        // we'll go into this code of redirection only if we have options that need it
+        // we'll go into this code of redirection only if we have options that need it (and no bot is involved, for the non-cookie)
         if ($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) {
             // we are starting a session if needed
             if (!session_id()) session_start();
@@ -318,7 +318,8 @@ class transposh_plugin {
                     }
                 } else {
                     $bestlang = prefered_language(explode(',',$this->options->get_viewable_langs()),$this->options->get_default_language());
-                    if ($bestlang != $this->target_language && $this->options->get_enable_detect_language()) {
+                    // we won't redirect if we should not, or this is a presumable bot
+                    if ($bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
                         wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang,$this->edit_mode));
                         exit;
                     }
