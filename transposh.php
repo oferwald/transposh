@@ -313,14 +313,18 @@ class transposh_plugin {
                 // redirect according to stored lng cookie, and than according to detection
                 if (isset($_COOKIE['TR_LNG']) && $this->options->get_widget_allow_set_default_language()) {
                     if ($_COOKIE['TR_LNG'] != $this->target_language) {
-                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'],$this->edit_mode));
+                        $url = rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'],$this->edit_mode);
+                        if ($this->options->is_default_language($_COOKIE['TR_LNG'])) $url = cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
+                        wp_redirect($url);
                         exit;
                     }
                 } else {
                     $bestlang = prefered_language(explode(',',$this->options->get_viewable_langs()),$this->options->get_default_language());
                     // we won't redirect if we should not, or this is a presumable bot
-                    if ($bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
-                        wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang,$this->edit_mode));
+                    if ($bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
+                        $url = rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang,$this->edit_mode);
+                        if ($this->options->is_default_language($bestlang)) $url = cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
+                        wp_redirect($url);
                         exit;
                     }
                 }
