@@ -416,7 +416,7 @@ class parser {
         } else {
             // since this is not a feed, we might have references to such in the <link rel="alternate">
             foreach ($this->html->find('link') as $e) {
-                if (strcasecmp($e->rel, 'alternate') == 0) {
+                if (strcasecmp($e->rel, 'alternate') == 0 || strcasecmp($e->rel, 'canonical') == 0) {
                     $e->href = call_user_func_array($this->url_rewrite_func,array($e->href));
                 }
             }
