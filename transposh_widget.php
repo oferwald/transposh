@@ -121,13 +121,6 @@ class transposh_plugin_widget {
         $page_url = $_SERVER["REQUEST_URI"];
         logger ("p3:".$page_url, 6);
 
-        //$options = get_option(WIDGET_TRANSPOSH);
-        $viewable_langs = $this->transposh->options->get_viewable_langs();
-        $editable_langs = $this->transposh->options->get_editable_langs();
-        logger ("$viewable_langs",4);
-        logger ("$editable_langs",4);
-        $is_translator = $this->transposh->is_translator();
-
         $is_showing_languages = FALSE;
         //TODO: improve this shortening
         $plugpath = parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
@@ -149,10 +142,12 @@ class transposh_plugin_widget {
                     list($language,$flag) = explode (",",$lang2);
 
                     //Only show languages which are viewable or (editable and the user is a translator)
-                    if(strpos($viewable_langs, $code) !== FALSE || $this->transposh->options->is_editable_language($code) || ($this->transposh->options->get_default_language() == $code)) {
+                    if($this->transposh->options->is_viewable_language($code) ||
+                            ($this->transposh->options->is_editable_language($code)   && $this->transposh->is_translator()) ||
+                            ($this->transposh->options->is_default_language($code))) {
                         logger ("code = ".$code,5);
                         $page_url = rewrite_url_lang_param($clean_page_url,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $code, $this->transposh->edit_mode);
-                        if ($this->transposh->options->get_default_language() == $code) {
+                        if ($this->transposh->options->is_default_language($code)) {
                             $page_url = $clean_page_url;
                         }
 
@@ -188,7 +183,9 @@ class transposh_plugin_widget {
                     list($language,$flag) = explode (",",$lang2);
 
                     //Only show languages which are viewable or (editable and the user is a translator)
-                    if(strpos($viewable_langs, $code) !== FALSE || $this->transposh->options->is_editable_language($code) || ($this->transposh->options->get_default_language() == $code)) {
+                    if($this->transposh->options->is_viewable_language($code) ||
+                            ($this->transposh->options->is_editable_language($code)   && $this->transposh->is_translator()) ||
+                            ($this->transposh->options->is_default_language($code))) {
                         $is_selected = ($this->transposh->target_language == $code ? "selected=\"selected\"" : "" );
                         echo "<option value=\"$code\" $is_selected>" . $language . "</option>";
                         $is_showing_languages = TRUE;
