@@ -35,7 +35,7 @@ class transposh_plugin_admin {
         $this->transposh = &$transposh;
         // FIX (probably always happens?)
         if ($this->transposh->options->get_widget_css_flags())
-            wp_enqueue_style("transposh-flags",plugins_url('', __FILE__)."/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
+            wp_enqueue_style("transposh_flags",plugins_url('', __FILE__)."/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
         //add filter for WordPress 2.8 changed backend box system !
         add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
         //add some help
