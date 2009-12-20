@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.8.6
+Tested up to: 2.9.0
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -52,7 +52,7 @@ In the languages array in the constants.php file change the two letter ISO code 
 
 = I have a feature to suggest =
 
-The correct place for that would be our [development site](http://trac.transposh.com "ticket system")
+The correct place for that would be our [development site](http://trac.transposh.org "ticket system")
 
 = The interface looks messed up =
 
@@ -120,6 +120,11 @@ change the .css from transparent background to your page background color. And l
 5. Widget style selection
 
 == Changelog ==
+= 2009/12/20 - 0.3.8 =
+ * Add language detection and default language settings
+ * Fix wrong inclusions of css and js (thanks [Kevin Hart](http://gainesvillecomputer.com/))
+ * Fix RSS subscription links (thanks [Kevin Hart](http://gainesvillecomputer.com/))
+ * Fix rel=canonical just in time for 2.9.0 (thanks [Kevin Hart](http://gainesvillecomputer.com/))
 = 2009/12/06 - 0.3.7 =
  * Fix feed parsing
  * Fix issue with parsing numbers before sentence breakers
