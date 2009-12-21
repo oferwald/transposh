@@ -220,7 +220,11 @@ class transposh_plugin_options {
     function get_default_language() {
         $default = $this->options[DEFAULT_LANG];
         if(!$GLOBALS['languages'][$default]) {
-            $default = "en";
+            if (defined('WPLANG') && $GLOBALS['languages'][WPLANG]) {
+                $default = WPLANG;
+            } else {
+                $default = "en";
+            }
         }
         return $default;
     }
