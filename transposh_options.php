@@ -48,6 +48,8 @@ define("ANONYMOUS_TRANSLATION", "allow_anonymous_translation");
 define("VIEWABLE_LANGS", "viewable_languages");
 //Option defining the list of currentlly editable languages
 define("EDITABLE_LANGS", "editable_languages");
+//Option defining the ordered list of languages @since 0.3.9
+define("SORTED_LANGS", "sorted_languages");
 //Option to enable/disable auto translation
 define("ENABLE_AUTO_TRANSLATE", "enable_autotranslate");
 //Option to enable/disable auto translation
@@ -139,6 +141,7 @@ class transposh_plugin_options {
     }
 
     function get_anonymous_translation() {
+        if (!isset($this->options[ANONYMOUS_TRANSLATION])) return 1; // default is true
         return $this->options[ANONYMOUS_TRANSLATION];
     }
 
@@ -148,6 +151,17 @@ class transposh_plugin_options {
 
     function get_editable_langs() {
         return $this->options[EDITABLE_LANGS];
+    }
+
+    /**
+     * Get a user sorted language list
+     * @since 0.3.9
+     * @return array sorted list of languages, pointing to names and flags 
+     */
+    function get_sorted_langs() {
+        if (isset($this->options[SORTED_LANGS]))
+            return array_merge(array_flip(explode(",",$this->options[SORTED_LANGS])),$GLOBALS['languages']);
+        return $GLOBALS['languages'];
     }
 
     function get_widget_progressbar() {
@@ -213,8 +227,7 @@ class transposh_plugin_options {
     }
 
     /**
-     * Gets the default language setting, i.e. the source language which
-     * should not be translated.
+     * Gets the default language setting, i.e. the source language which normally should not be translated.
      * @return string Default language
      */
     function get_default_language() {
@@ -252,6 +265,10 @@ class transposh_plugin_options {
 
     function set_editable_langs($val) {
         $this->set_value($val, $this->options[EDITABLE_LANGS]);
+    }
+
+    function set_sorted_langs($val) {
+        $this->set_value($val, $this->options[SORTED_LANGS]);
     }
 
     function set_widget_progressbar($val) {
