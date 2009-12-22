@@ -138,8 +138,8 @@ class transposh_plugin_widget {
                 echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
                 if ($this->transposh->options->get_widget_in_list()) echo "<ul>";
 
-                foreach($GLOBALS['languages'] as $code => $lang2) {
-                    list($language,$flag) = explode (",",$lang2);
+                foreach($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
+                    list ($langname,$language,$flag) = explode (",",$langrecord);
 
                     //Only show languages which are viewable or (editable and the user is a translator)
                     if($this->transposh->options->is_viewable_language($code) ||
@@ -179,8 +179,8 @@ class transposh_plugin_widget {
                 echo "<select name=\"lang\"	id=\"lang\" onchange=\"Javascript:this.form.submit();\">";
                 echo "<option value=\"none\">[Language]</option>";
 
-                foreach($GLOBALS['languages'] as $code => $lang2) {
-                    list($language,$flag) = explode (",",$lang2);
+                foreach($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
+                    list ($langname,$language,$flag) = explode (",",$langrecord);
 
                     //Only show languages which are viewable or (editable and the user is a translator)
                     if($this->transposh->options->is_viewable_language($code) ||

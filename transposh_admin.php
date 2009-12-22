@@ -16,12 +16,12 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  adapted metabox sample code from http://www.code-styling.de/
- */
+*/
 
 /*
  * Provide the admin page for configuring the translation options. eg.  what languages ?
  * who is allowed to translate ?
- */
+*/
 
 define ("TR_NONCE","transposh_nonce");
 
@@ -36,6 +36,8 @@ class transposh_plugin_admin {
         // FIX (probably always happens?)
         if ($this->transposh->options->get_widget_css_flags())
             wp_enqueue_style("transposh_flags",plugins_url('', __FILE__)."/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
+        wp_enqueue_script('jquery-ui-droppable');
+        wp_enqueue_script("transposh_control",plugins_url('', __FILE__)."/js/transposhcontrol.js",array(),TRANSPOSH_PLUGIN_VER);
         //add filter for WordPress 2.8 changed backend box system !
         add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
         //add some help
@@ -46,10 +48,10 @@ class transposh_plugin_admin {
         add_action('admin_post_save_transposh', array(&$this, 'on_save_changes'));
     }
 
-/*
+    /*
  * Indicates whether the given role can translate.
  * Return either "checked" or ""
- */
+    */
     function can_translate($role_name) {
         if($role_name != 'anonymous') {
             $role = $GLOBALS['wp_roles']->get_role($role_name);
@@ -60,9 +62,9 @@ class transposh_plugin_admin {
             return ($this->transposh->options->get_anonymous_translation()) ? 'checked="checked"' : '';
     }
 //
-/*
+    /*
  * Handle newly posted admin options.
- */
+    */
     function update_admin_options() {
         logger('Enter', 1);
         logger($_POST);
@@ -81,22 +83,30 @@ class transposh_plugin_admin {
         //Anonymous needs to be handled differently as it does not have a role
         $this->transposh->options->set_anonymous_translation($_POST['anonymous']);
 
-        //Update the list of supported/editable languages
-        foreach($GLOBALS['languages'] as $code => $lang) {
-            if($_POST[$code . '_view']) {
-                $viewable_langs[$code] = $code;
+        //first set the default language
+        list ($langcode, $viewable, $translateable) = explode(",",$_POST['languages'][0]);
+        $this->transposh->options->set_default_language($langcode);
+        unset($_POST['languages'][0]);
+
+        //Update the list of supported/editable/sortable languages
+        logger($_POST['languages']);
+        foreach($_POST['languages'] as $code => $lang) {
+        list ($langcode, $viewable, $translateable) = explode(",",$lang);
+            $sorted_langs[$langcode] = $langcode;
+            if($viewable) {
+                $viewable_langs[$langcode] = $langcode;
                 // force that every viewable lang is editable
-                $editable_langs[$code] = $code;
+                $editable_langs[$langcode] = $langcode;
             }
 
-            if($_POST[$code . '_edit']) {
-                $editable_langs[$code] = $code;
+            if($translateable) {
+                $editable_langs[$langcode] = $langcode;
             }
         }
 
         $this->transposh->options->set_viewable_langs(implode(',', $viewable_langs));
         $this->transposh->options->set_editable_langs(implode(',', $editable_langs));
-        $this->transposh->options->set_default_language($_POST['default_lang']);
+        $this->transposh->options->set_sorted_langs(implode(',', $sorted_langs));
 
         if($this->transposh->options->get_enable_permalinks() != $_POST[ENABLE_PERMALINKS]) {
             $this->transposh->options->set_enable_permalinks($_POST[ENABLE_PERMALINKS]);
@@ -130,8 +140,8 @@ class transposh_plugin_admin {
     function on_contextual_help($filterVal,$screen) {
         if($screen == "settings_page_transposh") {
             $filterVal["settings_page_transposh"] = '<p>Transposh makes your blog translatable</p>'.
-                '<a href="http://transposh.org/">Plugin homepage</a><br/>'.
-                '<a href="http://transposh.org/faq/">Frequently asked questions</a>';
+                    '<a href="http://transposh.org/">Plugin homepage</a><br/>'.
+                    '<a href="http://transposh.org/faq/">Frequently asked questions</a>';
         }
         return $filterVal;
     }
@@ -195,7 +205,7 @@ class transposh_plugin_admin {
             <div id="post-body" class="has-sidebar">
                 <div id="post-body-content" class="has-sidebar-content">
                             <?php do_meta_boxes($this->pagehook, 'normal', "");
-                                 /* Maybe add static content here later */
+                            /* Maybe add static content here later */
                             //do_meta_boxes($this->pagehook, 'additional', $data); ?>
                     <p>
                         <input type="submit" value="Save Changes" class="button-primary" name="Submit"/>
@@ -268,13 +278,13 @@ class transposh_plugin_admin {
 
                 foreach ( (array) $rss->items as $item ) {
                     printf(
-                        '<li><a href="%1$s" title="%2$s">%3$s</a></li>',
-                        //esc_url( $item['link'] ),
-                        //esc_attr( strip_tags( $item['description'] ) ),
-                        // TODO - check Switched to 2.7 compatability functions
-                        clean_url( $item['link'] ),
-                        attribute_escape( strip_tags( $item['description'] ) ),
-                        htmlentities( $item['title'],ENT_COMPAT,'UTF-8' )
+                            '<li><a href="%1$s" title="%2$s">%3$s</a></li>',
+                            //esc_url( $item['link'] ),
+                            //esc_attr( strip_tags( $item['description'] ) ),
+                            // TODO - check Switched to 2.7 compatability functions
+                            clean_url( $item['link'] ),
+                            attribute_escape( strip_tags( $item['description'] ) ),
+                            htmlentities( $item['title'],ENT_COMPAT,'UTF-8' )
                     );
                 }
 
@@ -294,66 +304,73 @@ class transposh_plugin_admin {
     }
 
     function on_contentbox_languages_content($data) {
-/*
+        /*
  * Insert supported languages section in admin page
- */
-// was function insert_supported_langs() {
+        */
 
-        echo
-        '<script type="text/javascript">'.
-            'function chbx_change(lang)'.
-            '{'.
-            'jQuery("#"+lang+"_edit").attr("checked",jQuery("#"+lang+"_view").attr("checked"))'.
-            '}'.
-            'jQuery(document).ready(function() {'.
-            'jQuery("#tr_anon").click(function() {'.
-            'if (jQuery("#tr_anon").attr("checked")) {'.
-            'jQuery(".tr_editable").css("display","none");'.
-            '} else {'.
-            'jQuery(".tr_editable").css("display","");'.
-            '}'.
-            '});'.
-            '});'.
-            '</script>';
-        echo '<table class="'.NO_TRANSLATE_CLASS.'" style="width: 100%"><tr>';
-
-        // we will hide the translatable column if anonymous can translate anyway
-        if ($this->can_translate('anonymous')) $extrastyle = ' style ="display:none"';
-
-        $columns = 2;
-        for($hdr=0; $hdr < $columns; $hdr++) {
-            $extrapad = ($hdr != $columns - 1) ? ";padding-right: 40px" : '';
-            echo '<th style="text-align:left; width:'.(100/$columns).'%">Language</th>'.
-                '<th title="Is this language user selectable?">Viewable</th>'.
-                '<th title="Is this language visible for translators?"'.$extrastyle.' class="tr_editable">Translatable</th>'.
-                '<th>Default</th>'.
-                '<th style="text-align:left;width: 80px'.$extrapad.'" title="Can we auto-translate this language?">Auto?</th>';
+        echo '<style type="text/css">
+	#sortable { list-style-type: none; margin: 0; padding: 0; }
+	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: left; width: 190px; height: 14px;}
+	.languages {-moz-border-radius:6px;
+            border-style:solid;
+            border-width:1px;
+            line-height:1;
+         }
+	.highlight {-moz-border-radius:6px;
+            border-style:solid;
+            border-width:1px;
+            line-height:1;
+            background: #FFE45C;
+            width: 190px;
+            height: 14px;
         }
-        echo '</tr>';
-
-        $i=0;
-        foreach($GLOBALS['languages'] as $code => $lang) {
-            list ($language,$flag,$autot) = explode (",",$lang);
-            if(!($i % $columns)) echo '<tr'.(!($i/2 % $columns) ? ' class="alternate"':'').'>';
-            $i++;
-
-            echo "<td>".display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $language,$this->transposh->options->get_widget_css_flags())."&nbsp;$language</td>";
-            echo '<td align="center"><input type="checkbox" id="' . $code .'_view" name="' .
-                $code . '_view" onchange="chbx_change(\'' . $code . '\')" ' . $this->checked($this->transposh->options->is_viewable_language($code)) . '/></td>';
-            echo '<td class="tr_editable"'.$extrastyle.' align="center"><input type="checkbox" id="' . $code . '_edit" name="' .
-                $code . '_edit" ' . $this->checked($this->transposh->options->is_editable_language($code)). '/></td>';
-            echo "<td align=\"center\"><input type=\"radio\" name=\"default_lang\" value=\"$code\" " .
-                $this->checked($this->transposh->options->is_default_language($code)). "/></td>";
-            // TODO: Add icons?
-            echo "<td>".($autot ? "Y" : "N")."</td>";
-
-            if(!($i % $columns)) echo '</tr>';
+	.highlight_default {
+            background: #FFE45C;
         }
-        // add a missing </tr> if needed
-        if($i % $columns) echo '</tr>';
-        echo '</table>';
+        .active {
+            background: #45FF51;
+        }
+        .translateable {
+            background: #FFFF51;
+        }
+        .hidden {
+        display: none;
+        }
+        .logoicon {
+            float: right;
+            margin-left:2px;
+            margin-top:-1px;
+        }
+	</style>';
 
+        list ($langname, $langorigname,$flag) = explode (",",$GLOBALS['languages'][$this->transposh->options->get_default_language()]);
+        echo '<div id="default_lang" style="overflow:auto;">Default Language (drag another language here to make it default)';
+        echo '<ul id="default_list"><li id="'.$this->transposh->options->get_default_language().'"class="languages">'
+                .display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname,$this->transposh->options->get_widget_css_flags())
+                .'<input type="hidden" name="languages[]" value="'. $this->transposh->options->get_default_language() .'" />'
+                      .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></li>';
+        echo '</div>';
 
+        echo '<div style="overflow:auto; clear: both;">Available Languages (double click to toggle language state - drag to sort in the widget)';
+        echo '<ul id="sortable">';
+        foreach($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
+            list ($langname, $langorigname,$flag) = explode (",",$langrecord);
+            echo '<li id="'.$langcode.'" class="languages '.($this->transposh->options->is_viewable_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "active" : "")
+                    .(!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") .'"><div style="float:left">'
+                    .display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname,$this->transposh->options->get_widget_css_flags())
+                    .'<input type="hidden" name="languages[]" value="'. $langcode .($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",").($this->transposh->options->is_viewable_language($langcode) ? ",t" : ",").'" />'
+                    .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></div>';
+            if (in_array($langcode,$GLOBALS['google_languages'])) echo "<img class=\"logoicon\" title=\"Language supported by google translate\" src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"/>";
+            if (in_array($langcode,$GLOBALS['bing_languages'])) echo "<img class=\"logoicon\" title=\"Language supported by bing translate\" src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"/>";
+            if (in_array($langcode,$GLOBALS['rtl_languages'])) echo "<img class=\"logoicon\" title=\"Language is written from right to left\" src=\"{$this->transposh->transposh_plugin_url}/img/rtlicon.png\"/>";
+            echo '</li>';
+        }
+        echo "</ul></div>";
+        echo '<div style="clear: both;">Display options:<br/>';
+        echo '<a href="#" id="changename">Toggle names of languages between English and Original</a><br/>';
+        echo '<a href="#" id="selectall">Make all languages active</a><br>';
+        echo 'Legend: Green - active, <span id="yellowcolor" class="'.($this->transposh->options->get_anonymous_translation() ? "hidden" : "").'">Yellow - translateable (only translators will see this language), </span>blank - inactive';
+        echo '</div>';
     }
 
     /**
@@ -368,12 +385,12 @@ class transposh_plugin_admin {
     function on_contentbox_translation_content($data) {
         /*
          * Insert permissions section in the admin page
-         */
+        */
         echo '<h4>Who can translate ?</h4>';
         //display known roles and their permission to translate
         foreach($GLOBALS['wp_roles']->get_names() as $role_name => $something) {
             echo '<input type="checkbox" value="1" name="'.$role_name.'" '.$this->can_translate($role_name).
-                '/> '.ucfirst($role_name).'&nbsp;&nbsp;&nbsp;';
+                    '/> '.ucfirst($role_name).'&nbsp;&nbsp;&nbsp;';
         }
         //Add our own custom role
         echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" '.	$this->can_translate('anonymous') . '/> Anonymous';
@@ -381,10 +398,10 @@ class transposh_plugin_admin {
         /*
          * Insert the option to enable/disable automatic translation.
          * Enabled by default.
-         */
+        */
         echo '<h4>Enable automatic translation</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_AUTO_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_auto_translate()).'/> '.
-            'Allow automatic translation of pages (currently using Google Translate)';
+                'Allow automatic translation of pages (currently using Google Translate)';
 
         /**
          * Insert the option to enable/disable automatic translation upon publishing.
@@ -392,24 +409,24 @@ class transposh_plugin_admin {
          *  @since 0.3.5 */
         echo '<h4>New - Enable automatic translation after posting</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_AUTO_POST_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_auto_post_translate()).'/> '.
-            'Do automatic translation immediately after a post has been published';
+                'Do automatic translation immediately after a post has been published';
 
         /*
          * Insert the option to enable/disable msn translations.
          * Disabled by default because an API key is needed.
-         */
+        */
         echo '<h4>Support for Bing (MSN) translation hinting (experimental)</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_MSN_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_msn_translate()).'/> '.
-            'Allow MSN (Bing) translator hinting (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>'.
-            'Key: <input type="text" size="35" class="regular-text" value="'.$this->transposh->options->get_msn_key().'" id="'.MSN_TRANSLATE_KEY.'" name="'.MSN_TRANSLATE_KEY.'"/>';
+                'Allow MSN (Bing) translator hinting (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>'.
+                'Key: <input type="text" size="35" class="regular-text" value="'.$this->transposh->options->get_msn_key().'" id="'.MSN_TRANSLATE_KEY.'" name="'.MSN_TRANSLATE_KEY.'"/>';
 
         /*
          * Insert the option to enable/disable default language translation.
          * Disabled by default.
-         */
+        */
         echo '<h4>Enable default language translation</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_DEFAULT_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_default_translate()).'/> '.
-            'Allow translation of default language - useful for sites with more than one major language';
+                'Allow translation of default language - useful for sites with more than one major language';
 
         /**
          * Insert the option to enable search in translated languages
@@ -418,7 +435,7 @@ class transposh_plugin_admin {
          */
         echo '<h4>Enable search in translated languages</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_SEARCH_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_search_translate()).'/> '.
-            'Allow search of translated languages, in those languages (and the original language)';
+                'Allow search of translated languages, in those languages (and the original language)';
 
     }
 
@@ -426,22 +443,22 @@ class transposh_plugin_admin {
         /*
          * Insert the option to enable/disable rewrite of perlmalinks.
          * When disabled only parameters will be used to identify the current language.
-         */
+        */
         echo '<h4>Rewrite URLs</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_PERMALINKS.'" '. $this->checked($this->transposh->options->get_enable_permalinks()) . '/> '.
-            'Rewrite URLs to be search engine friendly, '.
-            'e.g.  (http://wordpress.org/<strong>en</strong>). '.
-            'Requires that permalinks will be enabled.';
+                'Rewrite URLs to be search engine friendly, '.
+                'e.g.  (http://wordpress.org/<strong>en</strong>). '.
+                'Requires that permalinks will be enabled.';
 
         /*
          * Insert the option to enable/disable pushing of scripts to footer.
          * Works on wordpress 2.8 and up
-         */
+        */
         if (floatval($GLOBALS['wp_version']) >= 2.8) {
             echo '<h4>Add scripts to footer</h4>';
             echo '<input type="checkbox" value="1" name="'.ENABLE_FOOTER_SCRIPTS.'" '. $this->checked($this->transposh->options->get_enable_footer_scripts()) . '/> '.
-                'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
-                'Requires that your theme should have proper footer support.';
+                    'Push transposh scripts to footer of page instead of header, makes pages load faster. '.
+                    'Requires that your theme should have proper footer support.';
         }
 
         /**
@@ -459,8 +476,8 @@ class transposh_plugin_admin {
         /**
          * Insert the option to enable/disable language auto-detection
          * @since 0.3.8 */
-            echo '<h4>Auto detect language for users</h4>';
-            echo '<input type="checkbox" value="1" name="'.ENABLE_DETECT_LANG_AND_REDIRECT.'" '. $this->checked($this->transposh->options->get_enable_detect_language()) . '/> '.
+        echo '<h4>Auto detect language for users</h4>';
+        echo '<input type="checkbox" value="1" name="'.ENABLE_DETECT_LANG_AND_REDIRECT.'" '. $this->checked($this->transposh->options->get_enable_detect_language()) . '/> '.
                 'This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. '.
                 'This will redirect the first page accessed in the session to the same page with the detected language.';
 
