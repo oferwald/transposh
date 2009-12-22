@@ -303,20 +303,29 @@ class transposh_plugin_admin {
         $this->transposh->database->db_stats();
     }
 
+    /**
+     * Insert supported languages section in admin page
+     * @param string $data
+     */
     function on_contentbox_languages_content($data) {
-        /*
- * Insert supported languages section in admin page
-        */
-
+        // we need some styles
         echo '<style type="text/css">
 	#sortable { list-style-type: none; margin: 0; padding: 0; }
 	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: left; width: 190px; height: 14px;}
-	.languages {-moz-border-radius:6px;
+	.languages {
+            -moz-border-radius: 6px;
+            -khtml-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
             border-style:solid;
             border-width:1px;
             line-height:1;
          }
-	.highlight {-moz-border-radius:6px;
+	.highlight {
+            -moz-border-radius: 6px;
+            -khtml-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
             border-style:solid;
             border-width:1px;
             line-height:1;
@@ -343,15 +352,16 @@ class transposh_plugin_admin {
         }
 	</style>';
 
+        // this is the default language location
         list ($langname, $langorigname,$flag) = explode (",",$GLOBALS['languages'][$this->transposh->options->get_default_language()]);
-        echo '<div id="default_lang" style="overflow:auto;">Default Language (drag another language here to make it default)';
+        echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">Default Language (drag another language here to make it default)';
         echo '<ul id="default_list"><li id="'.$this->transposh->options->get_default_language().'"class="languages">'
                 .display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname,$this->transposh->options->get_widget_css_flags())
                 .'<input type="hidden" name="languages[]" value="'. $this->transposh->options->get_default_language() .'" />'
                       .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></li>';
         echo '</div>';
-
-        echo '<div style="overflow:auto; clear: both;">Available Languages (double click to toggle language state - drag to sort in the widget)';
+        // list of languages
+        echo '<div style="overflow:auto; clear: both;">Available Languages (Click to toggle language state - Drag to sort in the widget)';
         echo '<ul id="sortable">';
         foreach($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             list ($langname, $langorigname,$flag) = explode (",",$langrecord);
@@ -366,9 +376,12 @@ class transposh_plugin_admin {
             echo '</li>';
         }
         echo "</ul></div>";
-        echo '<div style="clear: both;">Display options:<br/>';
-        echo '<a href="#" id="changename">Toggle names of languages between English and Original</a><br/>';
-        echo '<a href="#" id="selectall">Make all languages active</a><br>';
+        // options to play with
+        echo '<div style="clear: both;">Display options:<br/><ul style="list-style-type: disc; margin-left: 20px;font-size:11px">';
+        echo '<li><a href="#" id="changename">Toggle names of languages between English and Original</a></li>';
+        echo '<li><a href="#" id="selectall">Make all languages active</a></li>';
+        echo '<li><a href="#" id="sortname">Sort by language name</a></li>';
+        echo '<li><a href="#" id="sortiso">Sort by lSO code</a></li></ul>';
         echo 'Legend: Green - active, <span id="yellowcolor" class="'.($this->transposh->options->get_anonymous_translation() ? "hidden" : "").'">Yellow - translateable (only translators will see this language), </span>blank - inactive';
         echo '</div>';
     }
