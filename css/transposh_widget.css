@@ -2,7 +2,8 @@
  * Widget's css 
  */
 .transposh_flags {
-    direction: ltr
+    direction: ltr;
+    line-height: 0;
 }
 /*.transposh_flags a  {
     line-height:11px;*/
