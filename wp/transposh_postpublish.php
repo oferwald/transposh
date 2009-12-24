@@ -21,9 +21,6 @@
  * Provides the side widget in the page/edit pages which will do translations
  */
 
-require_once("core/logging.php");
-require_once("core/jsonwrapper/jsonwrapper.php");
-
 /**
  * class that makes changed to the edit page and post page, adding our change to the side ba
  */

@@ -23,10 +23,6 @@
  *
  */
 
-require_once("core/logging.php");
-require_once("core/constants.php");
-require_once("core/utils.php");
-
 //
 //Constants
 //

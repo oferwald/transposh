@@ -33,12 +33,16 @@ if (!function_exists ('add_action')) {
     exit();
 }
 
+require_once("core/logging.php");
+require_once("core/constants.php");
+require_once("core/utils.php");
+require_once("core/jsonwrapper/jsonwrapper.php");
 require_once("core/parser.php");
-require_once("transposh_db.php");
-require_once("transposh_widget.php");
-require_once("transposh_admin.php");
-require_once("transposh_options.php");
-require_once("transposh_postpublish.php");
+require_once("wp/transposh_db.php");
+require_once("wp/transposh_widget.php");
+require_once("wp/transposh_admin.php");
+require_once("wp/transposh_options.php");
+require_once("wp/transposh_postpublish.php");
 
 /**
  * This class represents the complete plugin
@@ -89,9 +93,6 @@ class transposh_plugin {
 
         // "global" vars
         $this->home_url = get_option('home');
-        $this->post_url = $this->home_url;
-        if ($this->options->get_alternate_post() == 1) $this->post_url .= "/";
-        if ($this->options->get_alternate_post() == 2) $this->post_url .= "/index.php";
 
         // Handle windows ('C:\wordpress')
         $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
@@ -100,6 +101,8 @@ class transposh_plugin {
         $this->transposh_plugin_url = WP_PLUGIN_URL .'/'. $local_dir;
         // TODO - test on more platforms - this failed in 2.7.1 so I am reverting for now...
         //$tr_plugin_url= plugins_url('', __FILE__);
+
+        $this->post_url = $this->transposh_plugin_url."/wp/transposh_ajax.php";
 
         logger("Object created". $_SERVER['REQUEST_URI'], 3);
 
@@ -184,38 +187,8 @@ class transposh_plugin {
                 $this->enable_permalinks_rewrite = TRUE;
             }
 
-        if (isset($_POST['translation_posted'])) {
-            if ($_POST['translation_posted'] == 2) {
-                $this->database->update_translation_new();
-            }
-            else {
-                $this->database->update_translation();
-            }
-            exit;
-        }
-        elseif (isset($_GET['tr_token_hist'])) {
-            $this->database->get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
-            exit;
-        }
-        elseif (isset($_GET['tr_phrases_post'])) {
-            $this->postpublish->get_post_phrases($_GET['post']);
-            exit;
-        }
-        elseif (isset($_GET['tr_cookie'])) {
-            //$_COOKIE['TR_LNG'] = get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
-            setcookie('TR_LNG',get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url),time()+90*24*60*60,COOKIEPATH,COOKIE_DOMAIN);
-            logger ('Cookie '.get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url));
-            exit;
-        }
-        elseif (isset($_GET['tr_cookie_bck'])) {
-            setcookie('TR_LNG',get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url),time()+90*24*60*60,COOKIEPATH,COOKIE_DOMAIN);
-            wp_redirect($_SERVER['HTTP_REFERER']);
-            exit;
-        }
-        else {
-            //set the callback for translating the page when it's done
-            ob_start(array(&$this,"process_page"));
-        }
+        //set the callback for translating the page when it's done
+        ob_start(array(&$this,"process_page"));
     }
 
     /**
@@ -493,7 +466,7 @@ class transposh_plugin {
      * Insert references to the javascript files used in the translated version of the page.
      */
     function add_transposh_js() {
-         //not in any translation mode - no need for any js.
+        //not in any translation mode - no need for any js.
         if (!$this->edit_mode && !$this->is_auto_translate_permitted()) {
             return;
         }

@@ -20,11 +20,6 @@
  * Provides the sidebar widget for selecting a language and switching between edit/view
  * mode.
 */
-require_once("core/logging.php");
-require_once("core/constants.php");
-require_once("core/utils.php");
-require_once("transposh.php");
-
 
 //class that reperesent the complete plugin
 class transposh_plugin_widget {
@@ -202,7 +197,7 @@ class transposh_plugin_widget {
                     if ($this->transposh->js_included) {
                         echo '<a href="#" id="'.SPAN_PREFIX.'setdeflang" onClick="return false;">Set as default language</a><br/>';
                     } else {
-                        echo '<a href="'.$this->transposh->home_url.'?tr_cookie_bck">Set as default language</a><br/>';
+                        echo '<a href="'.$this->transposh->post_url.'?tr_cookie_bck">Set as default language</a><br/>';
                     }
                 }
             }

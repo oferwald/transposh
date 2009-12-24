@@ -25,19 +25,13 @@
 
 define ("TR_NONCE","transposh_nonce");
 
-require_once("core/logging.php");
-//class that reperesent the complete plugin
+//class that reperesent the admin page
 class transposh_plugin_admin {
     /** @var transposh_plugin $transposh father class */
     private $transposh;
 //constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
         $this->transposh = &$transposh;
-        // FIX (probably always happens?)
-        if ($this->transposh->options->get_widget_css_flags())
-            wp_enqueue_style("transposh_flags",plugins_url('', __FILE__)."/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
-        wp_enqueue_script('jquery-ui-droppable');
-        wp_enqueue_script("transposh_control",plugins_url('', __FILE__)."/js/transposhcontrol.js",array(),TRANSPOSH_PLUGIN_VER);
         //add filter for WordPress 2.8 changed backend box system !
         add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
         //add some help
@@ -162,6 +156,11 @@ class transposh_plugin_admin {
         wp_enqueue_script('common');
         wp_enqueue_script('wp-lists');
         wp_enqueue_script('postbox');
+
+        if ($this->transposh->options->get_widget_css_flags())
+            wp_enqueue_style("transposh_flags",$this->transposh->transposh_plugin_url."/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
+        wp_enqueue_script('jquery-ui-droppable');
+        wp_enqueue_script("transposh_control",$this->transposh->transposh_plugin_url."/js/transposhcontrol.js",array(),TRANSPOSH_PLUGIN_VER, true);
 
         //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
         add_meta_box('transposh-sidebox-about', 'About this plugin', array(&$this, 'on_sidebox_about_content'), $this->pagehook, 'side', 'core');
@@ -355,11 +354,11 @@ class transposh_plugin_admin {
         // this is the default language location
         list ($langname, $langorigname,$flag) = explode (",",$GLOBALS['languages'][$this->transposh->options->get_default_language()]);
         echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">Default Language (drag another language here to make it default)';
-        echo '<ul id="default_list"><li id="'.$this->transposh->options->get_default_language().'"class="languages">'
+        echo '<ul id="default_list"><li id="'.$this->transposh->options->get_default_language().'" class="languages">'
                 .display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname,$this->transposh->options->get_widget_css_flags())
                 .'<input type="hidden" name="languages[]" value="'. $this->transposh->options->get_default_language() .'" />'
                       .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></li>';
-        echo '</div>';
+        echo '</ul></div>';
         // list of languages
         echo '<div style="overflow:auto; clear: both;">Available Languages (Click to toggle language state - Drag to sort in the widget)';
         echo '<ul id="sortable">';
@@ -370,9 +369,9 @@ class transposh_plugin_admin {
                     .display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname,$this->transposh->options->get_widget_css_flags())
                     .'<input type="hidden" name="languages[]" value="'. $langcode .($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",").($this->transposh->options->is_viewable_language($langcode) ? ",t" : ",").'" />'
                     .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></div>';
-            if (in_array($langcode,$GLOBALS['google_languages'])) echo "<img class=\"logoicon\" title=\"Language supported by google translate\" src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"/>";
-            if (in_array($langcode,$GLOBALS['bing_languages'])) echo "<img class=\"logoicon\" title=\"Language supported by bing translate\" src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"/>";
-            if (in_array($langcode,$GLOBALS['rtl_languages'])) echo "<img class=\"logoicon\" title=\"Language is written from right to left\" src=\"{$this->transposh->transposh_plugin_url}/img/rtlicon.png\"/>";
+            if (in_array($langcode,$GLOBALS['google_languages'])) echo "<img width=\"16\" height=\"16\" alt=\"g\" class=\"logoicon\" title=\"Language supported by google translate\" src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"/>";
+            if (in_array($langcode,$GLOBALS['bing_languages'])) echo "<img width=\"16\" height=\"16\" alt=\"b\" class=\"logoicon\" title=\"Language supported by bing translate\" src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"/>";
+            if (in_array($langcode,$GLOBALS['rtl_languages'])) echo "<img width=\"16\" height=\"16\" alt=\"r\" class=\"logoicon\" title=\"Language is written from right to left\" src=\"{$this->transposh->transposh_plugin_url}/img/rtlicon.png\"/>";
             echo '</li>';
         }
         echo "</ul></div>";
@@ -480,9 +479,9 @@ class transposh_plugin_admin {
         echo '<h4>Try alternate posting methods</h4>';
 
         echo '<select name="'.ALTERNATE_POST.'" id="'.ALTERNATE_POST.'">';
-        echo '<option value="0" '.(($this->transposh->options->get_alternate_post() == 0) ? 'selected=""':'').'>Normal</option>';
-        echo '<option value="1" '.(($this->transposh->options->get_alternate_post() == 1) ? 'selected=""':'').'>Added &quot;/&quot;</option>';
-        echo '<option value="2" '.(($this->transposh->options->get_alternate_post() == 2) ? 'selected=""':'').'>Added &quot;/index.php&quot;</option>';
+        echo '<option value="0" '.(($this->transposh->options->get_alternate_post() == 0) ? 'selected="selected"':'').'>Normal</option>';
+        echo '<option value="1" '.(($this->transposh->options->get_alternate_post() == 1) ? 'selected="selected"':'').'>Added &quot;/&quot;</option>';
+        echo '<option value="2" '.(($this->transposh->options->get_alternate_post() == 2) ? 'selected="selected""':'').'>Added &quot;/index.php&quot;</option>';
         echo '</select> ';
         echo 'Change this option only if changes fail to get saved on the database';
 
@@ -494,12 +493,7 @@ class transposh_plugin_admin {
                 'This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. '.
                 'This will redirect the first page accessed in the session to the same page with the detected language.';
 
-        /* WIP        echo '<h4>Show original language first</h4>';*/
-        /*foreach($languages as $code => $lang) {
-            list ($language,$flag,$autot) = explode (",",$lang);
-            $flags .= $flag.',';
-        }
-        * WIP2
+       /* WIP2
         echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>';*/
     }
 
