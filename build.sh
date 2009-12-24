@@ -28,7 +28,7 @@ echo
 #
 #Add sub directories
 #
-for DIR in js css img; do
+for DIR in js css img wp; do
   cp -r $DIR $TRANSPOSH_DIR
   echo "added sub-directory $DIR"
 done;
