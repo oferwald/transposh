@@ -9,34 +9,38 @@ Stable tag: <%VERSION%>
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
 
 == Description ==
-Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to be translated by your readers in-context.
+Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
 
-***The following features are supported:***
+***Transposh includes the following features:***
 
-* Support for any language - including RTL/LTR
-* Unique interface for choosing viewable/translatable languages
+* Support for any language - including RTL/LTR layouts
+* Unique drag/drop interface for choosing viewable/translatable languages
 * Multiple selection for widget appearances
-* Translation of external plugins with no changes
+* Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
+* Automatic translation can be triggered on demand by the readers or on the server side
+* RSS feeds are translated too
+* Takes care of hidden elements, link tags and titles
 * Translated languages are searchable
 * Fine grained control for advanced users
 
-***We are focused on:***
+***Our goals:***
 
 * **Performance** - very fast - using APC cache if available
-* **Support** - you want it - we'll implement it, visit our trac site http://trac.transposh.org
+* **Support** - you want it - we'll implement it, just visit our [development site](http://trac.transposh.org "ticket system")
 * **Security** - we have externally audited the plugin for improved security
 * **Ease of Use** - making translation as fun and as easy as possible
-* **SEO Optimization** - your site content will be available in all languages via search engines
+* **Flexibility** - allowing you to take control of the user experience
+* **SEO** - search engines exposure increase
 
-Technology has been tested on a large dynamic site with millions of monthly page views. Feel free to visit [ColNect](http://colnect.com "website for collectors").
+Technology has been thoroughly tested on a large dynamic site with millions of monthly page views. Feel free to visit [Colnect](http://colnect.com "website for collectors"), the best site for collectors.
 
 == Installation ==
 
 1. Upload the plugin to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Add the widget to your side bar, decide which interface you prefer
-1. On the settings page - define which languages you would like viewable, translatable and which language is currently used (default) 
+1. On the settings page - define which languages you would like viewable, translatable and which language is currently used (default) by clicking and dragging
 1. You may also elect to disable/enable the automatic translation mode  
 1. You are good to go
 
@@ -58,7 +62,7 @@ The correct place for that would be our [development site](http://trac.transposh
 
 Another .css file might intervene with our in ways we didn't predict yet, either fix that .css alone or contact us
 
-= What do the colors of the translation icons mean =
+= What do the colors of the translation icons mean? =
 
 There are currently three colors used
 
@@ -66,7 +70,19 @@ There are currently three colors used
 * Yellow - translation was done by a robot
 * Green - translation was done by human (or approved by one)
 
-= Why should I allow anonymous translation =
+= What are the colors in the administrative interface? =
+
+Three background colors are used
+* Green - this language is active and all users will see it
+* Yellow - only users with translation capability can see this language (this is disabled once anonymous translation is available)
+* Blank - language won't appear on widgets
+
+= What is the dragging of languages for? =
+
+You may drag the languages in order to set the order in which they appear in the widget, you can use the sorting links below
+which will sort the languages and put the default language first. Dragging also is used to select the default language.
+
+= Why should I allow anonymous translation? =
 
 Wiki has proven itself quite a valid model on the Internet. More people have good intentions than bad intentions and that can be
 harnessed to get your message out to more people. Future versions will give more focus on preventing spammers from defacing sites
@@ -75,7 +91,7 @@ harnessed to get your message out to more people. Future versions will give more
 
 By default, automatic translation is on and it should be kicking in. If its off, and you don’t have enough privileges to translate, nothing will happen.
 
-Please be reminded of the following “rules”
+Please be reminded of the following “rules of thumb”
 
 1. A language marked as viewable will have its flag shown inside the widget.
 1. A language marked for editing will allow a translator (anyone marked in the ‘who can translate’ section) to manually edit the page. i.e. the translate check-box will appear in the widget.
@@ -92,7 +108,7 @@ functions so the transposh.js file is not being included, try to include it manu
 
 Just add the following line to your template:
 
-<code><?php if(function_exists("transposh_widget")) { transposh_widget(); }?></code>
+`<?php if(function_exists("transposh_widget")) { transposh_widget(); }?>`
 
 = I have php speedy (http://aciddrop.com/php-speedy/) and the plugin does not work =
 
@@ -104,22 +120,35 @@ Please make sure you are using PHP5 and up, PHP4 is not supported
 
 = I want my own css image with less flags =
 
-This is coming soon
+This is on our todo list
 
 = css flags have issues on IE6 for my users =
 
 First, there's always the ability to use another option for the plugin which is more compatible, such as the selection box. Second, you can
 change the .css from transparent background to your page background color. And last - we urge anyone using IE6 to upgrade...
 
+= How can I prevent certain text from being translated? =
+
+You can wrap the element with the "no_translate" class, or add a span similar to `<span class="no_translate">`
+
 == Screenshots ==
 
-1. This is a screen shot of a site using Transposh widget on the sidebar
-2. This is the same site, translated to Hebrew
-3. A look at the translation interface
-4. Management of languages in the settings page
-5. Widget style selection
+1. This is a screen shot of Transposh home page with the flagged widget on the right sidebar
+2. This is the same site, translated to Hebrew, take note that automatic RTL kicked in
+3. A look at the translation interface, in Spanish, viewable is the editor window and the icons used to trigger it in the background
+4. The settings page, including management of active languages and various other settings
+5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
+
+== Upgrade Notice ==
+= 0.3.9 =
+This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2009/12/26 - 0.3.9 =
+ * New languages interface, users can now sort languages on their widget
+ * anonymous translation is now on by default (for new installations)
+ * Changed the post option so it would just work (no need for the alternate settings)
+ * updated screenshots and FAQ
 = 2009/12/20 - 0.3.8 =
  * Add language detection and default language settings
  * Fix wrong inclusions of css and js (thanks [Kevin Hart](http://gainesvillecomputer.com/))
@@ -139,13 +168,13 @@ change the .css from transparent background to your page background color. And l
 = 2009/11/26 - 0.3.5 =
  * Enabled auto-translation to all editable languages on the admin side
  * Alternate posting methods (thanks Andre)
- * Fix documenation display regarding widgetless themes (thanks [Hosein-mec](http://linuxshare.org/))
+ * Fix documentation display regarding widgetless themes (thanks [Hosein-mec](http://linuxshare.org/))
  * Make sure simple_html_dom is not loaded twice (if we can...)
  * Large scale code refactoring
  * Migrated css flags to the widget settings
 = 2009/11/05 - 0.3.4 =
  * Fix for nextgen gallery issue
- * Force LTR for wordpress blogs originiating in RTL
+ * Force LTR for wordpress blogs originating in RTL
  * Avoid loading Bing Translate javascript when it is not needed
 = 2009/09/06 - 0.3.3 =
  * 9 More languages supported by google translate
@@ -157,7 +186,7 @@ change the .css from transparent background to your page background color. And l
 = 2009/07/27 - 0.3.1 =
  * Much faster caching of auto translation results on server with reduced server load
  * Mark active language in the widget for css usage
- * Fixed url code with paramaters and subdirectories
+ * Fixed url code with parameters and subdirectories
 = 2009/07/23 - 0.3.0 =
  * Support Bing (MSN) translator as a hinting facilitator
 = 2009/07/21 - 0.2.9 =
@@ -184,11 +213,11 @@ change the .css from transparent background to your page background color. And l
  * Fixed bugs with database prefixes (thanks again [Mike](http://www.nostate.com/))
  * Translation of keywords and description meta tags (thanks again [Mike](http://www.nostate.com/))
  * Fix for RSS feeds provided in other languages
- * Fixed compatability to show support for wordpress 2.8
+ * Fixed compatibility to show support for wordpress 2.8
  * Support footer insertion of scripts in wordpress 2.8
  * Fixed issues of html entities breaking when they should not (thanks [Karl](http://www.wp-plugin-archive.de/))
  * Lang is now set in the headers for real
- * Fixed compatability with themes using annoying query_posts with no consideration (thanks [Karl](http://www.wp-plugin-archive.de/))
+ * Fixed compatibility with themes using annoying query_posts with no consideration (thanks [Karl](http://www.wp-plugin-archive.de/))
 = 2009/06/03 - 0.2.3 =
  * Revamped plugin setting page to a more useful one (code adapted from [code-styling.de](http://www.code-styling.de/))
  * Widget settings may be changed from settings page (thanks [Db0](http://dbzer0.com/))
@@ -203,7 +232,7 @@ change the .css from transparent background to your page background color. And l
  * Added language list mode to widget
  * Prevent translation of url that is self wrapped
  * Added &lt;code&gt; tag to list of ignored tags (thanks again [Mike](http://www.nostate.com/))
- * Middle dot is now a seperator
+ * Middle dot is now a separator
 = 2009/05/18 - 0.2.0 =
  * Faster parser - 50% faster parsing than previous engine (thanks [Simple Html DOM](http://simplehtmldom.sourceforge.net/))
  * Hidden elements translation (mainly tooltips specified by title attribute)
