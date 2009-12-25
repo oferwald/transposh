@@ -294,7 +294,7 @@ class transposh_plugin {
                 } else {
                     $bestlang = prefered_language(explode(',',$this->options->get_viewable_langs()),$this->options->get_default_language());
                     // we won't redirect if we should not, or this is a presumable bot
-                    if ($bestlang && $bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|yandex|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
+                    if ($bestlang && $bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
                         $url = rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $bestlang,$this->edit_mode);
                         if ($this->options->is_default_language($bestlang)) $url = cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
                         wp_redirect($url);
