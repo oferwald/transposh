@@ -474,18 +474,6 @@ class transposh_plugin_admin {
         }
 
         /**
-         * Allow some alternate posting methods support
-         *  @since 0.3.5 */
-        echo '<h4>Try alternate posting methods</h4>';
-
-        echo '<select name="'.ALTERNATE_POST.'" id="'.ALTERNATE_POST.'">';
-        echo '<option value="0" '.(($this->transposh->options->get_alternate_post() == 0) ? 'selected="selected"':'').'>Normal</option>';
-        echo '<option value="1" '.(($this->transposh->options->get_alternate_post() == 1) ? 'selected="selected"':'').'>Added &quot;/&quot;</option>';
-        echo '<option value="2" '.(($this->transposh->options->get_alternate_post() == 2) ? 'selected="selected""':'').'>Added &quot;/index.php&quot;</option>';
-        echo '</select> ';
-        echo 'Change this option only if changes fail to get saved on the database';
-
-        /**
          * Insert the option to enable/disable language auto-detection
          * @since 0.3.8 */
         echo '<h4>Auto detect language for users</h4>';

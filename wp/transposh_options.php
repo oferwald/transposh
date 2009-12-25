@@ -40,6 +40,8 @@ define("OLD_ENABLE_CSS_FLAGS", "transposh_enable_css_flags");
 define("OLD_DEFAULT_LANG", "transposh_default_language");
 //Option defining transposh widget appearance
 define("OLD_WIDGET_TRANSPOSH", "transposh_widget");
+//Option to enable/disable footer scripts (2.8 and up) -- @deprecated 0.3.9
+define("OLD_ALTERNATE_POST", "alternate_post_method");
 
 //defines are used to avoid typos
 //Option defining whether anonymous translation is allowed.
@@ -66,8 +68,6 @@ define("ENABLE_SEARCH_TRANSLATE", "enable_search_translate");
 define("ENABLE_PERMALINKS", "enable_permalinks");
 //Option to enable/disable footer scripts (2.8 and up)
 define("ENABLE_FOOTER_SCRIPTS", "enable_footer_scripts");
-//Option to enable/disable footer scripts (2.8 and up) -- TODO should go away
-define("ALTERNATE_POST", "alternate_post_method");
 //Option to enable detect and redirect language @since 0.3.8
 define("ENABLE_DETECT_LANG_AND_REDIRECT", "enable_detect_redirect");
 //Option defining the default language
@@ -138,6 +138,8 @@ class transposh_plugin_options {
             unset($this->options['enable_css_flags']);
             logger($this->options);
         }
+        // this has deprecated at 0.3.9
+        unset ($this->options[OLD_ALTERNATE_POST]);
     }
 
     function get_anonymous_translation() {
@@ -190,10 +192,6 @@ class transposh_plugin_options {
 
     function get_enable_footer_scripts() {
         return $this->options[ENABLE_FOOTER_SCRIPTS];
-    }
-
-    function get_alternate_post() {
-        return $this->options[ALTERNATE_POST];
     }
 
     function get_enable_detect_language() {
@@ -298,10 +296,6 @@ class transposh_plugin_options {
     function set_enable_permalinks($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[ENABLE_PERMALINKS]);
-    }
-
-    function set_alternate_post($val) {
-        $this->set_value($val,$this->options[ALTERNATE_POST]);
     }
 
     function set_enable_detect_language($val) {
