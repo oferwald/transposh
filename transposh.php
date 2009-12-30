@@ -117,7 +117,7 @@ class transposh_plugin {
         add_action('shutdown', array(&$this,'on_shutdown'));
         add_action('wp_print_styles', array(&$this,'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this,'add_transposh_js'));
-        add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'),10,5); // notice that 5 parameters are required
+        add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
     }
@@ -641,23 +641,22 @@ class transposh_plugin {
      * This function integrates with google sitemap generator, and adds for each viewable language, the rest of the languages url
      * Also - priority is reduced by 0.2
      * And this requires the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
-     * do_action('sm_addurl',$loc, $lastMod, $changeFreq, $priority,&$this);
-     * @param string $loc The location (url) of the page
-     * @param int $lastModThe last Modification time as a UNIX timestamp
-     * @param string $changeFreq The change frequenty of the page, Valid values are "always", "hourly", "daily", "weekly", "monthly", "yearly" and "never".
-     * @param float $priorty float The priority of the page, between 0.0 and 1.0
-     * @param GoogleSitemapGenerator $sm
+     * do_action('sm_addurl',$loc, &$page);
+     * @param GoogleSitemapGeneratorPage $sm_page Object containing the page information
      */
-    function add_sm_transposh_urls($loc, $lastMod, $changeFreq, $priority,&$sm) {
-        logger ("in sitemap add url: ".$loc." ".$priority);
+    function add_sm_transposh_urls(&$sm_page) {
+        logger ("in sitemap add url: ".$sm_page->GetUrl()." ".$sm_page->GetPriority());
+        // we need the generator object (we know it must exist...)
+        $generatorObject = &GoogleSitemapGenerator::GetInstance();
         // we reduce the priorty by 0.2, but not below zero
-        $priority = max($priority - 0.2, 0);
+        $sm_page->SetProprity(max($sm_page->GetPriority() - 0.2, 0));
+
         $viewable_langs = explode(",",$this->options->get_viewable_langs());
         foreach ($viewable_langs as $lang) {
             if (!$this->options->is_default_language($lang)) {
-                $newloc = rewrite_url_lang_param($loc, $this->home_url, $this->enable_permalinks_rewrite, $lang, false);
-        	$page = new GoogleSitemapGeneratorPage($newloc, $priority, $changeFreq, $lastMod);
-		$sm->AddElement($page);
+                $newloc = rewrite_url_lang_param($sm_page->GetUrl(), $this->home_url, $this->enable_permalinks_rewrite, $lang, false);
+                $sm_page->SetUrl($newloc);
+                $generatorObject->AddElement($sm_page);
             }
         }
     }
