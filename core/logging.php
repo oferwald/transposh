@@ -14,11 +14,11 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 /*
  * Logging utility class
- */
+*/
 
 // Report all PHP errors
 //error_reporting(E_ALL);
@@ -55,10 +55,23 @@ class logger {
         if($severity <= $this->debug_level) {
             if ($this->show_caller) {
                 $trace = debug_backtrace();
-                $log_prefix =str_pad("{$trace[2]['class']}::{$trace[2]['function']} {$trace[1]['line']}",55,'_');
+                if ($trace[2]['class']) {
+                    $log_prefix =str_pad("{$trace[2]['class']}::{$trace[2]['function']} {$trace[1]['line']}",55,'_');
+                } else {
+                    $prefile = substr($trace[1]['file'], strrpos($trace[1]['file'],"/"));
+                    $log_prefix =str_pad("{$prefile}::{$trace[1]['function']} {$trace[1]['line']}",55,'_');
+                }
             }
-            if (!is_object($msg))
-                error_log(date(DATE_RFC822) . ": "  . $msg . "\n", 3,  "/tmp/transposh.log");
+            if (!is_object($msg)) {
+                if (!is_array($msg)) {
+                    error_log(date(DATE_RFC822) . " $log_prefix: "  . $msg . "\n", 3,  "/tmp/transposh.log");
+                } else {
+                    error_log(date(DATE_RFC822) . " $log_prefix: Array start\n", 3,  "/tmp/transposh.log");
+                    foreach ($msg as $key => $item) {
+                        error_log(date(DATE_RFC822) . " $log_prefix: $key => $item\n", 3,  "/tmp/transposh.log");
+                    }
+                }
+            }
             if ($this->printout || !isset($this->firephp)) {
                 echo "$log_prefix:$msg";
                 echo ($this->eolprint) ? "\n" : "<br/>";
@@ -122,6 +135,6 @@ function logger($msg, $severity=3) {
 * 
 $GLOBALS['logger'] = logger::getInstance(true);
 $GLOBALS['logger']->show_caller = true;
- */
+*/
 
 ?>
