@@ -18,12 +18,31 @@
 
 /*
  * This file handles various AJAX needs of our plugin
- */
+*/
 // we need wordpress and us...
 require_once('../../../../wp-load.php');
 
 // the case of posted translation
 if (isset($_POST['translation_posted'])) {
+    // supercache invalidation of pages - first lets find if supercache is here
+    if (function_exists('wp_super_cache_init')) {
+        //Now, we are actually using the referrer and not the request, with some precautions
+        $GLOBALS['wp_cache_request_uri'] = substr($_SERVER['HTTP_REFERER'],stripos($_SERVER['HTTP_REFERER'],$_SERVER['HTTP_HOST'])+strlen($_SERVER[''].$_SERVER['HTTP_HOST']));
+        $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri'] ) ) ) );
+        // get some supercache variables
+        extract(wp_super_cache_init());
+        $dir = get_current_url_supercache_dir();
+        // delete possible files that we can figure out, not deleting files for other cookies for example, but will do the trick in most cases
+        $cache_fname = "{$dir}index.html";
+        logger ("attempting delete of supercache: $cache_fname");
+        @unlink( $cache_fname);
+        $cache_fname = "{$dir}index.html.gz";
+        logger ("attempting delete of supercache: $cache_fname");
+        @unlink( $cache_fname);
+        logger("attempting delete of wp_cache: $cache_file");
+        @unlink($cache_file);
+    }
+
     if ($_POST['translation_posted'] == 2) {
         $my_transposh_plugin->database->update_translation_new();
     }
