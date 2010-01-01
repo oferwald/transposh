@@ -9,7 +9,7 @@
 	License: GPL (http://www.gnu.org/licenses/gpl.txt)
 */
 
-/*  Copyright © 2009 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2010 Transposh Team (website : http://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
