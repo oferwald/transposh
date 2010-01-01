@@ -110,9 +110,21 @@ Just add the following line to your template:
 
 `<?php if(function_exists("transposh_widget")) { transposh_widget(); }?>`
 
-= I have php speedy (http://aciddrop.com/php-speedy/) and the plugin does not work =
+= Plugin support: php speedy (http://aciddrop.com/php-speedy/) =
 
 Users of php speedy will have to deactivate it, add “transposh.js” in the ignore list, click on “Test configuration” then reactivate it.
+
+= Plugin support: Google-Sitemaps-XML =
+
+Currently the plugin is able to add the multilingual urls to the sitemap, and you need to add the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
+`do_action('sm_addurl',$loc, &$page);`
+We hope that future versions will include this by default, and for now you can get the patched file from our site.
+After a change of languages used, you are welcomed to trigger a new sitemap buildup.
+
+= Plugin support: WP-Super-Cache =
+
+The support for wp-super-cache includes the invalidation of cached pages after a translation is made, which should reduce the issue with incorrect pages being displayed and
+redundant calls to the machine translation agent. After a change in the widget layout or the language list you are still expected to invalidate your cache.
 
 = I am getting weird errors =
 
@@ -140,10 +152,17 @@ You can wrap the element with the "no_translate" class, or add a span similar to
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.4.0 =
+This version provides integration with google-sitemaps-xml and wp-super-cache
 = 0.3.9 =
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/01/01 - 0.4.0 =
+ * Solve activation/deactivation bug
+ * Parser provides statistics in meta tag
+ * Integration with google-sitemaps-xml plugin (3.2.2)
+ * Integration with wp-super-cache (0.9.8)
 = 2009/12/26 - 0.3.9 =
  * New languages interface, users can now sort languages on their widget
  * anonymous translation is now on by default (for new installations)
