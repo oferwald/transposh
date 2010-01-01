@@ -20,15 +20,76 @@ require_once("shd/simple_html_dom.php");
 require_once("logging.php");
 
 /**
+ * parserstats class - holds parser statistics
+ */
+class parserstats {
+    /** @var int Holds the total phrases the parser encountered */
+    public $total_phrases;
+    /** @var int Holds the number of phrases that had translation */
+    public $translated_phrases;
+    /** @var int Holds the number of phrases that had human translation */
+    public $human_translated_phrases;
+
+    /** @var int Holds the number of phrases that are hidden - yet still somewhat viewable (such as the title attribure) */
+    public $hidden_phrases;
+    /** @var int Holds the number of phrases that are hidden and translated */
+    public $hidden_translated_phrases;
+
+    /** @var int Holds the number of phrases that are hidden and probably won't be viewed - such as meta keys */
+    public $meta_phrases;
+    /** @var int Holds the number of translated phrases that are hidden and probably won't be viewed - such as meta keys */
+    public $meta_translated_phrases;
+    /** @var float Holds the time translation took */
+    public $time;
+
+    /** @var int Holds the time translation started */
+    private $start_time;
+
+    /**
+     * This function is when the object is initialized, which is a good time to start ticking.
+     */
+    function parserstats() {
+        $this->start_time = microtime(true);
+    }
+
+    /**
+     * Calculated values - computer translated phrases
+     * @return int How many phrases were auto-translated
+     */
+    function get_computer_translated_phrases() {
+        return $this->translated_phrases - $this->human_translated_phrases;
+    }
+    /**
+     * Calculated values - missing phrases
+     * @return int How many phrases are missing
+     */
+    function get_missing_phrases() {
+        return $this->total_phrases - $this->translated_phrases;
+    }
+    /**
+     * Start the timer
+     */
+    function start_timing() {
+        $this->start_time = microtime(true);
+    }
+    /**
+     * Stop timing, store time for reference
+     */
+    function stop_timing() {
+        $this->time = number_format(microtime(true) - $this->start_time,3);
+    }
+}
+
+/**
  * Parser class - allows phrase marking and translation with callback functions
  */
 class parser {
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
     private $segment_id = 0;
-    /** @var simple_html_dom_node contains the current node */
+    /** @var simple_html_dom_node Contains the current node */
     private $currentnode;
-    /** @var simple_html_dom contains the document dom model */
+    /** @var simple_html_dom Contains the document dom model */
     private $html; // the document
     public $dir_rtl;
     public $lang;
@@ -39,6 +100,9 @@ class parser {
     public $feed_fix;
     //first three are html, later 3 come from feeds xml (link is problematic...)
     protected $ignore_tags = array('script'=>1, 'style'=>1, 'code'=>1,'wfw:commentrss'=>1,'comments'=>1,'guid'=>1);
+    /** @var parserstats Contains parsing statistics */
+    private $stats;
+
     /**
      * Determine if the current position in buffer is a white space.
      * @param char $char
@@ -375,6 +439,8 @@ class parser {
      * @return string Translated content is here
      */
     function fix_html($string) {
+        // ready our stats
+        $this->stats = new parserstats();
         // create our dom
         $this->html = str_get_html($string);
         // mark translateable elements
@@ -429,6 +495,12 @@ class parser {
             $newtext = '';
             foreach ($e->nodes as $ep) {
                 list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
+                //stats
+                $this->stats->total_phrases++;
+                if ($translated_text) {
+                    $this->stats->translated_phrases++;
+                    if ($source == 0) $this->stats->human_translated_phrases++;
+                }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody*/) {
                     $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
                     $spanend = "</span>";
@@ -478,6 +550,14 @@ class parser {
                 foreach ($e->nodes as $ep) {
                     if ($ep->tag == 'phrase') {
                         list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
+                        // more stats
+                        $this->stats->total_phrases++;
+                        if ($ep->inbody) $this->stats->hidden_phrases++; else $this->stats->meta_phrases++;
+                        if ($translated_text) {
+                            $this->stats->translated_phrases++;
+                            if ($ep->inbody) $this->stats->hidden_translated_phrases++; else $this->stats->meta_translated_phrases++;
+                            if ($source == 0) $this->stats->human_translated_phrases++;
+                        }
                         if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
                             // prevent duplicate translation (title = text)
                             if (strpos($e->innertext,base64_url_encode($ep->phrase)) === false) {
@@ -517,8 +597,14 @@ class parser {
 
             foreach ($e->nodes as $ep) {
                 if ($ep->tag == 'phrase') {
+                    // even more stats
+                    $this->stats->total_phrases++;
+                    $this->stats->meta_phrases++;
                     list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func,array($ep->phrase, $this->lang));
                     if ($translated_text) {
+                        $this->stats->translated_phrases++;
+                        $this->stats->meta_translated_phrases++;
+                        if ($source == 0) $this->stats->human_translated_phrases++;
                         list ($left, $right) = explode($ep->phrase, $e->content, 2);
                         $newtext .= $left.$translated_text;
                         $e->content = $right;
@@ -531,6 +617,12 @@ class parser {
             }
 
         }
+
+        // This adds a meta tag with our statistics json-encoded inside...
+        $this->stats->stop_timing();
+        $head = $this->html->find('head',0);
+        if ($head != null)
+            $head->lastChild()->outertext .= "\n<meta name=\"translation-stats\" content='".json_encode($this->stats)."'/>";
 
         // Changed because of places where tostring failed
         //return $this->html;
