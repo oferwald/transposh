@@ -359,7 +359,7 @@ class transposh_plugin {
 
         logger("plugin_activate exit: " . dirname(__FILE__));
         logger("testing name:".plugin_basename(__FILE__));
-        logger("testing name2:".get_plugin_name());
+        logger("testing name2:".$this->get_plugin_name());
         //activate_plugin($plugin);
     }
 
@@ -389,7 +389,7 @@ class transposh_plugin {
 
         if (function_exists('deactivate_plugins') ) {
             // FIXME :wtf?
-            deactivate_plugins(get_plugin_name(), "translate.php");
+            deactivate_plugins(array(&$this,'get_plugin_name'), "translate.php");
             echo '<br> This plugin has been automatically deactivated.';
         }
 
