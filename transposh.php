@@ -123,6 +123,16 @@ class transposh_plugin {
     }
 
     /**
+     * Check if page is special (one that we normally should not touch
+     * @param string $url Url to check
+     * @return boolean Is it a special page?
+     */
+    function is_special_page($url) {
+        return (stripos($url,'/wp-login.php') !== FALSE ||
+                        stripos($url,'/wp-admin/') !== FALSE ||
+                        stripos($url,'/xmlrpc.php') !== FALSE);
+    }
+    /**
      * Called when the buffer containing the original page is flushed. Triggers the translation process.
      * @param string $buffer Original page
      * @return string Modified page buffer
@@ -132,9 +142,7 @@ class transposh_plugin {
         $start_time = microtime(TRUE);
 
         // Refrain from touching the administrative interface and important pages
-        if(stripos($_SERVER['REQUEST_URI'],'/wp-login.php') !== FALSE ||
-                stripos($_SERVER['REQUEST_URI'],'/wp-admin/') !== FALSE ||
-                stripos($_SERVER['REQUEST_URI'],'/xmlrpc.php') !== FALSE) {
+        if($this->is_special_page($_SERVER['REQUEST_URI'])) {
             logger("Skipping translation for admin pages", 3);
             return $buffer;
         }
@@ -275,8 +283,9 @@ class transposh_plugin {
             $this->target_language = $this->options->get_default_language();
         logger ("requested language: ".$this->target_language);
 
-        // we'll go into this code of redirection only if we have options that need it (and no bot is involved, for the non-cookie)
-        if ($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) {
+        // we'll go into this code of redirection only if we have options that need it (and no bot is involved, for the non-cookie)  and this is not a special page or one that is refered by our site
+        if (($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) &&
+                !($this->is_special_page($_SERVER['REQUEST_URI']) || strpos($_SERVER['HTTP_REFERER'], $this->home_url) !== false)) {
             // we are starting a session if needed
             if (!session_id()) session_start();
             // no redirections if we already redirected in this session or we suspect cyclic redirections
