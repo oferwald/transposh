@@ -77,8 +77,6 @@ class transposh_plugin {
     private $admin_msg;
     /** @var string Saved search variables*/
     private $search_s;
-    /** @var boolean If transposh.js is on the page*/
-    public $js_included = false;
 
     /**
      * class constructor
@@ -117,6 +115,7 @@ class transposh_plugin {
         add_action('shutdown', array(&$this,'on_shutdown'));
         add_action('wp_print_styles', array(&$this,'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this,'add_transposh_js'));
+        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
@@ -467,8 +466,8 @@ class transposh_plugin {
         //include the transposh.css
         wp_enqueue_style("transposh","{$this->transposh_plugin_url}/css/transposh.css",array(),TRANSPOSH_PLUGIN_VER);
         // we have to load the jquery-ui css just in some cases
-        if ($this->edit_mode || $this->options->get_widget_progressbar())
-            wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",array(),'1.0');
+//        if ($this->edit_mode || $this->options->get_widget_progressbar())
+//            wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",array(),'1.0');
         logger("Added transposh_css",4);
     }
 
@@ -481,33 +480,40 @@ class transposh_plugin {
             return;
         }
 
-        $edit_param = "";
-        if($this->edit_mode) {
-            $edit_param = "&".EDIT_PARAM."=y";
-        }
-
-        if($this->edit_mode || $this->options->get_widget_progressbar()) {
-            wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js",array("jquery"),'1.7.2',$this->options->get_enable_footer_scripts());
-        }
-
         if($this->edit_mode || $this->is_auto_translate_permitted()) {
             //TODO - fix (onetime var)
             wp_deregister_script('jquery');
             wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
             // toying around - for later...
             //wp_enqueue_script("jquery","http://code.jquery.com/jquery-1.4a2.min.js",array(),'1.4a2');
-            // jQuery pushing below might cause issues
-            //wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2', $this->options->get_enable_footer_scripts());
-            wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',$this->options->get_enable_footer_scripts());
-            // Make sure msn translate is not needlessly loaded when we are only auto translating
-            if ($this->options->get_enable_msn_translate() && $this->edit_mode) {
-                wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=".$this->options->get_msn_key(),array(),'1',$this->options->get_enable_footer_scripts());
-            }
-            wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js?post_url={$this->post_url}{$edit_param}&lang={$this->target_language}&prefix=".SPAN_PREFIX,array("jquery"),TRANSPOSH_PLUGIN_VER,$this->options->get_enable_footer_scripts());
-            $this->js_included = true;
         }
     }
 
+
+    function add_transposh_async() {
+        if (!$this->edit_mode && !$this->is_auto_translate_permitted()) {
+            return;
+        }
+
+        echo "<script type=\"text/javascript\">
+
+        var _tr_p=_tr_p || [];
+        _tr_p.post_url='{$this->post_url}';
+        _tr_p.plugin_url='{$this->transposh_plugin_url}';
+        _tr_p.edit=".($this->edit_mode? 'true' : 'false').";
+        _tr_p.lang='{$this->target_language}';
+        _tr_p.prefix='".SPAN_PREFIX."';
+        _tr_p.msnkey='{$this->options->get_msn_key()}';
+        _tr_p.progress=".($this->edit_mode || $this->options->get_widget_progressbar() ? 'true' : 'false').";
+
+  (function() {
+    var tp = document.createElement('script'); tp.type = 'text/javascript'; tp.async = true;
+    tp.src = '{$this->transposh_plugin_url}/js/transposh.js?ver=".TRANSPOSH_PLUGIN_VER."';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(tp);
+  })();
+
+</script>";
+    }
 
     /**
      * Determine if the currently selected language (taken from the query parameters) is in the admin's list
@@ -650,7 +656,7 @@ class transposh_plugin {
      * This function integrates with google sitemap generator, and adds for each viewable language, the rest of the languages url
      * Also - priority is reduced by 0.2
      * And this requires the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
-     * do_action('sm_addurl',$loc, &$page);
+     * do_action('sm_addurl', &$page);
      * @param GoogleSitemapGeneratorPage $sm_page Object containing the page information
      */
     function add_sm_transposh_urls(&$sm_page) {

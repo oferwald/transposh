@@ -19,30 +19,54 @@
 // fetch translation from google translate...
 function getgt()
 {
-    jQuery(":button:contains('Suggest - Google')").attr("disabled","disabled").addClass("ui-state-disabled");
-    google.language.translate(jQuery("#"+transposh_params.prefix+"original").val(), "", transposh_params.lang, function(result) {
-        if (!result.error) {
-            jQuery("#"+transposh_params.prefix+"translation").val(jQuery("<div>"+result.translation+"</div>").text())
-            .keyup();
-        }
-    });
+    if (typeof google == 'undefined') {
+        langLoaded = function() {
+            getgt();
+        };
+        jQuery.xLazyLoader({
+            js: 'http://www.google.com/jsapi?callback=loadLang'
+        });
+    } else {
+        jQuery(":button:contains('Suggest - Google')").attr("disabled","disabled").addClass("ui-state-disabled");
+        google.language.translate(jQuery("#"+_tr_p.prefix+"original").val(), "", _tr_p.lang, function(result) {
+            if (!result.error) {
+                jQuery("#"+_tr_p.prefix+"translation").val(jQuery("<div>"+result.translation+"</div>").text())
+                .keyup();
+            }
+        });
+    }
 }
 
 // fetch translation from bing translate...
 function getbt()
 {
-    jQuery(":button:contains('Suggest - Bing')").attr("disabled","disabled").addClass("ui-state-disabled");
-    var binglang = transposh_params.lang;
-    if (binglang == 'zh') {
-        binglang = 'zh-chs'
+    if (typeof Microsoft == 'undefined') {
+        jQuery.xLazyLoader({
+            js: 'http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId='+_tr_p.msnkey,
+            success: function() {
+                getbt()
+            }
+        });
+
+    } else {
+        jQuery(":button:contains('Suggest - Bing')").attr("disabled","disabled").addClass("ui-state-disabled");
+        var binglang = _tr_p.lang;
+        if (binglang == 'zh') {
+            binglang = 'zh-chs'
+        }
+        if (binglang == 'zh-tw') {
+            binglang = 'zh-cht'
+        }
+        try {
+            Microsoft.Translator.translate(jQuery("#"+_tr_p.prefix+"original").val(), "", binglang, function(translation) {
+                jQuery("#"+_tr_p.prefix+"translation").val(jQuery("<div>"+translation+"</div>").text())
+                .keyup();
+            });
+        }
+        catch (err) {
+            alert("There was an error using Microsoft.Translator - probably a bad key or URL used in key. ("+err+")");
+        }
     }
-    if (binglang == 'zh-tw') {
-        binglang = 'zh-cht'
-    }
-    Microsoft.Translator.translate(jQuery("#"+transposh_params.prefix+"original").val(), "", binglang, function(translation) {
-        jQuery("#"+transposh_params.prefix+"translation").val(jQuery("<div>"+translation+"</div>").text())
-        .keyup();
-    });
 }
 
 //Ajax translation
@@ -58,13 +82,13 @@ function ajax_translate(translation,source,segment_id) {
     // so here we remove it so nothing unexpected happens
     clearTimeout(timer);
     // push translations
-    tokens.push(jQuery("#"+transposh_params.prefix + segment_id).attr('token'));
+    tokens.push(jQuery("#"+_tr_p.prefix + segment_id).attr('token'));
     translations.push(translation);
     // This is a change - as we fix the pages before we got actual confirmation (worked well for auto-translation)
     fix_page(translation,source,segment_id);
     timer = setTimeout(function() {
         var data = {
-            lang: transposh_params.lang,
+            lang: _tr_p.lang,
             source: source,
             translation_posted: "1",
             items: tokens.length
@@ -79,11 +103,11 @@ function ajax_translate(translation,source,segment_id) {
         }
         jQuery.ajax({
             type: "POST",
-            url: transposh_params.post_url,
+            url: _tr_p.post_url,
             data: data,
             success: function() {
                 // Success now only updates the save progress bar (green)
-                if (transposh_params.progress) {
+                if (_tr_p.progress) {
                     if (togo > 4 && source > 0) {
                         jQuery("#progress_bar2").progressbar('value' , done_p/togo*100);
                     }
@@ -103,19 +127,19 @@ function ajax_translate(translation,source,segment_id) {
 }
 
 function fix_page(translation,source,segment_id) {
-    var token = jQuery("#"+transposh_params.prefix + segment_id).attr('token');
+    var token = jQuery("#"+_tr_p.prefix + segment_id).attr('token');
     var new_text = translation;
     //reset to the original content - the unescaped version if translation is empty
     if(jQuery.trim(translation).length === 0) {
-        new_text = jQuery("#"+transposh_params.prefix + segment_id).attr('orig');
+        new_text = jQuery("#"+_tr_p.prefix + segment_id).attr('orig');
     }
     // rewrite text for all matching items at once
     jQuery("*[token='"+token+"'][hidden!='y']")
     .html(new_text)
     .each(function (i) { // handle the image changes
         var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-        jQuery("#"+transposh_params.prefix+img_segment_id).attr('source',source);
-        var img = jQuery("#"+transposh_params.prefix+"img_" + img_segment_id);
+        jQuery("#"+_tr_p.prefix+img_segment_id).attr('source',source);
+        var img = jQuery("#"+_tr_p.prefix+"img_" + img_segment_id);
         img.removeClass('tr-icon-yellow').removeClass('tr-icon-green');
         if(jQuery.trim(translation).length !== 0) {
             if (source == 1) {
@@ -133,8 +157,8 @@ function fix_page(translation,source,segment_id) {
     .attr('trans',new_text)
     .each(function (i) { // handle the image changes
         var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-        jQuery("#"+transposh_params.prefix+img_segment_id).attr('source',source);
-        var img = jQuery("#"+transposh_params.prefix+"img_" + img_segment_id);
+        jQuery("#"+_tr_p.prefix+img_segment_id).attr('source',source);
+        var img = jQuery("#"+_tr_p.prefix+"img_" + img_segment_id);
         img.removeClass('tr-icon-yellow').removeClass('tr-icon-green');
         if(jQuery.trim(translation).length !== 0) {
             if (source == 1) {
@@ -151,12 +175,12 @@ function fix_page(translation,source,segment_id) {
 
 //function for auto translation
 function do_auto_translate() {
-    if (transposh_params.progress) {
-        togo = jQuery("."+transposh_params.prefix+'[source=""]').size();
+    if (_tr_p.progress) {
+        togo = jQuery("."+_tr_p.prefix+'[source=""]').size();
         //alert(togo);
         // progress bar is for alteast 5 items
         if (togo > 4) {
-            jQuery("#"+transposh_params.prefix+"credit").append('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="progress_bar2"/>')
+            jQuery("#"+_tr_p.prefix+"credit").append('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="progress_bar2"/>')
             jQuery("#progress_bar").progressbar({
                 value: 0
             });
@@ -173,21 +197,21 @@ function do_auto_translate() {
     }
     // auto_translated_previously...
     var auto_t_p = new Array();
-    jQuery("."+transposh_params.prefix+'[source=""]').each(function (i) {
+    jQuery("."+_tr_p.prefix+'[source=""]').each(function (i) {
         var translated_id = jQuery(this).attr('id');
         //alert(translated_id);
         var to_trans = jQuery(this).attr('orig');
         if (to_trans == undefined) to_trans = jQuery(this).html();
         if (!(auto_t_p[to_trans] == 1)) {
             auto_t_p[to_trans] = 1;
-            google.language.translate(to_trans, "", transposh_params.lang, function(result) {
+            google.language.translate(to_trans, "", _tr_p.lang, function(result) {
                 if (!result.error) {
                     var segment_id = translated_id.substr(translated_id.lastIndexOf('_')+1);
                     // No longer need because now included in the ajax translate
                     //fix_page(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
                     ajax_translate(jQuery("<div>"+result.translation+"</div>").text(),1,segment_id);
-                    if (transposh_params.progress) {
-                        done = togo - jQuery("."+transposh_params.prefix+'[source=""]').size();
+                    if (_tr_p.progress) {
+                        done = togo - jQuery("."+_tr_p.prefix+'[source=""]').size();
                         if (togo > 4) {
                             jQuery("#progress_bar").progressbar('value' , done/togo*100);
                         }
@@ -210,11 +234,11 @@ function confirm_close() {
         },
         buttons: {
             'Discard': function() {
-                jQuery("#"+transposh_params.prefix+"translation").data("edit", {
+                jQuery("#"+_tr_p.prefix+"translation").data("edit", {
                     changed: false
                 });
                 jQuery(this).dialog('close');
-                jQuery("#"+transposh_params.prefix+"d-tabs").dialog('close');
+                jQuery("#"+_tr_p.prefix+"d-tabs").dialog('close');
             },
             Cancel: function() {
                 jQuery(this).dialog('close');
@@ -225,13 +249,13 @@ function confirm_close() {
 
 //Open translation dialog 
 function translate_dialog(segment_id) {
-    jQuery("#"+transposh_params.prefix+"d-tabs").remove();
-    jQuery('<div id="'+transposh_params.prefix+'d-tabs" title="Edit Translation"/>').appendTo("body");
-    jQuery("#"+transposh_params.prefix+"d-tabs").append('<ul/>').tabs({
+    jQuery("#"+_tr_p.prefix+"d-tabs").remove();
+    jQuery('<div id="'+_tr_p.prefix+'d-tabs" title="Edit Translation"/>').appendTo("body");
+    jQuery("#"+_tr_p.prefix+"d-tabs").append('<ul/>').tabs({
         cache: true
     })
-    .tabs('add',"#"+transposh_params.prefix+"d-tabs-1",'Translate')
-    .tabs('add',transposh_params.post_url+'?tr_token_hist='+jQuery("#"+transposh_params.prefix + segment_id).attr('token')+'&lang='+transposh_params.lang,'History')
+    .tabs('add',"#"+_tr_p.prefix+"d-tabs-1",'Translate')
+    .tabs('add',_tr_p.post_url+'?tr_token_hist='+jQuery("#"+_tr_p.prefix + segment_id).attr('token')+'&lang='+_tr_p.lang,'History')
     .css("text-align","left")
     .css("padding",0)
     .bind('tabsload', function(event, ui) {
@@ -245,36 +269,36 @@ function translate_dialog(segment_id) {
         //jQuery("table tbody tr",ui.panel).append('<td/>');
         jQuery("table tbody td[source='1']",ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
         jQuery("table tbody td[source='0']",ui.panel).append('<span title="human" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-person"></span>');
-    //jQuery("table tbody tr:first td:last",ui.panel).append('<span title="remove this translation" id="'+transposh_params.prefix+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
-    //jQuery("#"+transposh_params.prefix+"revert").click(function () {
+    //jQuery("table tbody tr:first td:last",ui.panel).append('<span title="remove this translation" id="'+_tr_p.prefix+'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
+    //jQuery("#"+_tr_p.prefix+"revert").click(function () {
     //alert ('hi');
     //});
     })
     .bind('tabsselect', function(event, ui) {
         // Change buttons
         if (jQuery(ui.tab).text() == 'Translate') {
-            jQuery("#"+transposh_params.prefix+"d-tabs").dialog('option', 'buttons', tButtons);
+            jQuery("#"+_tr_p.prefix+"d-tabs").dialog('option', 'buttons', tButtons);
         } else {
-            jQuery("#"+transposh_params.prefix+"d-tabs").dialog('option', 'buttons', hButtons);
+            jQuery("#"+_tr_p.prefix+"d-tabs").dialog('option', 'buttons', hButtons);
         }
     })
     .bind('dialogbeforeclose', function(event, ui) {
-        if(jQuery("#"+transposh_params.prefix+"translation").data("edit").changed) {
+        if(jQuery("#"+_tr_p.prefix+"translation").data("edit").changed) {
             confirm_close();
             return false;
         }
         return true;
     });
     // fix for templates messing with li
-    jQuery("#"+transposh_params.prefix+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
-    jQuery("#"+transposh_params.prefix+"d-tabs-1").css("padding", "1px").append(
+    jQuery("#"+_tr_p.prefix+"d-tabs li").css("list-style-type","none").css("list-style-position","outside");
+    jQuery("#"+_tr_p.prefix+"d-tabs-1").css("padding", "1px").append(
         /*'<table><tr><td>'+*/
-        '<form id="'+transposh_params.prefix+'form">' +
+        '<form id="'+_tr_p.prefix+'form">' +
         '<fieldset>' +
         '<label for="original">Original Text</label>' +
-        '<textarea cols="80" row="3" name="original" id="'+transposh_params.prefix+'original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
+        '<textarea cols="80" row="3" name="original" id="'+_tr_p.prefix+'original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
         '<label for="translation">Translate To</label>' +
-        '<textarea cols="80" row="3" name="translation" id="'+transposh_params.prefix+'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
+        '<textarea cols="80" row="3" name="translation" id="'+_tr_p.prefix+'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
         '</fieldset>' +
         '</form>'/*+
         '</td><td style="width:32px">'+
@@ -286,22 +310,22 @@ function translate_dialog(segment_id) {
     /*jQuery("#smart").click(function() {
         grabnext(segment_id);
     });*/
-    jQuery("#"+transposh_params.prefix+"d-tabs-1 label").css("display","block");
-    jQuery("#"+transposh_params.prefix+"d-tabs-1 textarea.text").css({
+    jQuery("#"+_tr_p.prefix+"d-tabs-1 label").css("display","block");
+    jQuery("#"+_tr_p.prefix+"d-tabs-1 textarea.text").css({
         'margin-bottom':'12px',
         'width' : '95%',
         'padding' : '.4em'
     });
-    jQuery("#"+transposh_params.prefix+"original").val(jQuery("#"+transposh_params.prefix + segment_id).attr('orig'));
-    jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).html());
-    if (jQuery("#"+transposh_params.prefix + segment_id).attr('trans')) {
-        jQuery("#"+transposh_params.prefix+"translation").val(jQuery("#"+transposh_params.prefix + segment_id).attr('trans'));
+    jQuery("#"+_tr_p.prefix+"original").val(jQuery("#"+_tr_p.prefix + segment_id).attr('orig'));
+    jQuery("#"+_tr_p.prefix+"translation").val(jQuery("#"+_tr_p.prefix + segment_id).html());
+    if (jQuery("#"+_tr_p.prefix + segment_id).attr('trans')) {
+        jQuery("#"+_tr_p.prefix+"translation").val(jQuery("#"+_tr_p.prefix + segment_id).attr('trans'));
     }
-    jQuery("#"+transposh_params.prefix+"translation").data("edit", {
+    jQuery("#"+_tr_p.prefix+"translation").data("edit", {
         changed: false
     });
-    jQuery("#"+transposh_params.prefix+"translation").keyup(function(e){
-        if (jQuery("#"+transposh_params.prefix + segment_id).text() != jQuery(this).val()) {
+    jQuery("#"+_tr_p.prefix+"translation").keyup(function(e){
+        if (jQuery("#"+_tr_p.prefix + segment_id).text() != jQuery(this).val()) {
             jQuery(this).css("background","yellow");
             jQuery(this).data("edit", {
                 changed: true
@@ -314,14 +338,16 @@ function translate_dialog(segment_id) {
         }
     });
     var tButtons = {};
-    if (binglangs.indexOf(transposh_params.lang+',',0) > -1) {
+    //only add button is bing support is defined for the language (and we got some key)
+    if (bing_langs.indexOf(_tr_p.lang) > -1 && _tr_p.msnkey != '') {
         //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
         tButtons['Suggest - Bing'] = function() {
             getbt();
         };
     }
 
-    if (google.language.isTranslatable(transposh_params.lang) || ext_langs.indexOf(transposh_params.lang) > -1) {
+    // Only add button if google supports said language
+    if ( google_langs.indexOf(_tr_p.lang) > -1) {
         tButtons['Suggest - Google'] = function() {
             getgt();
         };
@@ -331,14 +357,14 @@ function translate_dialog(segment_id) {
                 translate_dialog(parseInt(segment_id)+1);
             },
             'Combine - Next': function() {
-                getgt();
+                something?();
                 //.next? .next all?
             },*/
     tButtons['Ok'] = function() {
-        var translation = jQuery('#'+transposh_params.prefix+'translation').val();
-        if(jQuery('#'+transposh_params.prefix+'translation').data("edit").changed) {
+        var translation = jQuery('#'+_tr_p.prefix+'translation').val();
+        if(jQuery('#'+_tr_p.prefix+'translation').data("edit").changed) {
             ajax_translate(translation,0,segment_id);
-            jQuery("#"+transposh_params.prefix+"translation").data("edit", {
+            jQuery("#"+_tr_p.prefix+"translation").data("edit", {
                 changed: false
             });
         }
@@ -350,7 +376,7 @@ function translate_dialog(segment_id) {
             jQuery(this).dialog('close');
         }
     };
-    jQuery("#"+transposh_params.prefix+"d-tabs").dialog({
+    jQuery("#"+_tr_p.prefix+"d-tabs").dialog({
         bgiframe: true,
         modal: true,
         //width: 'auto',
@@ -359,62 +385,87 @@ function translate_dialog(segment_id) {
     });
 }
 
-//to run at start
+// We first try to avoid conflict with other frameworks
 jQuery.noConflict();
-//read parameters
-var transposh_params = new Array();
-var ext_langs = 'he|zh-tw|pt|fa|af|be|is|ga|mk|ms|sw|ws|cy|yi';
-jQuery("script[src*='transposh.js']").each(function (j) {
-    var query_string = unescape(this.src.substring(this.src.indexOf('?')+1));
-    var parms = query_string.split('&');
-    for (var i=0; i<parms.length; i++) {
-        var pos = parms[i].indexOf('=');
-        if (pos > 0) {
-            var key = parms[i].substring(0,pos);
-            var val = parms[i].substring(pos+1);
-            transposh_params[key] = val;
-        }
-    }
-});
+// the languages supported externally
+// extracted using function above + he|zh-tw|pt that we know
+google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt';
+// got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
+bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
 
-//console.log('hi');
-
-google.load("language", "1");
-// first we check if msn was even included
-var binglangs = '';
-if (typeof(Microsoft) != 'undefined') {
-    try {
-        binglangs = String(Microsoft.Translator.GetLanguages())+',zh,zh-tw,';        
-    }
-    catch (err) {
-        alert("There was an error using Microsoft.Translator - probably a bad key or URL used in key. ("+err+")");
-    }
+function loadLang() {
+    google.load("language", "1", {
+        "callback" : langLoaded
+    });
 }
 
 jQuery(document).ready(
     function() {
-        // an implicit param
-        if (typeof(jQuery().progressbar) != 'undefined') {
-            transposh_params.progress = true;
-        }
-        // attach a function to the set_defualt_language link if its there
-        jQuery('#'+transposh_params.prefix+'setdeflang').click(function () {
-            jQuery.get( transposh_params.post_url+"?tr_cookie="+Math.random());
+        // this is the set_default_language function
+        // attach a function to the set_default_language link if its there
+        jQuery('#'+_tr_p.prefix+'setdeflang').click(function () {
+            jQuery.get( _tr_p.post_url+"?tr_cookie="+Math.random());
             jQuery(this).hide("slow");
             return false;
         })
-        // TODO: he, iw? :)
-        if (google.language.isTranslatable(transposh_params.lang) || ext_langs.indexOf(transposh_params.lang) > -1) {
-            do_auto_translate();
+
+        // now lets check if auto translate is needed
+        translationstats = window["eval"]("(" + jQuery("meta[name=translation-stats]").attr("content") + ")");
+        if (translationstats != undefined) {
+            possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases -(translationstats.meta_phrases - translationstats.meta_translated_phrases));
+            now = new Date
+            // we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
+            if ((possibly_translateable > 5 || (now.getHours() == 4 && possibly_translateable > 0)) && google_langs.indexOf(_tr_p.lang) > -1) {
+                // TODO - FIX ME! (islands)
+                jQuery.ajaxSetup({
+                    cache: true
+                });
+                // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
+                langLoaded = function() {
+                    if (_tr_p.progress) {
+                        jQuery.getScript(_tr_p.plugin_url +'/js/lazy.js', function() {
+                            jQuery.xLazyLoader({
+                                js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
+                                css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
+                                success: function () {
+                                    do_auto_translate()
+                                }
+                            });
+                        });
+                    } else {
+                        do_auto_translate()
+                    }
+                };
+                // we now start the chain that leads to auto-translate (with or without progress)
+                jQuery.getScript('http://www.google.com/jsapi?callback=loadLang');
+            }
         }
-        if (transposh_params.edit) {
+
+        // this is the part when we have editor support
+        if (_tr_p.edit) {
             // lets add the images
-            jQuery("."+transposh_params.prefix).each(function (i) {
+            jQuery("."+_tr_p.prefix).each(function (i) {
                 var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_')+1);
-                jQuery(this).after('<span id="'+transposh_params.prefix+'img_'+translated_id+'" class="tr-icon" title="'+jQuery(this).attr('orig')+'"></span>');
-                var img = jQuery('#'+transposh_params.prefix+'img_'+translated_id);
+                jQuery(this).after('<span id="'+_tr_p.prefix+'img_'+translated_id+'" class="tr-icon" title="'+jQuery(this).attr('orig')+'"></span>');
+                var img = jQuery('#'+_tr_p.prefix+'img_'+translated_id);
                 img.click(function () {
-                    translate_dialog(translated_id);
+                    //  if we detect that jQuery.ui is missing (TODO - check tabs - etal) we load it first
+                    if (typeof jQuery.ui == 'undefined') {
+                        jQuery.ajaxSetup({
+                            cache: true
+                        });
+                        jQuery.getScript(_tr_p.plugin_url +'/js/lazy.js', function() {
+                            jQuery.xLazyLoader({
+                                js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
+                                css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
+                                success: function() {
+                                    translate_dialog(translated_id);
+                                }
+                            });
+                        });
+                    } else {
+                        translate_dialog(translated_id);
+                    }
                     return false;
                 }).css({
                     'border':'0px',
@@ -433,5 +484,4 @@ jQuery(document).ready(
                 }
             });
         }
-    }
-    );
+    });
