@@ -486,33 +486,47 @@ class transposh_plugin {
             wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
             // toying around - for later...
             //wp_enqueue_script("jquery","http://code.jquery.com/jquery-1.4a2.min.js",array(),'1.4a2');
+            //wp_enqueue_script("jquery","http://api.jquery.com/scripts/jquery-1.4.js",array(),'1.4b');
         }
     }
 
-
+    /**
+     * Inserts the transposh async loading in the head.
+     * @return nothing
+     */
     function add_transposh_async() {
         if (!$this->edit_mode && !$this->is_auto_translate_permitted()) {
             return;
         }
 
-        echo "<script type=\"text/javascript\">
+        echo "<script type=\"text/javascript\">";
+        echo "var t_jp=t_jp || [];";
+        echo "t_jp.post_url='{$this->post_url}';";
+        echo "t_jp.plugin_url='{$this->transposh_plugin_url}';";
+        echo "t_jp.edit=".($this->edit_mode? 'true' : 'false').";";
+        //echo "t_jp.rtl=".(in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : 'false').";";
+        echo "t_jp.lang='{$this->target_language}';";
+        echo "t_jp.prefix='".SPAN_PREFIX."';";
+        echo "t_jp.msnkey='{$this->options->get_msn_key()}';";
+        echo "t_jp.progress=".($this->edit_mode || $this->options->get_widget_progressbar() ? 'true' : 'false').";";
 
-        var _tr_p=_tr_p || [];
-        _tr_p.post_url='{$this->post_url}';
-        _tr_p.plugin_url='{$this->transposh_plugin_url}';
-        _tr_p.edit=".($this->edit_mode? 'true' : 'false').";
-        _tr_p.lang='{$this->target_language}';
-        _tr_p.prefix='".SPAN_PREFIX."';
-        _tr_p.msnkey='{$this->options->get_msn_key()}';
-        _tr_p.progress=".($this->edit_mode || $this->options->get_widget_progressbar() ? 'true' : 'false').";
-
-  (function() {
-    var tp = document.createElement('script'); tp.type = 'text/javascript'; tp.async = true;
-    tp.src = '{$this->transposh_plugin_url}/js/transposh.js?ver=".TRANSPOSH_PLUGIN_VER."';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(tp);
-  })();
-
-</script>";
+        /*
+         *         // let's lazy load! (worked, didn't make sense)
+//                jQuery(document).ready(
+                jQuery(window).load(
+    function() {
+                jQuery.ajax({
+			type: 'GET',
+			url: '{$this->transposh_plugin_url}/js/transposh.js?ver=".TRANSPOSH_PLUGIN_VER."',
+			dataType: 'script',
+                        cache: true
+		});
+  });
+        */
+        echo "var tp = document.createElement('script'); tp.type = 'text/javascript'; tp.async = true;";
+        echo "tp.src = '{$this->transposh_plugin_url}/js/transposh.js?ver=".TRANSPOSH_PLUGIN_VER."';";
+        echo "(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(tp);";
+        echo"</script>";
     }
 
     /**
