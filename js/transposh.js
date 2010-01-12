@@ -25,7 +25,9 @@
                 getgt();
             };
             jQuery.xLazyLoader({
-                js: 'http://www.google.com/jsapi?callback=loadLang'
+//                js: 'http://www.google.com/jsapi?callback=loadLang'
+                js: 'http://www.google.com/jsapi',
+               success: loadLang
             });
         } else {
             jQuery(":button:contains('Suggest - Google')").attr("disabled","disabled").addClass("ui-state-disabled");
@@ -45,7 +47,7 @@
             jQuery.xLazyLoader({
                 js: 'http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId='+_tr_p.msnkey,
                 success: function() {
-                    getbt()
+                    getbt();
                 }
             });
 
@@ -438,7 +440,7 @@
                         }
                     };
                     // we now start the chain that leads to auto-translate (with or without progress)
-                    jQuery.getScript('http://www.google.com/jsapi?callback=loadLang');
+                    jQuery.getScript('http://www.google.com/jsapi',loadLang);
                 }
             }
 
