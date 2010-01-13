@@ -1,3 +1,32 @@
+/*
+ * Widget's css (always needed in flags widget use)
+ */
+.transposh_flags {
+    direction: ltr;
+    line-height: 0;
+}
+.transposh_flags a  {
+    /*    line-height:11px;*/
+    display: inline;
+    /*background: transparent;*/ /* ie8 quirk */
+}
+
+.transposh_flags a:hover {
+    /* ie8 quirk */
+    background:transparent
+}
+
+.transposh_flags a span, .transposh_flags a img {
+    border-color:transparent;
+    border-style:solid;
+    border-width:1px 3px;
+    padding: 0;
+}
+
+.transposh_flags a span:hover, .transposh_flags a img:hover {
+    border-color:blue
+}
+
 .trf {
 	background-image:url(../img/flags.png);
 	height:11px;

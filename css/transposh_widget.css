@@ -5,11 +5,11 @@
     direction: ltr;
     line-height: 0;
 }
-/*.transposh_flags a  {
-    line-height:11px;*/
-        /*display: inline;*/
-	/*background: transparent;*/ /* ie8 quirk */
-/*}*/
+.transposh_flags a  {
+    /*    line-height:11px;*/
+    display: inline;
+    /*background: transparent;*/ /* ie8 quirk */
+}
 
 .transposh_flags a:hover {
     /* ie8 quirk */
