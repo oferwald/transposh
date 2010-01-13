@@ -459,10 +459,11 @@ class transposh_plugin {
      * Add custom css, i.e. transposh.css
      */
     function add_transposh_css() {
-        if(!$this->is_editing_permitted() && !$this->is_auto_translate_permitted()) {
-            //translation not allowed - no need for the transposh.css
-            return;
-        }
+        //translation not allowed - no need for the transposh.css
+        if(!$this->is_editing_permitted() && !$this->is_auto_translate_permitted()) return;        
+        // actually - this is only needed when editing
+        if (!$this->edit_mode) return;
+        // TODO - remove on lazy load...
         //include the transposh.css
         wp_enqueue_style("transposh","{$this->transposh_plugin_url}/css/transposh.css",array(),TRANSPOSH_PLUGIN_VER);
         // we have to load the jquery-ui css just in some cases
@@ -485,8 +486,7 @@ class transposh_plugin {
             wp_deregister_script('jquery');
             wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
             // toying around - for later...
-            //wp_enqueue_script("jquery","http://code.jquery.com/jquery-1.4a2.min.js",array(),'1.4a2');
-            //wp_enqueue_script("jquery","http://api.jquery.com/scripts/jquery-1.4.js",array(),'1.4b');
+            //wp_enqueue_script("jquery","http://code.jquery.com/jquery-1.4rc1.js",array(),'1.4rc');
         }
     }
 

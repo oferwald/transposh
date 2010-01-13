@@ -1,12 +1,14 @@
 /*
  * Fix collisions with some themes
+ * This css will be either lazy-loaded or become part of the .js file
  */
 
+ /* this is now useless?
 .post .postbody .tr_img_, .attachment .tr_img_, .navigation .alignleft .tr_img_, .navigation .alignright .tr_img_,
 .tr_img_ {
     border: 0px; 
     margin: 0px;
-}
+}*/
 
 .tr-icon {
 	background-image:url(../img/tr_imgs.png);

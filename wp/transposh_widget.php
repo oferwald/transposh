@@ -87,18 +87,20 @@ class transposh_plugin_widget {
         add_action('wp_print_styles',  array(&$this,'add_transposh_widget_css'));
     }
 
-    /*
- * Add custom css, i.e. transposh.css
-    */
+    /**
+     * Add custom css, i.e. transposh_widget.css, flags now override widget
+     */
     function add_transposh_widget_css() {
         //include the transposh_widget.css
         // TODO: user generated version
         if ($this->transposh->options->get_widget_style() == 1 || $this->transposh->options->get_widget_style() == 2) {
             wp_enqueue_style("transposh_widget","{$this->transposh->transposh_plugin_url}/css/transposh_widget.css",array(),TRANSPOSH_PLUGIN_VER);
             if ($this->transposh->options->get_widget_css_flags()) {
-                wp_enqueue_style("transposh_flags", "{$this->transposh->transposh_plugin_url}/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
+                wp_deregister_style("transposh_widget");
+                wp_enqueue_style("transposh_widget", "{$this->transposh->transposh_plugin_url}/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
                 if (file_exists("{$this->transposh->transposh_plugin_url}/css/transposh_flags_u.css"))
-                    wp_enqueue_style("transposh_flags", "{$this->transposh->transposh_plugin_url}/css/transposh_flags_u.css",array(),TRANSPOSH_PLUGIN_VER);
+                    wp_deregister_style("transposh_widget");
+                    wp_enqueue_style("transposh_widget", "{$this->transposh->transposh_plugin_url}/css/transposh_flags_u.css",array(),TRANSPOSH_PLUGIN_VER);
             }
         }
         logger("Added transposh_widget_css", 4);
