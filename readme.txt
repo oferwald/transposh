@@ -1,9 +1,9 @@
 === Transposh - translation filter for wordpress ===
 Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/donate/
-Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
+Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese, translate
 Requires at least: 2.7
-Tested up to: 2.9.0
+Tested up to: 2.9.1
 Stable tag: <%VERSION%>
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -117,7 +117,9 @@ Users of php speedy will have to deactivate it, add “transposh.js” in the ig
 = Plugin support: Google-Sitemaps-XML =
 
 Currently the plugin is able to add the multilingual urls to the sitemap, and you need to add the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
-`do_action('sm_addurl',$loc, &$page);`
+
+`do_action('sm_addurl', &$page);`
+
 We hope that future versions will include this by default, and for now you can get the patched file from our site.
 After a change of languages used, you are welcomed to trigger a new sitemap buildup.
 
@@ -143,6 +145,11 @@ change the .css from transparent background to your page background color. And l
 
 You can wrap the element with the "no_translate" class, or add a span similar to `<span class="no_translate">`
 
+= Can I make different images appear in different languages in my themes? =
+
+Yes, although a bit tricky - you can use the `$my_transposh_plugin->target_language` as part of the image descriptor, this will load different
+images based on the current language
+
 == Screenshots ==
 
 1. This is a screen shot of Transposh home page with the flagged widget on the right sidebar
@@ -158,6 +165,13 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/01/13 - 0.4.1 =
+ * Fixed a few redirection bugs (administrative pages, and referred pages)
+ * Fixed documentation bug (regarding google-sitemap-generator patch requirement)
+ * Support on demand and async loading of transposh script
+ * Using google closure compiler to reduce script size (now only 3k when gzipped)
+ * Script now passes jslint.com (almost)
+ * Css optimizations and reduction in number of file requests in most scenarios
 = 2010/01/01 - 0.4.0 =
  * Solve activation/deactivation bug
  * Parser provides statistics in meta tag
