@@ -412,8 +412,27 @@
                 return false;
             });
 
+            var translationstats, possibly_translateable, now;
             // now lets check if auto translate is needed
-            var translationstats = window["eval"]("(" + jQuery("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
+            translationstats = jQuery("meta[name=translation-stats]").attr("content");
+            // Logic borrowed from jquery and http://json.org/json2.js - Didn't see the reason for that, if someone can modify the html, he can probably do any script he wants too...
+            /*if (/^[\],:{}\s]*$/.test(translationstats.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+                .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
+                .replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {*/
+
+            // Try to use the native JSON parser first
+            if (window.JSON && window.JSON.parse) {
+                translationstats = window.JSON.parse(translationstats);
+
+            } else {
+                translationstats = (new Function("return " + translationstats))();
+            }
+
+            /*} else {
+					throw "Invalid JSON: " + data;
+				}*/
+
+            //            var translationstats = window["eval"]("(" + jQuery("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
             if (translationstats !== undefined) {
                 possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases - (translationstats.meta_phrases - translationstats.meta_translated_phrases));
                 now = new Date();
