@@ -4,7 +4,7 @@ Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese, translate
 Requires at least: 2.7
 Tested up to: 2.9.1
-Stable tag: <%VERSION%>
+Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
 

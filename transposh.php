@@ -4,7 +4,7 @@
 	Plugin URI: http://transposh.org/
 	Description: Translation filter for WordPress, After enabling please set languages at the <a href="options-general.php?page=transposh">the options page</a> Want to help? visit our development site at <a href="http://trac.transposh.org/">trac.transposh.org</a>.
 	Author: Team Transposh
-	Version: <%VERSION%>
+	Version: %VERSION%
 	Author URI: http://transposh.org/
 	License: GPL (http://www.gnu.org/licenses/gpl.txt)
 */
@@ -127,7 +127,7 @@ class transposh_plugin {
      * @return boolean Is it a special page?
      */
     function is_special_page($url) {
-        return (stripos($url,'/wp-login.php') !== FALSE ||
+        return ( stripos($url,'/wp-login.php') !== FALSE ||
                         stripos($url,'/wp-admin/') !== FALSE ||
                         stripos($url,'/xmlrpc.php') !== FALSE);
     }
