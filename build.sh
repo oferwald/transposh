@@ -56,7 +56,7 @@ echo
 if [ "$DEBUG" != 'debug' ]; then
   echo "Adding .php files (without logging)"
   for file in `find . -maxdepth 4 -iname '*.php'`; do 
-    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/<%VERSION%>/$VERSION/;" $file > $TRANSPOSH_DIR/$file
+    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/%VERSION%/$VERSION/;" $file > $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
 else
@@ -71,7 +71,7 @@ echo
 #
 #fixing version in readme.txt
 #
-sed "s/<%VERSION%>/$VERSION/;" readme.txt > $TRANSPOSH_DIR/readme.txt
+sed "s/%VERSION%/$VERSION/;" readme.txt > $TRANSPOSH_DIR/readme.txt
 echo "fixing version in readme.txt to $VERSION"
 
 #

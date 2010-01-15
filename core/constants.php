@@ -96,7 +96,7 @@ $bing_languages = array("en", "ar", "bg", "zh", "zh-tw", "cs", "da", "nl", "fi",
 //Define the new capability that will be assigned to roles - translator
 define("TRANSLATOR", 'translator');
 
-define("TRANSPOSH_PLUGIN_VER",'<%VERSION%>');
+define("TRANSPOSH_PLUGIN_VER",'%VERSION%');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define("SPAN_PREFIX", "tr_");
