@@ -43,6 +43,7 @@ function ajax_translate_me(token,translation,lang) {
             error: function(req) {
             }
         });
+        items = 0;
         translations = [];
         tokens = [];
         langs = [];
