@@ -34,6 +34,8 @@ class parserstats {
     public $hidden_phrases;
     /** @var int Holds the number of phrases that are hidden and translated */
     public $hidden_translated_phrases;
+    /** @var int Holds the amounts of hidden spans created for translation */
+    public $hidden_translateable_phrases;
 
     /** @var int Holds the number of phrases that are hidden and probably won't be viewed - such as meta keys */
     public $meta_phrases;
@@ -502,15 +504,15 @@ class parser {
                     if ($source == 0) $this->stats->human_translated_phrases++;
                 }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody*/) {
-                    $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
                     $spanend = "</span>";
                     if ($ep->inselect || !$ep->inbody) {
                         $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source,true).$spanend;
                         $span = '';
                         $spanend = '';
+                    } else {
+                        $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
+                        if ($translated_text == null) $translated_text = $ep->phrase;
                     }
-                    else
-                    if ($translated_text == null) $translated_text = $ep->phrase;
                 }
                 else {
                     $span = '';
@@ -563,6 +565,7 @@ class parser {
                             if (strpos($e->innertext,base64_url_encode($ep->phrase)) === false) {
                                 //no need to translate span the same hidden phrase more than once
                                 if (!in_array($ep->phrase, $hidden_phrases)) {
+                                    $this->stats->hidden_translateable_phrases++;
                                     $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true)."</span>";
                                     //    logger ($span);
                                     $hidden_phrases[] = $ep->phrase;
