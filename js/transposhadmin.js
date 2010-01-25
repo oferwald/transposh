@@ -40,7 +40,7 @@ function ajax_translate_me(token,translation,lang) {
             success: function() {
             },
 
-            error: function(req) {
+            error: function() {
             }
         });
         items = 0;
