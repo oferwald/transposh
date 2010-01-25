@@ -50,6 +50,7 @@ $languages = array(
         "gl" => "Galician,Galego,galicia",
         "de" => "German,Deutsch,de",
         "el" => "Greek,Ελληνικά,gr",
+        "ht" => "Haitian,Kreyòl ayisyen,ht",
         "he" => "Hebrew,עברית,il",
         "hi" => "Hindi,हिन्दी; हिंदी,in",
         "hu" => "Hungarian,magyar,hu",
@@ -91,7 +92,7 @@ $rtl_languages = array("ar", "he", "fa", "yi");
 //Google supported languages @updated 2009-Dec-21
 $google_languages = array("en", "af", "sq", "ar", "be", "bg", "ca", "zh", "zh-tw", "hr", "cs", "da", "nl", "et", "fi", "fr", "gl", "de", "el", "he", "hi", "hu", "id", "it", "is", "ga", "ja", "ko", "lv", "lt", "mk", "ms", "mt", "no", "fa", "pl", "pt", "ro", "ru", "sr", "sk", "sl", "es", "sw", "sv", "tl", "th", "tr", "uk", "vi", "cy", "yi");
 //Bing supported languages @updated 2009-Dec-21
-$bing_languages = array("en", "ar", "bg", "zh", "zh-tw", "cs", "da", "nl", "fi", "fr", "de", "gr", "he", "it", "ja", "ko", "pl", "pt", "ru", "es", "sv", "th");
+$bing_languages = array("en", "ar", "bg", "zh", "zh-tw", "cs", "da", "nl", "ht", "fi", "fr", "de", "gr", "he", "it", "ja", "ko", "pl", "pt", "ru", "es", "sv", "th");
 
 //Define the new capability that will be assigned to roles - translator
 define("TRANSLATOR", 'translator');
