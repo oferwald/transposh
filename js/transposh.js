@@ -19,138 +19,71 @@
 // fetch translation from google translate...
 (function () { // closure
     var langLoaded, loadLang,
+    // number of phrases that might be translated
+    possibly_translateable,
+    // ids of progress bars
+    progressbar_id = t_jp.prefix + "pbar",
+    progressbar_posted_id = progressbar_id + "_s",
     //Ajax translation
-    done_p = 0, togo = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
+    done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
     // the languages supported externally
     // extracted using function above + he|zh-tw|pt that we know
-    google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
+    google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt';
     // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
-    bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
 
-    function getgt()
-    {
-        if (typeof google === 'undefined') {
-            langLoaded = function () {
-                getgt();
-            };
-            jQuery.xLazyLoader({
-                //                js: 'http://www.google.com/jsapi?callback=loadLang'
-                js: 'http://www.google.com/jsapi',
-                success: loadLang
-            });
-        } else {
-            jQuery(":button:contains('Suggest - Google')").attr("disabled", "disabled").addClass("ui-state-disabled");
-            google.language.translate(jQuery("#" + t_jp.prefix + "original").val(), "", t_jp.lang, function (result) {
-                if (!result.error) {
-                    jQuery("#" + t_jp.prefix + "translation").val(jQuery("<div>" + result.translation + "</div>").text())
-                    .keyup();
-                }
-            });
-        }
-    }
-
-    // fetch translation from bing translate...
-    function getbt()
-    {
-        if (typeof Microsoft === 'undefined') {
-            jQuery.xLazyLoader({
-                js: 'http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey,
-                success: function () {
-                    getbt();
-                }
-            });
-
-        } else {
-            jQuery(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
-            var binglang = t_jp.lang;
-            if (binglang === 'zh') {
-                binglang = 'zh-chs';
-            }
-            if (binglang === 'zh-tw') {
-                binglang = 'zh-cht';
-            }
-            try {
-                Microsoft.Translator.translate(jQuery("#" + t_jp.prefix + "original").val(), "", binglang, function (translation) {
-                    jQuery("#" + t_jp.prefix + "translation").val(jQuery("<div>" + translation + "</div>").text())
-                    .keyup();
-                });
-            }
-            catch (err) {
-                alert("There was an error using Microsoft.Translator - probably a bad key or URL used in key. (" + err + ")");
-            }
-        }
-    }
-  
-    function fix_page(translation, source, segment_id) {
-        var token = jQuery("#" + t_jp.prefix + segment_id).attr('token'),
-        new_text = translation;
-        //reset to the original content - the unescaped version if translation is empty
+    // This function fixes the page, it gets a token and translation and fixes this,
+    // since here we only get the automated source, we use this to reduce the code size
+    function fix_page(token, translation) {
+        // Todo - Probably not needed, but in case we get bad stuff
         if (jQuery.trim(translation).length === 0) {
-            new_text = jQuery("#" + t_jp.prefix + segment_id).attr('orig');
+            return;
         }
+        // this is an inner function used to fix the images in the case of being inside the edit mode.
+        // if we are not editing, no images will be found and nothing will happen.
+        // even if this happens before the edit scripts adds the images, it won't matter as source is changed too and the
+        // edit script will fix this
+        var fix_image = function () { // handle the image changes
+            var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
+            img = jQuery("#" + t_jp.prefix + "img_" + img_segment_id);
+            jQuery("#" + t_jp.prefix + img_segment_id).attr('source', 1); // source is 1
+            img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-yellow');
+        };
+
         // rewrite text for all matching items at once
         jQuery("*[token='" + token + "'][hidden!='y']")
-        .html(new_text)
-        .each(function (i) { // handle the image changes
-            var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
-            img = jQuery("#" + t_jp.prefix + "img_" + img_segment_id);
-            jQuery("#" + t_jp.prefix + img_segment_id).attr('source', source);
-            img.removeClass('tr-icon-yellow').removeClass('tr-icon-green');
-            if (jQuery.trim(translation).length !== 0) {
-                if (source === 1) {
-                    //switch to the auto img
-                    img.addClass('tr-icon-yellow');
-                } else {
-                    //	switch to the fix img
-                    img.addClass('tr-icon-green');
-                }
-            }
-        });
+        .html(translation)
+        .each(fix_image);
 
-        // FIX hidden elements too (need to update father's title)
+        // TODO - FIX hidden elements too (need to update father's title)
         jQuery("*[token='" + token + "'][hidden='y']")
-        .attr('trans', new_text)
-        .each(function (i) { // handle the image changes
-            var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
-            img = jQuery("#" + t_jp.prefix + "img_" + img_segment_id);
-            jQuery("#" + t_jp.prefix + img_segment_id).attr('source', source);
-            img.removeClass('tr-icon-yellow').removeClass('tr-icon-green');
-            if (jQuery.trim(translation).length !== 0) {
-                if (source === 1) {
-                    //switch to the auto img
-                    img.addClass('tr-icon-yellow');
-                } else {
-                    //	switch to the fix img
-                    img.addClass('tr-icon-green');
-                }
-            }
-        });
-
+        .attr('trans', translation)
+        .each(fix_image);
     }
 
-    function ajax_translate(translation, source, segment_id) {
+    // we have four params, here two are implicit (source =1 auto translate, lang = target language)
+    function ajax_translate(token, translation) {
         // we aggregate translations together, 200ms from the last translation we will send the timer
         // so here we remove it so nothing unexpected happens
         clearTimeout(timer);
         // push translations
-        tokens.push(jQuery("#" + t_jp.prefix + segment_id).attr('token'));
+        tokens.push(token);
         translations.push(translation);
         // This is a change - as we fix the pages before we got actual confirmation (worked well for auto-translation)
-        fix_page(translation, source, segment_id);
+        fix_page(token, translation);
         timer = setTimeout(function () {
             var data = {
-                lang: t_jp.lang,
-                source: source,
-                translation_posted: "1",
-                items: tokens.length
+                ln0: t_jp.lang, // implicit
+                sr0: 1, // implicit auto translate...
+                translation_posted: "2",
+                items: tokens.length // we can do this here because all tokens will be different
             }, i;
             for (i = 0; i < tokens.length; i += 1) {
                 data["tk" + i] = tokens[i];
                 data["tr" + i] = translations[i];
                 // We are pre-accounting the progress bar here - which is not very nice
-                if (source > 0) {
-                    done_p += jQuery("*[token='" + tokens[i] + "']").size();
-                }
+                //if (source > 0) {
+                done_posted += jQuery("*[token='" + tokens[i] + "']").size();
+            //}
             }
             jQuery.ajax({
                 type: "POST",
@@ -158,238 +91,67 @@
                 data: data,
                 success: function () {
                     // Success now only updates the save progress bar (green)
-                    if (t_jp.progress) {
-                        if (togo > 4 && source > 0) {
-                            jQuery("#progress_bar2").progressbar('value', done_p / togo * 100);
-                        }
-
-                    }
-                },
-
-                error: function (req) {
-                    if (source === 0) {
-                        alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
-                    }
+                    jQuery('#' + progressbar_posted_id).progressbar('value', done_posted / possibly_translateable * 100);
                 }
+            // we removed the error function, as there is no alert for automated thing, this will silently fail
+            // which although bad, is what we can do for now
             });
             translations = [];
             tokens = [];
-        }, 200); // wait 200 ms...
+        }, 200); // wait 200 ms... -- TODO, maybe do - items*3
     }
 
+
+    // function that creates the progress bar html
+    // TODO: change the id
+    function create_progress_bar() {
+        // progress bar is for alteast 5 items
+        jQuery("#" + t_jp.prefix + "credit").css({
+            'overflow': 'auto'
+        }).append('<div style="float: left;width: 90%;height: 10px" id="' + progressbar_id + '"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="' + progressbar_posted_id + '"/>');
+        jQuery('#' + progressbar_id).progressbar({
+            value: 0
+        });
+        jQuery('#' + progressbar_posted_id).progressbar({
+            value: 0
+        });
+        // color the "save" bar
+        jQuery('#' + progressbar_posted_id + " > div").css({
+            'background': '#28F828',
+            'border' : "#08A908 1px solid"
+        });
+    }
 
     //function for auto translation
     function do_auto_translate() {
         // auto_translated_previously...
-        var auto_t_p = [], done;
-        if (t_jp.progress) {
-            togo = jQuery("." + t_jp.prefix + '[source=""]').size();
-            //alert(togo);
-            // progress bar is for alteast 5 items
-            if (togo > 4) {
-                jQuery("#" + t_jp.prefix + "credit").append('<div style="float: left;width: 90%;height: 10px" id="progress_bar"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="progress_bar2"/>');
-                jQuery("#progress_bar").progressbar({
-                    value: 0
-                });
-                jQuery("#progress_bar2").progressbar({
-                    value: 0
-                });
-                // color the "save" bar
-                jQuery("#progress_bar2 > div").css({
-                    'background': '#28F828',
-                    'border' : "#08A908 1px solid"
-                });
-            }
-            done = 0;
-        }
+        var auto_translated_phrases = [];
         jQuery("." + t_jp.prefix + '[source=""]').each(function (i) {
-            var translated_id = jQuery(this).attr('id'),
+            // not needed!
+            //var translated_id = jQuery(this).attr('id'),
+            var token = jQuery(this).attr('token'),
             //alert(translated_id);
+            // we only have orig if we have some translation,?
             to_trans = jQuery(this).attr('orig');
             if (to_trans === undefined) {
                 to_trans = jQuery(this).html();
             }
-            if (auto_t_p[to_trans] !== 1) {
-                auto_t_p[to_trans] = 1;
+            if (auto_translated_phrases[to_trans] !== 1) {
+                auto_translated_phrases[to_trans] = 1;
                 google.language.translate(to_trans, "", t_jp.lang, function (result) {
                     if (!result.error) {
-                        var segment_id = translated_id.substr(translated_id.lastIndexOf('_') + 1);
+                        // we no longer refer to segment IDs, just tokens
+                        //var segment_id = translated_id.substr(translated_id.lastIndexOf('_') + 1);
                         // No longer need because now included in the ajax translate
                         //fix_page(jQuery("<div>" + result.translation + "</div>").text(), 1, segment_id);
-                        ajax_translate(jQuery("<div>" + result.translation + "</div>").text(), 1, segment_id);
-                        if (t_jp.progress) {
-                            done = togo - jQuery("." + t_jp.prefix + '[source=""]').size();
-                            if (togo > 4) {
-                                jQuery("#progress_bar").progressbar('value', done / togo * 100);
-                            }
-                        }
+                        to_trans = jQuery(this).attr('orig');
+                        ajax_translate(token, jQuery("<div>" + result.translation + "</div>").text());
+                        // update the regular progress bar
+                        // done = possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size();
+                        jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size()) / possibly_translateable * 100);
                     }
                 });
             }
-        });
-    }
-
-    function confirm_close() {
-        jQuery('<div id="dial" title="Close without saving?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You have made a change to the translation. Are you sure you want to discard it?</p></div>').appendTo("body").dialog({
-            bgiframe: true,
-            resizable: false,
-            height: 140,
-            modal: true,
-            overlay: {
-                backgroundColor: '#000',
-                opacity: 0.5
-            },
-            buttons: {
-                'Discard': function () {
-                    jQuery("#" + t_jp.prefix + "translation").data("edit", {
-                        changed: false
-                    });
-                    jQuery(this).dialog('close');
-                    jQuery("#" + t_jp.prefix + "d-tabs").dialog('close');
-                },
-                Cancel: function () {
-                    jQuery(this).dialog('close');
-                }
-            }
-        });
-    }
-
-    //Open translation dialog
-    function translate_dialog(segment_id) {
-        var tButtons = {}, hButtons = {};
-        //only add button is bing support is defined for the language (and we got some key)
-        if (bing_langs.indexOf(t_jp.lang) > -1 && t_jp.msnkey !== '') {
-            //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
-            tButtons['Suggest - Bing'] = function () {
-                getbt();
-            };
-        }
-
-        // Only add button if google supports said language
-        if (google_langs.indexOf(t_jp.lang) > -1) {
-            tButtons['Suggest - Google'] = function () {
-                getgt();
-            };
-        }
-        /*    'Next': function () {
-                alert(parseInt(segment_id) + 1);
-                translate_dialog(parseInt(segment_id) + 1);
-            },
-            'Combine - Next': function () {
-                something?();
-                //.next? .next all?
-            },*/
-        tButtons.Ok = function () {
-            var translation = jQuery('#' + t_jp.prefix + 'translation').val();
-            if (jQuery('#' + t_jp.prefix + 'translation').data("edit").changed) {
-                ajax_translate(translation, 0, segment_id);
-                jQuery("#" + t_jp.prefix + "translation").data("edit", {
-                    changed: false
-                });
-            }
-            jQuery(this).dialog('close');
-        };
-        //tButtons["beep"] = function () {alert(Microsoft.Translator.GetLanguages())};
-        hButtons = {
-            Close: function () {
-                jQuery(this).dialog('close');
-            }
-        };
-
-        jQuery("#" + t_jp.prefix + "d-tabs").remove();
-        jQuery('<div id="' + t_jp.prefix + 'd-tabs" title="Edit Translation"/>').appendTo("body");
-        jQuery("#" + t_jp.prefix + "d-tabs").append('<ul/>').tabs({
-            cache: true
-        })
-        .tabs('add', "#" + t_jp.prefix + "d-tabs-1", 'Translate')
-        .tabs('add', t_jp.post_url + '?tr_token_hist=' + jQuery("#" + t_jp.prefix + segment_id).attr('token') + '&lang=' + t_jp.lang, 'History')
-        .css("text-align", "left")
-        .css("padding", 0)
-        .bind('tabsload', function (event, ui) {
-            //TODO, formatting here, not server side
-            jQuery("table", ui.panel).addClass("ui-widget ui-widget-content").css({
-                'width' : '95%',
-                'padding' : '0'
-            });
-            //jQuery("table thead th:last",ui.panel).after("<th/>");
-            jQuery("table thead tr", ui.panel).addClass("ui-widget-header");
-            //jQuery("table tbody tr", ui.panel).append('<td/>');
-            jQuery("table tbody td[source='1']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
-            jQuery("table tbody td[source='0']", ui.panel).append('<span title="human" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-person"></span>');
-        //jQuery("table tbody tr:first td:last", ui.panel).append('<span title="remove this translation" id="' + t_jp.prefix + 'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
-        //jQuery("#" + t_jp.prefix + "revert").click(function () {
-        //alert ('hi');
-        //});
-        })
-        .bind('tabsselect', function (event, ui) {
-            // Change buttons
-            if (jQuery(ui.tab).text() === 'Translate') {
-                jQuery("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', tButtons);
-            } else {
-                jQuery("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', hButtons);
-            }
-        })
-        .bind('dialogbeforeclose', function (event, ui) {
-            if (jQuery("#" + t_jp.prefix + "translation").data("edit").changed) {
-                confirm_close();
-                return false;
-            }
-            return true;
-        });
-        // fix for templates messing with li
-        jQuery("#" + t_jp.prefix + "d-tabs li").css("list-style-type", "none").css("list-style-position", "outside");
-        jQuery("#" + t_jp.prefix + "d-tabs-1").css("padding", "1px").append(
-            /*'<table><tr><td>'+*/
-            '<form id="' + t_jp.prefix + 'form">' +
-            '<fieldset>' +
-            '<label for="original">Original Text</label>' +
-            '<textarea cols="80" row="3" name="original" id="' + t_jp.prefix + 'original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
-            '<label for="translation">Translate To</label>' +
-            '<textarea cols="80" row="3" name="translation" id="' + t_jp.prefix + 'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
-            '</fieldset>' +
-            '</form>'/* +
-        '</td><td style="width:32px">' +
-        '<img src="/wp-content/plugins/transposh/img/knob/knobs/left.png"/>' +
-        '<img src="/wp-content/plugins/transposh/img/knob/knobs/right.png"/>' +
-        '<img id="smart" src="/wp-content/plugins/transposh/img/knob/knobs/smart.png"/>'+
-        '<img src="/wp-content/plugins/transposh/img/knob/knobs/merge.png"/>'+
-        '</td></tr></table>'*/);
-        /*jQuery("#smart").click(function () {
-        grabnext(segment_id);
-    });*/
-        jQuery("#" + t_jp.prefix + "d-tabs-1 label").css("display", "block");
-        jQuery("#" + t_jp.prefix + "d-tabs-1 textarea.text").css({
-            'margin-bottom': '12px',
-            'width' : '95%',
-            'padding' : '.4em'
-        });
-        jQuery("#" + t_jp.prefix + "original").val(jQuery("#" + t_jp.prefix + segment_id).attr('orig'));
-        jQuery("#" + t_jp.prefix + "translation").val(jQuery("#" + t_jp.prefix + segment_id).html());
-        if (jQuery("#" + t_jp.prefix + segment_id).attr('trans')) {
-            jQuery("#" + t_jp.prefix + "translation").val(jQuery("#" + t_jp.prefix + segment_id).attr('trans'));
-        }
-        jQuery("#" + t_jp.prefix + "translation").data("edit", {
-            changed: false
-        });
-        jQuery("#" + t_jp.prefix + "translation").keyup(function (e) {
-            if (jQuery("#" + t_jp.prefix + segment_id).text() !== jQuery(this).val()) {
-                jQuery(this).css("background", "yellow");
-                jQuery(this).data("edit", {
-                    changed: true
-                });
-            } else {
-                jQuery(this).css("background", "");
-                jQuery(this).data("edit", {
-                    changed: false
-                });
-            }
-        });
-        jQuery("#" + t_jp.prefix + "d-tabs").dialog({
-            bgiframe: true,
-            modal: true,
-            //width: 'auto',
-            width: 500,
-            buttons: tButtons
         });
     }
 
@@ -412,101 +174,65 @@
                 return false;
             });
 
-            var translationstats, possibly_translateable, now;
+            var now;
+            // translationstats not used yet
+            //var translationstats, possibly_translateable, now;
             // now lets check if auto translate is needed
-            translationstats = jQuery("meta[name=translation-stats]").attr("content");
+            //translationstats = jQuery("meta[name=translation-stats]").attr("content");
             // Logic borrowed from jquery and http://json.org/json2.js - Didn't see the reason for that, if someone can modify the html, he can probably do any script he wants too...
             /*if (/^[\],:{}\s]*$/.test(translationstats.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                 .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
                 .replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {*/
 
             // Try to use the native JSON parser first
-            if (window.JSON && window.JSON.parse) {
+            /*if (window.JSON && window.JSON.parse) {
                 translationstats = window.JSON.parse(translationstats);
 
             } else {
                 translationstats = (new Function("return " + translationstats))();
-            }
+            }*/
 
             /*} else {
 					throw "Invalid JSON: " + data;
 				}*/
 
             //            var translationstats = window["eval"]("(" + jQuery("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
-            if (translationstats !== undefined) {
-                possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases - (translationstats.meta_phrases - translationstats.meta_translated_phrases));
-                now = new Date();
-                // we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
-                if ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) && google_langs.indexOf(t_jp.lang) > -1) {
-                    // TODO - FIX ME! (islands)
-                    jQuery.ajaxSetup({
-                        cache: true
-                    });
-                    // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
-                    langLoaded = function () {
-                        if (t_jp.progress) {
-                            jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
-                                jQuery.xLazyLoader({
-                                    js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
-                                    css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
-                                    success: function () {
-                                        do_auto_translate();
-                                    }
-                                });
+            //if (translationstats !== undefined) {
+            //possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases - (translationstats.meta_phrases - translationstats.meta_translated_phrases));
+            possibly_translateable = jQuery("." + t_jp.prefix + '[source=""]').size();
+
+            now = new Date();
+            // we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
+            if ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) && google_langs.indexOf(t_jp.lang) > -1) {
+                // TODO - FIX ME! (islands)
+                jQuery.ajaxSetup({
+                    cache: true
+                });
+                // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
+                langLoaded = function () {
+                    if (t_jp.progress) {
+                        jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
+                            jQuery.xLazyLoader({
+                                js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
+                                css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
+                                success: function () {
+                                    create_progress_bar();
+                                    do_auto_translate();
+                                }
                             });
-                        } else {
-                            do_auto_translate();
-                        }
-                    };
-                    // we now start the chain that leads to auto-translate (with or without progress)
-                    jQuery.getScript('http://www.google.com/jsapi', loadLang);
-                }
+                        });
+                    } else {
+                        do_auto_translate();
+                    }
+                };
+                // we now start the chain that leads to auto-translate (with or without progress)
+                jQuery.getScript('http://www.google.com/jsapi', loadLang);
             }
+            //}
 
             // this is the part when we have editor support
             if (t_jp.edit) {
-                // lets add the images
-                jQuery("." + t_jp.prefix).each(function (i) {
-                    var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1), img;
-                    jQuery(this).after('<span id="' + t_jp.prefix + 'img_' + translated_id + '" class="tr-icon" title="' + jQuery(this).attr('orig') + '"></span>');
-                    img = jQuery('#' + t_jp.prefix + 'img_' + translated_id);
-                    img.click(function () {
-                        //  if we detect that jQuery.ui is missing (TODO - check tabs - etal) we load it first
-                        if (typeof jQuery.fn.tabs !== 'function') {
-                            jQuery.ajaxSetup({
-                                cache: true
-                            });
-                            jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
-                                jQuery.xLazyLoader({
-                                    js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
-                                    css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
-                                    success: function () {
-                                        translate_dialog(translated_id);
-                                    }
-                                });
-                            });
-                        } else {
-                            translate_dialog(translated_id);
-                        }
-                        return false;
-                    }).css({
-                        'border': '0px',
-                        'margin': '1px',
-                        'padding': '0px'
-                    });
-                    if (jQuery(this).attr('source') === '1') {
-                        img.addClass('tr-icon-yellow');
-                    }
-                    else if (jQuery(this).attr('source') === '0') {
-                        img.addClass('tr-icon-green');
-                    }
-                    // if the image is sourced from a hidden element - kindly "show" this
-                    if (jQuery(this).attr('hidden') === 'y') {
-                        img.css({
-                            'opacity': '0.6'
-                        });
-                    }
-                });
+                jQuery.getScript(t_jp.plugin_url + '/js/transposhedit.js');// , loadLang); // TODO!!!
             }
         });
 }()); // end of closure
