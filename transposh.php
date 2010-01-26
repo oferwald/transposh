@@ -486,7 +486,7 @@ class transposh_plugin {
             wp_deregister_script('jquery');
             wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
             // toying around - for later...
-            //wp_enqueue_script("jquery","http://code.jquery.com/jquery-1.4rc1.js",array(),'1.4rc');
+//            wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js",array(),'1.4.1');
         }
     }
 
@@ -508,6 +508,7 @@ class transposh_plugin {
         echo "t_jp.lang='{$this->target_language}';";
         echo "t_jp.prefix='".SPAN_PREFIX."';";
         echo "t_jp.msnkey='{$this->options->get_msn_key()}';";
+        echo "t_jp.preferred='{$this->options->get_preferred_translator()}';";
         echo "t_jp.progress=".($this->edit_mode || $this->options->get_widget_progressbar() ? 'true' : 'false').";";
 
         /*

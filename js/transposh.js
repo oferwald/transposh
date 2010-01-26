@@ -14,22 +14,24 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-// source - 0 is human, 1 is gt - 2 and higher reserved for future engines
+// source - 0 is human, 1 is google translate - 2 is msn translate , and higher reserved for future engines
 /*global Date, Math, Microsoft, alert, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
 // fetch translation from google translate...
 (function () { // closure
-    var langLoaded, loadLang,
+    var langLoaded, loadLang, getMSN,
     // number of phrases that might be translated
     possibly_translateable,
     // ids of progress bars
     progressbar_id = t_jp.prefix + "pbar",
     progressbar_posted_id = progressbar_id + "_s",
+    source = 1,
     //Ajax translation
     done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
     // the languages supported externally
     // extracted using function above + he|zh-tw|pt that we know
-    google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt';
+    google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
     // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
+    bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
 
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
@@ -73,7 +75,7 @@
         timer = setTimeout(function () {
             var data = {
                 ln0: t_jp.lang, // implicit
-                sr0: 1, // implicit auto translate...
+                sr0: source, // implicit auto translate... 1 if google, 2 if msn
                 translation_posted: "2",
                 items: tokens.length // we can do this here because all tokens will be different
             }, i;
@@ -125,7 +127,7 @@
     //function for auto translation
     function do_auto_translate() {
         // auto_translated_previously...
-        var auto_translated_phrases = [];
+        var auto_translated_phrases = [], binglang = t_jp.lang;
         jQuery("." + t_jp.prefix + '[source=""]').each(function (i) {
             // not needed!
             //var translated_id = jQuery(this).attr('id'),
@@ -138,19 +140,41 @@
             }
             if (auto_translated_phrases[to_trans] !== 1) {
                 auto_translated_phrases[to_trans] = 1;
-                google.language.translate(to_trans, "", t_jp.lang, function (result) {
-                    if (!result.error) {
-                        // we no longer refer to segment IDs, just tokens
-                        //var segment_id = translated_id.substr(translated_id.lastIndexOf('_') + 1);
-                        // No longer need because now included in the ajax translate
-                        //fix_page(jQuery("<div>" + result.translation + "</div>").text(), 1, segment_id);
-                        to_trans = jQuery(this).attr('orig');
-                        ajax_translate(token, jQuery("<div>" + result.translation + "</div>").text());
-                        // update the regular progress bar
-                        // done = possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size();
-                        jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size()) / possibly_translateable * 100);
+                if (typeof Microsoft !== 'undefined') {
+                    
+                    if (binglang === 'zh') {
+                        binglang = 'zh-chs';
+                    } else if (binglang === 'zh-tw') {
+                        binglang = 'zh-cht';
                     }
-                });
+                    try {
+                        Microsoft.Translator.translate(to_trans, "", binglang, function (translation) {
+                            ajax_translate(token, jQuery("<div>" + translation + "</div>").text());
+                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size()) / possibly_translateable * 100);
+                        });
+                    }
+                    catch (err) {
+                    // Maybe fallback?
+                    // console.log("There was an error using Microsoft.Translator - probably a bad key or URL used in key. (" + err + ")");
+                    }
+
+
+                } else {
+                    google.language.translate(to_trans, "", t_jp.lang, function (result) {
+                        if (!result.error) {
+                            // we no longer refer to segment IDs, just tokens
+                            //var segment_id = translated_id.substr(translated_id.lastIndexOf('_') + 1);
+                            // No longer need because now included in the ajax translate
+                            //fix_page(jQuery("<div>" + result.translation + "</div>").text(), 1, segment_id);
+                            // ????
+                            //to_trans = jQuery(this).attr('orig');
+                            ajax_translate(token, jQuery("<div>" + result.translation + "</div>").text());
+                            // update the regular progress bar
+                            // done = possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size();
+                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size()) / possibly_translateable * 100);
+                        }
+                    });
+                }
             }
         });
     }
@@ -202,16 +226,17 @@
             possibly_translateable = jQuery("." + t_jp.prefix + '[source=""]').size();
 
             now = new Date();
+            // we make sure script sub loaded are cached
+            jQuery.ajaxSetup({
+                cache: true
+            });
             // we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
-            if ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) && google_langs.indexOf(t_jp.lang) > -1) {
-                // TODO - FIX ME! (islands)
-                jQuery.ajaxSetup({
-                    cache: true
-                });
+            if ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
+                (google_langs.indexOf(t_jp.lang) > -1 || bing_langs.indexOf(t_jp.lang) > -1)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 langLoaded = function () {
                     if (t_jp.progress) {
-                        jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
+                        var loaduiandtranslate = function () {
                             jQuery.xLazyLoader({
                                 js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
                                 css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
@@ -220,19 +245,38 @@
                                     do_auto_translate();
                                 }
                             });
-                        });
+                        };
+                        if (typeof jQuery.xLazyLoader === 'function') {
+                            loaduiandtranslate();
+                        } else {
+                            jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', loaduiandtranslate);
+                        }
                     } else {
                         do_auto_translate();
                     }
                 };
                 // we now start the chain that leads to auto-translate (with or without progress)
-                jQuery.getScript('http://www.google.com/jsapi', loadLang);
+                //if supported in msn and msn is prefered or not supported in google than msn and we have the msn key
+                if (((bing_langs.indexOf(t_jp.lang) > -1 && t_jp.preferred === 2) || (google_langs.indexOf(t_jp.lang) < 0)) &&  t_jp.msnkey !== '') {
+                    source = 2;
+                    getMSN = function () {
+                        jQuery.getScript('http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey, langLoaded);
+                    };
+                    // don't know why, but that's how it works
+                    if (t_jp.edit && t_jp.progress) {
+                        jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', getMSN);
+                    } else {
+                        getMSN();
+                    }
+                } else {
+                    jQuery.getScript('http://www.google.com/jsapi', loadLang);
+                }
             }
             //}
 
             // this is the part when we have editor support
             if (t_jp.edit) {
-                jQuery.getScript(t_jp.plugin_url + '/js/transposhedit.js');// , loadLang); // TODO!!!
+                jQuery.getScript(t_jp.plugin_url + '/js/transposhedit.js');
             }
         });
 }()); // end of closure

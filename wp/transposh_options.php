@@ -60,6 +60,8 @@ define("ENABLE_AUTO_POST_TRANSLATE", "enable_autoposttranslate");
 define("ENABLE_MSN_TRANSLATE", "enable_msntranslate");
 //Option to store the msn API key
 define("MSN_TRANSLATE_KEY", "msn_key");
+//Option to store translator preference @since 0.4.2
+define("PREFERRED_TRANSLATOR", "preferred_translator");
 //Option to enable/disable default language translation
 define("ENABLE_DEFAULT_TRANSLATE", "enable_default_translate");
 //Option to enable/disable default language translation @since 0.3.6
@@ -224,6 +226,11 @@ class transposh_plugin_options {
         return $this->options[MSN_TRANSLATE_KEY];
     }
 
+    function get_preferred_translator() {
+        if (!isset($this->options[PREFERRED_TRANSLATOR])) return 1; // default is google (2 is msn)
+        return $this->options[PREFERRED_TRANSLATOR];
+    }
+
     /**
      * Gets the default language setting, i.e. the source language which normally should not be translated.
      * @return string Default language
@@ -335,6 +342,10 @@ class transposh_plugin_options {
 
     function set_msn_key($val) {
         $this->set_value($val, $this->options[MSN_TRANSLATE_KEY]);
+    }
+
+    function set_preferred_translator($val) {
+        $this->set_value($val, $this->options[PREFERRED_TRANSLATOR]);
     }
 
     /**
