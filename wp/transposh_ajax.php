@@ -44,9 +44,6 @@ if (isset($_POST['translation_posted'])) {
     }
 
     if ($_POST['translation_posted'] == 2) {
-        $my_transposh_plugin->database->update_translation_new();
-    }
-    else {
         $my_transposh_plugin->database->update_translation();
     }
 }
