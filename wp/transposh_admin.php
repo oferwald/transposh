@@ -116,6 +116,7 @@ class transposh_plugin_admin {
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
         $this->transposh->options->set_enable_search_translate($_POST[ENABLE_SEARCH_TRANSLATE]);
         $this->transposh->options->set_enable_msn_translate($_POST[ENABLE_MSN_TRANSLATE]);
+        $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
         $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
         $this->transposh->options->update_options();
     }
@@ -168,6 +169,7 @@ class transposh_plugin_admin {
         add_meta_box('transposh-sidebox-stats', 'Plugin stats', array(&$this, 'on_sidebox_stats_content'), $this->pagehook, 'side', 'core');
         add_meta_box('transposh-contentbox-languages', 'Supported languages', array(&$this, 'on_contentbox_languages_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-translation', 'Translation settings', array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-autotranslation', 'Automatic translation settings', array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-general', 'Generic settings', array(&$this, 'on_contentbox_generic_content'), $this->pagehook, 'normal', 'core');
     }
 
@@ -407,6 +409,27 @@ class transposh_plugin_admin {
         echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" '.	$this->can_translate('anonymous') . '/> Anonymous';
 
         /*
+         * Insert the option to enable/disable default language translation.
+         * Disabled by default.
+        */
+        echo '<h4>Enable default language translation</h4>';
+        echo '<input type="checkbox" value="1" name="'.ENABLE_DEFAULT_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_default_translate()).'/> '.
+                'Allow translation of default language - useful for sites with more than one major language';
+
+        /**
+         * Insert the option to enable search in translated languages
+         * Enabled by default.
+         * @since 0.3.6
+         */
+        echo '<h4>Enable search in translated languages</h4>';
+        echo '<input type="checkbox" value="1" name="'.ENABLE_SEARCH_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_search_translate()).'/> '.
+                'Allow search of translated languages, in those languages (and the original language)';
+
+    }
+
+        function on_contentbox_auto_translation_content($data) {
+
+        /*
          * Insert the option to enable/disable automatic translation.
          * Enabled by default.
         */
@@ -426,27 +449,21 @@ class transposh_plugin_admin {
          * Insert the option to enable/disable msn translations.
          * Disabled by default because an API key is needed.
         */
-        echo '<h4>Support for Bing (MSN) translation hinting (experimental)</h4>';
+        echo '<h4>Support for Bing (MSN) translation</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_MSN_TRANSLATE.'" '.$this->checked($this->transposh->options->get_enable_msn_translate()).'/> '.
                 'Allow MSN (Bing) translator hinting (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>'.
                 'Key: <input type="text" size="35" class="regular-text" value="'.$this->transposh->options->get_msn_key().'" id="'.MSN_TRANSLATE_KEY.'" name="'.MSN_TRANSLATE_KEY.'"/>';
 
         /*
-         * Insert the option to enable/disable default language translation.
-         * Disabled by default.
+         * TODO
         */
-        echo '<h4>Enable default language translation</h4>';
-        echo '<input type="checkbox" value="1" name="'.ENABLE_DEFAULT_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_default_translate()).'/> '.
-                'Allow translation of default language - useful for sites with more than one major language';
-
-        /**
-         * Insert the option to enable search in translated languages
-         * Enabled by default.
-         * @since 0.3.6
-         */
-        echo '<h4>Enable search in translated languages</h4>';
-        echo '<input type="checkbox" value="1" name="'.ENABLE_SEARCH_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_search_translate()).'/> '.
-                'Allow search of translated languages, in those languages (and the original language)';
+        echo '<h4>Select preferred translatation engine</h4>';
+        echo '<label for="'.PREFERRED_TRANSLATOR.'">Translation engine:'.
+                '<select name="'.PREFERRED_TRANSLATOR.'">'.
+                '<option value="1"' . ($this->transposh->options->get_preferred_translator() == 1 ? ' selected="selected"' : '').'>Google</option>'.
+                '<option value="2"' . ($this->transposh->options->get_preferred_translator() == 2 ? ' selected="selected"' : '').'>Bing</option>'.
+                '</select>'.
+                '</label>';
 
     }
 

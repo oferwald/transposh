@@ -18,34 +18,34 @@
 /*global Date, Math, Microsoft, alert, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
 // fetch translation from google translate...
 (function () { // closure
-    var
+    var loadLang, langLoaded,
     google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
-    bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
+    // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
+    bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
 
     function fix_page_human(token, translation) {
-        new_text = translation;
         //reset to the original content - the unescaped version if translation is empty
         // TODO!
-        /*if (jQuery.trim(translation).length === 0) {
-            new_text = jQuery("#" + t_jp.prefix + segment_id).attr('orig');
-        }*/
+        if (jQuery.trim(translation).length === 0) {
+            translation = jQuery("[token='" + token + "']").attr('orig');
+        }
 
-         var fix_image = function () { // handle the image changes
+        var fix_image = function () { // handle the image changes
             var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
             img = jQuery("#" + t_jp.prefix + "img_" + img_segment_id);
             jQuery("#" + t_jp.prefix + img_segment_id).attr('source', 0); // source is 0 human
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-green');
-            // TODO if (jQuery.trim(translation).length !== 0) { remove green on zero length?
+        // TODO if (jQuery.trim(translation).length !== 0) { remove green on zero length?
 
         };
         // rewrite text for all matching items at once
         jQuery("*[token='" + token + "'][hidden!='y']")
-        .html(new_text)
+        .html(translation)
         .each(fix_image);
 
         // FIX hidden elements too (need to update father's title)
         jQuery("*[token='" + token + "'][hidden='y']")
-        .attr('trans', new_text)
+        .attr('trans', translation)
         .each(fix_image);
     }
 
@@ -71,8 +71,8 @@
             url: t_jp.post_url,
             data: data,
             success: function () {
-                // Success now only updates the save progress bar (green)
-                /* THINK if (t_jp.progress) {
+            // Success now only updates the save progress bar (green)
+            /* THINK if (t_jp.progress) {
                     if (togo > 4 && source > 0) {
                         jQuery("#progress_bar2").progressbar('value', done_p / togo * 100);
                     }
@@ -81,7 +81,7 @@
             },
 
             error: function (req) {
-                    alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+                alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
             }
         });
     }
@@ -89,6 +89,11 @@
     function getgt()
     {
         if (typeof google === 'undefined') {
+            loadLang = function () {
+                google.load("language", "1", {
+                    "callback" : langLoaded
+                });
+            };
             langLoaded = function () {
                 getgt();
             };
@@ -226,6 +231,7 @@
             //jQuery("table thead th:last",ui.panel).after("<th/>");
             jQuery("table thead tr", ui.panel).addClass("ui-widget-header");
             //jQuery("table tbody tr", ui.panel).append('<td/>');
+            jQuery("table tbody td[source='2']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
             jQuery("table tbody td[source='1']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
             jQuery("table tbody td[source='0']", ui.panel).append('<span title="human" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-person"></span>');
         //jQuery("table tbody tr:first td:last", ui.panel).append('<span title="remove this translation" id="' + t_jp.prefix + 'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
@@ -305,7 +311,7 @@
         });
     }
 
-
+   
     // lets add the images
     jQuery("." + t_jp.prefix).each(function (i) {
         var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1), img;
@@ -335,7 +341,7 @@
             'margin': '1px',
             'padding': '0px'
         });
-        if (jQuery(this).attr('source') === '1') {
+        if (jQuery(this).attr('source')) {
             img.addClass('tr-icon-yellow');
         }
         else if (jQuery(this).attr('source') === '0') {
