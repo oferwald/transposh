@@ -341,11 +341,11 @@
             'margin': '1px',
             'padding': '0px'
         });
-        if (jQuery(this).attr('source')) {
-            img.addClass('tr-icon-yellow');
-        }
-        else if (jQuery(this).attr('source') === '0') {
+        if (jQuery(this).attr('source') === '0') {
             img.addClass('tr-icon-green');
+        }
+        else if (jQuery(this).attr('source')) {
+            img.addClass('tr-icon-yellow');
         }
         // if the image is sourced from a hidden element - kindly "show" this
         if (jQuery(this).attr('hidden') === 'y') {
