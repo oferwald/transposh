@@ -22,7 +22,8 @@
     // number of phrases that might be translated
     possibly_translateable,
     // ids of progress bars
-    progressbar_id = t_jp.prefix + "pbar",
+    t_jp_prefix = t_jp.prefix,
+    progressbar_id = t_jp_prefix + "pbar",
     progressbar_posted_id = progressbar_id + "_s",
     source = 1,
     //Ajax translation
@@ -46,8 +47,8 @@
         // edit script will fix this
         var fix_image = function () { // handle the image changes
             var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
-            img = jQuery("#" + t_jp.prefix + "img_" + img_segment_id);
-            jQuery("#" + t_jp.prefix + img_segment_id).attr('source', 1); // source is 1
+            img = jQuery("#" + t_jp_prefix + "img_" + img_segment_id);
+            jQuery("#" + t_jp_prefix + img_segment_id).attr('source', 1); // source is 1
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-yellow');
         };
 
@@ -108,7 +109,7 @@
     // TODO: change the id
     function create_progress_bar() {
         // progress bar is for alteast 5 items
-        jQuery("#" + t_jp.prefix + "credit").css({
+        jQuery("#" + t_jp_prefix + "credit").css({
             'overflow': 'auto'
         }).append('<div style="float: left;width: 90%;height: 10px" id="' + progressbar_id + '"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="' + progressbar_posted_id + '"/>');
         jQuery('#' + progressbar_id).progressbar({
@@ -128,7 +129,7 @@
     function do_auto_translate() {
         // auto_translated_previously...
         var auto_translated_phrases = [], binglang = t_jp.lang;
-        jQuery("." + t_jp.prefix + '[source=""]').each(function (i) {
+        jQuery("." + t_jp_prefix + '[source=""]').each(function (i) {
             // not needed!
             //var translated_id = jQuery(this).attr('id'),
             var token = jQuery(this).attr('token'),
@@ -150,7 +151,7 @@
                     try {
                         Microsoft.Translator.translate(to_trans, "", binglang, function (translation) {
                             ajax_translate(token, jQuery("<div>" + translation + "</div>").text());
-                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
                         });
                     }
                     catch (err) {
@@ -170,8 +171,8 @@
                             //to_trans = jQuery(this).attr('orig');
                             ajax_translate(token, jQuery("<div>" + result.translation + "</div>").text());
                             // update the regular progress bar
-                            // done = possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size();
-                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp.prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            // done = possibly_translateable - jQuery("." + t_jp_prefix + '[source=""]').size();
+                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
                         }
                     });
                 }
@@ -192,7 +193,7 @@
         function () {
             // this is the set_default_language function
             // attach a function to the set_default_language link if its there
-            jQuery('#' + t_jp.prefix + 'setdeflang').click(function () {
+            jQuery('#' + t_jp_prefix + 'setdeflang').click(function () {
                 jQuery.get(t_jp.post_url + "?tr_cookie=" + Math.random());
                 jQuery(this).hide("slow");
                 return false;
@@ -223,7 +224,7 @@
             //            var translationstats = window["eval"]("(" + jQuery("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
             //if (translationstats !== undefined) {
             //possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases - (translationstats.meta_phrases - translationstats.meta_translated_phrases));
-            possibly_translateable = jQuery("." + t_jp.prefix + '[source=""]').size();
+            possibly_translateable = jQuery("." + t_jp_prefix + '[source=""]').size();
 
             now = new Date();
             // we make sure script sub loaded are cached
