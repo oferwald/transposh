@@ -159,12 +159,20 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.4.2 =
+This version provides Haitian support, auto translate with bing support
 = 0.4.0 =
 This version provides integration with google-sitemaps-xml and wp-super-cache
 = 0.3.9 =
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/01/26 - 0.4.2 =
+ * Script split, reduced to 1.5k gzipped in common scenarios
+ * Haitian translation thanks to Bing translator
+ * Ability to choose preferred translator, auto translate now in own section in settings page
+ * Revert to new post format for translations, remove old format code
+ * Fix bug with admin side translation on slow connections
 = 2010/01/13 - 0.4.1 =
  * Fixed a few redirection bugs (administrative pages, and referred pages)
  * Fixed documentation bug (regarding google-sitemap-generator patch requirement)
