@@ -27,13 +27,13 @@
     progressbar_posted_id = progressbar_id + "_s",
     source = 1,
     //Ajax translation
-    done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
+    done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
     // the languages supported externally
     // extracted using function above + he|zh-tw|pt that we know
-    google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
+    //google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
     // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
-    bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
-
+    //bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
+    ;
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
     function fix_page(token, translation) {
@@ -233,7 +233,7 @@
             });
             // we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
             if ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-                (google_langs.indexOf(t_jp.lang) > -1 || bing_langs.indexOf(t_jp.lang) > -1)) {
+                (t_jp.google || t_jp.msn)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 langLoaded = function () {
                     if (t_jp.progress) {
@@ -258,7 +258,7 @@
                 };
                 // we now start the chain that leads to auto-translate (with or without progress)
                 //if supported in msn and msn is prefered or not supported in google than msn and we have the msn key
-                if (((bing_langs.indexOf(t_jp.lang) > -1 && t_jp.preferred === 2) || (google_langs.indexOf(t_jp.lang) < 0)) &&  t_jp.msnkey !== '') {
+                if ((t_jp.msn && t_jp.preferred === 2) || !t_jp.google) {
                     source = 2;
                     getMSN = function () {
                         jQuery.getScript('http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey, langLoaded);

@@ -506,6 +506,9 @@ class transposh_plugin {
         echo "t_jp.edit=".($this->edit_mode? 'true' : 'false').";";
         //echo "t_jp.rtl=".(in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : 'false').";";
         echo "t_jp.lang='{$this->target_language}';";
+        // those two options show if the script can support said engines
+        echo "t_jp.msn=".(in_array($this->target_language,$GLOBALS['bing_languages']) && $this->options->get_msn_key()  ? 'true' : 'false').";";
+        echo "t_jp.google=".(in_array($this->target_language,$GLOBALS['google_languages']) ? 'true' : 'false').";";
         echo "t_jp.prefix='".SPAN_PREFIX."';";
         echo "t_jp.msnkey='{$this->options->get_msn_key()}';";
         echo "t_jp.preferred='{$this->options->get_preferred_translator()}';";
