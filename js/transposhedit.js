@@ -18,10 +18,10 @@
 /*global Date, Math, Microsoft, alert, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
 // fetch translation from google translate...
 (function () { // closure
-    var loadLang, langLoaded,
-    google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
+    var loadLang, langLoaded;
+    //google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
     // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
-    bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
+    //bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
 
     function fix_page_human(token, translation) {
         //reset to the original content - the unescaped version if translation is empty
@@ -174,7 +174,7 @@
     function translate_dialog(segment_id) {
         var tButtons = {}, hButtons = {};
         //only add button is bing support is defined for the language (and we got some key)
-        if (bing_langs.indexOf(t_jp.lang) > -1 && t_jp.msnkey !== '') {
+        if (t_jp.msn) {
             //ar,zh-chs,zh-cht,nl,en,fr,de,he,it,ja,ko,pl,pt,ru,es
             tButtons['Suggest - Bing'] = function () {
                 getbt();
@@ -182,7 +182,7 @@
         }
 
         // Only add button if google supports said language
-        if (google_langs.indexOf(t_jp.lang) > -1) {
+        if (t_jp.google) {
             tButtons['Suggest - Google'] = function () {
                 getgt();
             };
