@@ -19,6 +19,17 @@
 /*
  * This file handles various AJAX needs of our plugin
 */
+// The following headers allow for cross-domain posting here, which is useful for some weird sites
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: X-Requested-With');
+header('Access-Control-Max-Age: 86400');
+
+// Exit early so the page isn't fully loaded for options requests
+if (strtolower($_SERVER['REQUEST_METHOD']) == 'options') {
+    exit();
+}
+
 // we need wordpress and us...
 require_once('../../../../wp-load.php');
 
