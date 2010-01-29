@@ -17,7 +17,10 @@
 // source - 0 is human, 1 is google translate - 2 is msn translate , and higher reserved for future engines
 /*global Date, Math, Microsoft, alert, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
 // fetch translation from google translate...
-(function () { // closure
+// We first try to avoid conflict with other frameworks
+jQuery.noConflict();
+
+(function ($) { // closure
     var langLoaded, loadLang, getMSN,
     // number of phrases that might be translated
     possibly_translateable,
@@ -38,7 +41,7 @@
     // since here we only get the automated source, we use this to reduce the code size
     function fix_page(token, translation) {
         // Todo - Probably not needed, but in case we get bad stuff
-        if (jQuery.trim(translation).length === 0) {
+        if ($.trim(translation).length === 0) {
             return;
         }
         // this is an inner function used to fix the images in the case of being inside the edit mode.
@@ -46,23 +49,30 @@
         // even if this happens before the edit scripts adds the images, it won't matter as source is changed too and the
         // edit script will fix this
         var fix_image = function () { // handle the image changes
-            var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
-            img = jQuery("#" + t_jp_prefix + "img_" + img_segment_id);
-            jQuery("#" + t_jp_prefix + img_segment_id).attr('source', 1); // source is 1
+            var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1),
+            img = $("#" + t_jp_prefix + "img_" + img_segment_id);
+            $("#" + t_jp_prefix + img_segment_id).attr('source', 1); // source is 1
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-yellow');
         };
 
         // rewrite text for all matching items at once
-        jQuery("*[token='" + token + "'][hidden!='y']")
+        $("*[token='" + token + "'][hidden!='y']")
         .html(translation)
         .each(fix_image);
 
         // TODO - FIX hidden elements too (need to update father's title)
-        jQuery("*[token='" + token + "'][hidden='y']")
+        $("*[token='" + token + "'][hidden='y']")
         .attr('trans', translation)
         .each(fix_image);
     }
 
+    // function to move the progress bars (if needed)
+    function make_progress(id, value) {
+        if (t_jp.progress) {
+            $('#' + id).progressbar('value', value);
+        }
+    }
+    
     // we have four params, here two are implicit (source =1 auto translate, lang = target language)
     function ajax_translate(token, translation) {
         // we aggregate translations together, 200ms from the last translation we will send the timer
@@ -85,16 +95,17 @@
                 data["tr" + i] = translations[i];
                 // We are pre-accounting the progress bar here - which is not very nice
                 //if (source > 0) {
-                done_posted += jQuery("*[token='" + tokens[i] + "']").size();
+                done_posted += $("*[token='" + tokens[i] + "']").size();
             //}
             }
-            jQuery.ajax({
+            $.ajax({
                 type: "POST",
                 url: t_jp.post_url,
                 data: data,
                 success: function () {
                     // Success now only updates the save progress bar (green)
-                    jQuery('#' + progressbar_posted_id).progressbar('value', done_posted / possibly_translateable * 100);
+                    make_progress(progressbar_posted_id, done_posted / possibly_translateable * 100);
+                    //$('#' + progressbar_posted_id).progressbar('value', done_posted / possibly_translateable * 100);
                 }
             // we removed the error function, as there is no alert for automated thing, this will silently fail
             // which although bad, is what we can do for now
@@ -109,17 +120,17 @@
     // TODO: change the id
     function create_progress_bar() {
         // progress bar is for alteast 5 items
-        jQuery("#" + t_jp_prefix + "credit").css({
+        $("#" + t_jp_prefix + "credit").css({
             'overflow': 'auto'
         }).append('<div style="float: left;width: 90%;height: 10px" id="' + progressbar_id + '"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="' + progressbar_posted_id + '"/>');
-        jQuery('#' + progressbar_id).progressbar({
+        $('#' + progressbar_id).progressbar({
             value: 0
         });
-        jQuery('#' + progressbar_posted_id).progressbar({
+        $('#' + progressbar_posted_id).progressbar({
             value: 0
         });
         // color the "save" bar
-        jQuery('#' + progressbar_posted_id + " > div").css({
+        $('#' + progressbar_posted_id + " > div").css({
             'background': '#28F828',
             'border' : "#08A908 1px solid"
         });
@@ -129,15 +140,15 @@
     function do_auto_translate() {
         // auto_translated_previously...
         var auto_translated_phrases = [], binglang = t_jp.lang;
-        jQuery("." + t_jp_prefix + '[source=""]').each(function (i) {
+        $("." + t_jp_prefix + '[source=""]').each(function (i) {
             // not needed!
-            //var translated_id = jQuery(this).attr('id'),
-            var token = jQuery(this).attr('token'),
+            //var translated_id = $(this).attr('id'),
+            var token = $(this).attr('token'),
             //alert(translated_id);
             // we only have orig if we have some translation,?
-            to_trans = jQuery(this).attr('orig');
+            to_trans = $(this).attr('orig');
             if (to_trans === undefined) {
-                to_trans = jQuery(this).html();
+                to_trans = $(this).html();
             }
             if (auto_translated_phrases[to_trans] !== 1) {
                 auto_translated_phrases[to_trans] = 1;
@@ -150,8 +161,9 @@
                     }
                     try {
                         Microsoft.Translator.translate(to_trans, "", binglang, function (translation) {
-                            ajax_translate(token, jQuery("<div>" + translation + "</div>").text());
-                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            ajax_translate(token, $("<div>" + translation + "</div>").text());
+                            make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            //$('#' + progressbar_id).progressbar('value', (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
                         });
                     }
                     catch (err) {
@@ -166,13 +178,14 @@
                             // we no longer refer to segment IDs, just tokens
                             //var segment_id = translated_id.substr(translated_id.lastIndexOf('_') + 1);
                             // No longer need because now included in the ajax translate
-                            //fix_page(jQuery("<div>" + result.translation + "</div>").text(), 1, segment_id);
+                            //fix_page($("<div>" + result.translation + "</div>").text(), 1, segment_id);
                             // ????
-                            //to_trans = jQuery(this).attr('orig');
-                            ajax_translate(token, jQuery("<div>" + result.translation + "</div>").text());
+                            //to_trans = $(this).attr('orig');
+                            ajax_translate(token, $("<div>" + result.translation + "</div>").text());
                             // update the regular progress bar
-                            // done = possibly_translateable - jQuery("." + t_jp_prefix + '[source=""]').size();
-                            jQuery('#' + progressbar_id).progressbar('value', (possibly_translateable - jQuery("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            // done = possibly_translateable - $("." + t_jp_prefix + '[source=""]').size();
+                            make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            //$('#' + progressbar_id).progressbar('value', (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
                         }
                     });
                 }
@@ -180,22 +193,19 @@
         });
     }
 
-    // We first try to avoid conflict with other frameworks
-    jQuery.noConflict();
-
     loadLang = function () {
         google.load("language", "1", {
             "callback" : langLoaded
         });
     };
 
-    jQuery(document).ready(
+    $(document).ready(
         function () {
             // this is the set_default_language function
             // attach a function to the set_default_language link if its there
-            jQuery('#' + t_jp_prefix + 'setdeflang').click(function () {
-                jQuery.get(t_jp.post_url + "?tr_cookie=" + Math.random());
-                jQuery(this).hide("slow");
+            $('#' + t_jp_prefix + 'setdeflang').click(function () {
+                $.get(t_jp.post_url + "?tr_cookie=" + Math.random());
+                $(this).hide("slow");
                 return false;
             });
 
@@ -203,7 +213,7 @@
             // translationstats not used yet
             //var translationstats, possibly_translateable, now;
             // now lets check if auto translate is needed
-            //translationstats = jQuery("meta[name=translation-stats]").attr("content");
+            //translationstats = $("meta[name=translation-stats]").attr("content");
             // Logic borrowed from jquery and http://json.org/json2.js - Didn't see the reason for that, if someone can modify the html, he can probably do any script he wants too...
             /*if (/^[\],:{}\s]*$/.test(translationstats.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                 .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
@@ -221,14 +231,14 @@
 					throw "Invalid JSON: " + data;
 				}*/
 
-            //            var translationstats = window["eval"]("(" + jQuery("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
+            //            var translationstats = window["eval"]("(" + $("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
             //if (translationstats !== undefined) {
             //possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases - (translationstats.meta_phrases - translationstats.meta_translated_phrases));
-            possibly_translateable = jQuery("." + t_jp_prefix + '[source=""]').size();
+            possibly_translateable = $("." + t_jp_prefix + '[source=""]').size();
 
             now = new Date();
             // we make sure script sub loaded are cached
-            jQuery.ajaxSetup({
+            $.ajaxSetup({
                 cache: true
             });
             // we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
@@ -238,7 +248,7 @@
                 langLoaded = function () {
                     if (t_jp.progress) {
                         var loaduiandtranslate = function () {
-                            jQuery.xLazyLoader({
+                            $.xLazyLoader({
                                 js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
                                 css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
                                 success: function () {
@@ -247,10 +257,10 @@
                                 }
                             });
                         };
-                        if (typeof jQuery.xLazyLoader === 'function') {
+                        if (typeof $.xLazyLoader === 'function') {
                             loaduiandtranslate();
                         } else {
-                            jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', loaduiandtranslate);
+                            $.getScript(t_jp.plugin_url + '/js/lazy.js', loaduiandtranslate);
                         }
                     } else {
                         do_auto_translate();
@@ -261,23 +271,23 @@
                 if ((t_jp.msn && t_jp.preferred === 2) || !t_jp.google) {
                     source = 2;
                     getMSN = function () {
-                        jQuery.getScript('http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey, langLoaded);
+                        $.getScript('http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey, langLoaded);
                     };
                     // don't know why, but that's how it works
                     if (t_jp.edit && t_jp.progress) {
-                        jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', getMSN);
+                        $.getScript(t_jp.plugin_url + '/js/lazy.js', getMSN);
                     } else {
                         getMSN();
                     }
                 } else {
-                    jQuery.getScript('http://www.google.com/jsapi', loadLang);
+                    $.getScript('http://www.google.com/jsapi', loadLang);
                 }
             }
             //}
 
             // this is the part when we have editor support
             if (t_jp.edit) {
-                jQuery.getScript(t_jp.plugin_url + '/js/transposhedit.js');
+                $.getScript(t_jp.plugin_url + '/js/transposhedit.js');
             }
         });
-}()); // end of closure
+}(jQuery)); // end of closure
