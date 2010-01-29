@@ -115,7 +115,7 @@ class transposh_plugin {
         add_action('shutdown', array(&$this,'on_shutdown'));
         add_action('wp_print_styles', array(&$this,'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this,'add_transposh_js'));
-        add_action('wp_head', array(&$this,'add_transposh_async'));
+//        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
@@ -460,7 +460,7 @@ class transposh_plugin {
      */
     function add_transposh_css() {
         //translation not allowed - no need for the transposh.css
-        if(!$this->is_editing_permitted() && !$this->is_auto_translate_permitted()) return;        
+        if(!$this->is_editing_permitted() && !$this->is_auto_translate_permitted()) return;
         // actually - this is only needed when editing
         if (!$this->edit_mode) return;
         // TODO - remove on lazy load...
@@ -483,8 +483,27 @@ class transposh_plugin {
 
         if($this->edit_mode || $this->is_auto_translate_permitted()) {
             //TODO - fix (onetime var)
-            wp_deregister_script('jquery');
-            wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');
+            //  wp_deregister_script('jquery');
+            //wp_enqueue_script("jquery");
+            //wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js",array("jquery"),TRANSPOSH_PLUGIN_VER,true)
+            wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js",array("jquery"),TRANSPOSH_PLUGIN_VER);
+            // true -> 1, false -> nothing
+            wp_localize_script("transposh","t_jp",array(
+                    'url' => $this->post_url,
+                    'plugin_url' => $this->transposh_plugin_url,
+                    'edit' => ($this->edit_mode? '1' : ''),
+                    //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
+                    'lang' => $this->target_language,
+                    // those two options show if the script can support said engines
+                    'msn' => (in_array($this->target_language,$GLOBALS['bing_languages']) && $this->options->get_msn_key()  ? '1' : ''),
+                    'google' => (in_array($this->target_language,$GLOBALS['google_languages']) ? '1' : ''),
+                    'prefix' => SPAN_PREFIX,
+                    'msnkey'=>$this->options->get_msn_key(),
+                    'preferred'=> $this->options->get_preferred_translator(),
+                    'progress'=>$this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '')
+//			'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+            );
+            /*wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",array(),'1.3.2');*/
             // toying around - for later...
 //            wp_enqueue_script("jquery","http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js",array(),'1.4.1');
         }
@@ -494,7 +513,8 @@ class transposh_plugin {
      * Inserts the transposh async loading in the head.
      * @return nothing
      */
-    function add_transposh_async() {
+    // lost in compatability
+/*    function add_transposh_async() {
         if (!$this->edit_mode && !$this->is_auto_translate_permitted()) {
             return;
         }
@@ -514,24 +534,11 @@ class transposh_plugin {
         echo "t_jp.preferred='{$this->options->get_preferred_translator()}';";
         echo "t_jp.progress=".($this->edit_mode || $this->options->get_widget_progressbar() ? 'true' : 'false').";";
 
-        /*
-         *         // let's lazy load! (worked, didn't make sense)
-//                jQuery(document).ready(
-                jQuery(window).load(
-    function() {
-                jQuery.ajax({
-			type: 'GET',
-			url: '{$this->transposh_plugin_url}/js/transposh.js?ver=".TRANSPOSH_PLUGIN_VER."',
-			dataType: 'script',
-                        cache: true
-		});
-  });
-        */
         echo "var tp = document.createElement('script'); tp.type = 'text/javascript'; tp.async = true;";
         echo "tp.src = '{$this->transposh_plugin_url}/js/transposh.js?ver=".TRANSPOSH_PLUGIN_VER."';";
         echo "(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(tp);";
         echo"</script>";
-    }
+    }*/
 
     /**
      * Determine if the currently selected language (taken from the query parameters) is in the admin's list
