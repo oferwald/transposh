@@ -16,10 +16,6 @@
  */
 // source - 0 is human, 1 is google translate - 2 is msn translate , and higher reserved for future engines
 /*global Date, Math, Microsoft, alert, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
-// fetch translation from google translate...
-// We first try to avoid conflict with other frameworks
-jQuery.noConflict();
-
 (function ($) { // closure
     var langLoaded, loadLang, getMSN,
     // number of phrases that might be translated
