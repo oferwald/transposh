@@ -489,7 +489,7 @@ class transposh_plugin {
             wp_enqueue_script("transposh","{$this->transposh_plugin_url}/js/transposh.js",array("jquery"),TRANSPOSH_PLUGIN_VER);
             // true -> 1, false -> nothing
             wp_localize_script("transposh","t_jp",array(
-                    'url' => $this->post_url,
+                    'post_url' => $this->post_url,
                     'plugin_url' => $this->transposh_plugin_url,
                     'edit' => ($this->edit_mode? '1' : ''),
                     //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
