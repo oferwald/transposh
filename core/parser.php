@@ -418,15 +418,15 @@ class parser {
     function create_edit_span ($original_text , $translated_text, $source, $for_hidden_element = false) {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
-        $span = '<span class ="'.SPAN_PREFIX.'" id="'.SPAN_PREFIX.$this->segment_id.'" token="' . base64_url_encode($original_text)."\" source=\"$source\"";
+        $span = '<span class ="'.SPAN_PREFIX.'" id="'.SPAN_PREFIX.$this->segment_id.'" data-token="' . base64_url_encode($original_text)."\" data-source=\"$source\"";
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
-            $span .= " orig=\"$original_text\"";
+            $span .= " data-orig=\"$original_text\"";
             if ($for_hidden_element) {
-                $span.= ' hidden="y"';
+                $span.= ' data-hidden="y"';
                 // hidden elements currently have issues figuring what they translated in the JS
                 if ($translated_text != null) {
-                    $span.= " trans=\"$translated_text\"";
+                    $span.= " data-trans=\"$translated_text\"";
                 }
             }
         }

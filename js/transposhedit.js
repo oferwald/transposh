@@ -15,9 +15,9 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 // source - 0 is human, 1 is gt - 2 and higher reserved for future engines
-/*global Date, Math, Microsoft, alert, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
+/*global Date, Math, Microsoft, alert, clearTimeout, document, google, $, setTimeout, t_jp, window */
 // fetch translation from google translate...
-(function () { // closure
+(function ($) { // closure
     var loadLang, langLoaded;
     //google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
     // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
@@ -26,26 +26,26 @@
     function fix_page_human(token, translation) {
         //reset to the original content - the unescaped version if translation is empty
         // TODO!
-        if (jQuery.trim(translation).length === 0) {
-            translation = jQuery("[token='" + token + "']").attr('orig');
+        if ($.trim(translation).length === 0) {
+            translation = $("[data-token='" + token + "']").attr('data-orig');
         }
 
         var fix_image = function () { // handle the image changes
-            var img_segment_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1),
-            img = jQuery("#" + t_jp.prefix + "img_" + img_segment_id);
-            jQuery("#" + t_jp.prefix + img_segment_id).attr('source', 0); // source is 0 human
+            var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1),
+            img = $("#" + t_jp.prefix + "img_" + img_segment_id);
+            $("#" + t_jp.prefix + img_segment_id).attr('data-source', 0); // source is 0 human
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-green');
-        // TODO if (jQuery.trim(translation).length !== 0) { remove green on zero length?
+        // TODO if ($.trim(translation).length !== 0) { remove green on zero length?
 
         };
         // rewrite text for all matching items at once
-        jQuery("*[token='" + token + "'][hidden!='y']")
+        $("*[data-token='" + token + "'][data-hidden!='y']")
         .html(translation)
         .each(fix_image);
 
         // FIX hidden elements too (need to update father's title)
-        jQuery("*[token='" + token + "'][hidden='y']")
-        .attr('trans', translation)
+        $("*[data-token='" + token + "'][data-hidden='y']")
+        .attr('data-trans', translation)
         .each(fix_image);
     }
 
@@ -64,9 +64,9 @@
         };
         // We are pre-accounting the progress bar here - which is not very nice
         /*TODO think!!!! if (source > 0) {
-            done_p += jQuery("*[token='" + token + "']").size();
+            done_p += $("*[token='" + token + "']").size();
         }*/
-        jQuery.ajax({
+        $.ajax({
             type: "POST",
             url: t_jp.post_url,
             data: data,
@@ -74,7 +74,7 @@
             // Success now only updates the save progress bar (green)
             /* THINK if (t_jp.progress) {
                     if (togo > 4 && source > 0) {
-                        jQuery("#progress_bar2").progressbar('value', done_p / togo * 100);
+                        $("#progress_bar2").progressbar('value', done_p / togo * 100);
                     }
 
                 }*/
@@ -97,16 +97,16 @@
             langLoaded = function () {
                 getgt();
             };
-            jQuery.xLazyLoader({
+            $.xLazyLoader({
                 //                js: 'http://www.google.com/jsapi?callback=loadLang'
                 js: 'http://www.google.com/jsapi',
                 success: loadLang
             });
         } else {
-            jQuery(":button:contains('Suggest - Google')").attr("disabled", "disabled").addClass("ui-state-disabled");
-            google.language.translate(jQuery("#" + t_jp.prefix + "original").val(), "", t_jp.lang, function (result) {
+            $(":button:contains('Suggest - Google')").attr("disabled", "disabled").addClass("ui-state-disabled");
+            google.language.translate($("#" + t_jp.prefix + "original").val(), "", t_jp.lang, function (result) {
                 if (!result.error) {
-                    jQuery("#" + t_jp.prefix + "translation").val(jQuery("<div>" + result.translation + "</div>").text())
+                    $("#" + t_jp.prefix + "translation").val($("<div>" + result.translation + "</div>").text())
                     .keyup();
                 }
             });
@@ -117,7 +117,7 @@
     function getbt()
     {
         if (typeof Microsoft === 'undefined') {
-            jQuery.xLazyLoader({
+            $.xLazyLoader({
                 js: 'http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey,
                 success: function () {
                     getbt();
@@ -125,7 +125,7 @@
             });
 
         } else {
-            jQuery(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
+            $(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
             var binglang = t_jp.lang;
             if (binglang === 'zh') {
                 binglang = 'zh-chs';
@@ -134,8 +134,8 @@
                 binglang = 'zh-cht';
             }
             try {
-                Microsoft.Translator.translate(jQuery("#" + t_jp.prefix + "original").val(), "", binglang, function (translation) {
-                    jQuery("#" + t_jp.prefix + "translation").val(jQuery("<div>" + translation + "</div>").text())
+                Microsoft.Translator.translate($("#" + t_jp.prefix + "original").val(), "", binglang, function (translation) {
+                    $("#" + t_jp.prefix + "translation").val($("<div>" + translation + "</div>").text())
                     .keyup();
                 });
             }
@@ -146,7 +146,7 @@
     }
 
     function confirm_close() {
-        jQuery('<div id="dial" title="Close without saving?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You have made a change to the translation. Are you sure you want to discard it?</p></div>').appendTo("body").dialog({
+        $('<div id="dial" title="Close without saving?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You have made a change to the translation. Are you sure you want to discard it?</p></div>').appendTo("body").dialog({
             bgiframe: true,
             resizable: false,
             height: 140,
@@ -157,14 +157,14 @@
             },
             buttons: {
                 'Discard': function () {
-                    jQuery("#" + t_jp.prefix + "translation").data("edit", {
+                    $("#" + t_jp.prefix + "translation").data("edit", {
                         changed: false
                     });
-                    jQuery(this).dialog('close');
-                    jQuery("#" + t_jp.prefix + "d-tabs").dialog('close');
+                    $(this).dialog('close');
+                    $("#" + t_jp.prefix + "d-tabs").dialog('close');
                 },
                 Cancel: function () {
-                    jQuery(this).dialog('close');
+                    $(this).dialog('close');
                 }
             }
         });
@@ -196,67 +196,67 @@
                 //.next? .next all?
             },*/
         tButtons.Ok = function () {
-            var translation = jQuery('#' + t_jp.prefix + 'translation').val(),
-            token = jQuery("#" + t_jp.prefix + segment_id).attr('token');
-            if (jQuery('#' + t_jp.prefix + 'translation').data("edit").changed) {
+            var translation = $('#' + t_jp.prefix + 'translation').val(),
+            token = $("#" + t_jp.prefix + segment_id).attr('data-token');
+            if ($('#' + t_jp.prefix + 'translation').data("edit").changed) {
                 ajax_translate_human(token, translation);
-                jQuery("#" + t_jp.prefix + "translation").data("edit", {
+                $("#" + t_jp.prefix + "translation").data("edit", {
                     changed: false
                 });
             }
-            jQuery(this).dialog('close');
+            $(this).dialog('close');
         };
         //tButtons["beep"] = function () {alert(Microsoft.Translator.GetLanguages())};
         hButtons = {
             Close: function () {
-                jQuery(this).dialog('close');
+                $(this).dialog('close');
             }
         };
 
-        jQuery("#" + t_jp.prefix + "d-tabs").remove();
-        jQuery('<div id="' + t_jp.prefix + 'd-tabs" title="Edit Translation"/>').appendTo("body");
-        jQuery("#" + t_jp.prefix + "d-tabs").append('<ul/>').tabs({
+        $("#" + t_jp.prefix + "d-tabs").remove();
+        $('<div id="' + t_jp.prefix + 'd-tabs" title="Edit Translation"/>').appendTo("body");
+        $("#" + t_jp.prefix + "d-tabs").append('<ul/>').tabs({
             cache: true
         })
         .tabs('add', "#" + t_jp.prefix + "d-tabs-1", 'Translate')
-        .tabs('add', t_jp.post_url + '?tr_token_hist=' + jQuery("#" + t_jp.prefix + segment_id).attr('token') + '&lang=' + t_jp.lang, 'History')
+        .tabs('add', t_jp.post_url + '?tr_token_hist=' + $("#" + t_jp.prefix + segment_id).attr('data-token') + '&lang=' + t_jp.lang, 'History')
         .css("text-align", "left")
         .css("padding", 0)
         .bind('tabsload', function (event, ui) {
             //TODO, formatting here, not server side
-            jQuery("table", ui.panel).addClass("ui-widget ui-widget-content").css({
+            $("table", ui.panel).addClass("ui-widget ui-widget-content").css({
                 'width' : '95%',
                 'padding' : '0'
             });
-            //jQuery("table thead th:last",ui.panel).after("<th/>");
-            jQuery("table thead tr", ui.panel).addClass("ui-widget-header");
-            //jQuery("table tbody tr", ui.panel).append('<td/>');
-            jQuery("table tbody td[source='2']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
-            jQuery("table tbody td[source='1']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
-            jQuery("table tbody td[source='0']", ui.panel).append('<span title="human" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-person"></span>');
-        //jQuery("table tbody tr:first td:last", ui.panel).append('<span title="remove this translation" id="' + t_jp.prefix + 'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
-        //jQuery("#" + t_jp.prefix + "revert").click(function () {
+            //$("table thead th:last",ui.panel).after("<th/>");
+            $("table thead tr", ui.panel).addClass("ui-widget-header");
+            //$("table tbody tr", ui.panel).append('<td/>');
+            $("table tbody td[source='2']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
+            $("table tbody td[source='1']", ui.panel).append('<span title="computer" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-gear"></span>');
+            $("table tbody td[source='0']", ui.panel).append('<span title="human" style="display: inline-block; margin-right: 0.3em;" class="ui-icon ui-icon-person"></span>');
+        //$("table tbody tr:first td:last", ui.panel).append('<span title="remove this translation" id="' + t_jp.prefix + 'revert" style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-scissors"/>');
+        //$("#" + t_jp.prefix + "revert").click(function () {
         //alert ('hi');
         //});
         })
         .bind('tabsselect', function (event, ui) {
             // Change buttons
-            if (jQuery(ui.tab).text() === 'Translate') {
-                jQuery("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', tButtons);
+            if ($(ui.tab).text() === 'Translate') {
+                $("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', tButtons);
             } else {
-                jQuery("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', hButtons);
+                $("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', hButtons);
             }
         })
         .bind('dialogbeforeclose', function (event, ui) {
-            if (jQuery("#" + t_jp.prefix + "translation").data("edit").changed) {
+            if ($("#" + t_jp.prefix + "translation").data("edit").changed) {
                 confirm_close();
                 return false;
             }
             return true;
         });
         // fix for templates messing with li
-        jQuery("#" + t_jp.prefix + "d-tabs li").css("list-style-type", "none").css("list-style-position", "outside");
-        jQuery("#" + t_jp.prefix + "d-tabs-1").css("padding", "1px").append(
+        $("#" + t_jp.prefix + "d-tabs li").css("list-style-type", "none").css("list-style-position", "outside");
+        $("#" + t_jp.prefix + "d-tabs-1").css("padding", "1px").append(
             /*'<table><tr><td>'+*/
             '<form id="' + t_jp.prefix + 'form">' +
             '<fieldset>' +
@@ -272,37 +272,37 @@
         '<img id="smart" src="/wp-content/plugins/transposh/img/knob/knobs/smart.png"/>'+
         '<img src="/wp-content/plugins/transposh/img/knob/knobs/merge.png"/>'+
         '</td></tr></table>'*/);
-        /*jQuery("#smart").click(function () {
+        /*$("#smart").click(function () {
         grabnext(segment_id);
     });*/
-        jQuery("#" + t_jp.prefix + "d-tabs-1 label").css("display", "block");
-        jQuery("#" + t_jp.prefix + "d-tabs-1 textarea.text").css({
+        $("#" + t_jp.prefix + "d-tabs-1 label").css("display", "block");
+        $("#" + t_jp.prefix + "d-tabs-1 textarea.text").css({
             'margin-bottom': '12px',
             'width' : '95%',
             'padding' : '.4em'
         });
-        jQuery("#" + t_jp.prefix + "original").val(jQuery("#" + t_jp.prefix + segment_id).attr('orig'));
-        jQuery("#" + t_jp.prefix + "translation").val(jQuery("#" + t_jp.prefix + segment_id).html());
-        if (jQuery("#" + t_jp.prefix + segment_id).attr('trans')) {
-            jQuery("#" + t_jp.prefix + "translation").val(jQuery("#" + t_jp.prefix + segment_id).attr('trans'));
+        $("#" + t_jp.prefix + "original").val($("#" + t_jp.prefix + segment_id).attr('data-orig'));
+        $("#" + t_jp.prefix + "translation").val($("#" + t_jp.prefix + segment_id).html());
+        if ($("#" + t_jp.prefix + segment_id).attr('data-trans')) {
+            $("#" + t_jp.prefix + "translation").val($("#" + t_jp.prefix + segment_id).attr('data-trans'));
         }
-        jQuery("#" + t_jp.prefix + "translation").data("edit", {
+        $("#" + t_jp.prefix + "translation").data("edit", {
             changed: false
         });
-        jQuery("#" + t_jp.prefix + "translation").keyup(function (e) {
-            if (jQuery("#" + t_jp.prefix + segment_id).text() !== jQuery(this).val()) {
-                jQuery(this).css("background", "yellow");
-                jQuery(this).data("edit", {
+        $("#" + t_jp.prefix + "translation").keyup(function (e) {
+            if ($("#" + t_jp.prefix + segment_id).text() !== $(this).val()) {
+                $(this).css("background", "yellow");
+                $(this).data("edit", {
                     changed: true
                 });
             } else {
-                jQuery(this).css("background", "");
-                jQuery(this).data("edit", {
+                $(this).css("background", "");
+                $(this).data("edit", {
                     changed: false
                 });
             }
         });
-        jQuery("#" + t_jp.prefix + "d-tabs").dialog({
+        $("#" + t_jp.prefix + "d-tabs").dialog({
             bgiframe: true,
             modal: true,
             //width: 'auto',
@@ -313,20 +313,20 @@
 
    
     // lets add the images
-    jQuery("." + t_jp.prefix).each(function (i) {
-        var translated_id = jQuery(this).attr('id').substr(jQuery(this).attr('id').lastIndexOf('_') + 1), img;
-        jQuery(this).after('<span id="' + t_jp.prefix + 'img_' + translated_id + '" class="tr-icon" title="' + jQuery(this).attr('orig') + '"></span>');
-        img = jQuery('#' + t_jp.prefix + 'img_' + translated_id);
+    $("." + t_jp.prefix).each(function (i) {
+        var translated_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1), img;
+        $(this).after('<span id="' + t_jp.prefix + 'img_' + translated_id + '" class="tr-icon" title="' + $(this).attr('data-orig') + '"></span>');
+        img = $('#' + t_jp.prefix + 'img_' + translated_id);
         img.click(function () {
-            //  if we detect that jQuery.ui is missing (TODO - check tabs - etal) we load it first
-            if (typeof jQuery.fn.tabs !== 'function') {
-                jQuery.ajaxSetup({
+            //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first
+            if (typeof $.fn.tabs !== 'function') {
+                $.ajaxSetup({
                     cache: true
                 });
-                jQuery.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
-                    jQuery.xLazyLoader({
-                        js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
-                        css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
+                $.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
+                    $.xLazyLoader({
+                        js: 'http://ajax.googleapis.com/ajax/libs/$ui/1.7.2/$-ui.min.js',
+                        css: 'http://ajax.googleapis.com/ajax/libs/$ui/1.7.2/themes/ui-lightness/$-ui.css',
                         success: function () {
                             translate_dialog(translated_id);
                         }
@@ -341,17 +341,17 @@
             'margin': '1px',
             'padding': '0px'
         });
-        if (jQuery(this).attr('source') === '0') {
+        if ($(this).attr('data-source') === '0') {
             img.addClass('tr-icon-green');
         }
-        else if (jQuery(this).attr('source')) {
+        else if ($(this).attr('data-source')) {
             img.addClass('tr-icon-yellow');
         }
         // if the image is sourced from a hidden element - kindly "show" this
-        if (jQuery(this).attr('hidden') === 'y') {
+        if ($(this).attr('data-hidden') === 'y') {
             img.css({
                 'opacity': '0.6'
             });
         }
     });
-}()); // end of closure
+}(jQuery)); // end of closure

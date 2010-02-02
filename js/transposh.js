@@ -47,18 +47,18 @@
         var fix_image = function () { // handle the image changes
             var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1),
             img = $("#" + t_jp_prefix + "img_" + img_segment_id);
-            $("#" + t_jp_prefix + img_segment_id).attr('source', 1); // source is 1
+            $("#" + t_jp_prefix + img_segment_id).attr('data-source', 1); // source is 1
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-yellow');
         };
 
         // rewrite text for all matching items at once
-        $("*[token='" + token + "'][hidden!='y']")
+        $("*[data-token='" + token + "'][data-hidden!='y']")
         .html(translation)
         .each(fix_image);
 
         // TODO - FIX hidden elements too (need to update father's title)
-        $("*[token='" + token + "'][hidden='y']")
-        .attr('trans', translation)
+        $("*[data-token='" + token + "'][data-hidden='y']")
+        .attr('data-trans', translation)
         .each(fix_image);
     }
 
@@ -91,7 +91,7 @@
                 data["tr" + i] = translations[i];
                 // We are pre-accounting the progress bar here - which is not very nice
                 //if (source > 0) {
-                done_posted += $("*[token='" + tokens[i] + "']").size();
+                done_posted += $("*[data-token='" + tokens[i] + "']").size();
             //}
             }
             $.ajax({
@@ -136,13 +136,13 @@
     function do_auto_translate() {
         // auto_translated_previously...
         var auto_translated_phrases = [], binglang = t_jp.lang;
-        $("." + t_jp_prefix + '[source=""]').each(function (i) {
+        $("." + t_jp_prefix + '[data-source=""]').each(function (i) {
             // not needed!
             //var translated_id = $(this).attr('id'),
-            var token = $(this).attr('token'),
+            var token = $(this).attr('data-token'),
             //alert(translated_id);
             // we only have orig if we have some translation,?
-            to_trans = $(this).attr('orig');
+            to_trans = $(this).attr('data-orig');
             if (to_trans === undefined) {
                 to_trans = $(this).html();
             }
@@ -158,7 +158,7 @@
                     try {
                         Microsoft.Translator.translate(to_trans, "", binglang, function (translation) {
                             ajax_translate(token, $("<div>" + translation + "</div>").text());
-                            make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
                             //$('#' + progressbar_id).progressbar('value', (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
                         });
                     }
@@ -176,11 +176,11 @@
                             // No longer need because now included in the ajax translate
                             //fix_page($("<div>" + result.translation + "</div>").text(), 1, segment_id);
                             // ????
-                            //to_trans = $(this).attr('orig');
+                            //to_trans = $(this).attr('data-orig');
                             ajax_translate(token, $("<div>" + result.translation + "</div>").text());
                             // update the regular progress bar
                             // done = possibly_translateable - $("." + t_jp_prefix + '[source=""]').size();
-                            make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
+                            make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
                             //$('#' + progressbar_id).progressbar('value', (possibly_translateable - $("." + t_jp_prefix + '[source=""]').size()) / possibly_translateable * 100);
                         }
                     });
@@ -230,7 +230,7 @@
             //            var translationstats = window["eval"]("(" + $("meta[name=translation-stats]").attr("content") + ")"), possibly_translateable, now;
             //if (translationstats !== undefined) {
             //possibly_translateable = (translationstats.total_phrases - translationstats.translated_phrases - (translationstats.meta_phrases - translationstats.meta_translated_phrases));
-            possibly_translateable = $("." + t_jp_prefix + '[source=""]').size();
+            possibly_translateable = $("." + t_jp_prefix + '[data-source=""]').size();
 
             now = new Date();
             // we make sure script sub loaded are cached
