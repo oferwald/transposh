@@ -325,8 +325,8 @@
                 });
                 $.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
                     $.xLazyLoader({
-                        js: 'http://ajax.googleapis.com/ajax/libs/$ui/1.7.2/$-ui.min.js',
-                        css: 'http://ajax.googleapis.com/ajax/libs/$ui/1.7.2/themes/ui-lightness/$-ui.css',
+                        js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
+                        css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
                         success: function () {
                             translate_dialog(translated_id);
                         }
