@@ -258,7 +258,7 @@ class parser {
      * @return int length of number.
      */
     function is_number($page, $position) {
-        return strspn($page,'0123456789-+,.\\/',$position);
+        return strspn($page,'0123456789-+$%,.\\/',$position);
     }
 
     /**
@@ -326,8 +326,20 @@ class parser {
                 $start = $pos;
             }
             // Numbers also break, if they are followed by whitespace (or a sentence breaker) (don't break 42nd) // TODO: probably by breaking entities too...
+            // also prefixed by whitespace?
             elseif($num_len = $this->is_number($string,$pos)) {
-                if ($this->is_white_space($string[$pos+$num_len]) ||  $this->is_sentence_breaker($string[$pos+$num_len],$string[$pos+$num_len+1],$string[$pos+$num_len+2])) {
+                // this is the case of B2 or B2,
+                if (($this->is_white_space($string[$pos-1]) || ($start == $pos)
+                        || ($this->is_sentence_breaker($string[$pos+$num_len-1],$string[$pos+$num_len],$string[$pos+$num_len+1]))) &&
+                        ($this->is_white_space($string[$pos+$num_len]) ||  $this->is_sentence_breaker($string[$pos+$num_len],$string[$pos+$num_len+1],$string[$pos+$num_len+2]))) {
+                    // we will now compensate on the number followed by breaker case, if we need to
+                    if (!($this->is_white_space($string[$pos-1]) || ($start == $pos))) {
+                        if ($this->is_sentence_breaker($string[$pos+$num_len-1],$string[$pos+$num_len],$string[$pos+$num_len+1])) {
+                            $num_len--; //this makes the added number shorter by one, and the pos will be at a sentence breaker next so we don't have to compensate
+                        }
+                        $pos += $num_len;
+                        $num_len = 0; // we have already added this
+                    }
                     $this->tag_phrase($string,$start,$pos);
                     $start = $pos + $num_len + 1;
                 }
