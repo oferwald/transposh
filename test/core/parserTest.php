@@ -205,6 +205,8 @@ class parserTest extends PHPUnit_Framework_TestCase {
         $this->runtestCut("b 100$", array('b'));
         $this->runtestCut("b100$", array('b100$'));
         $this->runtestCut("b100$,", array('b100$'));
+        $this->runtestCut("a 1", array('a'));
+        $this->runtestCut("a (1920-30)", array('a'));
         $this->runtestCut("some <b>html</b>is here,", array('some','html','is here'));
     }
 
