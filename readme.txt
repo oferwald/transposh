@@ -3,7 +3,7 @@ Contributors: oferwald, amirperlman
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese, translate
 Requires at least: 2.7
-Tested up to: 2.9.1
+Tested up to: 2.9.2
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -159,6 +159,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.4.3 =
+Minor bug fixes, more compatability
 = 0.4.2 =
 This version provides Haitian support, auto translate with bing support
 = 0.4.0 =
@@ -167,6 +169,13 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/02/28 - 0.4.3 =
+ * Shrink even more with pre-calculating supported languages
+ * Allow cross-domain posting
+ * Fixed name of flags file
+ * Canned remote jQuery, Async loading and footer scripts in sake of compatability, simplicity
+ * Change internal variables to fit html5
+ * Better mixed number support in parser, esp when $ and % is involved
 = 2010/01/26 - 0.4.2 =
  * Script split, reduced to 1.5k gzipped in common scenarios
  * Haitian translation thanks to Bing translator
