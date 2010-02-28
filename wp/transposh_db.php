@@ -287,6 +287,31 @@ class transposh_database {
 
         exit;
     }
+    
+    /**
+     * Function to return human translations history
+     * @param string $date - either null for all or a date to get terms after
+     * @return array List of rows 
+     */
+    function get_all_human_translation_history($date ="null", $limit = "") {
+
+        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
+        logger ("table is $table_name",4);
+
+        //add  our own custom header - so we will know that we got here
+//        header("Transposh: v-".TRANSPOSH_PLUGIN_VER." db_version-". DB_VERSION);
+
+        if ($date != "null") $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
+        if ($limit) $limitterm = "LIMIT $limit";
+        $query = "SELECT original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp ".
+                "FROM $table_name ".
+                "WHERE source= 0 $dateterm ".
+                "ORDER BY timestamp ASC $limitterm";
+        logger ("query is $query");
+
+        $rows = $GLOBALS['wpdb']->get_results($query);
+        return $rows;
+    }
 
     /*
  * Setup the translation database.
