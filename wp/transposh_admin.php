@@ -85,7 +85,7 @@ class transposh_plugin_admin {
         //Update the list of supported/editable/sortable languages
         logger($_POST['languages']);
         foreach($_POST['languages'] as $code => $lang) {
-        list ($langcode, $viewable, $translateable) = explode(",",$lang);
+            list ($langcode, $viewable, $translateable) = explode(",",$lang);
             $sorted_langs[$langcode] = $langcode;
             if($viewable) {
                 $viewable_langs[$langcode] = $langcode;
@@ -161,12 +161,33 @@ class transposh_plugin_admin {
             wp_enqueue_style("transposh_flags",$this->transposh->transposh_plugin_url."/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
         wp_enqueue_script('jquery-ui-droppable');
         wp_enqueue_script("transposh_control",$this->transposh->transposh_plugin_url."/js/transposhcontrol.js",array(),TRANSPOSH_PLUGIN_VER, true);
+        wp_localize_script("transposh_control","t_jp",array(
+                'post_url' => $this->transposh->post_url/*,
+                    'plugin_url' => $this->transposh_plugin_url,
+                    'edit' => ($this->edit_mode? '1' : ''),
+                    //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
+                    'lang' => $this->target_language,
+                    // those two options show if the script can support said engines
+                    'msn' => (in_array($this->target_language,$GLOBALS['bing_languages']) && $this->options->get_msn_key()  ? '1' : ''),
+                    'google' => (in_array($this->target_language,$GLOBALS['google_languages']) ? '1' : ''),
+                    'prefix' => SPAN_PREFIX,
+                    'msnkey'=>$this->options->get_msn_key(),
+                    'preferred'=> $this->options->get_preferred_translator(),
+                    'progress'=>$this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '')*/
+//			'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+        ));
+        wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',true);
+        wp_enqueue_script("transposh_admin",$this->transposh->transposh_plugin_url."/js/transposhadmin.js",array(),TRANSPOSH_PLUGIN_VER, true);
+        wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",array(),'1.0');
+        wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js",array("jquery"),'1.7.2',true);
+
 
         //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
         add_meta_box('transposh-sidebox-about', 'About this plugin', array(&$this, 'on_sidebox_about_content'), $this->pagehook, 'side', 'core');
         add_meta_box('transposh-sidebox-widget', 'Widget settings', array(&$this, 'on_sidebox_widget_content'), $this->pagehook, 'side', 'core');
         add_meta_box('transposh-sidebox-news', 'Plugin news', array(&$this, 'on_sidebox_news_content'), $this->pagehook, 'side', 'core');
         add_meta_box('transposh-sidebox-stats', 'Plugin stats', array(&$this, 'on_sidebox_stats_content'), $this->pagehook, 'side', 'core');
+        add_meta_box('transposh-sidebox-translate', 'Translate all', array(&$this, 'on_sidebox_translate_content'), $this->pagehook, 'side', 'core');
         add_meta_box('transposh-contentbox-languages', 'Supported languages', array(&$this, 'on_contentbox_languages_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-translation', 'Translation settings', array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-autotranslation', 'Automatic translation settings', array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
@@ -303,6 +324,13 @@ class transposh_plugin_admin {
         $this->transposh->database->db_stats();
     }
 
+    function on_sidebox_translate_content($data) {
+        echo '<div id="progress_bar_all"></div><div id="tr_translate_title"></div>';
+        echo '<div id="tr_loading" style="margin: 0 0 10px 0">Translate by clicking the button below</div>';
+        echo '<a id="transposh-translate" href="'.$this->transposh->post_url.'?translate_all&offset=1" onclick="return false;" class="button">Translate All Now</a><br/>';
+        //get_posts
+    }
+
     /**
      * Insert supported languages section in admin page
      * @param string $data
@@ -358,7 +386,7 @@ class transposh_plugin_admin {
         echo '<ul id="default_list"><li id="'.$this->transposh->options->get_default_language().'" class="languages">'
                 .display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname,$this->transposh->options->get_widget_css_flags())
                 .'<input type="hidden" name="languages[]" value="'. $this->transposh->options->get_default_language() .'" />'
-                      .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></li>';
+                .'&nbsp;<span class="langname">'.$langorigname.'</span><span class="langname hidden">'.$langname.'</span></li>';
         echo '</ul></div>';
         // list of languages
         echo '<div style="overflow:auto; clear: both;">Available Languages (Click to toggle language state - Drag to sort in the widget)';
@@ -427,7 +455,7 @@ class transposh_plugin_admin {
 
     }
 
-        function on_contentbox_auto_translation_content($data) {
+    function on_contentbox_auto_translation_content($data) {
 
         /*
          * Insert the option to enable/disable automatic translation.
@@ -497,11 +525,26 @@ class transposh_plugin_admin {
                 'This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. '.
                 'This will redirect the first page accessed in the session to the same page with the detected language.';
 
-       /* WIP2
+        /* WIP2
         echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>';*/
     }
 
     function on_contentbox_community_content($data) {
+   /*     echo '<a tabindex="4" id="transposh-backup" href="/wp-admin/post-new.php?preview=true" class="button">Do Backup Now</a><br/>';
+        //  echo "<p id=\"backup\">Do backup.</p>";
+        echo 'Service Key: <input type="text" size="32" class="regular-text" value="'.$this->transposh->options->get_transposh_key().'" id="'.TRANSPOSH_KEY.'" name="'.TRANSPOSH_KEY.'"/>';
+        echo '
+<script type="text/javascript">
+    //<![CDATA[
+    jQuery(document).ready( function($) {
+        // close postboxes that should be closed
+        $("#backup").click(function () {
+        $.get("'.$this->transposh->post_url.'?backup=" + Math.random());
+        //alert ("hi");
+        });
+    });
+    //]]>
+</script>';*/
         echo "<p>This space is reserved for the coming community features of Transposh that will help you find translators to help with your site.</p>";
     }
 }

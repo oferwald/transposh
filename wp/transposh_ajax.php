@@ -80,4 +80,18 @@ elseif (isset($_GET['tr_cookie_bck'])) {
         wp_redirect($my_transposh_plugin->home_url);
     }
 }
+// Start full translation
+elseif (isset($_GET['translate_all'])) {
+    // get all ids in need of translation
+    $page_ids = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_type='page' OR post_type='post' ORDER BY ID DESC");
+    // only high capabilities users can...
+    if (!current_user_can('edit_post',$page_ids[0])) return;
+    echo json_encode($page_ids);
+}
+// Start backup on demand
+/*elseif (isset($_GET['backup'])) {
+    $my_transposh_backup = new transposh_backup($my_transposh_plugin);
+    $my_transposh_backup->do_backup();
+}*/
+
 ?>
