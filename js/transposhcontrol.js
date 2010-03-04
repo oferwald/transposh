@@ -15,20 +15,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*'function chbx_change(lang)'.
-                '{'.
-                'jQuery("#"+lang+"_edit").attr("checked",jQuery("#"+lang+"_view").attr("checked"))'.
-                '}'.
-                'jQuery(document).ready(function() {'.
-                'jQuery("#tr_anon").click(function() {'.
-                'if (jQuery("#tr_anon").attr("checked")) {'.
-                'jQuery(".tr_editable").css("display","none");'.
-                '} else {'.
-                'jQuery(".tr_editable").css("display","");'.
-                '}'.
-                '});'.
-                '});'.
-                '</script>';*/
+//(function ($) { // closure
 jQuery(function() {
     // clicking anonymous will make translatables active
     jQuery("#tr_anon").click(function() {
@@ -133,4 +120,70 @@ jQuery(function() {
         return false;
     });
 
+    // backup button
+    jQuery("#transposh-backup").click(function () {
+        jQuery.get(t_jp.post_url + "?backup=" + Math.random());
+        return false;
+    });
+
+    // translate all button
+    do_translate_all = function () {
+        jQuery("#progress_bar_all").progressbar({
+            value:0
+        });
+        stop_translate_var = false;
+        // while there is a next
+        // get next post to translate
+        //var offset = "0";
+        jQuery("#tr_loading").data("done",true);
+        jQuery.ajaxSetup({
+            cache: false
+        });
+        jQuery.getJSON(t_jp.post_url,{
+            translate_all:"y"
+        }, function (data) {
+            dotimer = function(a) {
+                clearTimeout(timer2);
+                //console.log(a);
+                //console.log(jQuery("#tr_loading").data("done"));
+                if (jQuery("#tr_loading").data("done") || jQuery("#tr_loading").data("attempt")>4) {
+                    jQuery("#progress_bar_all").progressbar('value' , (a+1)/data.length*100);
+                    jQuery("#tr_loading").data("attempt",0);
+                    translate_post(data[a]);
+                    //console.log(jQuery("#tr_loading").data("done"));
+                    //console.log("done translate" + a);
+                    if (data[a] && !stop_translate_var) {
+                        //console.log("trigger translation of " +a);
+                        timer2 = setTimeout(function() {
+                            dotimer(a+1)
+                        },1000);
+                    }
+                } else {
+                    //console.log("waiting for translation to finish 60 seconds");
+                    jQuery("#tr_loading").data("attempt",jQuery("#tr_loading").data("attempt")+1);
+                    timer2 = setTimeout(function() {
+                        dotimer(a)
+                    },60000);
+                }
+            }
+            timer2 = setTimeout(function() {
+                dotimer(0)
+            },0);
+        });
+        jQuery("#transposh-translate").text("Stop translate")
+        jQuery("#transposh-translate").click(stop_translate);
+        return false;
+    }
+
+    stop_translate = function() {
+        clearTimeout(timer2);
+        stop_translate_var = true;
+        jQuery("#transposh-translate").text("Translate All Now")
+        jQuery("#transposh-translate").click(do_translate_all);
+        return false;
+    }
+
+    jQuery("#transposh-translate").click(do_translate_all);
+
 });
+//}(jQuery)); // end of closure

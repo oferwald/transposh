@@ -15,11 +15,11 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- */
+*/
 
 /*
  * Provides the side widget in the page/edit pages which will do translations
- */
+*/
 
 /**
  * class that makes changed to the edit page and post page, adding our change to the side ba
@@ -39,7 +39,7 @@ class transposh_postpublish {
         // we'll only do something if so configured to do
         if ($this->transposh->options->get_enable_auto_post_translate()) {
             add_action('edit_post',array(&$this, 'on_edit'));
-           // add_action('publish_post',array(&$this, 'on_publish'));
+            // add_action('publish_post',array(&$this, 'on_publish'));
             add_action('admin_menu', array(&$this, 'on_admin_menu'));
         }
     }
@@ -54,9 +54,29 @@ class transposh_postpublish {
         add_meta_box( 'transposh_postpublish','Transposh', array(&$this, "transposh_postpublish_box"), 'page', 'side', 'core');
         if ($_GET['justedited']) {
             wp_enqueue_script("google","http://www.google.com/jsapi",array(),'1',true);
-            wp_enqueue_script("transposh","{$this->transposh->transposh_plugin_url}/js/transposhadmin.js?post_url={$this->transposh->post_url}&post={$_GET['post']}",array("jquery"),TRANSPOSH_PLUGIN_VER,true);
+            wp_enqueue_script("transposh","{$this->transposh->transposh_plugin_url}/js/transposhadmin.js",array("jquery"),TRANSPOSH_PLUGIN_VER,true);
+            wp_localize_script("transposh","t_jp",array(
+                    'post_url' => $this->transposh->post_url,
+                    'post' => $_GET['post'],
+                    'msnkey'=>$this->transposh->options->get_msn_key(),
+                    'msn_langs' => json_encode($GLOBALS['bing_languages']),
+                    'google_lang' => json_encode($GLOBALS['google_languages']),
+                    'preferred'=> $this->transposh->options->get_preferred_translator()/*,
+                    'plugin_url' => $this->transposh_plugin_url,
+                    'edit' => ($this->edit_mode? '1' : ''),
+                    //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
+                    'lang' => $this->target_language,
+                    // those two options show if the script can support said engines
+                    'prefix' => SPAN_PREFIX,
+
+                    'progress'=>$this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '')*/
+//			'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+            ));
             wp_enqueue_style("jquery","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",array(),'1.0');
             wp_enqueue_script("jqueryui","http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js",array("jquery"),'1.7.2',true);
+     /*       if ($this->transposh->options->get_enable_msn_translate() && $this->transposh->options->get_msn_key()) {
+                wp_enqueue_script("mstranslate","http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=".$this->transposh->options->get_msn_key(),array(),'1',true);
+            }*/
         }
     }
 
@@ -74,8 +94,9 @@ class transposh_postpublish {
         $content = apply_filters('the_content', $post->post_content);
         // TODO - grab phrases from rss excerpt
         //$output = get_the_excerpt();
-	// echo apply_filters('the_excerpt_rss', $output);
-
+        // echo apply_filters('the_excerpt_rss', $output);
+        //TODO - get comments text
+        
         $parser = new parser();
         $phrases = $parser->get_phrases_list($content);
         $phrases2 = $parser->get_phrases_list($title);
@@ -105,6 +126,10 @@ class transposh_postpublish {
             }
         }
 
+        // add the title
+//        if ($json['length'])
+            $json['posttitle'] = $title;
+        
         // the header helps with debugging
         header("Content-type: text/javascript");
         echo json_encode($json);
