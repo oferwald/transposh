@@ -47,9 +47,10 @@ class transposh_backup {
             return;
         }
         if ($this->transposh->options->get_transposh_key() == "") {
-            $this->transposh->set_transposh_key($result['headers']['transposh-key']);
-            echo $this->transposh->options->get_transposh_key();
-            $my_transposh_plugin->options->update_options();
+            $this->transposh->options->set_transposh_key($result['headers']['transposh-key']);
+            // TODO: deliever new gottenkey to client side?
+            //echo $this->transposh->options->get_transposh_key();
+            $this->transposh->options->update_options();
         }
         if ($result['headers']['lastitem']) {
             $rowstosend = $this->transposh->database->get_all_human_translation_history($result['headers']['lastitem'], 500);
