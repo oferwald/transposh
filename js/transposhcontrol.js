@@ -121,10 +121,19 @@ jQuery(function() {
     });
 
     // backup button
-    jQuery("#transposh-backup").click(function () {
-        jQuery.get(t_jp.post_url + "?backup=" + Math.random());
+    backupclick = function () {
+        jQuery("#transposh-backup").click(function(){
+            return false
+            }).text("Backup In Progress");
+        jQuery.get(t_jp.post_url + "?backup=" + Math.random(),function(data) {
+            var color = 'red';
+            if (data[0] == '2') color = 'green';
+            jQuery('#backup_result').html(data).css('color',color);
+            jQuery("#transposh-backup").click(backupclick).text("Do Backup Now");
+        });
         return false;
-    });
+    };
+    jQuery("#transposh-backup").click(backupclick);
 
     // translate all button
     do_translate_all = function () {

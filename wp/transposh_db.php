@@ -171,12 +171,13 @@ class transposh_database {
             if (isset($_POST["sr$i"])) {
                 $source = $_POST["sr$i"];
             }
-
+            // should we backup?
+            if ($source ==0) $backup_immidiate_possible = true;
 
             //Here we check we are not redoing stuff
             list($translated_text, $old_source) = $this->fetch_translation($original, $lang);
             if ($translated_text) {
-                if ($source == 1) {
+                if ($source > 0) {
                     logger("Warning auto-translation for already translated: $original $lang", 0);
                     continue;
                     //return; // too harsh, we just need to get to the next in for
@@ -219,6 +220,11 @@ class transposh_database {
             logger(mysql_error(),0);
             logger("Error !!! failed to insert to db $original , $translation, $lang," , 0);
             header("HTTP/1.0 404 Failed to update language database ".mysql_error());
+        }
+
+        // Should we backup now?
+        if ($backup_immidiate_possible && $this->transposh->options->get_transposh_backup_schedule() == 2) {
+            $this->transposh->run_backup();
         }
         // this is a termination for the ajax sequence
         exit;

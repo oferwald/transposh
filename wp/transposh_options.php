@@ -84,6 +84,10 @@ define("WIDGET_CSS_FLAGS", "widget_css_flags");
 define("WIDGET_IN_LIST", "widget_in_list");
 //Allows user to set his default language per #63 @since 0.3.8
 define("WIDGET_ALLOW_SET_DEFLANG", "widget_allow_set_deflang");
+//Stores the site key to transposh services (backup @since 0.5.0)
+define("TRANSPOSH_KEY","transposh_key");
+//Stores the site key to transposh services (backup @since 0.5.0)
+define("TRANSPOSH_BACKUP_SCHEDULE","transposh_backup_schedule");
 
 
 class transposh_plugin_options {
@@ -247,6 +251,14 @@ class transposh_plugin_options {
         return $default;
     }
 
+    function get_transposh_key() {
+        return $this->options[TRANSPOSH_KEY];
+    }
+
+    function get_transposh_backup_schedule() {
+        return $this->options[TRANSPOSH_BACKUP_SCHEDULE];
+    }
+
     /**
      * Sets a value at the options array
      * @param mixed $val
@@ -358,6 +370,14 @@ class transposh_plugin_options {
             $val = "en";
         }
         $this->set_value($val, $this->options[DEFAULT_LANG]);
+    }
+
+    function set_transposh_key($val) {
+        $this->set_value($val, $this->options[TRANSPOSH_KEY]);
+    }
+
+    function set_transposh_backup_schedule($val) {
+        $this->set_value($val, $this->options[TRANSPOSH_BACKUP_SCHEDULE]);
     }
 
     /**
