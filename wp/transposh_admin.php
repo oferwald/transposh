@@ -118,6 +118,16 @@ class transposh_plugin_admin {
         $this->transposh->options->set_enable_msn_translate($_POST[ENABLE_MSN_TRANSLATE]);
         $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
         $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
+        $this->transposh->options->set_transposh_key($_POST[TRANSPOSH_KEY]);
+
+        // handle change of schedule for backup to daily
+        if ($_POST[TRANSPOSH_BACKUP_SCHEDULE] != $this->transposh->options->get_transposh_backup_schedule()) {
+            wp_clear_scheduled_hook('transposh_backup_event');
+            if ($_POST[TRANSPOSH_BACKUP_SCHEDULE] == 1)
+                wp_schedule_event(time(), 'daily', 'transposh_backup_event');
+        }
+        $this->transposh->options->set_transposh_backup_schedule($_POST[TRANSPOSH_BACKUP_SCHEDULE]);
+
         $this->transposh->options->update_options();
     }
 
@@ -200,7 +210,7 @@ class transposh_plugin_admin {
         //global $screen_layout_columns;
         //add a 3rd content box now for demonstration purpose, boxes added at start of page rendering can't be switched on/off,
         //may be needed to ensure that a special box is always available
-        add_meta_box('transposh-contentbox-community', 'Transposh community features (upcoming)', array(&$this, 'on_contentbox_community_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-community', 'Transposh community features', array(&$this, 'on_contentbox_community_content'), $this->pagehook, 'normal', 'core');
         //define some data can be given to each metabox during rendering - not used now
         //$data = array('My Data 1', 'My Data 2', 'Available Data 1');
         ?>
@@ -530,22 +540,13 @@ class transposh_plugin_admin {
     }
 
     function on_contentbox_community_content($data) {
-   /*     echo '<a tabindex="4" id="transposh-backup" href="/wp-admin/post-new.php?preview=true" class="button">Do Backup Now</a><br/>';
-        //  echo "<p id=\"backup\">Do backup.</p>";
-        echo 'Service Key: <input type="text" size="32" class="regular-text" value="'.$this->transposh->options->get_transposh_key().'" id="'.TRANSPOSH_KEY.'" name="'.TRANSPOSH_KEY.'"/>';
-        echo '
-<script type="text/javascript">
-    //<![CDATA[
-    jQuery(document).ready( function($) {
-        // close postboxes that should be closed
-        $("#backup").click(function () {
-        $.get("'.$this->transposh->post_url.'?backup=" + Math.random());
-        //alert ("hi");
-        });
-    });
-    //]]>
-</script>';*/
-        echo "<p>This space is reserved for the coming community features of Transposh that will help you find translators to help with your site.</p>";
+        echo '<h4>Backup service for human translation</h4>';
+        echo '<input type="radio" value="1" name="'.TRANSPOSH_BACKUP_SCHEDULE.'" '. $this->checked($this->transposh->options->get_transposh_backup_schedule() == 1) . '/>Enable daily backup<br/>';
+        echo '<input type="radio" value="2" name="'.TRANSPOSH_BACKUP_SCHEDULE.'" '. $this->checked($this->transposh->options->get_transposh_backup_schedule() == 2) . '/>Enable live backup<br/>';
+        echo '<input type="radio" value="0" name="'.TRANSPOSH_BACKUP_SCHEDULE.'" '. $this->checked($this->transposh->options->get_transposh_backup_schedule() == 0) . '/>Disable backup (Can be run manually by clicking the button below)<br/>';
+        echo 'Service Key: <input type="text" size="32" class="regular-text" value="'.$this->transposh->options->get_transposh_key().'" id="'.TRANSPOSH_KEY.'" name="'.TRANSPOSH_KEY.'"/> <a target="_blank" href="http://transposh.org/faq/#restore">How to restore?</a><br/>';
+        echo '<div id="backup_result"></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-backup" href="#" class="button">Do Backup Now</a></div>';
     }
 }
 

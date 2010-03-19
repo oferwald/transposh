@@ -43,6 +43,7 @@ require_once("wp/transposh_widget.php");
 require_once("wp/transposh_admin.php");
 require_once("wp/transposh_options.php");
 require_once("wp/transposh_postpublish.php");
+require_once("wp/transposh_backup.php");
 
 /**
  * This class represents the complete plugin
@@ -117,6 +118,8 @@ class transposh_plugin {
         add_action('wp_print_scripts', array(&$this,'add_transposh_js'));
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
+        add_action('transposh_backup_event', array(&$this,'run_backup'));
+
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
     }
@@ -700,7 +703,17 @@ class transposh_plugin {
             }
         }
     }
+
+    /**
+     * Runs a scheduled backup
+     */
+    function run_backup() {
+        logger ("backup run..");
+        $my_transposh_backup = new transposh_backup($this);
+        $my_transposh_backup->do_backup();
+    }
 }
+
 $my_transposh_plugin = new transposh_plugin();
 
 ?>

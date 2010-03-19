@@ -89,9 +89,8 @@ elseif (isset($_GET['translate_all'])) {
     echo json_encode($page_ids);
 }
 // Start backup on demand
-/*elseif (isset($_GET['backup'])) {
-    $my_transposh_backup = new transposh_backup($my_transposh_plugin);
-    $my_transposh_backup->do_backup();
-}*/
+elseif (isset($_GET['backup'])) {
+    $my_transposh_plugin->run_backup();
+}
 
 ?>
