@@ -32,7 +32,7 @@ define("TRANSLATIONS_TABLE", "translations");
 define("TRANSLATIONS_LOG", "translations_log");
 
 //Database version
-define("DB_VERSION", "1.03");
+define("DB_VERSION", "1.04");
 
 //Constant used as key in options database
 define("TRANSPOSH_DB_VERSION", "transposh_db_version");
@@ -293,11 +293,11 @@ class transposh_database {
 
         exit;
     }
-    
+
     /**
      * Function to return human translations history
      * @param string $date - either null for all or a date to get terms after
-     * @return array List of rows 
+     * @return array List of rows
      */
     function get_all_human_translation_history($date ="null", $limit = "") {
 
@@ -332,24 +332,44 @@ class transposh_database {
             $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
 
             logger("Attempting to create table $table_name", 0);
-            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
+            // notice - keep every field on a new line or dbdelta fails
+            $GLOBALS['wpdb']->query("ALTER TABLE $table_name DROP PRIMARY KEY");
+            $sql = "CREATE TABLE $table_name (
+                    original TEXT NOT NULL, 
+                    lang CHAR(5) NOT NULL, 
+                    translated TEXT, 
+                    source TINYINT NOT NULL, 
+                    KEY original (original(6),lang)
+                    ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+            /*            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
                     "lang CHAR(5) NOT NULL,".
                     "translated VARCHAR(255),".
                     "source TINYINT NOT NULL,".
-                    "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+                    "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";*/
 
             dbDelta($sql);
 
             $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
 
             logger("Attempting to create table $table_name", 0);
-            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
+            // notice - keep every field on a new line or dbdelta fails
+            $GLOBALS['wpdb']->query("ALTER TABLE $table_name DROP PRIMARY KEY");
+            $sql = "CREATE TABLE $table_name (
+                    original text NOT NULL, 
+                    lang CHAR(5) NOT NULL, 
+                    translated text, 
+                    translated_by VARCHAR(15), 
+                    source TINYINT NOT NULL, 
+                    timestamp TIMESTAMP, 
+                    KEY original (original(6),lang,timestamp)
+                    ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+            /*            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
                     "lang CHAR(5) NOT NULL,".
                     "translated VARCHAR(255),".
                     "translated_by VARCHAR(15),".
                     "source TINYINT NOT NULL,".
                     "timestamp TIMESTAMP,".
-                    "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+                    "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";*/
 
             dbDelta($sql);
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
