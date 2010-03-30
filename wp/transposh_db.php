@@ -190,6 +190,7 @@ class transposh_database {
             }
             // Setting the values string for the database (notice how concatanation is handled)
             $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')".(($items != $i+1) ?', ':'');
+            $delvalues .= "(original ='$original' AND lang='$lang')".(($items != $i+1) ?' OR ':'');
             // Setting the transaction log records
             $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','".$loguser."','".$source."')".(($items != $i+1) ?', ':'');
 
@@ -202,10 +203,16 @@ class transposh_database {
         // avoid empty work
         if (!$values) return;
         // perform insertion to the database, with one query :)
-        $update = "REPLACE INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
-                VALUES $values";
-        logger($update,4);
 
+        // since we have no primary key, replace made no sense
+        /*$update = "REPLACE INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
+                VALUES $values";*/
+        //so we'll delete all values and insert them...
+        $update = "DELETE FROM ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." WHERE $delvalues";
+        logger($update,3);
+        $result = $GLOBALS['wpdb']->query($update);
+        $update = "INSERT INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source) VALUES $values";
+        logger($update,3);
         $result = $GLOBALS['wpdb']->query($update);
 
         if($result !== FALSE) {
