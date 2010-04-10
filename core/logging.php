@@ -68,8 +68,14 @@ class logger {
                 } else {
                     error_log(date(DATE_RFC822) . " $log_prefix: Array start\n", 3,  "/tmp/transposh.log");
                     foreach ($msg as $key => $item) {
-                        error_log(date(DATE_RFC822) . " $log_prefix: $key => $item\n", 3,  "/tmp/transposh.log");
+                        if (!is_array($item)) {
+                            error_log(date(DATE_RFC822) . " $log_prefix: $key => $item\n", 3,  "/tmp/transposh.log");
+                        } else {
+                            error_log(date(DATE_RFC822) . " $log_prefix: subarray -> $key\n", 3,  "/tmp/transposh.log");
+                            $this->do_log($item, $severity);
+                        }
                     }
+                    error_log(date(DATE_RFC822) . " $log_prefix: Array stop\n", 3,  "/tmp/transposh.log");
                 }
             }
             if ($this->printout || !isset($this->firephp)) {
