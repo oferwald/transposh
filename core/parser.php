@@ -88,6 +88,8 @@ class parserstats {
 class parser {
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
+    public $prefetch_translate_func = null;
+
     private $segment_id = 0;
     /** @var simple_html_dom_node Contains the current node */
     private $currentnode;
@@ -330,7 +332,7 @@ class parser {
             elseif($num_len = $this->is_number($string,$pos)) {
                 // this is the case of B2 or B2,
                 if (($this->is_white_space($string[$pos-1]) || ($start == $pos)
-                        || ($this->is_sentence_breaker($string[$pos+$num_len-1],$string[$pos+$num_len],$string[$pos+$num_len+1]))) &&
+                                || ($this->is_sentence_breaker($string[$pos+$num_len-1],$string[$pos+$num_len],$string[$pos+$num_len+1]))) &&
                         ($this->is_white_space($string[$pos+$num_len]) ||  $this->is_sentence_breaker($string[$pos+$num_len],$string[$pos+$num_len+1],$string[$pos+$num_len+2]))) {
                     // we will now compensate on the number followed by breaker case, if we need to
                     if (!($this->is_white_space($string[$pos-1]) || ($start == $pos))) {
@@ -466,8 +468,13 @@ class parser {
         else
             $this->html->find('html',0)->dir="ltr";
 
-        if ($this->lang)
+        if ($this->lang) {
             $this->html->find('html',0)->lang=$this->lang;
+            // add support for <meta name="language" content="<lang>">
+            if ($this->html->find('meta[name=language]')) {
+                $this->html->find('meta[name=language]')->content = $this->lang;
+            }
+        }
 
         // not much point in further processing if we don't have a function that does it
         if ($this->fetch_translate_func == null) {
@@ -501,6 +508,26 @@ class parser {
                 }
             }
         }
+
+        // try some prefetching... (//todo - maybe move directly to the phrase create)
+        foreach ($this->html->find('text') as $e) {
+            foreach ($e->nodes as $ep) {
+                $originals[] = $ep->phrase;
+            }
+        }
+        foreach (array('title','value') as $title) {
+            foreach ($this->html->find('['.$title.']') as $e) {
+                foreach ($e->nodes as $ep) {
+                    $originals[] = $ep->phrase;
+                }
+            }
+        }
+        foreach ($this->html->find('[content]') as $e) {
+            foreach ($e->nodes as $ep) {
+                $originals[] = $ep->phrase;
+            }
+        }
+        call_user_func_array($this->prefetch_translate_func,array($originals,$this->lang));
 
         // actually translate tags
         // texts are first

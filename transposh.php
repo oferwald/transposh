@@ -164,6 +164,7 @@ class transposh_plugin {
         //translate the entire page
         $parse = new parser();
         $parse->fetch_translate_func = array(&$this->database,'fetch_translation');
+        $parse->prefetch_translate_func = array(&$this->database,'prefetch_translations');
         $parse->url_rewrite_func = array(&$this, 'rewrite_url');
         $parse->dir_rtl = (in_array ($this->target_language, $GLOBALS['rtl_languages']));
         $parse->lang = $this->target_language;
