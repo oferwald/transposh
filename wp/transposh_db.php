@@ -40,9 +40,33 @@ define("TRANSPOSH_DB_VERSION", "transposh_db_version");
 class transposh_database {
     /** @property transposh_plugin $transposh father class */
     private $transposh;
+    private $translations;
 //constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_database(&$transposh) {
         $this->transposh = &$transposh;
+    }
+
+    function prefetch_translations($originals, $lang) {
+        if (!$originals) return;
+        foreach ($originals as $original) {
+            $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+            if(ENABLE_APC && function_exists('apc_fetch')) {
+                $cached = apc_fetch($original .'___'. $lang, $rc);
+                if($rc === TRUE) {
+                    //        logger("Cached: $original", 3);
+                    continue;
+                }
+            }
+            $where .= (($where) ? ' OR ' :'')."original = '$original'";
+        }
+        if (!$where) return;
+        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
+        $query = "SELECT original, translated, source FROM $table_name WHERE ($where) and lang = '$lang' ";
+        $rows = $GLOBALS['wpdb']->get_results($query,ARRAY_A);
+        foreach ($rows as $row) {
+            $this->translations[$row['original']] = array(stripslashes($row['translated']), $row['source']);
+        }
+        logger($this->translations, 5);
     }
     /**
      * Fetch translation from db or cache.
@@ -67,15 +91,21 @@ class transposh_database {
             }
         }
 
-        $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
-        $query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' ";
-        $row = $GLOBALS['wpdb']->get_row($query);
+        if ($this->translations[$original]) {
+            $translated = $this->translations[$original];
+            logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})" , 4);
+        } else {
 
-        if($row !== FALSE) {
-            $translated_text = stripslashes($row->translated);
-            $translated = array($translated_text, $row->source);
+            $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
+            $query = "SELECT * FROM $table_name WHERE original = '$original' and lang = '$lang' ";
+            $row = $GLOBALS['wpdb']->get_row($query);
 
-            logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 4);
+            if($row !== FALSE) {
+                $translated_text = stripslashes($row->translated);
+                $translated = array($translated_text, $row->source);
+
+                logger("db result for $original >>> $translated_text ($lang) ({$row->source})" , 4);
+            }
         }
 
         if(ENABLE_APC && function_exists('apc_store')) {
