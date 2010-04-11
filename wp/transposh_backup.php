@@ -37,6 +37,13 @@ class transposh_backup {
         $body = array();
         $body["home_url"] = $this->transposh->home_url;
         $body["key"] = $this->transposh->options->get_transposh_key();
+        //Check if there are thing to backup, before even accessing the service
+        $rowstosend = $this->transposh->database->get_all_human_translation_history('null', 1);
+        if (empty($rowstosend)) {
+            echo "500 - No human translations to backup.";
+            return;
+        }
+
         $result = wp_remote_post(TRANSPOSH_BACKUP_SERVICE_URL, array('body' => $body));
         if (is_wp_error($result)) {
             echo "500 - ".$result->get_error_message();
