@@ -63,6 +63,7 @@ class transposh_database {
         $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
         $query = "SELECT original, translated, source FROM $table_name WHERE ($where) and lang = '$lang' ";
         $rows = $GLOBALS['wpdb']->get_results($query,ARRAY_A);
+        if(empty($rows)) return;
         foreach ($rows as $row) {
             $this->translations[$row['original']] = array(stripslashes($row['translated']), $row['source']);
         }
