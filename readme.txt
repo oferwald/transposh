@@ -159,6 +159,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.5.1 =
+Improved speed and database structure
 = 0.5.0 =
 Ability to translate all content, backup service for human translations
 = 0.4.3 =
@@ -171,6 +173,10 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/04/11 - 0.5.1 =
+ * Improved database structure to support long translations
+ * Improved speed by pre-fetching contents with a single mysql query (over 70% faster in some cases)
+ * Fix for textarea tag bug - (thanks [timo] (http://www.herbaldepecona.com/))
 = 2010/03/24 - 0.5.0 =
  * Ability to backup human translation to a remote database (hosted on google appengine)
  * Ability to translate all existing content with a single click from the administration page
