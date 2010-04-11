@@ -401,7 +401,7 @@ class parser {
         elseif ($node->tag == 'body') {
             $this->inbody = true;
         }
-        elseif ($node->tag == 'select') {
+        elseif ($node->tag == 'select' || $node->tag == 'textarea') {
             $this->inselect = $level;
         }
         // in submit type inputs, we want to translate the value
