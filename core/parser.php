@@ -96,9 +96,14 @@ class parser {
     /** @var simple_html_dom Contains the document dom model */
     private $html; // the document
     public $dir_rtl;
+    /** @var string Contains the iso of the target language */
     public $lang;
+    /** @var boolean Contains the fact that this language is the default one (only parse other lanaguage spans) */
+    public $default_lang = false;
     private $inbody = false;
-    private $inselect;
+    private $inselect = false;
+    /** @var int holds level of non default language */
+    private $inlangnondef = false;
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
@@ -366,12 +371,45 @@ class parser {
     function translate_tagging($node, $level = 0) {
         $this->currentnode = $node;
         // we don't want to translate non-translatable classes
-        if (stripos($node->class,NO_TRANSLATE_CLASS) !== false) return;
-
-        if (!($this->inselect && $level > $this->inselect))
+        if (stripos($node->class,NO_TRANSLATE_CLASS) !== false ||
+                stripos($node->class,NO_TRANSLATE_CLASS_GOOGLE) !== false ||
+                strtolower($node->lang) === $this->lang) return;
+        
+        if ($this->inselect && $level <= $this->inselect) 
             $this->inselect = false;
 
+        if ($this->inlangnondef && $level <= $this->inlangnondef) 
+            $this->inlangnondef = false;
+
+        if ($this->default_lang && $node->lang != '' && stripos($node->lang,$this->lang) === false)
+            $this->inlangnondef = $level;
+
+        // we can only do translation for elements which are in the body, not in other places, and this must
+        // move here due to the possibility of early recurse in default language
+        if ($node->tag == 'body') {
+            $this->inbody = true;
+        }
+        // this again should be here, the different behaviour on select and textarea
+        elseif ($node->tag == 'select' || $node->tag == 'textarea') {
+            $this->inselect = $level;
+        }
+
+        //support only_thislanguage class, (nulling the node if it should not display)
+        if (strtolower($node->lang) != $this->lang && stripos($node->class,ONLY_THISLANGUAGE_CLASS) !== false) {
+            $node->outertext = '';
+            return;
+        }
+
+        // if we are in the default lang, and we have no foreign langs classes, we'll recurse from here
+        if ($this->default_lang && !$this->inlangnondef) {
+            foreach($node->nodes as $c) {
+                $this->translate_tagging($c, $level +1);
+            }
+            return;
+        }
+
         if (isset($this->ignore_tags[$node->tag])) return;
+
         if ($node->tag == 'text') {
             // this prevents translation of a link that just surrounds its address
             if ($node->parent->tag == 'a' && $node->parent->href == $node->outertext) {
@@ -396,13 +434,6 @@ class parser {
             if ($this->url_rewrite_func != null) {
                 $node->value = call_user_func_array($this->url_rewrite_func,array($node->value));
             }
-        }
-        // we can only do translation for elements which are in the body, not in other places
-        elseif ($node->tag == 'body') {
-            $this->inbody = true;
-        }
-        elseif ($node->tag == 'select' || $node->tag == 'textarea') {
-            $this->inselect = $level;
         }
         // in submit type inputs, we want to translate the value
         elseif ($node->tag == 'input' && $node->type =='submit') {
