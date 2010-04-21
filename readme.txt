@@ -1,9 +1,9 @@
 === Transposh - translation filter for wordpress ===
-Contributors: oferwald, amirperlman
+Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 2.9.2
+Tested up to: 3.0 beta-1
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -159,6 +159,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.5.2 =
+Improved lang attribute support, changed default language translation option
 = 0.5.1 =
 Improved speed and database structure
 = 0.5.0 =
@@ -173,10 +175,15 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+ = 2010/04/11 - 0.5.2 =
+ * support the google notranslate class notation (as an addition to no_translate)
+ * support for lang tagging on paragraphs
+ * changed translation of default language to just translate paragraphs explicitly marked with a different language
+ * support the only_thislanguage class to make sure a paragraph is only displayed in a given language
 = 2010/04/11 - 0.5.1 =
  * Improved database structure to support long translations
  * Improved speed by pre-fetching contents with a single mysql query (over 70% faster in some cases)
- * Fix for textarea tag bug - (thanks [timo] (http://www.herbaldepecona.com/))
+ * Fix for textarea tag bug - (thanks [timo](http://www.herbaldepecona.com/))
 = 2010/03/24 - 0.5.0 =
  * Ability to backup human translation to a remote database (hosted on google appengine)
  * Ability to translate all existing content with a single click from the administration page
