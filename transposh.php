@@ -168,6 +168,7 @@ class transposh_plugin {
         $parse->url_rewrite_func = array(&$this, 'rewrite_url');
         $parse->dir_rtl = (in_array ($this->target_language, $GLOBALS['rtl_languages']));
         $parse->lang = $this->target_language;
+        $parse->default_lang = $this->options->is_default_language($this->target_language);
         $parse->is_edit_mode = $this->edit_mode;
         $parse->is_auto_translate = $this->is_auto_translate_permitted();
         // TODO - check this!

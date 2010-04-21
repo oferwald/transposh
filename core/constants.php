@@ -27,6 +27,8 @@ define("ENABLE_APC", TRUE);
 
 //Class marking a section not be translated.
 define("NO_TRANSLATE_CLASS", "no_translate");
+define("NO_TRANSLATE_CLASS_GOOGLE", "notranslate");
+define("ONLY_THISLANGUAGE_CLASS", "only_thislanguage");
 
 //Supported languages, new languages can be added here
 //the array directs from language code to - English Name, Native name, flag
