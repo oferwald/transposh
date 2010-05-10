@@ -119,6 +119,7 @@ class transposh_plugin {
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
         add_action('transposh_backup_event', array(&$this,'run_backup'));
+        add_action ('comment_post', array(&$this,'add_comment_meta_settings'), 1);
 
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
@@ -714,6 +715,17 @@ class transposh_plugin {
         $my_transposh_backup = new transposh_backup($this);
         $my_transposh_backup->do_backup();
     }
+
+    /**
+     * Adding the comment meta language, for later use in display
+     * TODO: can use the language detection feature of some translation engines
+     * @param int $post_id
+     */
+    function add_comment_meta_settings($post_id) {
+        if  (get_language_from_url($_SERVER['HTTP_REFERER'],$this->home_url))
+            add_comment_meta($post_id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'],$this->home_url), true);
+    }
+
 }
 
 $my_transposh_plugin = new transposh_plugin();
