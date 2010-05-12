@@ -282,6 +282,9 @@ class transposh_plugin {
         logger ("on_parse_req");
         logger ($wp->query_vars);
 
+        // fix for custom-permalink (and others that might be double parsing?)
+        if ($this->target_language) return;
+
         // first we get the target language
         $this->target_language = $wp->query_vars[LANG_PARAM];
         if (!$this->target_language)
