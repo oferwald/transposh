@@ -122,7 +122,7 @@ class transposh_plugin {
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
         add_action('transposh_backup_event', array(&$this,'run_backup'));
-        add_action ('comment_post', array(&$this,'add_comment_meta_settings'), 1);
+        add_action('comment_post', array(&$this,'add_comment_meta_settings'), 1);
 
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
@@ -711,7 +711,11 @@ class transposh_plugin {
         $viewable_langs = explode(",",$this->options->get_viewable_langs());
         foreach ($viewable_langs as $lang) {
             if (!$this->options->is_default_language($lang)) {
-                $newloc = rewrite_url_lang_param($sm_page->GetUrl(), $this->home_url, $this->enable_permalinks_rewrite, $lang, false);
+                $newloc = $sm_page->GetUrl();
+                if ($this->options->get_enable_url_translate()) {
+                    $newloc = translate_url($newloc, $this->home_url,$lang,array(&$this->database,'fetch_translation'));
+                }
+                $newloc = rewrite_url_lang_param($newloc, $this->home_url, $this->enable_permalinks_rewrite, $lang, false);
                 $sm_page->SetUrl($newloc);
                 $generatorObject->AddElement($sm_page);
             }
@@ -759,7 +763,7 @@ class transposh_plugin {
 
         return $query;
     }
-    
+
 }
 
 $my_transposh_plugin = new transposh_plugin();
