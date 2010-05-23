@@ -240,6 +240,79 @@ function base64_url_decode($input) {
 }
 
 /**
+ * Function to translate a given url permalink to a target language
+ * TODO - check params
+ * @param string $href
+ * @param string $home_url
+ * @param string $target_language
+ * @param function $fetch_translation_func
+ * @return string translated url permalink
+ */
+function translate_url($href, $home_url, $target_language,$fetch_translation_func) {
+    // todo - check query part... sanitize
+    $href = substr($href,strlen($home_url)+1);
+    $parts = explode('/', $href);
+    foreach ($parts as $part) {
+        if (!$part) continue;
+        list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array($part, $target_language));
+        if ($translated_text)
+            $url .= '/'.str_replace(' ', '-',$translated_text);
+        else {
+            // now the same attempt with '-' replaced to ' '
+            list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
+            logger ($part. ' '.str_replace('-', ' ', $part).' '.$translated_text);
+            if ($translated_text)
+                $url .= '/'.str_replace(' ', '-',$translated_text);
+            else
+                $url .= '/'.$part;
+        }
+    }
+    $href = $home_url.$url.'/';
+    return $href;
+}
+
+/**
+ * From a given translated url, tries to get the original URL
+ * @param  string $href
+ * @param string $target_language
+ * @param function $fetch_translation_func
+ * @return string
+ */
+function get_original_url($href, $target_language,$fetch_translation_func) {
+    $url = urldecode($href);
+    $url = (($pos=strpos($url, '?')) ? substr($url, 0, $pos) : $url);
+    $parts = explode('/', $url);
+    foreach ($parts as $part) {
+        if (!$part) continue;
+        // don't attempt for lang or numbers
+        if ($part == $target_language || is_numeric($part)) {
+            $url2 .= '/'.$part;
+            continue;
+        }
+
+        $original_text = call_user_func_array($fetch_translation_func, array($part, $target_language));
+        if ($original_text)
+            $url2 .= '/'.strtolower(str_replace(' ', '-',$original_text)); //? CHECK
+        else {
+            $original_text = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
+            if ($original_text)
+                $url2 .= '/'.strtolower(str_replace(' ', '-',$original_text)); //? CHECK
+            else
+                $url2 .= '/'.$part;
+        }
+    }
+    // TODO: Consider sanitize_title_with_dashes
+    // TODO : need to handle params....
+    //logger(substr($url,strlen($url)-1));
+    //if (substr($url,strlen($url)-1) == '/') $url2 .= '/';
+    //$url2 = rtrim($url2,'/');
+    logger ("$href $url $url2");
+    //$href = $this->home_url.$url2;
+
+    return $url2.'/';
+}
+
+/**
  * Function to display a flag
  * @param string $path path to flag images
  * @param string $flag the flag (normally iso code)

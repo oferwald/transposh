@@ -224,6 +224,14 @@ class utilsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("/ferienhaus-westalgarve/",cleanup_url("http://www.algarve-abc.de/ferienhaus-westalgarve/en/",$homeurl, true));
     }
 
+    public function testCleanupURL3()
+    {
+        $homeurl = "";
+        //$params_only = true;
+        $this->assertEquals("/test",cleanup_url("/he/test",$homeurl));
+        $this->assertEquals("/test",cleanup_url("he/test",$homeurl));
+    }
+
     public function testGrabLanguage()
     {
         $homeurl = "http://transposh.org";

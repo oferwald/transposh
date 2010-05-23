@@ -46,6 +46,11 @@ class transposh_database {
         $this->transposh = &$transposh;
     }
 
+    /**
+     * Allow fetching of multiple translation requests from the database with a single query
+     * @param array $originals
+     * @param string $lang
+     */
     function prefetch_translations($originals, $lang) {
         if (!$originals) return;
         foreach ($originals as $original) {
@@ -69,6 +74,7 @@ class transposh_database {
         }
         logger($this->translations, 5);
     }
+
     /**
      * Fetch translation from db or cache.
      * Returns An array that contains the translated string and it source.
@@ -125,6 +131,63 @@ class transposh_database {
 
         logger("Exit: $translated", 4);
         return $translated;
+    }
+
+    /**
+     * Fetch original from db or cache.
+     * Returns the original for a given translation.
+     * Will return NULL if no translation is available.
+     * @param string $original
+     * @param string $lang
+     * @return array list(translation,source)
+     */
+    function fetch_original($translation, $lang) {
+        $original = NULL;
+        logger("Enter: $translation", 3);
+
+        //The original is saved in db in its escaped form
+        $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
+
+        if(ENABLE_APC && function_exists('apc_fetch')) {
+            $cached = apc_fetch($translation .'_r_r_'. $lang, $rc);
+            if($rc === TRUE) {
+                logger("Exit from cache: $cached", 3);
+                return $cached;
+            }
+        }
+
+        if ($this->translations[$translation]) {
+            $original = $this->translations[$translation];
+            logger("prefetch result for $translation >>> {$this->translations[$translation][0]} ({$this->translations[$translation][1]})" , 3);
+        } else {
+
+            $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
+            $query = "SELECT * FROM $table_name WHERE translated = '$translation' and lang = '$lang' ";
+            $row = $GLOBALS['wpdb']->get_row($query);
+
+            if($row !== FALSE) {
+                $original = stripslashes($row->original);
+                //$translated = array($translated_text, $row->source);
+                logger("db result for $translation >>> $original ($lang) ({$row->source})" , 3);
+            }
+        }
+
+        if(ENABLE_APC && function_exists('apc_store')) {
+            //If we don't have translation still we want to have it in cache
+            $cache_entry = $original;
+            if($cache_entry == NULL) {
+                $cache_entry = "";
+            }
+
+            //update cache
+            $rc = apc_store($translation .'_r_r_'. $lang, $cache_entry, 3600);
+            if($rc === TRUE) {
+                logger("Stored in cache: $translation => $original", 4);
+            }
+        }
+
+        logger("Exit: $original", 3);
+        return $original;
     }
 
     /**
