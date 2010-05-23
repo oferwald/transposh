@@ -115,6 +115,7 @@ class transposh_plugin_admin {
         $this->transposh->options->set_enable_auto_post_translate($_POST[ENABLE_AUTO_POST_TRANSLATE]);
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
         $this->transposh->options->set_enable_search_translate($_POST[ENABLE_SEARCH_TRANSLATE]);
+        $this->transposh->options->set_enable_url_translate($_POST[ENABLE_URL_TRANSLATE]);
         $this->transposh->options->set_enable_msn_translate($_POST[ENABLE_MSN_TRANSLATE]);
         $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
         $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
@@ -462,6 +463,15 @@ class transposh_plugin_admin {
         echo '<h4>Enable search in translated languages</h4>';
         echo '<input type="checkbox" value="1" name="'.ENABLE_SEARCH_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_search_translate()).'/> '.
                 'Allow search of translated languages, in those languages (and the original language)';
+
+        /**
+         * Insert the option to enable translation of urls
+         * Disbaled by default.
+         * @since 0.5.3
+         */
+        echo '<h4>Enable url translation (expirimental)</h4>';
+        echo '<input type="checkbox" value="1" name="'.ENABLE_URL_TRANSLATE.'" '.$this->checked ($this->transposh->options->get_enable_url_translate()).'/> '.
+                'Allow translation of permalinks and urls';
 
     }
 

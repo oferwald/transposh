@@ -125,7 +125,10 @@ class transposh_plugin_widget {
         echo $before_widget . $before_title . __("Translation") . $after_title;
 
         //remove any language identifier
-        $clean_page_url = cleanup_url($page_url,$this->transposh->home_url, true);
+            $clean_page_url = cleanup_url($page_url,$this->transposh->home_url, true);
+        if ($this->transposh->options->get_enable_url_translate()) {
+            $clean_page_url = get_original_url($clean_page_url,$this->transposh->target_language,array($this->transposh->database,'fetch_original'));
+        }
         logger ("WIDGET: clean page url: $clean_page_url ,orig: $page_url");
 
         switch ($this->transposh->options->get_widget_style()) {
@@ -143,7 +146,12 @@ class transposh_plugin_widget {
                             ($this->transposh->options->is_editable_language($code)   && $this->transposh->is_translator()) ||
                             ($this->transposh->options->is_default_language($code))) {
                         logger ("code = ".$code,5);
-                        $page_url = rewrite_url_lang_param($clean_page_url,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $code, $this->transposh->edit_mode);
+                        if ($this->transposh->options->get_enable_url_translate()) {
+                            $page_url = translate_url($clean_page_url, '',$code,array(&$this->transposh->database,'fetch_translation'));
+                        } else {
+                            $page_url = $clean_page_url;
+                        }
+                        $page_url = rewrite_url_lang_param($page_url,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $code, $this->transposh->edit_mode);
                         if ($this->transposh->options->is_default_language($code)) {
                             $page_url = $clean_page_url;
                         }

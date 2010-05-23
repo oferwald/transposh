@@ -66,6 +66,8 @@ define("PREFERRED_TRANSLATOR", "preferred_translator");
 define("ENABLE_DEFAULT_TRANSLATE", "enable_default_translate");
 //Option to enable/disable default language translation @since 0.3.6
 define("ENABLE_SEARCH_TRANSLATE", "enable_search_translate");
+//Option to enable/disable url translation @since 0.5.3
+define("ENABLE_URL_TRANSLATE", "enable_url_translate");
 //Option to enable/disable rewrite of permalinks
 define("ENABLE_PERMALINKS", "enable_permalinks");
 //Option to enable/disable footer scripts (2.8 and up)
@@ -164,7 +166,7 @@ class transposh_plugin_options {
     /**
      * Get a user sorted language list
      * @since 0.3.9
-     * @return array sorted list of languages, pointing to names and flags 
+     * @return array sorted list of languages, pointing to names and flags
      */
     function get_sorted_langs() {
         if (isset($this->options[SORTED_LANGS]))
@@ -215,6 +217,10 @@ class transposh_plugin_options {
     function get_enable_search_translate() {
         if (!isset($this->options[ENABLE_SEARCH_TRANSLATE])) return 1; // default is true
         return $this->options[ENABLE_SEARCH_TRANSLATE];
+    }
+
+    function get_enable_url_translate() {
+        return $this->options[ENABLE_URL_TRANSLATE];
     }
 
     function get_enable_auto_translate() {
@@ -340,6 +346,11 @@ class transposh_plugin_options {
     function set_enable_search_translate($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[ENABLE_SEARCH_TRANSLATE]);
+    }
+
+    function set_enable_url_translate($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_URL_TRANSLATE]);
     }
 
     function set_enable_auto_translate($val) {

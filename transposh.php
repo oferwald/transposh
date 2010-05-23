@@ -110,6 +110,9 @@ class transposh_plugin {
         add_filter('plugin_action_links_' .preg_replace( '|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__ ), array(&$this,'plugin_action_links'));
         add_filter('query_vars', array(&$this,'parameter_queryvars' ));
         add_filter('rewrite_rules_array', array(&$this,'update_rewrite_rules'));
+        if ($this->options->get_enable_url_translate()) {
+            add_filter('request', array(&$this,'request_filter'));
+        }
         add_action('init', array(&$this,'on_init'),0); // really high priority
         add_action('parse_request', array(&$this,'on_parse_request'));
         add_action('plugins_loaded', array(&$this,'plugin_loaded'));
@@ -523,7 +526,7 @@ class transposh_plugin {
      * @return nothing
      */
     // lost in compatability
-/*    function add_transposh_async() {
+    /*    function add_transposh_async() {
         if (!$this->edit_mode && !$this->is_auto_translate_permitted()) {
             return;
         }
@@ -606,6 +609,11 @@ class transposh_plugin {
         }
         $use_params = !$this->enable_permalinks_rewrite;
 
+        // some hackery needed for url translations
+        // first cut home
+        if ($this->options->get_enable_url_translate()) {
+            $href = translate_url($href, $this->home_url,$this->target_language,array(&$this->database,'fetch_translation'));
+        }
         $href = rewrite_url_lang_param($href,$this->home_url,$this->enable_permalinks_rewrite, $this->target_language, $this->edit_mode, $use_params);
         logger ("rewritten: $href",4);
         return $href;
@@ -729,6 +737,29 @@ class transposh_plugin {
             add_comment_meta($post_id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'],$this->home_url), true);
     }
 
+    /**
+     * This function enables the correct parsing of translated URLs
+     * @global <type> $wp
+     * @param <type> $query
+     * @return <type>
+     */
+    function request_filter($query) {
+        //no need to handle non-lang
+        if (!$query['lang']) return $query;
+
+        // the trick is to replace the URI and put it back afterwards
+        $oldRequestUri = $_SERVER['REQUEST_URI'];
+        $_SERVER['REQUEST_URI'] = get_original_url($_SERVER['REQUEST_URI'], $query['lang'], array($this->database,'fetch_original'));
+        remove_filter('request', array(&$this,'request_filter'));
+        global $wp;
+        $wp->parse_request();
+        $query = $wp->query_vars;
+        logger($query,4);
+        $_SERVER['REQUEST_URI'] = $oldRequestUri;
+
+        return $query;
+    }
+    
 }
 
 $my_transposh_plugin = new transposh_plugin();
