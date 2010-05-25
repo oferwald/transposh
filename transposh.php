@@ -709,9 +709,10 @@ class transposh_plugin {
         $sm_page->SetProprity(max($sm_page->GetPriority() - 0.2, 0));
 
         $viewable_langs = explode(",",$this->options->get_viewable_langs());
+        $orig_url =  $sm_page->GetUrl();
         foreach ($viewable_langs as $lang) {
             if (!$this->options->is_default_language($lang)) {
-                $newloc = $sm_page->GetUrl();
+                $newloc = $orig_url;
                 if ($this->options->get_enable_url_translate()) {
                     $newloc = translate_url($newloc, $this->home_url,$lang,array(&$this->database,'fetch_translation'));
                 }
