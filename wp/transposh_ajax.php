@@ -42,6 +42,15 @@ if (isset($_POST['translation_posted'])) {
         $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri'] ) ) ) );
         // get some supercache variables
         extract(wp_super_cache_init());
+        logger(wp_super_cache_init());
+        // this is hackery for logged in users, a cookie is added to the request somehow and gzip is not correctly set, so we forcefully fix this
+        if (!$cache_file) {
+            $GLOBALS['wp_cache_gzip_encoding'] = gzip_accepted();
+            unset($_COOKIE[key($_COOKIE)]);
+            extract(wp_super_cache_init());
+            logger(wp_super_cache_init());
+        }
+
         $dir = get_current_url_supercache_dir();
         // delete possible files that we can figure out, not deleting files for other cookies for example, but will do the trick in most cases
         $cache_fname = "{$dir}index.html";
@@ -52,6 +61,8 @@ if (isset($_POST['translation_posted'])) {
         @unlink( $cache_fname);
         logger("attempting delete of wp_cache: $cache_file");
         @unlink($cache_file);
+        logger("attempting delete of wp_cache_meta: $meta_pathname");
+        @unlink($meta_pathname);
     }
 
     if ($_POST['translation_posted'] == 2) {
