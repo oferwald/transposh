@@ -63,6 +63,16 @@ if (isset($_POST['translation_posted'])) {
         @unlink($cache_file);
         logger("attempting delete of wp_cache_meta: $meta_pathname");
         @unlink($meta_pathname);
+
+        // go at edit pages too
+        $GLOBALS['wp_cache_request_uri'] .="?edit=1";
+        extract(wp_super_cache_init());
+        logger(wp_super_cache_init());
+        logger("attempting delete of edit_wp_cache: $cache_file");
+        @unlink($cache_file);
+        logger("attempting delete of edit_wp_cache_meta: $meta_pathname");
+        @unlink($meta_pathname);
+
     }
 
     if ($_POST['translation_posted'] == 2) {
