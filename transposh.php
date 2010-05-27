@@ -113,6 +113,7 @@ class transposh_plugin {
         if ($this->options->get_enable_url_translate()) {
             add_filter('request', array(&$this,'request_filter'));
         }
+        add_filter('comment_text', array(&$this,'comment_text_wrap'));
         add_action('init', array(&$this,'on_init'),0); // really high priority
         add_action('parse_request', array(&$this,'on_parse_request'));
         add_action('plugins_loaded', array(&$this,'plugin_loaded'));
@@ -740,6 +741,20 @@ class transposh_plugin {
     function add_comment_meta_settings($post_id) {
         if  (get_language_from_url($_SERVER['HTTP_REFERER'],$this->home_url))
             add_comment_meta($post_id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'],$this->home_url), true);
+    }
+
+    /**
+     * Modify comments to include the relevant language span
+     * @param string $text
+     * @return string 
+     */
+    function comment_text_wrap($text) {
+        $comment_lang = get_comment_meta(get_comment_ID(), 'tp_language', true);
+        if ($comment_lang) {
+            $text = "<span lang =\"$comment_lang\">".$text."</span>";
+        }
+        logger ("$comment_lang ".get_comment_ID(),4);
+        return $text;
     }
 
     /**
