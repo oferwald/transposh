@@ -113,7 +113,7 @@ class transposh_plugin {
         if ($this->options->get_enable_url_translate()) {
             add_filter('request', array(&$this,'request_filter'));
         }
-        add_filter('comment_text', array(&$this,'comment_text_wrap'));
+        add_filter('comment_text', array(&$this,'comment_text_wrap'),9999); // this is a late filter...
         add_action('init', array(&$this,'on_init'),0); // really high priority
         add_action('parse_request', array(&$this,'on_parse_request'));
         add_action('plugins_loaded', array(&$this,'plugin_loaded'));
