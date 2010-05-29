@@ -143,7 +143,7 @@ class transposh_database {
      */
     function fetch_original($translation, $lang) {
         $original = NULL;
-        logger("Enter: $translation", 3);
+        logger("Enter: $translation", 4);
 
         //The original is saved in db in its escaped form
         $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
@@ -151,14 +151,14 @@ class transposh_database {
         if(ENABLE_APC && function_exists('apc_fetch')) {
             $cached = apc_fetch($translation .'_r_r_'. $lang, $rc);
             if($rc === TRUE) {
-                logger("Exit from cache: $cached", 3);
+                logger("Exit from cache: $cached", 4);
                 return $cached;
             }
         }
 
         if ($this->translations[$translation]) {
             $original = $this->translations[$translation];
-            logger("prefetch result for $translation >>> {$this->translations[$translation][0]} ({$this->translations[$translation][1]})" , 3);
+            logger("prefetch result for $translation >>> {$this->translations[$translation][0]} ({$this->translations[$translation][1]})" , 4);
         } else {
 
             $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
@@ -168,7 +168,7 @@ class transposh_database {
             if($row !== FALSE) {
                 $original = stripslashes($row->original);
                 //$translated = array($translated_text, $row->source);
-                logger("db result for $translation >>> $original ($lang) ({$row->source})" , 3);
+                logger("db result for $translation >>> $original ($lang) ({$row->source})" , 4);
             }
         }
 
