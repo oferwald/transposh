@@ -161,7 +161,10 @@ class utilsTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("http://transposh.org/test/he/",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&amp;edit=1",$homeurl,$permalinks,"he", $edit,$params_only));
         $this->assertEquals("http://transposh.org/test/he/",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1",$homeurl,$permalinks,"he", $edit,$params_only));
         $this->assertEquals("http://transposh.org/test/he/?cat=y",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y",$homeurl,$permalinks,"he", $edit,$params_only));
-    }
+
+        $this->assertEquals("/",rewrite_url_lang_param("/",$homeurl,$permalinks,"", $edit, $params_only));
+        $this->assertEquals("http://transposh.org/test/?cat=y",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y",$homeurl,$permalinks,"", $edit,$params_only));
+        }
 
     public function testRewriteURLwithsubdir2() {
         //$GLOBALS[home_url] = "http://transposh.org/test/";
@@ -193,7 +196,11 @@ class utilsTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&amp;edit=1",$homeurl,$permalinks,"he", $edit,$params_only));
         $this->assertEquals("http://transposh.org/test/?lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1",$homeurl,$permalinks,"he", $edit,$params_only));
         $this->assertEquals("http://transposh.org/test/?cat=y&lang=he",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y",$homeurl,$permalinks,"he", $edit,$params_only));
-    }
+
+        $this->assertEquals("",rewrite_url_lang_param("",$homeurl,$permalinks,"", $edit, $params_only));
+        $this->assertEquals("/",rewrite_url_lang_param("/",$homeurl,$permalinks,"", $edit, $params_only));
+        $this->assertEquals("http://transposh.org/test/?cat=y",rewrite_url_lang_param("http://transposh.org/test/fr/?lang=zh&#038;edit=1&cat=y",$homeurl,$permalinks,"", $edit,$params_only));
+}
 
     public function testCleanupURL() {
         $homeurl = "http://www.algarve-abc.de/ferienhaus-westalgarve/";

@@ -83,6 +83,7 @@ function cleanup_url($url, $home_url, $remove_host = false) {
  * @param boolean $use_params_only - only use paramaters and avoid permalinks
  */
 // Should send a transposh interface to here TODO - enable permalinks rewrite
+// TODO - Should be able to not write default language for url (done with empty lang?)
 function rewrite_url_lang_param($url,$home_url, $enable_permalinks_rewrite, $lang, $is_edit, $use_params_only=FALSE) {
     logger("rewrite old url: $url, permalinks: $enable_permalinks_rewrite, lang: $lang, is_edit: $is_edit, home_url: $home_url",5);
 
@@ -134,12 +135,14 @@ function rewrite_url_lang_param($url,$home_url, $enable_permalinks_rewrite, $lan
         $params[edit] = EDIT_PARAM . '=1';
     }
 
-    if($use_params_only) {
+    if($use_params_only && $lang) {
         $params['lang'] = LANG_PARAM . "=$lang";
     }
     else {
-        if (!$parsedurl['path']) $parsedurl['path'] = "/";
-        $parsedurl['path'] = "/".$lang.$parsedurl['path'];
+        if ($lang) {
+            if (!$parsedurl['path']) $parsedurl['path'] = "/";
+            $parsedurl['path'] = "/".$lang.$parsedurl['path'];
+        }
     }
     if ($gluebackhome) $parsedurl['path'] = $home_path.$parsedurl['path'];
 
@@ -251,8 +254,8 @@ function base64_url_decode($input) {
 function translate_url($href, $home_url, $target_language,$fetch_translation_func) {
     // todo - check query part... sanitize
     if (strpos($href,'?') !== false) {
-            list ($href,$querypart) = explode('?', $href);
-            $querypart = '?'.$querypart;
+        list ($href,$querypart) = explode('?', $href);
+        $querypart = '?'.$querypart;
     }
     $href = substr($href,strlen($home_url)+1);
     $parts = explode('/', $href);
