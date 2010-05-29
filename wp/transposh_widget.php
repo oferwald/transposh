@@ -46,27 +46,25 @@ class transposh_plugin_widget {
 
             $ref=getenv('HTTP_REFERER');
             $lang = $_POST[LANG_PARAM];
+            if ($lang == $this->transposh->options->get_default_language() || $lang == "none") $lang = "";
             logger("Widget referrer: $ref, lang: $lang", 4);
 
             // first, we might need to get the original url back
             if ($this->transposh->options->get_enable_url_translate()) {
                 $ref = get_original_url($ref,$this->transposh->home_url,get_language_from_url($ref,$this->transposh->home_url),array($this->transposh->database,'fetch_original'));
             }
-            logger("Widget redirect url: $ref", 3);
 
             //remove existing language settings.
             $ref = cleanup_url($ref,$this->transposh->home_url);
             logger("cleaned referrer: $ref, lang: $lang", 4);
 
-            if($lang != "none") {
-                $ref = rewrite_url_lang_param($ref,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
-            logger("Widget redirect url: $ref", 3);
+            $ref = rewrite_url_lang_param($ref,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
+
+            if($lang  && $this->transposh->options->get_enable_url_translate()) {
                 // and then, we might have to translate it
-                if ($this->transposh->options->get_enable_url_translate() && $lang != $this->transposh->options->get_default_language()) {
-                    $ref = translate_url($ref, $this->transposh->home_url,$lang,array(&$this->transposh->database,'fetch_translation'));
-                    $ref = str_replace(array('%2F','%3A','%3F','%3D'),array('/',':','?','='),urlencode(str_replace ( array ( '&', '"', "'", '<', '>'), array ( '&amp;' , '&quot;', '&apos;' , '&lt;' , '&gt;'), $ref)));
-                }
-                logger("rewritten referrer: $ref, lang: $lang", 4);
+                $ref = translate_url($ref, $this->transposh->home_url,$lang,array(&$this->transposh->database,'fetch_translation'));
+                $ref = str_replace(array('%2F','%3A','%3F','%3D'),array('/',':','?','='),urlencode(str_replace ( array ( '&', '"', "'", '<', '>'), array ( '&amp;' , '&quot;', '&apos;' , '&lt;' , '&gt;'), $ref)));
+                logger("translated to referrer: $ref, lang: $lang", 4);
 
                 //ref is generated with html entities encoded, needs to be
                 //decoded when used in the http header (i.e. 302 redirect)
@@ -163,10 +161,9 @@ class transposh_plugin_widget {
                         } else {
                             $page_url = $clean_page_url;
                         }
+                        // clean $code in default lanaguge
+                        if ($code == $this->transposh->options->get_default_language()) $code = "";
                         $page_url = rewrite_url_lang_param($page_url,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $code, $this->transposh->edit_mode);
-                        if ($this->transposh->options->is_default_language($code)) {
-                            $page_url = $clean_page_url;
-                        }
 
                         logger ("urlpath = ".$page_url,5);
                         if ($this->transposh->options->get_widget_in_list()) echo "<li>";
