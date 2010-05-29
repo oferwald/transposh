@@ -34,13 +34,13 @@ class transposh_plugin_widget {
         add_action('widgets_init', array(&$this,'transposh_widget_init'));
     }
 
-    /*
- * Intercept init calls to see if it was posted by the widget.
-    */
+    /**
+     * Intercept init calls to see if it was posted by the widget.
+     */
     function init_transposh() {
         if (isset ($_POST['transposh_widget_posted'])) {
             logger("Enter", 4);
-            // FIX! yes, this is needed (not with peiorty!
+            // FIX! yes, this is needed (not with priorty!
             //transposh_plugin::init_global_vars();
             //$this->transposh->init_global_vars();
 
@@ -48,12 +48,24 @@ class transposh_plugin_widget {
             $lang = $_POST[LANG_PARAM];
             logger("Widget referrer: $ref, lang: $lang", 4);
 
+            // first, we might need to get the original url back
+            if ($this->transposh->options->get_enable_url_translate()) {
+                $ref = get_original_url($ref,$this->transposh->home_url,get_language_from_url($ref,$this->transposh->home_url),array($this->transposh->database,'fetch_original'));
+            }
+            logger("Widget redirect url: $ref", 3);
+
             //remove existing language settings.
             $ref = cleanup_url($ref,$this->transposh->home_url);
             logger("cleaned referrer: $ref, lang: $lang", 4);
 
             if($lang != "none") {
                 $ref = rewrite_url_lang_param($ref,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
+            logger("Widget redirect url: $ref", 3);
+                // and then, we might have to translate it
+                if ($this->transposh->options->get_enable_url_translate() && $lang != $this->transposh->options->get_default_language()) {
+                    $ref = translate_url($ref, $this->transposh->home_url,$lang,array(&$this->transposh->database,'fetch_translation'));
+                    $ref = str_replace(array('%2F','%3A','%3F','%3D'),array('/',':','?','='),urlencode(str_replace ( array ( '&', '"', "'", '<', '>'), array ( '&amp;' , '&quot;', '&apos;' , '&lt;' , '&gt;'), $ref)));
+                }
                 logger("rewritten referrer: $ref, lang: $lang", 4);
 
                 //ref is generated with html entities encoded, needs to be
@@ -100,7 +112,7 @@ class transposh_plugin_widget {
                 wp_enqueue_style("transposh_widget", "{$this->transposh->transposh_plugin_url}/css/transposh_flags.css",array(),TRANSPOSH_PLUGIN_VER);
                 if (file_exists("{$this->transposh->transposh_plugin_url}/css/transposh_flags_u.css"))
                     wp_deregister_style("transposh_widget");
-                    wp_enqueue_style("transposh_widget", "{$this->transposh->transposh_plugin_url}/css/transposh_flags_u.css",array(),TRANSPOSH_PLUGIN_VER);
+                wp_enqueue_style("transposh_widget", "{$this->transposh->transposh_plugin_url}/css/transposh_flags_u.css",array(),TRANSPOSH_PLUGIN_VER);
             }
         }
         logger("Added transposh_widget_css", 4);
@@ -125,9 +137,9 @@ class transposh_plugin_widget {
         echo $before_widget . $before_title . __("Translation") . $after_title;
 
         //remove any language identifier
-            $clean_page_url = cleanup_url($page_url,$this->transposh->home_url, true);
+        $clean_page_url = cleanup_url($page_url,$this->transposh->home_url, true);
         if ($this->transposh->options->get_enable_url_translate()) {
-            $clean_page_url = get_original_url($clean_page_url,$this->transposh->target_language,array($this->transposh->database,'fetch_original'));
+            $clean_page_url = get_original_url($clean_page_url,'',$this->transposh->target_language,array($this->transposh->database,'fetch_original'));
         }
         logger ("WIDGET: clean page url: $clean_page_url ,orig: $page_url");
 
@@ -287,4 +299,5 @@ class transposh_plugin_widget {
 function transposh_widget($args = array()) {
     $GLOBALS['my_transposh_plugin']->widget->transposh_widget($args);
 }
+
 ?>

@@ -769,7 +769,7 @@ class transposh_plugin {
 
         // the trick is to replace the URI and put it back afterwards
         $oldRequestUri = $_SERVER['REQUEST_URI'];
-        $_SERVER['REQUEST_URI'] = get_original_url($_SERVER['REQUEST_URI'], $query['lang'], array($this->database,'fetch_original'));
+        $_SERVER['REQUEST_URI'] = get_original_url($_SERVER['REQUEST_URI'],'', $query['lang'], array($this->database,'fetch_original'));
         remove_filter('request', array(&$this,'request_filter'));
         global $wp;
         $wp->parse_request();
