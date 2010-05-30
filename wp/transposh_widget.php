@@ -59,12 +59,12 @@ class transposh_plugin_widget {
             logger("cleaned referrer: $ref, lang: $lang", 4);
 
             $ref = rewrite_url_lang_param($ref,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
-
+                
             if($lang  && $this->transposh->options->get_enable_url_translate()) {
                 // and then, we might have to translate it
                 $ref = translate_url($ref, $this->transposh->home_url,$lang,array(&$this->transposh->database,'fetch_translation'));
-                $ref = str_replace(array('%2F','%3A','%3F','%3D'),array('/',':','?','='),urlencode(str_replace ( array ( '&', '"', "'", '<', '>'), array ( '&amp;' , '&quot;', '&apos;' , '&lt;' , '&gt;'), $ref)));
-                logger("translated to referrer: $ref, lang: $lang", 4);
+                $ref = str_replace(array('%2F','%3A','%3B','%3F','%3D','%26'),array('/',':',';','?','=','&'),urlencode($ref));
+                logger("translated to referrer: $ref, lang: $lang", 3);
 
                 //ref is generated with html entities encoded, needs to be
                 //decoded when used in the http header (i.e. 302 redirect)
