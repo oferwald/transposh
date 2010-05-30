@@ -245,8 +245,8 @@
                     if (t_jp.progress) {
                         var loaduiandtranslate = function () {
                             $.xLazyLoader({
-                                js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js',
-                                css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css',
+                                js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.3/jquery-ui.min.js',
+                                css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.3/themes/ui-lightness/jquery-ui.css',
                                 success: function () {
                                     create_progress_bar();
                                     do_auto_translate();
