@@ -31,13 +31,15 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'options') {
 }
 
 // we need wordpress and us...
-//require_once('../../../../wp-load.php');
 $root = $_SERVER["DOCUMENT_ROOT"];
 $self = $_SERVER["SCRIPT_NAME"];
 // go down 4 dirs...
 for ($i = 0;$i<5;$i++) $self = substr($self,0,-strlen(strrchr($self,"/")));
-require_once $root.$self.'/wp-load.php';
-//the case of posted translation
+if (!@require_once $root.$self.'/wp-load.php') {
+    // fallback plan
+    require_once('../../../../wp-load.php');
+}
+//  the case of posted translation
 if (isset($_POST['translation_posted'])) {
     // supercache invalidation of pages - first lets find if supercache is here
     if (function_exists('wp_super_cache_init')) {
