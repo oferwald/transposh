@@ -233,6 +233,7 @@ class utilsTest extends PHPUnit_Framework_TestCase {
         function dummy($str ="", $param = "") {
             return $str;
         };
+        $this->assertEquals("/",get_original_url("/",'', 'en', "dummy"));
         $this->assertEquals("/test",get_original_url("/test",'', 'en', "dummy"));
         $this->assertEquals("/test/",get_original_url("/test/",'', 'en', "dummy"));
         $this->assertEquals("www.islands.co.il/he/test/",get_original_url("www.islands.co.il/he/test/",'www.islands.co.il', 'en', "dummy"));
@@ -243,6 +244,7 @@ class utilsTest extends PHPUnit_Framework_TestCase {
         function dummy2($str ="", $param = "") {
             return array($str,'0');
         };
+        $this->assertEquals("/",translate_url("/",'', 'en', "dummy2"));
         $this->assertEquals("/test",translate_url("/test",'', 'en', "dummy2"));
         $this->assertEquals("/test/",translate_url("/test/",'', 'en', "dummy2"));
         $this->assertEquals("www.islands.co.il/he/test/",translate_url("www.islands.co.il/he/test/",'www.islands.co.il', 'en', "dummy2"));
