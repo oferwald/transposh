@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.7
-Tested up to: 3.0 rc-1
+Tested up to: 3.0 rc-2
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -177,7 +177,10 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
- = 2010.05.30 - 0.5.3 =
+ = 2010/06/06 - 0.5.4 =
+ * Fix some issues with the widget regarding url translation
+ * Fix some inclusion issue with transposh_ajax.php file
+ = 2010/05/30 - 0.5.3 =
  * Support translation of URLs
  * Mark language used to comment
  * Improved wp-super-cache integration
