@@ -57,8 +57,6 @@ class transposh_plugin_widget {
             //remove existing language settings.
             $ref = cleanup_url($ref,$this->transposh->home_url);
             logger("cleaned referrer: $ref, lang: $lang", 4);
-
-            $ref = rewrite_url_lang_param($ref,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
                 
             if($lang  && $this->transposh->options->get_enable_url_translate()) {
                 // and then, we might have to translate it
@@ -70,6 +68,7 @@ class transposh_plugin_widget {
                 //decoded when used in the http header (i.e. 302 redirect)
                 //$ref = html_entity_decode($ref, ENT_NOQUOTES);
             }
+            $ref = rewrite_url_lang_param($ref,$this->transposh->home_url,$this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
 
             logger("Widget redirect url: $ref", 3);
 
