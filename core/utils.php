@@ -257,7 +257,7 @@ function translate_url($href, $home_url, $target_language,$fetch_translation_fun
         list ($href,$querypart) = explode('?', $href);
         $querypart = '?'.$querypart;
     }
-    $href = substr($href,strlen($home_url)+1);
+    $href = substr($href,strlen($home_url));
     $parts = explode('/', $href);
     foreach ($parts as $part) {
         if (!$part) continue;
@@ -288,7 +288,7 @@ function translate_url($href, $home_url, $target_language,$fetch_translation_fun
  * @return string
  */
 function get_original_url($href, $home_url, $target_language,$fetch_translation_func) {
-    $href = substr($href,strlen($home_url)+1);
+    $href = substr($href,strlen($home_url));
     $url = urldecode($href);
     $url = (($pos=strpos($url, '?')) ? substr($url, 0, $pos) : $url);
     $parts = explode('/', $url);
