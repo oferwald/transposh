@@ -114,6 +114,7 @@ class transposh_plugin {
             add_filter('request', array(&$this,'request_filter'));
         }
         add_filter('comment_text', array(&$this,'comment_text_wrap'),9999); // this is a late filter...
+        add_filter('bp_uri', array(&$this,'bp_uri_filter')); // buddypress compatability
         add_action('init', array(&$this,'on_init'),0); // really high priority
         add_action('parse_request', array(&$this,'on_parse_request'));
         add_action('plugins_loaded', array(&$this,'plugin_loaded'));
@@ -124,6 +125,8 @@ class transposh_plugin {
         add_action("sm_addurl",array(&$this,'add_sm_transposh_urls'));
         add_action('transposh_backup_event', array(&$this,'run_backup'));
         add_action('comment_post', array(&$this,'add_comment_meta_settings'), 1);
+        //TODO add_action('manage_comments_nav', array(&$this,'manage_comments_nav'));
+        //TODO comment_row_actions (filter)
 
         register_activation_hook(__FILE__, array(&$this,'plugin_activate'));
         register_deactivation_hook(__FILE__,array(&$this,'plugin_deactivate'));
@@ -139,6 +142,7 @@ class transposh_plugin {
                         stripos($url,'/wp-admin/') !== FALSE ||
                         stripos($url,'/xmlrpc.php') !== FALSE);
     }
+
     /**
      * Called when the buffer containing the original page is flushed. Triggers the translation process.
      * @param string $buffer Original page
@@ -744,9 +748,23 @@ class transposh_plugin {
     }
 
     /**
+     * This filter method helps buddypress understand the transposh generated URLs
+     * @param string $uri The url that was originally received
+     * @return string The url that buddypress should see
+     */
+    function bp_uri_filter($uri) {
+        $lang = get_language_from_url($uri, $this->home_url);
+        $uri = cleanup_url($uri, $this->home_url);
+        if ($this->options->get_enable_url_translate()) {
+            $uri = get_original_url($uri,'', $lang, array($this->database,'fetch_original'));
+        }
+        return $uri;
+    }
+
+    /**
      * Modify comments to include the relevant language span
      * @param string $text
-     * @return string 
+     * @return string
      */
     function comment_text_wrap($text) {
         $comment_lang = get_comment_meta(get_comment_ID(), 'tp_language', true);
