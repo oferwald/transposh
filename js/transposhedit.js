@@ -222,6 +222,7 @@
         .tabs('add', t_jp.post_url + '?tr_token_hist=' + $("#" + t_jp.prefix + segment_id).attr('data-token') + '&lang=' + t_jp.lang, 'History')
         .css("text-align", "left")
         .css("padding", 0)
+        // this is the history tab...
         .bind('tabsload', function (event, ui) {
             //TODO, formatting here, not server side
             $("table", ui.panel).addClass("ui-widget ui-widget-content").css({
@@ -309,7 +310,7 @@
             width: 500,
             buttons: tButtons
         });
-    }
+      }
 
    
     // lets add the images
@@ -318,8 +319,8 @@
         $(this).after('<span id="' + t_jp.prefix + 'img_' + translated_id + '" class="tr-icon" title="' + $(this).attr('data-orig') + '"></span>');
         img = $('#' + t_jp.prefix + 'img_' + translated_id);
         img.click(function () {
-            //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first
-            if (typeof $.fn.tabs !== 'function') {
+            //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict
+            if (typeof $.fn.tabs !== 'function' || typeof $.fn.dialog !== 'function') {
                 $.ajaxSetup({
                     cache: true
                 });
