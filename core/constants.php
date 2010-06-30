@@ -91,10 +91,15 @@ $languages = array(
 //Language which are read from right to left (rtl)
 $rtl_languages = array("ar", "he", "fa", "yi");
 
-//Google supported languages @updated 2009-Dec-21
+//Google supported languages
+//(got using - var langs =""; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +"|"}}); console.log(langs); - fixed for our codes)
+//@updated 2009-Dec-21
+//@verified 2010-Jun-30
 $google_languages = array("en", "af", "sq", "ar", "be", "bg", "ca", "zh", "zh-tw", "hr", "cs", "da", "nl", "et", "fi", "fr", "gl", "de", "el", "ht", "he", "hi", "hu", "id", "it", "is", "ga", "ja", "ko", "lv", "lt", "mk", "ms", "mt", "no", "fa", "pl", "pt", "ro", "ru", "sr", "sk", "sl", "es", "sw", "sv", "tl", "th", "tr", "uk", "vi", "cy", "yi");
-//Bing supported languages @updated 2009-Dec-21
-$bing_languages = array("en", "ar", "bg", "zh", "zh-tw", "cs", "da", "nl", "ht", "fi", "fr", "de", "gr", "he", "hu", "it", "ja", "ko", "lt", "no", "pl", "pt", "ro", "ru", "sk", "sl", "es", "sv", "th", "tr");
+//Bing supported languages
+//(got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
+//@updated 2010-Jun-30
+$bing_languages = array("en", "ar", "bg", "zh", "zh-tw", "cs", "da", "nl", "et", "fi", "fr", "de", "el", "ht" , "he", "hu", "it", "ja", "ko", "lv", "lt", "no", "pl", "pt", "ro", "ru", "sk", "sl", "es", "sv", "th", "tr");
 
 //Define the new capability that will be assigned to roles - translator
 define("TRANSLATOR", 'translator');
