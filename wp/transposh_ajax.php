@@ -35,7 +35,9 @@ $root = $_SERVER["DOCUMENT_ROOT"];
 $self = $_SERVER["SCRIPT_NAME"];
 // go down 4 dirs...
 for ($i = 0;$i<5;$i++) $self = substr($self,0,-strlen(strrchr($self,"/")));
-if (!@require_once $root.$self.'/wp-load.php') {
+  if (file_exists($root.$self.'/wp-load.php')) {
+    require_once $root.$self.'/wp-load.php' ;
+  } else {
     // fallback plan
     require_once('../../../../wp-load.php');
 }
