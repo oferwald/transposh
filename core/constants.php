@@ -122,6 +122,13 @@ define('TRANSPOSH_ADMIN_PAGE_NAME', 'transposh');
 //0.3.5 - Storing all options in this config option
 define('TRANSPOSH_OPTIONS', 'transposh_options');
 
+//0.5.6 new definitions
+//Defintions for directories used in the plugin
+define('TRANSPOSH_DIR_CSS', 'css');
+define('TRANSPOSH_DIR_IMG', 'img');
+define('TRANSPOSH_DIR_JS', 'js');
+define('TRANSPOSH_DIR_WIDGETS', 'widgets');
+
 /* Full language list according to ISO
   ISO 639-1	Language name	Native name
   aa	Afar	Afaraf
