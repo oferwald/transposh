@@ -76,14 +76,16 @@ define("ENABLE_FOOTER_SCRIPTS", "enable_footer_scripts");
 define("ENABLE_DETECT_LANG_AND_REDIRECT", "enable_detect_redirect");
 //Option defining the default language
 define("DEFAULT_LANG", "default_language");
+////Option defining transposh widget appearance
+//define("WIDGET_STYLE", "widget_style");
 //Option defining transposh widget appearance
-define("WIDGET_STYLE", "widget_style");
+define("WIDGET_FILE", "widget_file");
 //Option allowing progress bar display
 define("WIDGET_PROGRESSBAR", "widget_progressbar");
 //Use CSS sprites for flags if available
-define("WIDGET_CSS_FLAGS", "widget_css_flags");
+//define("WIDGET_CSS_FLAGS", "widget_css_flags");
 //Wrap widget elements in an unordered list per #63 @since 0.3.7
-define("WIDGET_IN_LIST", "widget_in_list");
+//define("WIDGET_IN_LIST", "widget_in_list");
 //Allows user to set his default language per #63 @since 0.3.8
 define("WIDGET_ALLOW_SET_DEFLANG", "widget_allow_set_deflang");
 //Stores the site key to transposh services (backup @since 0.5.0)
@@ -178,17 +180,21 @@ class transposh_plugin_options {
         return $this->options[WIDGET_PROGRESSBAR];
     }
 
-    function get_widget_style() {
-        return $this->options[WIDGET_STYLE];
+  //  function get_widget_style() {
+//        return $this->options[WIDGET_STYLE];
+//    }
+
+    function get_widget_file() {
+        return $this->options[WIDGET_FILE];
     }
 
-    function get_widget_css_flags() {
-        return $this->options[WIDGET_CSS_FLAGS];
-    }
+//    function get_widget_css_flags() {
+//        return $this->options[WIDGET_CSS_FLAGS];
+//    }
 
-    function get_widget_in_list() {
-        return $this->options[WIDGET_IN_LIST];
-    }
+//    function get_widget_in_list() {
+//        return $this->options[WIDGET_IN_LIST];
+//    }
 
     function get_widget_allow_set_default_language() {
         return $this->options[WIDGET_ALLOW_SET_DEFLANG];
@@ -303,15 +309,19 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[WIDGET_STYLE]);
     }
 
-    function set_widget_css_flags($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_CSS_FLAGS]);
+    function set_widget_file($val) {
+        $this->set_value($val, $this->options[WIDGET_FILE]);
     }
 
-    function set_widget_in_list($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_IN_LIST]);
-    }
+//    function set_widget_css_flags($val) {
+//        $val = ($val) ? 1 : 0;
+//        $this->set_value($val, $this->options[WIDGET_CSS_FLAGS]);
+//    }
+
+//    function set_widget_in_list($val) {
+//        $val = ($val) ? 1 : 0;
+//        $this->set_value($val, $this->options[WIDGET_IN_LIST]);
+//    }
 
     function set_widget_allow_set_default_language($val) {
         $val = ($val) ? 1 : 0;
