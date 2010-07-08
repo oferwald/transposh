@@ -1,8 +1,8 @@
 /*
- * Widget's css 
- */
+ * Widget's css for flags
+*/
 .transposh_flags {
-    direction: ltr;
+    direction: ltr; /* we don't want the flags to change direction on rtl */
     line-height: 0;
 }
 .transposh_flags a  {
