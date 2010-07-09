@@ -128,9 +128,9 @@ class transposh_plugin_widget {
 	if (function_exists(tp_widget_css)) {
 	    tp_widget_css();
 	} else {
-	    $widgetcss = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $this->base_widget_file_name . '.css';
-	    if (file_exists($widgetcss)) {
-		wp_enqueue_style('transposh_widget', $widgetcss, array(), TRANSPOSH_PLUGIN_VER);
+	    $widget_css = TRANSPOSH_DIR_WIDGETS.'/'.$this->base_widget_file_name . ".css";
+	    if (file_exists($this->transposh->transposh_plugin_dir . $widget_css )) {
+		wp_enqueue_style('transposh_widget', $this->transposh->transposh_plugin_url.'/'.$widget_css, '', TRANSPOSH_PLUGIN_VER);
 	    }
 	}
 
@@ -146,9 +146,9 @@ class transposh_plugin_widget {
 	if (function_exists(tp_widget_js)) {
 	    tp_widget_js();
 	} else {
-	    $widgetjs = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $this->base_widget_file_name . '.js';
-	    if (file_exists($widgetjs)) {
-		wp_enqueue_script('transposh_widget', $widgetjs, '', TRANSPOSH_PLUGIN_VER);
+	    $widget_js = TRANSPOSH_DIR_WIDGETS.'/'.$this->base_widget_file_name . ".js";
+	    if (file_exists($this->transposh->transposh_plugin_dir . $widget_js )) {
+		wp_enqueue_script('transposh_widget', $this->transposh->transposh_plugin_url.'/'.$widget_js, '', TRANSPOSH_PLUGIN_VER);
 	    }
 	}
 	logger('Added transposh_widget_js', 4);
