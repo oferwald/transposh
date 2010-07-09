@@ -18,6 +18,7 @@
  */
 
 require_once("shd/simple_html_dom.php");
+require_once("constants.php");
 require_once("logging.php");
 
 /**
@@ -544,24 +545,26 @@ class parser {
 	}
 
 	// try some prefetching... (//todo - maybe move directly to the phrase create)
-	foreach ($this->html->find('text') as $e) {
-	    foreach ($e->nodes as $ep) {
-		$originals[] = $ep->phrase;
-	    }
-	}
-	foreach (array('title', 'value') as $title) {
-	    foreach ($this->html->find('[' . $title . ']') as $e) {
+	if ($this->prefetch_translate_func != null) {
+	    foreach ($this->html->find('text') as $e) {
 		foreach ($e->nodes as $ep) {
 		    $originals[] = $ep->phrase;
 		}
 	    }
-	}
-	foreach ($this->html->find('[content]') as $e) {
-	    foreach ($e->nodes as $ep) {
-		$originals[] = $ep->phrase;
+	    foreach (array('title', 'value') as $title) {
+		foreach ($this->html->find('[' . $title . ']') as $e) {
+		    foreach ($e->nodes as $ep) {
+			$originals[] = $ep->phrase;
+		    }
+		}
 	    }
+	    foreach ($this->html->find('[content]') as $e) {
+		foreach ($e->nodes as $ep) {
+		    $originals[] = $ep->phrase;
+		}
+	    }
+	    call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
 	}
-	call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
 
 	// actually translate tags
 	// texts are first
