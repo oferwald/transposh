@@ -179,19 +179,25 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
- = 2010/06/18 - 0.5.5 =
-* Add support for buddypress URLs
-* Fix UI issues when jQuery tools were used on the page
- = 2010/06/06 - 0.5.4 =
+= 2010/07/11 - 0.5.6 =
+ * Pluggable widgets - read all about them on http://trac.transposh.org/wiki/WidgetWritingGuide
+ * Avoid translation of trashed and draft post on translate all
+ * Fix MSN as default translator and add two new languages to the list of supported languages
+ * Fix bug with problematic !@require
+ * Code cleanups
+= 2010/06/18 - 0.5.5 =
+ * Add support for buddypress URLs
+ * Fix UI issues when jQuery tools were used on the page
+= 2010/06/06 - 0.5.4 =
  * Fix some issues with the widget regarding url translation
  * Fix some inclusion issue with transposh_ajax.php file
- = 2010/05/30 - 0.5.3 =
+= 2010/05/30 - 0.5.3 =
  * Support translation of URLs
  * Mark language used to comment
  * Improved wp-super-cache integration
  * Fixed issues with widget generating urls containing default language
  * Upgrade jQueryUI to 1.7.3
- = 2010/04/11 - 0.5.2 =
+= 2010/04/11 - 0.5.2 =
  * support the google notranslate class notation (as an addition to no_translate)
  * support for lang tagging on paragraphs
  * changed translation of default language to just translate paragraphs explicitly marked with a different language
