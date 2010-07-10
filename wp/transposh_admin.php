@@ -245,15 +245,15 @@ class transposh_plugin_admin {
 	'</div>' .
 	'</form>' .
 	'</div>' .
-	'<script type="text/javascript">' ."\n".
-	'//<![CDATA[' ."\n".
+	'<script type="text/javascript">' . "\n" .
+	'//<![CDATA[' . "\n" .
 	'jQuery(document).ready( function($) {';
 	// close postboxes that should be closed
 	echo "$('.if-js-closed').removeClass('if-js-closed').addClass('closed');";
 	// postboxes setup
-	echo "postboxes.add_postbox_toggles('".$this->pagehook."');" .
-	'});	' ."\n".
-	'//]]>' ."\n".
+	echo "postboxes.add_postbox_toggles('" . $this->pagehook . "');" .
+	'});	' . "\n" .
+	'//]]>' . "\n" .
 	'</script>';
     }
 
@@ -403,11 +403,11 @@ class transposh_plugin_admin {
 	    . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",") . ($this->transposh->options->is_viewable_language($langcode) ? ",t" : ",") . '" />'
 	    . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
 	    if (in_array($langcode, $GLOBALS['google_languages']))
-		    echo '<img width="16" height="16" alt="g" class="logoicon" title="Language supported by google translate" src="' . $this->transposh->transposh_plugin_url . '/img/googleicon.png"/>';
+		    echo '<img width="16" height="16" alt="g" class="logoicon" title="Language supported by google translate" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
 	    if (in_array($langcode, $GLOBALS['bing_languages']))
-		    echo '<img width="16" height="16" alt="b" class="logoicon" title="Language supported by bing translate" src="' . $this->transposh->transposh_plugin_url . '/img/bingicon.png"/>';
+		    echo '<img width="16" height="16" alt="b" class="logoicon" title="Language supported by bing translate" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
 	    if (in_array($langcode, $GLOBALS['rtl_languages']))
-		    echo '<img width="16" height="16" alt="r" class="logoicon" title="Language is written from right to left" src="' . $this->transposh->transposh_plugin_url . '}/img/rtlicon.png"/>';
+		    echo '<img width="16" height="16" alt="r" class="logoicon" title="Language is written from right to left" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
 	    echo '</li>';
 	}
 	echo "</ul></div>";
@@ -465,7 +465,7 @@ class transposh_plugin_admin {
 	 * Disbaled by default.
 	 * @since 0.5.3
 	 */
-	echo '<h4>Enable url translation (expirimental)</h4>';
+	echo '<h4>Enable url translation (experimental)</h4>';
 	echo '<input type="checkbox" value="1" name="' . ENABLE_URL_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_url_translate()) . '/> ' .
 	'Allow translation of permalinks and urls';
     }
@@ -494,13 +494,13 @@ class transposh_plugin_admin {
 	 */
 	echo '<h4>Support for Bing (MSN) translation</h4>';
 	echo '<input type="checkbox" value="1" name="' . ENABLE_MSN_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_msn_translate()) . '/> ' .
-	'Allow MSN (Bing) translator hinting (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>' .
+	'Support MSN (Bing) translator (get key from <a href="http://www.microsofttranslator.com/Dev/Ajax/Default.aspx">here</a>)<br/>' .
 	'Key: <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_msn_key() . '" id="' . MSN_TRANSLATE_KEY . '" name="' . MSN_TRANSLATE_KEY . '"/>';
 
 	/*
-	 * TODO
+	 * TODO - Change to v2 API and our key...
 	 */
-	echo '<h4>Select preferred auto translatation engine</h4>';
+	echo '<h4>Select preferred auto translation engine</h4>';
 	echo '<label for="' . PREFERRED_TRANSLATOR . '">Translation engine:' .
 	'<select name="' . PREFERRED_TRANSLATOR . '">' .
 	'<option value="1"' . ($this->transposh->options->get_preferred_translator() == 1 ? ' selected="selected"' : '') . '>Google</option>' .
