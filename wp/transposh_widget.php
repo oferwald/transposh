@@ -110,11 +110,11 @@ class transposh_plugin_widget {
 
 	$file = $this->transposh->options->get_widget_file();
 	$widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
-	if (file_exists($widget_src)) {
-	    require_once $widget_src;
+	if ($file && file_exists($widget_src)) {
+	    include_once $widget_src;
 	} else {
 	    $file = 'tpw_default.php';
-	    require_once $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file; //TODO fix widget constant all around...
+	    include_once $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
 	}
 	$this->base_widget_file_name = substr($file, 0, -4);
     }
