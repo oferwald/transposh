@@ -72,6 +72,7 @@ function cleanup_url($url, $home_url, $remove_host = false) {
 	unset($parsedurl['host']);
     }
     $url = glue_url($parsedurl);
+    if (!$url) return '/';
     return $url;
 }
 

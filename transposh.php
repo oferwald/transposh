@@ -321,6 +321,7 @@ class transposh_plugin {
 			$url = rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'], $this->edit_mode);
 			if ($this->options->is_default_language($_COOKIE['TR_LNG']))
 				$url = cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
+			logger("redirected to $url because of cookie",4);
 			wp_redirect($url);
 			exit;
 		    }
@@ -331,6 +332,7 @@ class transposh_plugin {
 			$url = rewrite_url_lang_param($_SERVER['REQUEST_URI'], $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
 			if ($this->options->is_default_language($bestlang))
 				$url = cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
+			logger("redirected to $url because of bestlang",4);
 			wp_redirect($url);
 			exit;
 		    }
