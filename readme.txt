@@ -15,7 +15,7 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 
 * Support for any language - including RTL/LTR layouts
 * Unique drag/drop interface for choosing viewable/translatable languages
-* Multiple selection for widget appearances
+* Multiple selection for widget appearances - with pluggable widgets
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Automatic translation can be triggered on demand by the readers or on the server side
@@ -159,6 +159,10 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.5.7 =
+Fix for critical bug in 0.5.6
+= 0.5.6 =
+Support pluggable widgets
 = 0.5.5 =
 Support for buddypress URLs
 = 0.5.3 =
@@ -179,6 +183,8 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/07/11 - 0.5.7 =
+ * Fix for critical bug in widget inclusion (thanks [dgrut](http://www.buyacomputer.info/))
 = 2010/07/11 - 0.5.6 =
  * Pluggable widgets - read all about them on http://trac.transposh.org/wiki/WidgetWritingGuide
  * Avoid translation of trashed and draft post on translate all
