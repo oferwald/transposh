@@ -18,8 +18,7 @@
 /*global Date, Math, Microsoft, alert, escape, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
 (function ($) { // closure
     var
-    // those two are constants...
-    MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6',
+    // this is the size of strings to queue, we don't want too much there
     BATCH_SIZE = 128,
     // number of phrases that might be translated
     possibly_translateable,
@@ -32,7 +31,10 @@
     //Ajax translation
     done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
     ;
-    
+
+    // transposh app_id for msn translate, now global
+    t_jp.MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6';
+
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
     function fix_page(token, translation) {
@@ -137,24 +139,23 @@
         make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
     }
 
-    function do_mass_google_translate(batchtrans, lang, callback) {
+    function do_mass_google_translate(batchtrans, callback) {
         var q = '';
         $(batchtrans).each(function (i) {
             q += '&q=' + escape(batchtrans[i]);
         });
-        // console.log (q);
         $.ajax({
             url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-            '?v=1.0' + q + '&langpair=%7C' + lang,
+            '?v=1.0' + q + '&langpair=%7C' + t_jp.lang,
             dataType: "jsonp",
             success: callback
         });
     }
 
-    function do_mass_google_invoker(tokens, trans, lang) {
-        do_mass_google_translate(trans, lang, function (result) {
+    function do_mass_google_invoker(tokens, trans) {
+        do_mass_google_translate(trans, function (result) {
             if (result.responseStatus === 200) {
-                //FIXME (1 item..)
+                // single items get handled differently
                 if (result.responseData.translatedText !== undefined) {
                     auto_translate_success(tokens[0], result.responseData.translatedText);
                 } else {
@@ -169,50 +170,46 @@
         });
     }
 
-    function do_mass_ms_translate(batchtrans, lang, callback) {
+    function do_mass_ms_translate(batchtrans, callback) {
         var q = "[";
         $(batchtrans).each(function (i) {
             q += '"' + escape(batchtrans[i]) + '",';
         });
         q = q.slice(0, -1) + ']';
         $.ajax({
-            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + MSN_APPID + '&to=' + lang + '&texts=' + q,
+            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + '&texts=' + q,
             dataType: "jsonp",
             jsonp: "oncomplete",
             success: callback
         });
     }
 
-    function do_mass_ms_invoker(tokens, trans, lang) {
-        do_mass_ms_translate(trans, lang, function (result) {
+    function do_mass_ms_invoker(tokens, trans) {
+        source = 2;
+        do_mass_ms_translate(trans, function (result) {
             $(result).each(function (i) {
                 auto_translate_success(tokens[i], this.TranslatedText);
             });
         });
     }
 
-    // converts a language to a one used by bing
-    function to_binglang(lang) {
-        var blang = lang;
-        if (blang === 'zh') {
-            blang = 'zh-chs';
-        } else if (blang === 'zh-tw') {
-            blang = 'zh-cht';
+    // invokes the correct mass translatot based on the prefered one...
+    function do_mass_invoke(batchtokens, batchtrans) {
+        if (t_jp.msn && t_jp.preferred === '2') {
+            do_mass_ms_invoker(batchtokens, batchtrans);
+        } else {
+            do_mass_google_invoker(batchtokens, batchtrans);
         }
-        return blang;
     }
 
     //function for auto translation
     function do_auto_translate() {
         // auto_translated_previously...
-        var auto_translated_phrases = [], binglang = to_binglang(t_jp.lang), batchlength = 0, batchtrans = [], batchtokens = [];
-        //const BATCH_SIZE = 512;
+        var auto_translated_phrases = [], batchlength = 0, batchtrans = [], batchtokens = [];
+
         $("." + t_jp_prefix + '[data-source=""]').each(function (i) {
-            // not needed!
-            //var translated_id = $(this).attr('id'),
             var token = $(this).attr('data-token'),
-            //alert(translated_id);
-            // we only have orig if we have some translation,?
+            // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
             to_trans = $(this).attr('data-orig');
             if (to_trans === undefined) {
                 to_trans = $(this).html();
@@ -220,14 +217,7 @@
             if (auto_translated_phrases[to_trans] !== 1) {
                 auto_translated_phrases[to_trans] = 1;
                 if (batchlength + to_trans.length > BATCH_SIZE) {
-                    //var tmptokens = batchtokens; // context...
-                    // if msn is the default
-                    if (t_jp.msn && t_jp.preferred === '2') {
-                        do_mass_ms_invoker(batchtokens, batchtrans, binglang);
-                    } else {
-                        do_mass_google_invoker(batchtokens, batchtrans, t_jp.lang);
-
-                    }
+                    do_mass_invoke(batchtokens, batchtrans);
                     batchlength = 0;
                     batchtrans = [];
                     batchtokens = [];
@@ -235,31 +225,24 @@
                 batchlength += to_trans.length;
                 batchtokens.push(token);
                 batchtrans.push(to_trans);
-            //  if msn is the default
-            /*if (t_jp.msn && t_jp.preferred == 2) {
-		    //   try {
-		    ms_trans(to_trans, "", binglang, function (translation) {
-			// check error
-			auto_translate_success(token,translation);
-		    });
-		} else {
-		    google_trans(to_trans, "", t_jp.lang, function (result) {
-			if (result.responseStatus == 200) {
-			    auto_translate_success(token,result.responseData.translatedText);
-			} //else { // TODO: errors...
-		    });
-		}*/
             }
         });
-        if (t_jp.msn && t_jp.preferred === '2') {
-            do_mass_ms_invoker(batchtokens, batchtrans, binglang);
-        } else {
-            do_mass_google_invoker(batchtokens, batchtrans, t_jp.lang);
-        }
+        // this invokation is for the remaining items
+        do_mass_invoke(batchtokens, batchtrans);
     }
 
     $(document).ready(
         function () {
+            // set a global binglang (if needed)
+            if (t_jp.msn) {
+                t_jp.binglang = t_jp.lang;
+                if (t_jp.binglang === 'zh') {
+                    t_jp.binglang = 'zh-chs';
+                } else if (t_jp.binglang === 'zh-tw') {
+                    t_jp.binglang = 'zh-cht';
+                }
+            }
+
             // this is the set_default_language function
             // attach a function to the set_default_language link if its there
             $('#' + t_jp_prefix + 'setdeflang').click(function () {
