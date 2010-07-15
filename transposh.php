@@ -508,17 +508,17 @@ class transposh_plugin {
 	wp_localize_script('transposh', 't_jp', array(
 	    'post_url' => $this->post_url,
 	    'plugin_url' => $this->transposh_plugin_url,
-	    'edit' => ($this->edit_mode ? '1' : ''),
+	    'edit' => ($this->edit_mode ? 1 : ''),
 	    //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
 	    'lang' => $this->target_language,
 	    // those two options show if the script can support said engines
-	    'msn' => (in_array($this->target_language, $GLOBALS['bing_languages']) && $this->options->get_msn_key() ? '1' : ''),
-	    'google' => (in_array($this->target_language, $GLOBALS['google_languages']) ? '1' : ''),
+	    'msn' => (in_array($this->target_language, $GLOBALS['bing_languages']) ? 1 : ''),
+	    'google' => (in_array($this->target_language, $GLOBALS['google_languages']) ? 1 : ''),
 	    'prefix' => SPAN_PREFIX,
-	    'msnkey' => $this->options->get_msn_key(),
+	    //'msnkey' => $this->options->get_msn_key(),
 	    'preferred' => $this->options->get_preferred_translator(),
-	    'progress' => $this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '')
-//			'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+	    'progress' => $this->edit_mode || $this->options->get_widget_progressbar() ? 1 : '')
+//          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
 	);
 	logger('Added transposh_js', 4);
     }
