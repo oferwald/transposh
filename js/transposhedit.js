@@ -14,14 +14,9 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-// source - 0 is human, 1 is gt - 2 and higher reserved for future engines
-/*global Date, Math, Microsoft, alert, clearTimeout, document, google, $, setTimeout, t_jp, window */
-// fetch translation from google translate...
+
+/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window */
 (function ($) { // closure
-    var loadLang, langLoaded;
-    //google_langs = 'af|sq|ar|be|bg|ca|zh|zh-CN|zh-TW|hr|cs|da|nl|en|et|tl|fi|fr|gl|de|el|iw|hi|hu|is|id|ga|it|ja|ko|lv|lt|mk|ms|mt|no|fa|pl|pt-PT|ro|ru|sr|sk|sl|es|sw|sv|tl|th|tr|uk|vi|cy|yi|he|zh-tw|pt',
-    // got this using Microsoft.Translator.GetLanguages() with added zh and zh-tw for our needs
-    //bing_langs = 'ar,bg,zh-chs,zh-cht,cs,da,nl,en,ht,fi,fr,de,el,he,it,ja,ko,pl,pt,ru,es,sv,th,zh,zh-tw';
 
     function fix_page_human(token, translation) {
         //reset to the original content - the unescaped version if translation is empty
@@ -86,63 +81,47 @@
         });
     }
 
+    // perform google translate of single phrase via jsonp
+    function google_trans(to_trans, callback) {
+        $.ajax({
+            url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
+            '?v=1.0&q=' + escape(to_trans) + '&langpair=%7C' + t_jp.lang,
+            dataType: "jsonp",
+            success: callback
+        });
+    }
+
     function getgt()
     {
-        if (typeof google === 'undefined') {
-            loadLang = function () {
-                google.load("language", "1", {
-                    "callback" : langLoaded
-                });
-            };
-            langLoaded = function () {
-                getgt();
-            };
-            $.xLazyLoader({
-                //                js: 'http://www.google.com/jsapi?callback=loadLang'
-                js: 'http://www.google.com/jsapi',
-                success: loadLang
-            });
-        } else {
-            $(":button:contains('Suggest - Google')").attr("disabled", "disabled").addClass("ui-state-disabled");
-            google.language.translate($("#" + t_jp.prefix + "original").val(), "", t_jp.lang, function (result) {
-                if (!result.error) {
-                    $("#" + t_jp.prefix + "translation").val($("<div>" + result.translation + "</div>").text())
-                    .keyup();
-                }
-            });
-        }
+        $(":button:contains('Suggest - Google')").attr("disabled", "disabled").addClass("ui-state-disabled");
+        $(":button:contains('Suggest - Bing')").attr("disabled", "").removeClass("ui-state-disabled");
+        google_trans($("#" + t_jp.prefix + "original").val(), function (result) {
+            if (result.responseStatus === 200) {
+                $("#" + t_jp.prefix + "translation").val($("<div>" + result.responseData.translatedText + "</div>").text())
+                .keyup();
+            }
+        });
+    }
+
+    // perform ms translate of single phrase via jsonp
+    function ms_trans(to_trans, callback) {
+        $.ajax({
+            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + "&text=" + escape(to_trans),
+            dataType: "jsonp",
+            jsonp: "oncomplete",
+            success: callback
+        });
     }
 
     // fetch translation from bing translate...
     function getbt()
     {
-        if (typeof Microsoft === 'undefined') {
-            $.xLazyLoader({
-                js: 'http://api.microsofttranslator.com/V1/Ajax.svc/Embed?appId=' + t_jp.msnkey,
-                success: function () {
-                    getbt();
-                }
-            });
-
-        } else {
-            $(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
-            var binglang = t_jp.lang;
-            if (binglang === 'zh') {
-                binglang = 'zh-chs';
-            }
-            if (binglang === 'zh-tw') {
-                binglang = 'zh-cht';
-            }
-            try {
-                Microsoft.Translator.translate($("#" + t_jp.prefix + "original").val(), "", binglang, function (translation) {
-                    $("#" + t_jp.prefix + "translation").val($("<div>" + translation + "</div>").text())
-                    .keyup();
-                });
-            }
-            catch (err) {
-                alert("There was an error using Microsoft.Translator - probably a bad key or URL used in key. (" + err + ")");
-            }
-        }
+        $(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
+        $(":button:contains('Suggest - Google')").attr("disabled", "").removeClass("ui-state-disabled");
+        ms_trans($("#" + t_jp.prefix + "original").val(), function (translation) {
+            $("#" + t_jp.prefix + "translation").val($("<div>" + translation + "</div>").text())
+            .keyup();
+        });
     }
 
     function confirm_close() {
@@ -169,7 +148,7 @@
             }
         });
     }
-    
+
     //Open translation dialog
     function translate_dialog(segment_id) {
         var tButtons = {}, hButtons = {};
@@ -304,15 +283,15 @@
             }
         });
         $("#" + t_jp.prefix + "d-tabs").dialog({
-            bgiframe: true,
-            modal: true,
+            //bgiframe: true,
+            //modal: true,
             //width: 'auto',
             width: 500,
             buttons: tButtons
         });
-      }
+    }
 
-   
+
     // lets add the images
     $("." + t_jp.prefix).each(function (i) {
         var translated_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1), img;
@@ -326,8 +305,8 @@
                 });
                 $.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
                     $.xLazyLoader({
-                        js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.3/jquery-ui.min.js',
-                        css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.3/themes/ui-lightness/jquery-ui.css',
+                        js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js',
+                        css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css',
                         success: function () {
                             translate_dialog(translated_id);
                         }
