@@ -117,15 +117,18 @@ class transposh_postpublish {
         foreach ($phrases as $key) {
             foreach (explode(',', $this->transposh->options->get_editable_langs()) as $lang) {
                 // if this isn't the default language or we specifically allow default language translation, we will seek this out...
-                // as we don't normally want to auto-translate the default language
+                // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->get_enable_default_translate()) {
-                    list($translation, $source) = $this->transposh->database->fetch_translation($key, $lang);
-                    if (!$translation) {
-                        // p stands for phrases, l stands for languages, t is token
-                        if (!is_array($json['p'][$key]['l'])) {
-                            $json['p'][$key]['l'] = array();
+                    // There is no point in returning phrases, languages pairs  that cannot be translated
+                    if (in_array($lang, $GLOBALS['bing_languages']) || in_array($lang, $GLOBALS['google_languages'])) {
+                        list($translation, $source) = $this->transposh->database->fetch_translation($key, $lang);
+                        if (!$translation) {
+                            // p stands for phrases, l stands for languages, t is token
+                            if (!is_array($json['p'][$key]['l'])) {
+                                $json['p'][$key]['l'] = array();
+                            }
+                            array_push($json['p'][$key]['l'], $lang);
                         }
-                        array_push($json['p'][$key]['l'], $lang);
                     }
                 }
             }
