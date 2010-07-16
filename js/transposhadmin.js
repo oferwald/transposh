@@ -77,7 +77,7 @@ function translate_post(postid) {
             return;
         }
         // create progress bars
-        jQuery("#tr_loading").html('Translating<br/>Phrase: <span id="p"></span><div id="progress_bar"/>Target lanaguage: <span id="l"></span><div id="progress_bar2"/><span id="r"></span>');
+        jQuery("#tr_loading").html('Translating<br/>Phrase: <span id="p"></span><div id="progress_bar"/>Target language: <span id="l"></span><div id="progress_bar2"/><span id="r"></span>');
         jQuery("#progress_bar").progressbar({
             value:0
         });
