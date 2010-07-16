@@ -25,6 +25,10 @@ define("OLD_WIDGET_STYLE", "widget_style");
 define("OLD_WIDGET_CSS_FLAGS", "widget_css_flags");
 //Wrap widget elements in an unordered list per #63 @since 0.3.7
 define("OLD_WIDGET_IN_LIST", "widget_in_list");
+//Option to enable/disable msn translation
+define("OLD_ENABLE_MSN_TRANSLATE", "enable_msntranslate");
+//Option to store the msn API key
+define("OLD_MSN_TRANSLATE_KEY", "msn_key");
 
 //defines are used to avoid typos
 //Option defining whether anonymous translation is allowed.
@@ -39,10 +43,6 @@ define("SORTED_LANGS", "sorted_languages");
 define("ENABLE_AUTO_TRANSLATE", "enable_autotranslate");
 //Option to enable/disable auto translation
 define("ENABLE_AUTO_POST_TRANSLATE", "enable_autoposttranslate");
-//Option to enable/disable msn translation
-define("ENABLE_MSN_TRANSLATE", "enable_msntranslate");
-//Option to store the msn API key
-define("MSN_TRANSLATE_KEY", "msn_key");
 //Option to store translator preference @since 0.4.2
 define("PREFERRED_TRANSLATOR", "preferred_translator");
 //Option to enable/disable default language translation
@@ -105,6 +105,8 @@ class transposh_plugin_options {
 	    unset($this->options[OLD_WIDGET_CSS_FLAGS]);
 	    unset($this->options[OLD_WIDGET_IN_LIST]);
 	    unset($this->options[OLD_WIDGET_STYLE]);
+	    unset($this->options[OLD_MSN_TRANSLATE_KEY]);
+	    unset($this->options[OLD_ENABLE_MSN_TRANSLATE]);
 	    logger($this->options);
 	    update_option(TRANSPOSH_OPTIONS, $this->options);
 	}
@@ -163,10 +165,6 @@ class transposh_plugin_options {
 	return $this->options[ENABLE_DETECT_LANG_AND_REDIRECT];
     }
 
-    function get_enable_msn_translate() {
-	return $this->options[ENABLE_MSN_TRANSLATE]; // FIX
-    }
-
     function get_enable_default_translate() {
 	return $this->options[ENABLE_DEFAULT_TRANSLATE];
     }
@@ -191,12 +189,8 @@ class transposh_plugin_options {
 	return $this->options[ENABLE_AUTO_POST_TRANSLATE];
     }
 
-    function get_msn_key() {
-	return $this->options[MSN_TRANSLATE_KEY];
-    }
-
     function get_preferred_translator() {
-	// default is google (2 is msn)
+	// default is google(1) (2 is msn)
 	if (!isset($this->options[PREFERRED_TRANSLATOR])) return 1;
 	return $this->options[PREFERRED_TRANSLATOR];
     }
@@ -288,11 +282,6 @@ class transposh_plugin_options {
 	$this->set_value($val, $this->options[ENABLE_FOOTER_SCRIPTS]);
     }
 
-    function set_enable_msn_translate($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_MSN_TRANSLATE]); // FIX
-    }
-
     function set_enable_default_translate($val) {
 	$val = ($val) ? 1 : 0;
 	$this->set_value($val, $this->options[ENABLE_DEFAULT_TRANSLATE]);
@@ -316,10 +305,6 @@ class transposh_plugin_options {
     function set_enable_auto_post_translate($val) {
 	$val = ($val) ? 1 : 0;
 	$this->set_value($val, $this->options[ENABLE_AUTO_POST_TRANSLATE]);
-    }
-
-    function set_msn_key($val) {
-	$this->set_value($val, $this->options[MSN_TRANSLATE_KEY]);
     }
 
     function set_preferred_translator($val) {
