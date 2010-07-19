@@ -171,9 +171,10 @@ class transposh_plugin_admin {
         wp_enqueue_script('transposh_control', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhcontrol.js', array(), TRANSPOSH_PLUGIN_VER, true);
         wp_localize_script('transposh_control', 't_jp', array(
             'post_url' => $this->transposh->post_url,
-            'msn_langs' => json_encode($GLOBALS['bing_languages']),
-            'google_lang' => json_encode($GLOBALS['google_languages']),
-            'preferred' => $this->transposh->options->get_preferred_translator()/* ,
+            //'msn_langs' => json_encode($GLOBALS['bing_languages']),
+            //'google_lang' => json_encode($GLOBALS['google_languages']),
+            'preferred' => $this->transposh->options->get_preferred_translator(),
+            'l10n_print_after' => 't_jp.g_langs = ' . json_encode($GLOBALS['google_languages']) . '; t_jp.m_langs = ' . json_encode($GLOBALS['bing_languages']) . ';'/*
                   /* ,
                   'plugin_url' => $this->transposh_plugin_url,
                   'edit' => ($this->edit_mode? '1' : ''),
@@ -183,12 +184,13 @@ class transposh_plugin_admin {
                   'prefix' => SPAN_PREFIX,
                   'preferred'=> $this->options->get_preferred_translator(),
                   'progress'=>$this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '') */
-//			'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+//   	,'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+                // need to do this because the way wordpress encodes stuff
         ));
         wp_enqueue_script('google', "http://www.google.com/jsapi", array(), '1', true);
         wp_enqueue_script('transposh_admin', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhadmin.js', array(), TRANSPOSH_PLUGIN_VER, true);
         wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css', array(), '1.8.2');
-	wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js', array('jquery'), '1.8.2', true);
+        wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js', array('jquery'), '1.8.2', true);
 
 
         //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
