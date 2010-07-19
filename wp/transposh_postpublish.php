@@ -61,9 +61,8 @@ class transposh_postpublish {
             wp_localize_script("transposh", "t_jp", array(
                 'post_url' => $this->transposh->post_url,
                 'post' => $_GET['post'],
-                'msn_langs' => json_encode($GLOBALS['bing_languages']),
-                'google_lang' => json_encode($GLOBALS['google_languages']),
-                'preferred' => $this->transposh->options->get_preferred_translator()/* ,
+                'preferred' => $this->transposh->options->get_preferred_translator(),
+                'l10n_print_after' => 't_jp.g_langs = ' . json_encode($GLOBALS['google_languages']) . '; t_jp.m_langs = ' . json_encode($GLOBALS['bing_languages']) . ';'/*
                       'plugin_url' => $this->transposh_plugin_url,
                       'edit' => ($this->edit_mode? '1' : ''),
                       //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
