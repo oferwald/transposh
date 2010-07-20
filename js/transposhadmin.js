@@ -56,7 +56,7 @@ function ajax_translate_me(token, translation, lang, source) {
             items: items
         }, i;
         // this is the "smart" stuff, only coding changed info
-        for (i = 0; i < items; i += 2) {
+        for (i = 0; i < items; i += 1) {
             if (tokens[i] !== tokens[i - 1]) {
                 data["tk" + i] = tokens[i];
             }
