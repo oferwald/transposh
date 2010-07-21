@@ -119,7 +119,8 @@ class transposh_plugin {
 	if ($this->options->get_enable_url_translate()) {
 	    add_filter('request', array(&$this, 'request_filter'));
 	}
-	add_filter('comment_text', array(&$this, 'comment_text_wrap'), 9999); // this is a late filter...
+	add_filter('comment_post_redirect', array(&$this, 'comment_post_redirect_filter'));
+        add_filter('comment_text', array(&$this, 'comment_text_wrap'), 9999); // this is a late filter...
 	add_filter('bp_uri', array(&$this, 'bp_uri_filter')); // buddypress compatability
 	add_action('init', array(&$this, 'on_init'), 0); // really high priority
 	add_action('parse_request', array(&$this, 'on_parse_request'));
@@ -714,6 +715,20 @@ class transposh_plugin {
     function add_comment_meta_settings($post_id) {
 	if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url))
 		add_comment_meta($post_id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), true);
+    }
+
+    /**
+     * After a user adds a comment, makes sure he gets back to the proper language
+     * TODO - check the three other params
+     * @param string $url
+     * @return string fixed url
+     */
+    function comment_post_redirect_filter($url) {
+        $lang = get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+        if ($lang) {
+            $url = rewrite_url_lang_param($url, $this->home_url, $this->enable_permalinks_rewrite, $lang, $this->edit_mode);
+        }
+        return $url;
     }
 
     /**
