@@ -102,6 +102,7 @@ $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
 //@updated 2010-Jul-01 (hy,az,eu,ka,ur)
 //$google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
 $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
+$google_proxied_languages = array('hy','az','eu','ka','ur');
 //Bing supported languages
 //(got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
 //@updated 2010-Jun-30

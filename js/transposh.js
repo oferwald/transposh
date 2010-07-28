@@ -15,7 +15,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*global Date, Math, Microsoft, alert, escape, clearTimeout, document, google, jQuery, setTimeout, t_jp, window */
+/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window */
 (function ($) { // closure
     var
     // this is the size of strings to queue, we don't want too much there
@@ -154,7 +154,8 @@
 
     function do_mass_google_invoker(tokens, trans) {
         do_mass_google_translate(trans, function (result) {
-            if (result.responseStatus === 200) {
+            // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
+            if (result.responseStatus >= 200 && result.responseStatus < 300) {
                 // single items get handled differently
                 if (result.responseData.translatedText !== undefined) {
                     auto_translate_success(tokens[0], result.responseData.translatedText);
@@ -193,10 +194,22 @@
         });
     }
 
+    function do_tgp_invoke (token, trans) {
+        $.getJSON(t_jp.post_url+'?tgp='+trans+'&tgl='+t_jp.lang, function(result) {
+            if (result.sentences[0].trans) {
+                auto_translate_success(token, result.sentences[0].trans);
+            }
+        });
+    }
+    
     // invokes the correct mass translatot based on the prefered one...
     function do_mass_invoke(batchtokens, batchtrans) {
         if (t_jp.msn && t_jp.preferred === '2') {
             do_mass_ms_invoker(batchtokens, batchtrans);
+        } else if (t_jp.tgp) {
+            if (batchtrans[0]) {
+                do_tgp_invoke(batchtokens[0], batchtrans[0]);
+            }
         } else {
             do_mass_google_invoker(batchtokens, batchtrans);
         }
@@ -206,6 +219,8 @@
     function do_auto_translate() {
         // auto_translated_previously...
         var auto_translated_phrases = [], batchlength = 0, batchtrans = [], batchtokens = [];
+
+        if (t_jp.tgp) {BATCH_SIZE = 0;} // Transposh Google Proxy can't batch..
 
         $("." + t_jp_prefix + '[data-source=""]').each(function (i) {
             var token = $(this).attr('data-token'),
@@ -262,7 +277,7 @@
             // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
             // we'll translate if there's any candidate...?
             if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-            (possibly_translateable && (t_jp.google || t_jp.msn)) {
+            (possibly_translateable && (t_jp.google || t_jp.msn || t_jp.tgp)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 if (t_jp.progress) {
                     var loaduiandtranslate = function () {
