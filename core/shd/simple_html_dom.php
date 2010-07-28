@@ -491,7 +491,7 @@ class simple_html_dom {
     protected $size;
     protected $cursor;
     protected $parent;
-    protected $noise = array();
+    public $noise = array();
     protected $token_blank = " \t\r\n";
     protected $token_equal = ' =/>';
     protected $token_slash = " />\r\n\t";
