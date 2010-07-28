@@ -332,7 +332,7 @@ class transposh_plugin_widget {
 	echo '<p><label for="' . WIDGET_FILE . '">Style:<br />' .
 	'<select id="transposh-style" name="' . WIDGET_FILE . '">';
 	foreach ($widgets as $file => $widget) {
-	    logger($widget);
+	    logger($widget,4);
 	    $selected = ($this->transposh->options->get_widget_file() == $file) ? ' selected="selected"' : '';
 	    echo "<option value=\"$file\"$selected>{$widget['Name']}</option>";
 	}

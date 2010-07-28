@@ -188,7 +188,7 @@ class transposh_database {
 	    }
 	}
 
-	logger("Exit: $original", 3);
+	logger("Exit: $translation/$original", 3);
 	return $original;
     }
 
