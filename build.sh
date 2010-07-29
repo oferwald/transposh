@@ -67,6 +67,11 @@ else
   done;
 fi
 echo
+#
+#Add the index.html
+#
+  echo "Adding index.html"
+  cp index.html $TRANSPOSH_DIR/index.html
 
 #
 #fixing version in readme.txt
