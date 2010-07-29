@@ -65,6 +65,8 @@ define("WIDGET_FILE", "widget_file");
 define("WIDGET_PROGRESSBAR", "widget_progressbar");
 //Allows user to set his default language per #63 @since 0.3.8
 define("WIDGET_ALLOW_SET_DEFLANG", "widget_allow_set_deflang");
+//Allows removing of transposh logo in exchange for an ad @since 0.6.0
+define("WIDGET_REMOVE_LOGO_FOR_AD", "widget_remove_logo");
 //Stores the site key to transposh services (backup @since 0.5.0)
 define("TRANSPOSH_KEY", "transposh_key");
 //Stores the site key to transposh services (backup @since 0.5.0)
@@ -138,6 +140,10 @@ class transposh_plugin_options {
 
     function get_widget_progressbar() {
 	return $this->options[WIDGET_PROGRESSBAR];
+    }
+
+    function get_widget_remove_logo() {
+	return $this->options[WIDGET_REMOVE_LOGO_FOR_AD];
     }
 
     /**
@@ -251,6 +257,11 @@ class transposh_plugin_options {
     function set_widget_progressbar($val) {
 	$val = ($val) ? 1 : 0;
 	$this->set_value($val, $this->options[WIDGET_PROGRESSBAR]);
+    }
+
+   function set_widget_remove_logo($val) {
+	$val = ($val) ? 1 : 0;
+	$this->set_value($val, $this->options[WIDGET_REMOVE_LOGO_FOR_AD]);
     }
 
     /**

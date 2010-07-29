@@ -186,6 +186,7 @@ class transposh_plugin {
 	$parse->default_lang = $this->options->is_default_language($this->target_language);
 	$parse->is_edit_mode = $this->edit_mode;
 	$parse->is_auto_translate = $this->is_auto_translate_permitted();
+        $parse->allow_ad = $this->options->get_widget_remove_logo();
 	// TODO - check this!
 	if (stripos($_SERVER['REQUEST_URI'], '/feed/') !== FALSE) {
 	    logger("in feed!");
