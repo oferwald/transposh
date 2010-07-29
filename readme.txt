@@ -2,8 +2,8 @@
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
-Requires at least: 2.7
-Tested up to: 3.0
+Requires at least: 2.8
+Tested up to: 3.0.1
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -18,11 +18,12 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 * Multiple selection for widget appearances - with pluggable widgets
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
+* Use either Google Translate or MS Translate backends - 57 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags and titles
 * Translated languages are searchable
-* Fine grained control for advanced users
+* Buddypress integration
 
 ***Our goals:***
 
@@ -159,6 +160,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.6.0 =
+Much improved translation interface engine
 = 0.5.7 =
 Fix for critical bug in 0.5.6
 = 0.5.6 =
@@ -183,6 +186,16 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/07/29 - 0.6.0 =
+ * Support batch translate which makes translations faster
+ * No longer needs to load extra scripts for translations resulting in faster page loads
+ * MSN (bing) translator no longer requires a key, just enable this at will
+ * Transposh Google Proxy is now included to enable translation for Alpha level languages from Google (5 new languages supported)
+ * Allow removing of Transposh logo and backlink according to [terms](http://transposh.org/logoterms)
+ * Translate all now uses batch interface for faster operation, and may use both backends
+ * Translate all will not try to handle non-translatable languages (such as ones added manually)
+ * Fixed typo in settings page (thanks Rogelio)
+ * Fixed comment posting bounce to original language (thanks Marko)
 = 2010/07/11 - 0.5.7 =
  * Fix for critical bug in widget inclusion (thanks [dgrut](http://www.buyacomputer.info/))
 = 2010/07/11 - 0.5.6 =
@@ -323,7 +336,7 @@ This version allows sorting of languages within the widget
  * Fixed IE8 hover quirk in flags widget
  * Avoid translating admin pages (even if we can)
 = 2009/05/25 - 0.2.2 =
- * Fixed wrong handling of multy-byte chars as terminators (middle dots) which caused a regression bug
+ * Fixed wrong handling of multi-byte chars as terminators (middle dots) which caused a regression bug
 = 2009/05/21 - 0.2.1 =
  * Fixed unique breaking case in parser (style used within script and not properly terminated) (thanks again Fernanda)
  * Added language list mode to widget
