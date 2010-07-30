@@ -174,7 +174,7 @@
     function do_mass_ms_translate(batchtrans, callback) {
         var q = "[";
         $(batchtrans).each(function (i) {
-            q += '"' + escape(batchtrans[i]) + '",';
+            q += '"' + encodeURIComponent(batchtrans[i]) + '",';
         });
         q = q.slice(0, -1) + ']';
         $.ajax({
