@@ -106,7 +106,7 @@
     // perform ms translate of single phrase via jsonp
     function ms_trans(to_trans, callback) {
         $.ajax({
-            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + "&text=" + escape(to_trans),
+            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + "&text=" + encodeURIComponent(to_trans),
             dataType: "jsonp",
             jsonp: "oncomplete",
             success: callback
