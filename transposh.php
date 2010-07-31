@@ -134,7 +134,7 @@ class transposh_plugin {
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
 
         // buddypress compatability
-        add_filter('bp_uri', array(&$this, 'bp_uri_filter')); 
+        add_filter('bp_uri', array(&$this, 'bp_uri_filter'));
         add_filter('bp_get_activity_content_body', array(&$this, 'bp_get_activity_content_body'), 10, 2);
         add_action('bp_activity_after_save', array(&$this, 'bp_activity_after_save'));
         add_action('transposh_human_translation', array(&$this, 'transposh_buddypress_stream'), 10, 3);
@@ -313,6 +313,12 @@ class transposh_plugin {
         if (!$this->target_language)
                 $this->target_language = $this->options->get_default_language();
         logger("requested language: {$this->target_language}");
+
+        // make themes that support rtl - go rtl http://wordpress.tv/2010/05/01/yoav-farhi-right-to-left-themes-sf10
+        if (in_array($this->target_language, $GLOBALS['rtl_languages'])) {
+            global $wp_locale;
+            $wp_locale->text_direction = 'rtl';
+        }
 
         // we'll go into this code of redirection only if we have options that need it (and no bot is involved, for the non-cookie)  and this is not a special page or one that is refered by our site
         if (($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) &&
@@ -788,35 +794,34 @@ class transposh_plugin {
      * @param string $lang
      */
     function transposh_buddypress_stream($translation, $original, $lang) {
-	global $bp;
+        global $bp;
 
         // we must have buddypress...
-	if ( !function_exists( 'bp_activity_add' ) )
-		return false;
+        if (!function_exists('bp_activity_add')) return false;
 
         // we only log translation for logged on users
         if (!$bp->loggedin_user->id) return;
 
-	/* Because blog, comment, and blog post code execution happens before anything else
-	   we may need to manually instantiate the activity component globals */
-	if ( !$bp->activity && function_exists('bp_activity_setup_globals') )
-		bp_activity_setup_globals();
+        /* Because blog, comment, and blog post code execution happens before anything else
+          we may need to manually instantiate the activity component globals */
+        if (!$bp->activity && function_exists('bp_activity_setup_globals'))
+                bp_activity_setup_globals();
 
         // just got this from buddypress, changed action and content
-	$values = array(
-		'user_id' => $bp->loggedin_user->id,
-		'action' => sprintf(__('%s translated a pharse to %s with transposh:', 'buddypress'), bp_core_get_userlink($bp->loggedin_user->id),substr($GLOBALS['languages'][$lang],0,strpos($GLOBALS['languages'][$lang],','))),
-		'content' => "Original: <span class=\"no_translate\">$original</span>\nTranslation: <span class=\"no_translate\">$translation</span>",
-		'primary_link' => '',
-		'component' => $bp->blogs->id,
-		'type' => 'new_translation',
-		'item_id' => false,
-		'secondary_item_id' => false,
-		'recorded_time' => gmdate( "Y-m-d H:i:s" ),
-		'hide_sitewide' => false
-	);
+        $values = array(
+            'user_id' => $bp->loggedin_user->id,
+            'action' => sprintf(__('%s translated a pharse to %s with transposh:', 'buddypress'), bp_core_get_userlink($bp->loggedin_user->id), substr($GLOBALS['languages'][$lang], 0, strpos($GLOBALS['languages'][$lang], ','))),
+            'content' => "Original: <span class=\"no_translate\">$original</span>\nTranslation: <span class=\"no_translate\">$translation</span>",
+            'primary_link' => '',
+            'component' => $bp->blogs->id,
+            'type' => 'new_translation',
+            'item_id' => false,
+            'secondary_item_id' => false,
+            'recorded_time' => gmdate("Y-m-d H:i:s"),
+            'hide_sitewide' => false
+        );
 
-	return bp_activity_add($values);
+        return bp_activity_add($values);
     }
 
     /**
