@@ -35,16 +35,16 @@ function cleanup_url($url, $home_url, $remove_host = false) {
     //cleanup previous lang & edit parameter from url
 
     if (isset($parsedurl['query'])) {
-	$params = explode('&', $parsedurl['query']);
-	foreach ($params as $key => $param) {
-	    if (stripos($param, LANG_PARAM) === 0) unset($params[$key]);
-	    if (stripos($param, EDIT_PARAM) === 0) unset($params[$key]);
-	}
+        $params = explode('&', $parsedurl['query']);
+        foreach ($params as $key => $param) {
+            if (stripos($param, LANG_PARAM) === 0) unset($params[$key]);
+            if (stripos($param, EDIT_PARAM) === 0) unset($params[$key]);
+        }
     }
     // clean the query
     unset($parsedurl['query']);
     if (isset($params) && $params) {
-	$parsedurl['query'] = implode('&', $params);
+        $parsedurl['query'] = implode('&', $params);
     }
 
     //cleanup lang identifier in permalinks
@@ -52,24 +52,24 @@ function cleanup_url($url, $home_url, $remove_host = false) {
     $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");
     logger("home: $home_path " . $parsedurl['path'], 5);
     if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
-	logger("homein!: $home_path", 5);
-	$parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
-	$gluebackhome = true;
+        logger("homein!: $home_path", 5);
+        $parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
+        $gluebackhome = true;
     }
 
     if (strlen($parsedurl['path']) > 2) {
-	$secondslashpos = strpos($parsedurl['path'], "/", 1);
-	if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
-	$prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
-	if (isset($GLOBALS['languages'][$prevlang])) {
-	    logger("prevlang: " . $prevlang, 4);
-	    $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
-	}
+        $secondslashpos = strpos($parsedurl['path'], "/", 1);
+        if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+        $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
+        if (isset($GLOBALS['languages'][$prevlang])) {
+            logger("prevlang: " . $prevlang, 4);
+            $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
+        }
     }
     if ($gluebackhome) $parsedurl['path'] = $home_path . $parsedurl['path'];
     if ($remove_host) {
-	unset($parsedurl['scheme']);
-	unset($parsedurl['host']);
+        unset($parsedurl['scheme']);
+        unset($parsedurl['host']);
     }
     $url = glue_url($parsedurl);
     if (!$url) return '/';
@@ -94,16 +94,16 @@ function rewrite_url_lang_param($url, $home_url, $enable_permalinks_rewrite, $la
 
     // if we are dealing with some other url, we won't touch it!
     if (isset($parsedurl['host']) && !($parsedurl['host'] == parse_url($home_url, PHP_URL_HOST))) {
-	return $url;
+        return $url;
     }
 
     //remove prev lang and edit params - from query string - reserve other params
     if (isset($parsedurl['query'])) {
-	$params = explode('&', $parsedurl['query']);
-	foreach ($params as $key => $param) {
-	    if (stripos($param, LANG_PARAM) === 0) unset($params[$key]);
-	    if (stripos($param, EDIT_PARAM) === 0) unset($params[$key]);
-	}
+        $params = explode('&', $parsedurl['query']);
+        foreach ($params as $key => $param) {
+            if (stripos($param, LANG_PARAM) === 0) unset($params[$key]);
+            if (stripos($param, EDIT_PARAM) === 0) unset($params[$key]);
+        }
     }
     // clean the query
     unset($parsedurl['query']);
@@ -112,44 +112,44 @@ function rewrite_url_lang_param($url, $home_url, $enable_permalinks_rewrite, $la
     $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");
     logger("home: $home_path " . $parsedurl['path'], 5);
     if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
-	logger("homein!: $home_path", 5);
-	$parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
-	$gluebackhome = true;
+        logger("homein!: $home_path", 5);
+        $parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
+        $gluebackhome = true;
     }
     if (strlen($parsedurl['path']) > 2) {
-	$secondslashpos = strpos($parsedurl['path'], "/", 1);
-	if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
-	$prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
-	if (isset($GLOBALS['languages'][$prevlang])) {
-	    logger("prevlang: " . $prevlang, 4);
-	    $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
-	}
+        $secondslashpos = strpos($parsedurl['path'], "/", 1);
+        if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+        $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
+        if (isset($GLOBALS['languages'][$prevlang])) {
+            logger("prevlang: " . $prevlang, 4);
+            $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
+        }
     }
 
     // override the use only params - admin configured system to not touch permalinks
     if (!$enable_permalinks_rewrite) {
-	$use_params_only = TRUE;
+        $use_params_only = TRUE;
     }
 
     //$params ="";
     if ($is_edit) {
-	$params[edit] = EDIT_PARAM . '=1';
+        $params[edit] = EDIT_PARAM . '=1';
     }
 
     if ($use_params_only && $lang) {
-	$params['lang'] = LANG_PARAM . "=$lang";
+        $params['lang'] = LANG_PARAM . "=$lang";
     } else {
-	if ($lang) {
-	    if (!$parsedurl['path']) $parsedurl['path'] = "/";
-	    $parsedurl['path'] = "/" . $lang . $parsedurl['path'];
-	}
+        if ($lang) {
+            if (!$parsedurl['path']) $parsedurl['path'] = "/";
+            $parsedurl['path'] = "/" . $lang . $parsedurl['path'];
+        }
     }
     if ($gluebackhome) $parsedurl['path'] = $home_path . $parsedurl['path'];
 
     // insert params to url
     if (isset($params) && $params) {
-	$parsedurl['query'] = implode('&', $params);
-	logger("params: $params", 4);
+        $parsedurl['query'] = implode('&', $params);
+        logger("params: $params", 4);
     }
 
     // more cleanups
@@ -167,13 +167,13 @@ function get_language_from_url($url, $home_url) {
 
     //option 1, lanaguage is in the query ?lang=xx
     if (isset($parsedurl['query'])) {
-	$params = explode('&', $parsedurl['query']);
-	foreach ($params as $key => $param) {
-	    if (stripos($param, LANG_PARAM) === 0) {
-		$langa = explode("=", $params[$key]);
-		return ($langa[1]);
-	    }
-	}
+        $params = explode('&', $parsedurl['query']);
+        foreach ($params as $key => $param) {
+            if (stripos($param, LANG_PARAM) === 0) {
+                $langa = explode("=", $params[$key]);
+                return ($langa[1]);
+            }
+        }
     }
 
     // option 2, language is in permalink
@@ -183,19 +183,19 @@ function get_language_from_url($url, $home_url) {
 //    logger ("home: $home_path ".$parsedurl['path'],5);
     if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
 //        logger ("homein!: $home_path",5);
-	$parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
+        $parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
 //        $gluebackhome = true;
     }
 
     if (strlen($parsedurl['path']) > 2) {
-	$secondslashpos = strpos($parsedurl['path'], "/", 1);
-	if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
-	$prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
-	if (isset($GLOBALS['languages'][$prevlang])) {
-	    //logger ("prevlang: ".$prevlang,4);
-	    //$parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
-	    return $prevlang;
-	}
+        $secondslashpos = strpos($parsedurl['path'], "/", 1);
+        if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+        $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
+        if (isset($GLOBALS['languages'][$prevlang])) {
+            //logger ("prevlang: ".$prevlang,4);
+            //$parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
+            return $prevlang;
+        }
     }
     return false;
 }
@@ -207,7 +207,7 @@ function get_language_from_url($url, $home_url) {
  */
 function glue_url($parsed) {
     if (!is_array($parsed)) {
-	return false;
+        return false;
     }
 
     $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
@@ -216,8 +216,8 @@ function glue_url($parsed) {
     $uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
     if (isset($parsed['path'])) {
-	$uri .= ( substr($parsed['path'], 0, 1) == '/') ?
-		$parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
+        $uri .= ( substr($parsed['path'], 0, 1) == '/') ?
+                $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
     }
 
     $uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
@@ -253,22 +253,24 @@ function base64_url_decode($input) {
 function translate_url($href, $home_url, $target_language, $fetch_translation_func) {
     // todo - check query part... sanitize
     if (strpos($href, '?') !== false) {
-	list ($href, $querypart) = explode('?', $href);
-	$querypart = '?' . $querypart;
+        list ($href, $querypart) = explode('?', $href);
+        $querypart = '?' . $querypart;
     }
     $href = substr($href, strlen($home_url));
     $parts = explode('/', $href);
     foreach ($parts as $part) {
-	if (!$part) continue;
-	list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array($part, $target_language));
-	if ($translated_text) $url .= '/' . str_replace(' ', '-', $translated_text);
-	else {
-	    // now the same attempt with '-' replaced to ' '
-	    list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
-	    //logger ($part. ' '.str_replace('-', ' ', $part).' '.$translated_text);
-	    if ($translated_text) $url .= '/' . str_replace(' ', '-', $translated_text);
-	    else $url .= '/' . $part;
-	}
+        if (!$part) continue;
+        list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array($part, $target_language));
+        if ($translated_text)
+                $url .= '/' . str_replace(' ', '-', $translated_text);
+        else {
+            // now the same attempt with '-' replaced to ' '
+            list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
+            //logger ($part. ' '.str_replace('-', ' ', $part).' '.$translated_text);
+            if ($translated_text)
+                    $url .= '/' . str_replace(' ', '-', $translated_text);
+            else $url .= '/' . $part;
+        }
     }
     if (substr($href, strlen($href) - 1) == '/') $url.='/';
     return $home_url . $url . $querypart;
@@ -288,22 +290,25 @@ function get_original_url($href, $home_url, $target_language, $fetch_translation
     $url = (($pos = strpos($url, '?')) ? substr($url, 0, $pos) : $url);
     $parts = explode('/', $url);
     foreach ($parts as $part) {
-	if (!$part) continue;
-	// don't attempt for lang or numbers
-	if ($part == $target_language || is_numeric($part)) {
-	    $url2 .= '/' . $part;
-	    continue;
-	}
+        if (!$part) continue;
+        // don't attempt for lang or numbers
+        if ($part == $target_language || is_numeric($part)) {
+            $url2 .= '/' . $part;
+            continue;
+        }
 
-	$original_text = call_user_func_array($fetch_translation_func, array($part, $target_language));
-	if ($original_text)
-		$url2 .= '/' . strtolower(str_replace(' ', '-', $original_text)); //? CHECK
-	else {
-	    $original_text = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
-	    if ($original_text)
-		    $url2 .= '/' . strtolower(str_replace(' ', '-', $original_text)); //? CHECK
-	    else $url2 .= '/' . $part;
-	}
+        // we attempt to find an original text
+        $original_text = call_user_func_array($fetch_translation_func, array($part, $target_language));
+        if (!$original_text) {
+            // if the part has dashes we attempt to resolve original without them
+            if ($part != str_replace('-', ' ', $part)) {
+                $original_text = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
+            }
+        }
+        // we'll add it if we have it
+        if ($original_text)
+                $url2 .= '/' . strtolower(str_replace(' ', '-', $original_text));
+        else $url2 .= '/' . $part;
     }
     // TODO: Consider sanitize_title_with_dashes
     // TODO : need to handle params....
@@ -326,9 +331,9 @@ function get_original_url($href, $home_url, $target_language, $fetch_translation
  */
 function display_flag($path, $flag, $language, $css = false) {
     if (!$css) {
-	return "<img src=\"$path/$flag.png\" title=\"$language\" alt=\"$language\"/>";
+        return "<img src=\"$path/$flag.png\" title=\"$language\" alt=\"$language\"/>";
     } else {
-	return "<span title=\"$language\" class=\"trf trf-{$flag}\"></span>";
+        return "<span title=\"$language\" class=\"trf trf-{$flag}\"></span>";
     }
 }
 
@@ -343,7 +348,7 @@ function display_flag($path, $flag, $language, $css = false) {
 function prefered_language($available_languages, $default_lang="auto", $http_accept_language="auto") {
     // if $http_accept_language was left out, read it from the HTTP-Header
     if ($http_accept_language == "auto")
-	    $http_accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $http_accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 
     // standard  for HTTP_ACCEPT_LANGUAGE is defined under
     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
@@ -354,35 +359,35 @@ function prefered_language($available_languages, $default_lang="auto", $http_acc
     //    qvalue         = ( "0" [ "." 0*3DIGIT ] )
     //            | ( "1" [ "." 0*3("0") ] )
     preg_match_all("/([[:alpha:]]{1,8})(-([[:alpha:]|-]{1,8}))?" .
-	    "(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i",
-	    $http_accept_language, $hits, PREG_SET_ORDER);
+            "(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i",
+            $http_accept_language, $hits, PREG_SET_ORDER);
 
     // default language (in case of no hits) is the first in the array
     if ($default_lang == 'auto') $bestlang = $available_languages[0]; else
-	    $bestlang = $default_lang;
+            $bestlang = $default_lang;
     $bestqval = 0;
 
     foreach ($hits as $arr) {
-	// read data from the array of this hit
-	$langprefix = strtolower($arr[1]);
-	if (!empty($arr[3])) {
-	    $langrange = strtolower($arr[3]);
-	    $language = $langprefix . "-" . $langrange;
-	}
-	else $language = $langprefix;
-	$qvalue = 1.0;
-	if (!empty($arr[5])) $qvalue = floatval($arr[5]);
+        // read data from the array of this hit
+        $langprefix = strtolower($arr[1]);
+        if (!empty($arr[3])) {
+            $langrange = strtolower($arr[3]);
+            $language = $langprefix . "-" . $langrange;
+        }
+        else $language = $langprefix;
+        $qvalue = 1.0;
+        if (!empty($arr[5])) $qvalue = floatval($arr[5]);
 
-	// find q-maximal language
-	if (in_array($language, $available_languages) && ($qvalue > $bestqval)) {
-	    $bestlang = $language;
-	    $bestqval = $qvalue;
-	}
-	// if no direct hit, try the prefix only but decrease q-value by 10% (as http_negotiate_language does)
-	else if (in_array($languageprefix, $available_languages) && (($qvalue * 0.9) > $bestqval)) {
-	    $bestlang = $languageprefix;
-	    $bestqval = $qvalue * 0.9;
-	}
+        // find q-maximal language
+        if (in_array($language, $available_languages) && ($qvalue > $bestqval)) {
+            $bestlang = $language;
+            $bestqval = $qvalue;
+        }
+        // if no direct hit, try the prefix only but decrease q-value by 10% (as http_negotiate_language does)
+        else if (in_array($languageprefix, $available_languages) && (($qvalue * 0.9) > $bestqval)) {
+            $bestlang = $languageprefix;
+            $bestqval = $qvalue * 0.9;
+        }
     }
     return $bestlang;
 }
