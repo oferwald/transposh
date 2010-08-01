@@ -277,7 +277,7 @@
             // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
             // we'll translate if there's any candidate...?
             if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-            (possibly_translateable && (t_jp.google || t_jp.msn || t_jp.tgp)) {
+            (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.tgp)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 if (t_jp.progress) {
                     var loaduiandtranslate = function () {
