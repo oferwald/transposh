@@ -522,23 +522,30 @@ class transposh_plugin {
 
         wp_enqueue_script('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposh.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
         // true -> 1, false -> nothing
-        wp_localize_script('transposh', 't_jp', array(
+        $script_params = array(
             'post_url' => $this->post_url,
             'plugin_url' => $this->transposh_plugin_url,
-            'edit' => ($this->edit_mode ? 1 : ''),
-            //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
             'lang' => $this->target_language,
             //TODO - orig language?
             // those two options show if the script can support said engines
-            'msn' => (in_array($this->target_language, $GLOBALS['bing_languages']) ? 1 : ''),
-            'google' => (in_array($this->target_language, $GLOBALS['google_languages']) ? 1 : ''),
-            'tgp' => (function_exists('curl_init') && in_array($this->target_language, $GLOBALS['google_proxied_languages']) ? 1 : ''),
             'prefix' => SPAN_PREFIX,
-            //'msnkey' => $this->options->get_msn_key(),
-            'preferred' => $this->options->get_preferred_translator(),
-            'progress' => $this->edit_mode || $this->options->get_widget_progressbar() ? 1 : '')
+            'preferred' => $this->options->get_preferred_translator()
+                );
+        if ($this->edit_mode)
+            $script_params['edit'] = 1;
+        if (in_array($this->target_language, $GLOBALS['bing_languages']))
+            $script_params['msn'] = 1;
+        if (in_array($this->target_language, $GLOBALS['google_languages']))
+            $script_params['google'] = 1;
+        if (function_exists('curl_init') && in_array($this->target_language, $GLOBALS['google_proxied_languages']))
+            $script_params['tgp'] = 1;
+        if ($this->options->get_widget_progressbar())
+            $script_params['progress'] = 1;
+        if (!$this->options->get_enable_auto_translate())
+            $script_params['noauto'] = 1;
+        
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
-        );
+        wp_localize_script('transposh', 't_jp', $script_params);
         logger('Added transposh_js', 4);
     }
 
