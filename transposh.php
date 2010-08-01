@@ -847,14 +847,13 @@ class transposh_plugin {
      * @return $query
      */
     function request_filter($query) {
-        //We assume that we only need to handle pages that had a 404 error here, and only once?
-        if ($query['error'] == '404' && !$this->got_request) {
-            logger('404 - trying to find original url');
+        //We only do this once, and if we have a lang
+        $requri = $_SERVER['REQUEST_URI'];
+        $lang = get_language_from_url($requri, $this->home_url);
+        if ($lang && !$this->got_request) {
+            logger('Trying to find original url');
             $this->got_request = true;
             // the trick is to replace the URI and put it back afterwards
-            $requri = $_SERVER['REQUEST_URI'];
-            $lang = get_language_from_url($requri, $this->home_url);
-            if (!$lang) return $query;
             $_SERVER['REQUEST_URI'] = get_original_url($requri, '', $lang, array($this->database, 'fetch_original'));
             global $wp;
             $wp->parse_request();
