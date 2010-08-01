@@ -82,6 +82,8 @@ class transposh_plugin {
     private $admin_msg;
     /** @var string Saved search variables */
     private $search_s;
+    /** @var variable to make sure we only attempt to fix the url once, could have used remove_filter */
+    private $got_request = false;
 
     /**
      * class constructor
@@ -290,10 +292,10 @@ class transposh_plugin {
      * @return array Modified array
      */
     function parameter_queryvars($vars) {
-        logger('inside query vars', 5);
+        logger('inside query vars', 4);
         $vars[] = LANG_PARAM;
         $vars[] = EDIT_PARAM;
-        logger($vars, 5);
+        logger($vars, 4);
         return $vars;
     }
 
@@ -840,24 +842,27 @@ class transposh_plugin {
 
     /**
      * This function enables the correct parsing of translated URLs
-     * @global <type> $wp
-     * @param <type> $query
-     * @return <type>
+     * @global object $wp the wordpress global
+     * @param array $query
+     * @return $query
      */
     function request_filter($query) {
-        //no need to handle non-lang
-        if (!$query['lang']) return $query;
-
-        // the trick is to replace the URI and put it back afterwards
-        $oldRequestUri = $_SERVER['REQUEST_URI'];
-        $_SERVER['REQUEST_URI'] = get_original_url($_SERVER['REQUEST_URI'], '', $query['lang'], array($this->database, 'fetch_original'));
-        remove_filter('request', array(&$this, 'request_filter'));
-        global $wp;
-        $wp->parse_request();
-        $query = $wp->query_vars;
-        logger($query, 4);
-        $_SERVER['REQUEST_URI'] = $oldRequestUri;
-
+        //We assume that we only need to handle pages that had a 404 error here, and only once?
+        if ($query['error'] == '404' && !$this->got_request) {
+            logger('404 - trying to find original url');
+            $this->got_request = true;
+            // the trick is to replace the URI and put it back afterwards
+            $requri = $_SERVER['REQUEST_URI'];
+            $lang = get_language_from_url($requri, $this->home_url);
+            if (!$lang) return $query;
+            $_SERVER['REQUEST_URI'] = get_original_url($requri, '', $lang, array($this->database, 'fetch_original'));
+            global $wp;
+            $wp->parse_request();
+            $query = $wp->query_vars;
+            $_SERVER['REQUEST_URI'] = $requri;
+            logger('new query vars are');
+            logger($query);
+        }
         return $query;
     }
 
