@@ -1,7 +1,7 @@
 === Transposh - translation filter for wordpress ===
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
-Tags: translation, widget, filter, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
+Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.8
 Tested up to: 3.0.1
 Stable tag: %VERSION%
@@ -186,6 +186,12 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/08/01 - 0.6.1 =
+ * Makes themes that support RTL actually use that support
+ * Deeper integration with buddypress, support activity stream
+ * Fix for ms translate and non latin characters
+ * Fix rewrite urls and url translation issue when using custom structure (eg. when suffixed with .html) (thanks [claudio](http://www.kurageart.eu))
+ * Auto translation will not work in edit mode if auto translation is set to off
 = 2010/07/29 - 0.6.0 =
  * Support batch translate which makes translations faster
  * No longer needs to load extra scripts for translations resulting in faster page loads
