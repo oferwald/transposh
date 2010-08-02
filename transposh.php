@@ -165,7 +165,7 @@ class transposh_plugin {
      * @return string Modified page buffer
      */
     function process_page(&$buffer) {
-
+        logger('processing page hit with language:' . $this->target_language);
         $start_time = microtime(TRUE);
 
         // Refrain from touching the administrative interface and important pages
@@ -224,6 +224,13 @@ class transposh_plugin {
                 logger("enabling permalinks");
                 $this->enable_permalinks_rewrite = TRUE;
             }
+        }
+
+        // this is an ajax special case, currently crafted and tested on buddy press, lets hope this won't make hell break loose.
+        // it basically sets language based on referred when accessing wp-load.php (which is the way bp does ajax)
+        logger(substr($_SERVER['SCRIPT_FILENAME'], -11), 4);
+        if (substr($_SERVER['SCRIPT_FILENAME'], -11) == 'wp-load.php') {
+            $this->target_language = get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
         }
 
         //set the callback for translating the page when it's done
@@ -530,20 +537,19 @@ class transposh_plugin {
             // those two options show if the script can support said engines
             'prefix' => SPAN_PREFIX,
             'preferred' => $this->options->get_preferred_translator()
-                );
-        if ($this->edit_mode)
-            $script_params['edit'] = 1;
+        );
+        if ($this->edit_mode) $script_params['edit'] = 1;
         if (in_array($this->target_language, $GLOBALS['bing_languages']))
-            $script_params['msn'] = 1;
+                $script_params['msn'] = 1;
         if (in_array($this->target_language, $GLOBALS['google_languages']))
-            $script_params['google'] = 1;
+                $script_params['google'] = 1;
         if (function_exists('curl_init') && in_array($this->target_language, $GLOBALS['google_proxied_languages']))
-            $script_params['tgp'] = 1;
+                $script_params['tgp'] = 1;
         if ($this->options->get_widget_progressbar())
-            $script_params['progress'] = 1;
+                $script_params['progress'] = 1;
         if (!$this->options->get_enable_auto_translate())
-            $script_params['noauto'] = 1;
-        
+                $script_params['noauto'] = 1;
+
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
         logger('Added transposh_js', 4);
