@@ -376,12 +376,21 @@ class parser {
      * it currently also rewrites urls, and should consider if this is smart
      * @param simple_html_dom_node $node
      */
-    function translate_tagging($node, $level = 0) {
+    function translate_tagging($node, $level = 0, $lang = null) {
         $this->currentnode = $node;
         // we don't want to translate non-translatable classes
-        if (stripos($node->class, NO_TRANSLATE_CLASS) !== false ||
-                stripos($node->class, NO_TRANSLATE_CLASS_GOOGLE) !== false ||
-                strtolower($node->lang) === $this->lang) return;
+        if (stripos($node->class, NO_TRANSLATE_CLASS) !== false || stripos($node->class, NO_TRANSLATE_CLASS_GOOGLE) !== false)
+                return;
+
+        // the node lang is the current node lang or its parent lang
+        $lang = $node->lang ? $node->lang : $lang;
+        // we avoid processing if the node lang is the target lang, however - we recurse with that lang
+        if (strtolower($lang) === $this->lang) {
+            foreach ($node->nodes as $c) {
+                $this->translate_tagging($c, $level + 1, $lang);
+            }
+            return;
+        }
 
         if ($this->inselect && $level <= $this->inselect)
                 $this->inselect = false;
