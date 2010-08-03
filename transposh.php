@@ -135,6 +135,10 @@ class transposh_plugin {
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
 
+        // full post wrapping
+        add_filter('the_content', array(&$this, 'post_wrap'));
+        add_filter('the_title', array(&$this, 'post_wrap'));
+
         // buddypress compatability
         add_filter('bp_uri', array(&$this, 'bp_uri_filter'));
         add_filter('bp_get_activity_content_body', array(&$this, 'bp_get_activity_content_body'), 10, 2);
@@ -850,6 +854,21 @@ class transposh_plugin {
             $text = "<span lang =\"$comment_lang\">" . $text . "</span>";
         }
         logger("$comment_lang " . get_comment_ID(), 4);
+        return $text;
+    }
+
+    /**
+     * Modify posts and posts title to have language wrapping
+     * @global int $id the post id
+     * @param string $text the post text (or title text)
+     * @return string wrapped text
+     */
+    function post_wrap($text) {
+        global $id;
+        $lang = get_post_meta($id, 'tp_language',true);
+        if ($lang) {
+            $text = "<span lang =\"$lang\">" . $text . "</span>";
+        }
         return $text;
     }
 
