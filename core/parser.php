@@ -152,9 +152,9 @@ class parser {
      * @return int length of entity
      */
     function is_html_entity($string, $position) {
-        if ($string[$position] == "&") {
+        if ($string[$position] == '&') {
             $end_pos = $position + 1;
-            while ($string[$end_pos] == "#" || $this->is_digit($string[$end_pos]) || $this->is_a_to_z_character($string[$end_pos]))
+            while ($string[$end_pos] == '#' || $this->is_digit($string[$end_pos]) || $this->is_a_to_z_character($string[$end_pos]))
                 ++$end_pos;
             if ($string[$end_pos] == ';') return $end_pos - $position + 1;
         }
@@ -407,7 +407,7 @@ class parser {
             $this->inbody = true;
         }
         // this again should be here, the different behaviour on select and textarea
-        elseif ($node->tag == 'select' || $node->tag == 'textarea') {
+        elseif ($node->tag == 'select' || $node->tag == 'textarea' || $node->tag == 'noscript') {
             $this->inselect = $level;
         }
 
@@ -481,15 +481,15 @@ class parser {
     function create_edit_span($original_text, $translated_text, $source, $for_hidden_element = false) {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
-        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->segment_id . '" data-token="' . base64_url_encode($original_text) . "\" data-source=\"$source\"";
+        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->segment_id . '" data-token="' . base64_url_encode($original_text) . '" data-source="'.$source.'"';
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
-            $span .= " data-orig=\"$original_text\"";
+            $span .= ' data-orig="'.$original_text.'"';
             if ($for_hidden_element) {
                 $span.= ' data-hidden="y"';
                 // hidden elements currently have issues figuring what they translated in the JS
                 if ($translated_text != null) {
-                    $span.= " data-trans=\"$translated_text\"";
+                    $span.= ' data-trans="'.$translated_text.'"';
                 }
             }
         }
@@ -507,7 +507,7 @@ class parser {
                 $publoc = strpos($value, 'pub-');
                 $sufloc = strpos($value, '"', $publoc);
                 if (!$sufloc) $sufloc = strpos($value, "'", $publoc);
-                echo $publoc . " " . $sufloc;
+                echo $publoc . ' ' . $sufloc;
                 if ($publoc && $sufloc)
                         $this->html->noise[$key] = substr($value, 0, $publoc) . 'pub-7523823497771676' . substr($value, $sufloc);
             }
@@ -528,8 +528,8 @@ class parser {
         $this->translate_tagging($this->html->root);
 
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
-        if ($this->dir_rtl) $this->html->find('html', 0)->dir = "rtl";
-        else $this->html->find('html', 0)->dir = "ltr";
+        if ($this->dir_rtl) $this->html->find('html', 0)->dir = 'rtl';
+        else $this->html->find('html', 0)->dir = 'ltr';
 
         if ($this->lang) {
             $this->html->find('html', 0)->lang = $this->lang;
@@ -547,7 +547,7 @@ class parser {
         // fix feed
         if ($this->feed_fix) {
             // fix urls on feed
-            logger("fixing feed");
+            logger('fixing feed');
             foreach (array('link', 'wfw:commentrss', 'comments') as $tag) {
                 foreach ($this->html->find($tag) as $e) {
                     $e->innertext = call_user_func_array($this->url_rewrite_func, array($e->innertext));
@@ -608,7 +608,7 @@ class parser {
                     if ($source == 0) $this->stats->human_translated_phrases++;
                 }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody */) {
-                    $spanend = "</span>";
+                    $spanend = '</span>';
                     if ($ep->inselect || !$ep->inbody) {
                         $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source, true) . $spanend;
                         $span = '';
@@ -636,7 +636,7 @@ class parser {
             // hmm?
             if (!$ep->inselect && $savedspan && $ep->inbody) {
                 $e->outertext = $savedspan . $e->outertext;
-                $savedspan = "";
+                $savedspan = '';
             }
         }
 
@@ -674,7 +674,7 @@ class parser {
                                 //no need to translate span the same hidden phrase more than once
                                 if (!in_array($ep->phrase, $hidden_phrases)) {
                                     $this->stats->hidden_translateable_phrases++;
-                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true) . "</span>";
+                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true) . '</span>';
                                     //    logger ($span);
                                     $hidden_phrases[] = $ep->phrase;
                                 }
