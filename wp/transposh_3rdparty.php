@@ -32,12 +32,6 @@ class transposh_3rdparty {
      */
     function transposh_3rdparty(&$transposh) {
         $this->transposh = &$transposh;
-        // we'll only do something if so configured to do
-        if ($this->transposh->options->get_enable_auto_post_translate()) {
-            add_action('edit_post', array(&$this, 'on_edit'));
-            // add_action('publish_post',array(&$this, 'on_publish'));
-            add_action('admin_menu', array(&$this, 'on_admin_menu'));
-        }
 
         // supercache invalidation of pages - first lets find if supercache is here
         if (function_exists('wp_super_cache_init')) {
