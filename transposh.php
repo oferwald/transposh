@@ -45,6 +45,7 @@ require_once("wp/transposh_admin.php");
 require_once("wp/transposh_options.php");
 require_once("wp/transposh_postpublish.php");
 require_once("wp/transposh_backup.php");
+require_once("wp/transposh_3rdparty.php");
 
 /**
  * This class represents the complete plugin
@@ -62,6 +63,8 @@ class transposh_plugin {
     public $database;
     /** @var transposh_postpublish Happens after editing */
     public $postpublish;
+    /** @var transposh_3rdparty Happens after editing */
+    private $third_party;
 
     // list of properties
     /** @var string The site url */
@@ -95,6 +98,7 @@ class transposh_plugin {
         $this->admin = new transposh_plugin_admin($this);
         $this->widget = new transposh_plugin_widget($this);
         $this->postpublish = new transposh_postpublish($this);
+        $this->third_party = new transposh_3rdparty($this);
 
         // "global" vars
         $this->home_url = get_option('home');
@@ -131,7 +135,6 @@ class transposh_plugin {
         add_action('wp_print_styles', array(&$this, 'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this, 'add_transposh_js'));
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
-        add_action("sm_addurl", array(&$this, 'add_sm_transposh_urls'));
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
 
@@ -139,14 +142,12 @@ class transposh_plugin {
         add_filter('the_content', array(&$this, 'post_wrap'));
         add_filter('the_title', array(&$this, 'post_wrap'));
 
-        // buddypress compatability
-        add_filter('bp_uri', array(&$this, 'bp_uri_filter'));
-        add_filter('bp_get_activity_content_body', array(&$this, 'bp_get_activity_content_body'), 10, 2);
-        add_action('bp_activity_after_save', array(&$this, 'bp_activity_after_save'));
-        add_action('transposh_human_translation', array(&$this, 'transposh_buddypress_stream'), 10, 3);
-
         //TODO add_action('manage_comments_nav', array(&$this,'manage_comments_nav'));
         //TODO comment_row_actions (filter)
+        // toying around the mo/po stuff
+        add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 3);
+        add_filter('locale', array(&$this, 'transposh_locale_filter'));
+
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
@@ -705,35 +706,6 @@ class transposh_plugin {
     }
 
     /**
-     * This function integrates with google sitemap generator, and adds for each viewable language, the rest of the languages url
-     * Also - priority is reduced by 0.2
-     * And this requires the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
-     * do_action('sm_addurl', &$page);
-     * @param GoogleSitemapGeneratorPage $sm_page Object containing the page information
-     */
-    function add_sm_transposh_urls(&$sm_page) {
-        logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority());
-        // we need the generator object (we know it must exist...)
-        $generatorObject = &GoogleSitemapGenerator::GetInstance();
-        // we reduce the priorty by 0.2, but not below zero
-        $sm_page->SetProprity(max($sm_page->GetPriority() - 0.2, 0));
-
-        $viewable_langs = explode(',', $this->options->get_viewable_langs());
-        $orig_url = $sm_page->GetUrl();
-        foreach ($viewable_langs as $lang) {
-            if (!$this->options->is_default_language($lang)) {
-                $newloc = $orig_url;
-                if ($this->options->get_enable_url_translate()) {
-                    $newloc = translate_url($newloc, $this->home_url, $lang, array(&$this->database, 'fetch_translation'));
-                }
-                $newloc = rewrite_url_lang_param($newloc, $this->home_url, $this->enable_permalinks_rewrite, $lang, false);
-                $sm_page->SetUrl($newloc);
-                $generatorObject->AddElement($sm_page);
-            }
-        }
-    }
-
-    /**
      * Runs a scheduled backup
      */
     function run_backup() {
@@ -765,84 +737,6 @@ class transposh_plugin {
         }
         return $url;
     }
-
-    /**
-     * This filter method helps buddypress understand the transposh generated URLs
-     * @param string $uri The url that was originally received
-     * @return string The url that buddypress should see
-     */
-    function bp_uri_filter($uri) {
-        $lang = get_language_from_url($uri, $this->home_url);
-        $uri = cleanup_url($uri, $this->home_url);
-        if ($this->options->get_enable_url_translate()) {
-            $uri = get_original_url($uri, '', $lang, array($this->database, 'fetch_original'));
-        }
-        return $uri;
-    }
-
-    /**
-     * After saving action, makes sure activity has proper language
-     * @param BP_Activity_Activity $params
-     */
-    function bp_activity_after_save($params) {
-        // we don't need to modify our own activity stream
-        if ($params->type == 'new_translation') return;
-        if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url))
-                bp_activity_update_meta($params->id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url));
-    }
-
-    /**
-     * Change the display of activity content using the transposh meta
-     * @param string $content
-     * @param BP_Activity_Activity $activity
-     * @return string modified content
-     */
-    function bp_get_activity_content_body($content, $activity) {
-        $activity_lang = bp_activity_get_meta($activity->id, 'tp_language');
-        if ($activity_lang) {
-            $content = "<span lang =\"$activity_lang\">" . $content . "</span>";
-        }
-        return $content;
-    }
-
-    /**
-     * Add an item to the activity string upon translation
-     * @global object $bp the global buddypress
-     * @param string $translation
-     * @param string $original
-     * @param string $lang
-     */
-    function transposh_buddypress_stream($translation, $original, $lang) {
-        global $bp;
-
-        // we must have buddypress...
-        if (!function_exists('bp_activity_add')) return false;
-
-        // we only log translation for logged on users
-        if (!$bp->loggedin_user->id) return;
-
-        /* Because blog, comment, and blog post code execution happens before anything else
-          we may need to manually instantiate the activity component globals */
-        if (!$bp->activity && function_exists('bp_activity_setup_globals'))
-                bp_activity_setup_globals();
-
-        // just got this from buddypress, changed action and content
-        $values = array(
-            'user_id' => $bp->loggedin_user->id,
-            'action' => sprintf(__('%s translated a pharse to %s with transposh:', 'buddypress'), bp_core_get_userlink($bp->loggedin_user->id), substr($GLOBALS['languages'][$lang], 0, strpos($GLOBALS['languages'][$lang], ','))),
-            'content' => "Original: <span class=\"no_translate\">$original</span>\nTranslation: <span class=\"no_translate\">$translation</span>",
-            'primary_link' => '',
-            'component' => $bp->blogs->id,
-            'type' => 'new_translation',
-            'item_id' => false,
-            'secondary_item_id' => false,
-            'recorded_time' => gmdate("Y-m-d H:i:s"),
-            'hide_sitewide' => false
-        );
-
-        return bp_activity_add($values);
-    }
-
     /**
      * Modify comments to include the relevant language span
      * @param string $text
@@ -866,9 +760,9 @@ class transposh_plugin {
     function post_wrap($text) {
         global $id;
         $lang = get_post_meta($id, 'tp_language',true);
-        if ($lang) {
-            $text = "<span lang =\"$lang\">" . $text . "</span>";
-        }
+            if ($lang) {
+                $text = "<span lang =\"$lang\">" . $text . "</span>";
+            }
         return $text;
     }
 
@@ -895,6 +789,16 @@ class transposh_plugin {
             logger($query);
         }
         return $query;
+    }
+
+    function transposh_gettext_filter($a, $orig, $domain) {
+        //logger("$a $orig $domain");
+        return $a;
+    }
+
+    function transposh_locale_filter($locale) {
+        //logger($locale);
+        return $locale;
     }
 
 }

@@ -101,7 +101,7 @@ class transposh_postpublish {
         // Merge the two arrays for traversing
         $phrases = array_merge($phrases, $phrases2);
 
-        // Add pharses from permalink
+        // Add phrases from permalink
         if ($this->transposh->options->get_enable_url_translate()) {
             $permalink = get_permalink($postID);
             $permalink = substr($permalink, strlen($this->transposh->home_url) + 1);

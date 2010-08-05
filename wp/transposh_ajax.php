@@ -45,48 +45,8 @@ if (file_exists($root . $self . '/wp-load.php')) {
 }
 //  the case of posted translation
 if (isset($_POST['translation_posted'])) {
-    // supercache invalidation of pages - first lets find if supercache is here
-    if (function_exists('wp_super_cache_init')) {
-        //Now, we are actually using the referrer and not the request, with some precautions
-        $GLOBALS['wp_cache_request_uri'] = substr($_SERVER['HTTP_REFERER'], stripos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) + strlen($_SERVER[''] . $_SERVER['HTTP_HOST']));
-        $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace('/index.php', '/', str_replace('..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri']))));
-        // get some supercache variables
-        extract(wp_super_cache_init());
-        logger(wp_super_cache_init());
-        // this is hackery for logged in users, a cookie is added to the request somehow and gzip is not correctly set, so we forcefully fix this
-        if (!$cache_file) {
-            $GLOBALS['wp_cache_gzip_encoding'] = gzip_accepted();
-            unset($_COOKIE[key($_COOKIE)]);
-            extract(wp_super_cache_init());
-            logger(wp_super_cache_init());
-        }
-
-        $dir = get_current_url_supercache_dir();
-        // delete possible files that we can figure out, not deleting files for other cookies for example, but will do the trick in most cases
-        $cache_fname = "{$dir}index.html";
-        logger("attempting delete of supercache: $cache_fname");
-        @unlink($cache_fname);
-        $cache_fname = "{$dir}index.html.gz";
-        logger("attempting delete of supercache: $cache_fname");
-        @unlink($cache_fname);
-        logger("attempting delete of wp_cache: $cache_file");
-        @unlink($cache_file);
-        logger("attempting delete of wp_cache_meta: $meta_pathname");
-        @unlink($meta_pathname);
-
-        // go at edit pages too
-        $GLOBALS['wp_cache_request_uri'] .="?edit=1";
-        extract(wp_super_cache_init());
-        logger(wp_super_cache_init());
-        logger("attempting delete of edit_wp_cache: $cache_file");
-        @unlink($cache_file);
-        logger("attempting delete of edit_wp_cache_meta: $meta_pathname");
-        @unlink($meta_pathname);
-    }
-
-    if ($_POST['translation_posted'] == 2) {
-        $my_transposh_plugin->database->update_translation();
-    }
+    do_action('transposh_translation_posted');
+    $my_transposh_plugin->database->update_translation();
 }
 // getting translation history
 elseif (isset($_GET['tr_token_hist'])) {
@@ -123,7 +83,8 @@ elseif (isset($_GET['tgp'])) {
     // we need curl for this proxy
     if (!function_exists('curl_init')) return;
     // we want to avoid unneeded work or dos attacks on languages we don't support
-    if (!in_array($_GET['tgl'], $google_proxied_languages) || !$my_transposh_plugin->options->is_editable_language($_GET['tgl'])) return;
+    if (!in_array($_GET['tgl'], $google_proxied_languages) || !$my_transposh_plugin->options->is_editable_language($_GET['tgl']))
+            return;
     $url = 'http://translate.google.com/translate_a/t?client=a&text=' . urlencode($_GET['tgp']) . '&tl=' . $_GET['tgl'] . '&sl=auto';
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);

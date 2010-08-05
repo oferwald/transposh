@@ -279,9 +279,9 @@ class parser {
     }
 
     /**
-     * Create a pharse tag in the html dom tree
-     * @param int $start - beginning of pharse in element
-     * @param int $end - end of pharse in element
+     * Create a phrase tag in the html dom tree
+     * @param int $start - beginning of phrase in element
+     * @param int $end - end of phrase in element
      */
     function tag_phrase($string, $start, $end) {
         $phrase = trim(substr($string, $start, $end - $start));
