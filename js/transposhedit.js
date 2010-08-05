@@ -85,7 +85,7 @@
     function google_trans(to_trans, callback) {
         $.ajax({
             url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-            '?v=1.0&q=' + escape(to_trans) + '&langpair=%7C' + t_jp.lang,
+            '?v=1.0&q=' + encodeURIComponent(to_trans) + '&langpair=%7C' + t_jp.lang,
             dataType: "jsonp",
             success: callback
         });

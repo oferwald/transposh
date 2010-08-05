@@ -142,7 +142,7 @@
     function do_mass_google_translate(batchtrans, callback) {
         var q = '';
         $(batchtrans).each(function (i) {
-            q += '&q=' + escape(batchtrans[i]);
+            q += '&q=' + encodeURIComponent(batchtrans[i]);
         });
         $.ajax({
             url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
@@ -266,7 +266,7 @@
                 return false;
             });
 
-            // how many pharses are yet untranslated
+            // how many phrases are yet untranslated
             possibly_translateable = $("." + t_jp_prefix + '[data-source=""]').size();
 
             //now = new Date();
