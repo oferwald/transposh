@@ -123,7 +123,7 @@ function do_mass_google_translate_l(tran, langs,  callback) {
 
     jQuery.ajax({
         url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-        '?v=1.0&q=' + escape(tran) + langpairs,
+        '?v=1.0&q=' + encodeURIComponent(tran) + langpairs,
         dataType: "jsonp",
         success: callback
     });
