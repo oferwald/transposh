@@ -109,7 +109,7 @@ class transposh_postpublish {
             foreach ($parts as $part) {
                 if (!$part || is_numeric($part)) continue;
                 $part = str_replace('-', ' ', $part);
-                $phrases[] = $part;
+                $phrases[] = urldecode($part);
             }
         }
 
