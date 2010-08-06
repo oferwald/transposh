@@ -198,7 +198,7 @@ class transposh_plugin {
         $parse->fetch_translate_func = array(&$this->database, 'fetch_translation');
         $parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
         $parse->url_rewrite_func = array(&$this, 'rewrite_url');
-        $parse->dir_rtl = (in_array($this->target_language, $GLOBALS['rtl_languages']));
+        $parse->dir_rtl = (in_array($this->target_language, transposh_consts::$rtl_languages));
         $parse->lang = $this->target_language;
         $parse->default_lang = $this->options->is_default_language($this->target_language);
         $parse->is_edit_mode = $this->edit_mode;
@@ -238,7 +238,7 @@ class transposh_plugin {
         // it basically sets language based on referred when accessing wp-load.php (which is the way bp does ajax)
         logger(substr($_SERVER['SCRIPT_FILENAME'], -11), 4);
         if (substr($_SERVER['SCRIPT_FILENAME'], -11) == 'wp-load.php') {
-            $this->target_language = get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
         }
 
         //set the callback for translating the page when it's done
@@ -332,7 +332,7 @@ class transposh_plugin {
         logger("requested language: {$this->target_language}");
 
         // make themes that support rtl - go rtl http://wordpress.tv/2010/05/01/yoav-farhi-right-to-left-themes-sf10
-        if (in_array($this->target_language, $GLOBALS['rtl_languages'])) {
+        if (in_array($this->target_language, transposh_consts::$rtl_languages)) {
             global $wp_locale;
             $wp_locale->text_direction = 'rtl';
         }
@@ -350,20 +350,20 @@ class transposh_plugin {
                 // redirect according to stored lng cookie, and than according to detection
                 if (isset($_COOKIE['TR_LNG']) && $this->options->get_widget_allow_set_default_language()) {
                     if ($_COOKIE['TR_LNG'] != $this->target_language) {
-                        $url = rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'], $this->edit_mode);
+                        $url = transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'], $this->edit_mode);
                         if ($this->options->is_default_language($_COOKIE['TR_LNG']))
-                                $url = cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
+                                $url = transposh_utils::cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
                         logger("redirected to $url because of cookie", 4);
                         wp_redirect($url);
                         exit;
                     }
                 } else {
-                    $bestlang = prefered_language(explode(',', $this->options->get_viewable_langs()), $this->options->get_default_language());
+                    $bestlang = transposh_utils::prefered_language(explode(',', $this->options->get_viewable_langs()), $this->options->get_default_language());
                     // we won't redirect if we should not, or this is a presumable bot
                     if ($bestlang && $bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
-                        $url = rewrite_url_lang_param($_SERVER['REQUEST_URI'], $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
+                        $url = transposh_utils::rewrite_url_lang_param($_SERVER['REQUEST_URI'], $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
                         if ($this->options->is_default_language($bestlang))
-                                $url = cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
+                                $url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
                         logger("redirected to $url because of bestlang", 4);
                         wp_redirect($url);
                         exit;
@@ -380,8 +380,8 @@ class transposh_plugin {
                 add_action('pre_get_posts', array(&$this, 'pre_post_search'));
                 add_action('posts_where_request', array(&$this, 'posts_where_request'));
             }
-            if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url) && !get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url)) {
-                wp_redirect(rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), false)); //."&stop=y");
+            if (transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url) && !transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url)) {
+                wp_redirect(transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), false)); //."&stop=y");
                 exit;
             }
         }
@@ -547,11 +547,11 @@ class transposh_plugin {
             'preferred' => $this->options->get_preferred_translator()
         );
         if ($this->edit_mode) $script_params['edit'] = 1;
-        if (in_array($this->target_language, $GLOBALS['bing_languages']))
+        if (in_array($this->target_language, transposh_consts::$bing_languages))
                 $script_params['msn'] = 1;
-        if (in_array($this->target_language, $GLOBALS['google_languages']))
+        if (in_array($this->target_language, transposh_consts::$google_languages))
                 $script_params['google'] = 1;
-        if (function_exists('curl_init') && in_array($this->target_language, $GLOBALS['google_proxied_languages']))
+        if (function_exists('curl_init') && in_array($this->target_language, transposh_consts::$google_proxied_languages))
                 $script_params['tgp'] = 1;
         if ($this->options->get_widget_progressbar())
                 $script_params['progress'] = 1;
@@ -626,9 +626,9 @@ class transposh_plugin {
         // some hackery needed for url translations
         // first cut home
         if ($this->options->get_enable_url_translate()) {
-            $href = translate_url($href, $this->home_url, $this->target_language, array(&$this->database, 'fetch_translation'));
+            $href = transposh_utils::translate_url($href, $this->home_url, $this->target_language, array(&$this->database, 'fetch_translation'));
         }
-        $href = rewrite_url_lang_param($href, $this->home_url, $this->enable_permalinks_rewrite, $this->target_language, $this->edit_mode, $use_params);
+        $href = transposh_utils::rewrite_url_lang_param($href, $this->home_url, $this->enable_permalinks_rewrite, $this->target_language, $this->edit_mode, $use_params);
         logger("rewritten: $href", 4);
         return $href;
     }
@@ -723,8 +723,8 @@ class transposh_plugin {
      * @param int $post_id
      */
     function add_comment_meta_settings($post_id) {
-        if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url))
-                add_comment_meta($post_id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), true);
+        if (transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url))
+                add_comment_meta($post_id, 'tp_language', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), true);
     }
 
     /**
@@ -734,9 +734,9 @@ class transposh_plugin {
      * @return string fixed url
      */
     function comment_post_redirect_filter($url) {
-        $lang = get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+        $lang = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
         if ($lang) {
-            $url = rewrite_url_lang_param($url, $this->home_url, $this->enable_permalinks_rewrite, $lang, $this->edit_mode);
+            $url = transposh_utils::rewrite_url_lang_param($url, $this->home_url, $this->enable_permalinks_rewrite, $lang, $this->edit_mode);
         }
         return $url;
     }
@@ -765,12 +765,11 @@ class transposh_plugin {
         global $id;
         $lang = get_post_meta($id, 'tp_language', true);
         if ($lang) {
-            logger($_SERVER['REQUEST_URI']);
             if (strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit') !== false) {
                 logger('iamhere?' . strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit'));
                 $plugpath = parse_url($this->transposh_plugin_url, PHP_URL_PATH);
-                list($langeng, $langorig, $langflag) = explode(',', $GLOBALS['languages'][$lang]);
-                $text = display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
+                list($langeng, $langorig, $langflag) = explode(',', transposh_consts::$languages[$lang]);
+                $text = transposh_utils::display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
             } else {
                 $text = "<span lang =\"$lang\">" . $text . "</span>";
             }
@@ -787,12 +786,12 @@ class transposh_plugin {
     function request_filter($query) {
         //We only do this once, and if we have a lang
         $requri = $_SERVER['REQUEST_URI'];
-        $lang = get_language_from_url($requri, $this->home_url);
+        $lang = transposh_utils::get_language_from_url($requri, $this->home_url);
         if ($lang && !$this->got_request) {
             logger('Trying to find original url');
             $this->got_request = true;
             // the trick is to replace the URI and put it back afterwards
-            $_SERVER['REQUEST_URI'] = get_original_url($requri, '', $lang, array($this->database, 'fetch_original'));
+            $_SERVER['REQUEST_URI'] = transposh_utils::get_original_url($requri, '', $lang, array($this->database, 'fetch_original'));
             global $wp;
             $wp->parse_request();
             $query = $wp->query_vars;

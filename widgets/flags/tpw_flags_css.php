@@ -43,7 +43,7 @@ function tp_widget_do($args) {
     echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
     foreach ($args as $langrecord) {
 	echo "<a href=\"{$langrecord['url']}\"" . ($langrecord['active'] ? ' class="tr_active"' : '' ) . '>' .
-	display_flag("", $langrecord['flag'], $langrecord['langorig'], true) .
+	transposh_utils::display_flag("", $langrecord['flag'], $langrecord['langorig'], true) .
 	"</a>";
     }
     echo "</div>";

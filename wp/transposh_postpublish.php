@@ -62,7 +62,7 @@ class transposh_postpublish {
                 'post_url' => $this->transposh->post_url,
                 'post' => $_GET['post'],
                 'preferred' => $this->transposh->options->get_preferred_translator(),
-                'l10n_print_after' => 't_jp.g_langs = ' . json_encode($GLOBALS['google_languages']) . '; t_jp.m_langs = ' . json_encode($GLOBALS['bing_languages']) . ';'/*
+                'l10n_print_after' => 't_jp.g_langs = ' . json_encode(transposh_consts::$google_languages) . '; t_jp.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';'/*
                       'plugin_url' => $this->transposh_plugin_url,
                       'edit' => ($this->edit_mode? '1' : ''),
                       //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
@@ -119,7 +119,7 @@ class transposh_postpublish {
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->get_enable_default_translate()) {
                     // There is no point in returning phrases, languages pairs  that cannot be translated
-                    if (in_array($lang, $GLOBALS['bing_languages']) || in_array($lang, $GLOBALS['google_languages'])) {
+                    if (in_array($lang, transposh_consts::$bing_languages) || in_array($lang, transposh_consts::$google_languages)) {
                         list($translation, $source) = $this->transposh->database->fetch_translation($key, $lang);
                         if (!$translation) {
                             // p stands for phrases, l stands for languages, t is token
@@ -133,7 +133,7 @@ class transposh_postpublish {
             }
             // only if a languages list was created we'll need to translate this
             if (is_array($json['p'][$key]['l'])) {
-                $json['p'][$key]['t'] = base64_url_encode($key);
+                $json['p'][$key]['t'] = transposh_utils::base64_url_encode($key);
                 $json['length']++;
             }
         }

@@ -58,12 +58,12 @@ elseif (isset($_GET['tr_phrases_post'])) {
 }
 // set the cookie with ajax, no redirect needed
 elseif (isset($_GET['tr_cookie'])) {
-    setcookie('TR_LNG', get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url), time() + 90 * 24 * 60 * 60, COOKIEPATH, COOKIE_DOMAIN);
-    logger('Cookie ' . get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url));
+    setcookie('TR_LNG', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url), time() + 90 * 24 * 60 * 60, COOKIEPATH, COOKIE_DOMAIN);
+    logger('Cookie ' . transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url));
 }
 // Set our cookie and return (if no js works - or we are in the default language)
 elseif (isset($_GET['tr_cookie_bck'])) {
-    setcookie('TR_LNG', get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url), time() + 90 * 24 * 60 * 60, COOKIEPATH, COOKIE_DOMAIN);
+    setcookie('TR_LNG', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url), time() + 90 * 24 * 60 * 60, COOKIEPATH, COOKIE_DOMAIN);
     if ($_SERVER['HTTP_REFERER']) {
         wp_redirect($_SERVER['HTTP_REFERER']);
     } else {

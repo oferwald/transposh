@@ -31,82 +31,88 @@ define('NO_TRANSLATE_CLASS', 'no_translate');
 define('NO_TRANSLATE_CLASS_GOOGLE', 'notranslate');
 define('ONLY_THISLANGUAGE_CLASS', 'only_thislanguage');
 
+/**
+ * Holds our arrays staticly to reduce chance of namespace collision
+ */
+class transposh_consts {
+
 //Supported languages, new languages can be added here
 //the array directs from language code to - English Name, Native name, flag
-$languages = array(
-    'en' => 'English,English,us',
-    'af' => 'Afrikaans,Afrikaans,za',
-    'sq' => 'Albanian,Shqip,al',
-    'ar' => 'Arabic,العربية,sa',
-    'hy' => 'Armenian,Հայերեն,am',
-    'az' => 'Azerbaijani,azərbaycan dili,az',
-    'eu' => 'Basque,euskara,basque',
-    'be' => 'Belarusian,Беларуская,by',
-    'bg' => 'Bulgarian,Български,bg',
-    'ca' => 'Catalan,Català,catalonia',
-    'zh' => 'Chinese (Simplified),中文(简体),cn',
-    'zh-tw' => 'Chinese (Traditional),中文(漢字),tw',
-    'hr' => 'Croatian,Hrvatski,hr',
-    'cs' => 'Czech,čeština,cz',
-    'da' => 'Danish,dansk,dk',
-    'nl' => 'Dutch,Nederlands,nl',
-    'et' => 'Estonian,Eesti keel,ee',
-    'fi' => 'Finnish,Suomi,fi',
-    'fr' => 'French,Français,fr',
-    'gl' => 'Galician,Galego,galicia',
-    'ka' => 'Georgian,ქართული,ge',
-    'de' => 'German,Deutsch,de',
-    'el' => 'Greek,Ελληνικά,gr',
-    'ht' => 'Haitian,Kreyòl ayisyen,ht',
-    'he' => 'Hebrew,עברית,il',
-    'hi' => 'Hindi,हिन्दी; हिंदी,in',
-    'hu' => 'Hungarian,magyar,hu',
-    'is' => 'Icelandic,íslenska,is',
-    'id' => 'Indonesian,Bahasa Indonesia,id',
-    'ga' => 'Irish,Gaeilge,ie',
-    'it' => 'Italian,Italiano,it',
-    'ja' => 'Japanese,日本語,jp',
-    'ko' => 'Korean,우리말,kr',
-    'lv' => 'Latvian,latviešu valoda,lv',
-    'lt' => 'Lithuanian,lietuvių kalba,lt',
-    'mk' => 'Macedonian,македонски јазик,mk',
-    'ms' => 'Malay,bahasa Melayu,my',
-    'mt' => 'Maltese,Malti,mt',
-    'no' => 'Norwegian,Norsk,no',
-    'fa' => 'Persian,فارسی,ir',
-    'pl' => 'Polish,Polski,pl',
-    'pt' => 'Portuguese,Português,pt',
-    'ro' => 'Romanian,Română,ro',
-    'ru' => 'Russian,Русский,ru',
-    'sr' => 'Serbian,српски језик,rs',
-    'sk' => 'Slovak,slovenčina,sk',
-    'sl' => 'Slovene,slovenščina,sl', //slovenian
-    'es' => 'Spanish,Español,es',
-    'sw' => 'Swahili,Kiswahili,ke',
-    'sv' => 'Swedish,svenska,se',
-    'tl' => 'Tagalog,Tagalog,ph', // fhilipino
-    'th' => 'Thai,ภาษาไทย,th',
-    'tr' => 'Turkish,Türkçe,tr',
-    'uk' => 'Ukrainian,Українська,ua',
-    'ur' => 'Urdu,اردو,pk',
-    'vi' => 'Vietnamese,Tiếng Việt,vn',
-    'cy' => 'Welsh,Cymraeg,wales',
-    'yi' => 'Yiddish,ייִדיש,europeanunion'
-);
-
+    public static $languages = array(
+        'en' => 'English,English,us',
+        'af' => 'Afrikaans,Afrikaans,za',
+        'sq' => 'Albanian,Shqip,al',
+        'ar' => 'Arabic,العربية,sa',
+        'hy' => 'Armenian,Հայերեն,am',
+        'az' => 'Azerbaijani,azərbaycan dili,az',
+        'eu' => 'Basque,euskara,basque',
+        'be' => 'Belarusian,Беларуская,by',
+        'bg' => 'Bulgarian,Български,bg',
+        'ca' => 'Catalan,Català,catalonia',
+        'zh' => 'Chinese (Simplified),中文(简体),cn',
+        'zh-tw' => 'Chinese (Traditional),中文(漢字),tw',
+        'hr' => 'Croatian,Hrvatski,hr',
+        'cs' => 'Czech,čeština,cz',
+        'da' => 'Danish,dansk,dk',
+        'nl' => 'Dutch,Nederlands,nl',
+        'et' => 'Estonian,Eesti keel,ee',
+        'fi' => 'Finnish,Suomi,fi',
+        'fr' => 'French,Français,fr',
+        'gl' => 'Galician,Galego,galicia',
+        'ka' => 'Georgian,ქართული,ge',
+        'de' => 'German,Deutsch,de',
+        'el' => 'Greek,Ελληνικά,gr',
+        'ht' => 'Haitian,Kreyòl ayisyen,ht',
+        'he' => 'Hebrew,עברית,il',
+        'hi' => 'Hindi,हिन्दी; हिंदी,in',
+        'hu' => 'Hungarian,magyar,hu',
+        'is' => 'Icelandic,íslenska,is',
+        'id' => 'Indonesian,Bahasa Indonesia,id',
+        'ga' => 'Irish,Gaeilge,ie',
+        'it' => 'Italian,Italiano,it',
+        'ja' => 'Japanese,日本語,jp',
+        'ko' => 'Korean,우리말,kr',
+        'lv' => 'Latvian,latviešu valoda,lv',
+        'lt' => 'Lithuanian,lietuvių kalba,lt',
+        'mk' => 'Macedonian,македонски јазик,mk',
+        'ms' => 'Malay,bahasa Melayu,my',
+        'mt' => 'Maltese,Malti,mt',
+        'no' => 'Norwegian,Norsk,no',
+        'fa' => 'Persian,فارسی,ir',
+        'pl' => 'Polish,Polski,pl',
+        'pt' => 'Portuguese,Português,pt',
+        'ro' => 'Romanian,Română,ro',
+        'ru' => 'Russian,Русский,ru',
+        'sr' => 'Serbian,српски језик,rs',
+        'sk' => 'Slovak,slovenčina,sk',
+        'sl' => 'Slovene,slovenščina,sl', //slovenian
+        'es' => 'Spanish,Español,es',
+        'sw' => 'Swahili,Kiswahili,ke',
+        'sv' => 'Swedish,svenska,se',
+        'tl' => 'Tagalog,Tagalog,ph', // fhilipino
+        'th' => 'Thai,ภาษาไทย,th',
+        'tr' => 'Turkish,Türkçe,tr',
+        'uk' => 'Ukrainian,Українська,ua',
+        'ur' => 'Urdu,اردو,pk',
+        'vi' => 'Vietnamese,Tiếng Việt,vn',
+        'cy' => 'Welsh,Cymraeg,wales',
+        'yi' => 'Yiddish,ייִדיש,europeanunion'
+    );
 //Language which are read from right to left (rtl)
-$rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
-
+    public static $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
 //Google supported languages
 //(got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
 //@updated 2010-Jul-01 (hy,az,eu,ka,ur)
 //$google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
-$google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
-$google_proxied_languages = array('hy','az','eu','ka','ur');
+    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
+    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'ur');
 //Bing supported languages
 //(got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
 //@updated 2010-Jun-30
-$bing_languages = array('en', 'ar', 'bg', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hu', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr');
+    public static $bing_languages = array('en', 'ar', 'bg', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hu', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr');
+
+
+}
 
 //Define the new capability that will be assigned to roles - translator
 define('TRANSLATOR', 'translator');

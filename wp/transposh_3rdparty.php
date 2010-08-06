@@ -94,10 +94,10 @@ class transposh_3rdparty {
      * @return string The url that buddypress should see
      */
     function bp_uri_filter($uri) {
-        $lang = get_language_from_url($uri, $this->transposh->home_url);
-        $uri = cleanup_url($uri, $this->transposh->home_url);
+        $lang = transposh_utils::get_language_from_url($uri, $this->transposh->home_url);
+        $uri = transposh_utils::cleanup_url($uri, $this->transposh->home_url);
         if ($this->transposh->options->get_enable_url_translate()) {
-            $uri = get_original_url($uri, '', $lang, array($this->transposh->database, 'fetch_original'));
+            $uri = transposh_utils::get_original_url($uri, '', $lang, array($this->transposh->database, 'fetch_original'));
         }
         return $uri;
     }
@@ -109,8 +109,8 @@ class transposh_3rdparty {
     function bp_activity_after_save($params) {
         // we don't need to modify our own activity stream
         if ($params->type == 'new_translation') return;
-        if (get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url))
-                bp_activity_update_meta($params->id, 'tp_language', get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url));
+        if (transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url))
+                bp_activity_update_meta($params->id, 'tp_language', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url));
     }
 
     /**
@@ -151,7 +151,7 @@ class transposh_3rdparty {
         // just got this from buddypress, changed action and content
         $values = array(
             'user_id' => $bp->loggedin_user->id,
-            'action' => sprintf(__('%s translated a phrase to %s with transposh:', 'buddypress'), bp_core_get_userlink($bp->loggedin_user->id), substr($GLOBALS['languages'][$lang], 0, strpos($GLOBALS['languages'][$lang], ','))),
+            'action' => sprintf(__('%s translated a phrase to %s with transposh:', 'buddypress'), bp_core_get_userlink($bp->loggedin_user->id), substr(transposh_consts::$languages[$lang], 0, strpos(transposh_consts::$languages[$lang], ','))),
             'content' => "Original: <span class=\"no_translate\">$original</span>\nTranslation: <span class=\"no_translate\">$translation</span>",
             'primary_link' => '',
             'component' => $bp->blogs->id,
@@ -185,9 +185,9 @@ class transposh_3rdparty {
             if (!$this->transposh->options->is_default_language($lang)) {
                 $newloc = $orig_url;
                 if ($this->transposh->options->get_enable_url_translate()) {
-                    $newloc = translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
+                    $newloc = transposh_utils::translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
                 }
-                $newloc = rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
+                $newloc = transposh_utils::rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
                 $sm_page->SetUrl($newloc);
                 $generatorObject->AddElement($sm_page);
             }
