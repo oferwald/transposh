@@ -171,10 +171,8 @@ class transposh_plugin_admin {
         wp_enqueue_script('transposh_control', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhcontrol.js', array(), TRANSPOSH_PLUGIN_VER, true);
         wp_localize_script('transposh_control', 't_jp', array(
             'post_url' => $this->transposh->post_url,
-            //'msn_langs' => json_encode($GLOBALS['bing_languages']),
-            //'google_lang' => json_encode($GLOBALS['google_languages']),
             'preferred' => $this->transposh->options->get_preferred_translator(),
-            'l10n_print_after' => 't_jp.g_langs = ' . json_encode($GLOBALS['google_languages']) . '; t_jp.m_langs = ' . json_encode($GLOBALS['bing_languages']) . ';'/*
+            'l10n_print_after' => 't_jp.g_langs = ' . json_encode(transposh_consts::$google_languages) . '; t_jp.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';'/*
                   /* ,
                   'plugin_url' => $this->transposh_plugin_url,
                   'edit' => ($this->edit_mode? '1' : ''),
@@ -387,10 +385,10 @@ class transposh_plugin_admin {
 	</style>';
 
         // this is the default language location
-        list ($langname, $langorigname, $flag) = explode(",", $GLOBALS['languages'][$this->transposh->options->get_default_language()]);
+        list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$this->transposh->options->get_default_language()]);
         echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">Default Language (drag another language here to make it default)';
         echo '<ul id="default_list"><li id="' . $this->transposh->options->get_default_language() . '" class="languages">'
-        . display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false/* $this->transposh->options->get_widget_css_flags() */)
+        . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false/* $this->transposh->options->get_widget_css_flags() */)
         . '<input type="hidden" name="languages[]" value="' . $this->transposh->options->get_default_language() . '" />'
         . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></li>';
         echo '</ul></div>';
@@ -401,14 +399,14 @@ class transposh_plugin_admin {
             list ($langname, $langorigname, $flag) = explode(",", $langrecord);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_viewable_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "active" : "")
             . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:left">'
-            . display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, false /* $langorigname,$this->transposh->options->get_widget_css_flags() */)
+            . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, false /* $langorigname,$this->transposh->options->get_widget_css_flags() */)
             . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",") . ($this->transposh->options->is_viewable_language($langcode) ? ",t" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
-            if (in_array($langcode, $GLOBALS['google_languages']))
+            if (in_array($langcode, transposh_consts::$google_languages))
                     echo '<img width="16" height="16" alt="g" class="logoicon" title="Language supported by google translate" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
-            if (in_array($langcode, $GLOBALS['bing_languages']))
+            if (in_array($langcode, transposh_consts::$bing_languages))
                     echo '<img width="16" height="16" alt="b" class="logoicon" title="Language supported by bing translate" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
-            if (in_array($langcode, $GLOBALS['rtl_languages']))
+            if (in_array($langcode, transposh_consts::$rtl_languages))
                     echo '<img width="16" height="16" alt="r" class="logoicon" title="Language is written from right to left" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
             echo '</li>';
         }

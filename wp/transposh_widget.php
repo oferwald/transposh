@@ -51,7 +51,7 @@ class transposh_plugin_widget {
             $ref = getenv('HTTP_REFERER');
             $lang = $_POST[LANG_PARAM];
             if ($lang == '') {
-                $lang = get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url);
+                $lang = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url);
             }
             if ($lang == $this->transposh->options->get_default_language() || $lang == "none")
                     $lang = '';
@@ -59,20 +59,20 @@ class transposh_plugin_widget {
 
             // first, we might need to get the original url back
             if ($this->transposh->options->get_enable_url_translate()) {
-                $ref = get_original_url($ref, $this->transposh->home_url, get_language_from_url($ref, $this->transposh->home_url), array($this->transposh->database, 'fetch_original'));
+                $ref = transposh_utils::get_original_url($ref, $this->transposh->home_url, transposh_utils::get_language_from_url($ref, $this->transposh->home_url), array($this->transposh->database, 'fetch_original'));
             }
 
             //remove existing language settings.
-            $ref = cleanup_url($ref, $this->transposh->home_url);
+            $ref = transposh_utils::cleanup_url($ref, $this->transposh->home_url);
             logger("cleaned referrer: $ref, lang: $lang", 4);
 
             if ($lang && $this->transposh->options->get_enable_url_translate()) {
                 // and then, we might have to translate it
-                $ref = translate_url($ref, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
+                $ref = transposh_utils::translate_url($ref, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
                 $ref = str_replace(array('%2F', '%3A', '%3B', '%3F', '%3D', '%26'), array('/', ':', ';', '?', '=', '&'), urlencode($ref));
                 logger("translated to referrer: $ref, lang: $lang", 3);
             }
-            $ref = rewrite_url_lang_param($ref, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
+            $ref = transposh_utils::rewrite_url_lang_param($ref, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
 
             logger("Widget redirect url: $ref", 3);
 
@@ -170,10 +170,10 @@ class transposh_plugin_widget {
         $page_url = $_SERVER['REQUEST_URI'];
 
         //remove any language identifier and find the "clean" url, used for posting and calculating urls if needed
-        $clean_page_url = cleanup_url($page_url, $this->transposh->home_url, true);
+        $clean_page_url = transposh_utils::cleanup_url($page_url, $this->transposh->home_url, true);
         // we need this if we are using url translations
         if ($this->transposh->options->get_enable_url_translate() && $calc_url) {
-            $clean_page_url = get_original_url($clean_page_url, '', $this->transposh->target_language, array($this->transposh->database, 'fetch_original'));
+            $clean_page_url = transposh_utils::get_original_url($clean_page_url, '', $this->transposh->target_language, array($this->transposh->database, 'fetch_original'));
         }
         logger("WIDGET: clean page url: $clean_page_url ,orig: $page_url", 4);
 
@@ -186,13 +186,13 @@ class transposh_plugin_widget {
                     ($this->transposh->options->is_editable_language($code) && $this->transposh->is_translator()) ||
                     ($this->transposh->options->is_default_language($code))) {
                 if ($this->transposh->options->get_enable_url_translate() && $calc_url) {
-                    $page_url = translate_url($clean_page_url, '', $code, array(&$this->transposh->database, 'fetch_translation'));
+                    $page_url = transposh_utils::translate_url($clean_page_url, '', $code, array(&$this->transposh->database, 'fetch_translation'));
                 } else {
                     $page_url = $clean_page_url;
                 }
                 // clean $code in default lanaguge
                 if ($calc_url)
-                        $page_url = rewrite_url_lang_param($page_url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($code == $this->transposh->options->get_default_language()) ? '' : $code, $this->transposh->edit_mode);
+                        $page_url = transposh_utils::rewrite_url_lang_param($page_url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($code == $this->transposh->options->get_default_language()) ? '' : $code, $this->transposh->edit_mode);
                 $widget_args[] = array(
                     'lang' => $langname,
                     'langorig' => $language,

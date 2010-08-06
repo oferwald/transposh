@@ -134,8 +134,8 @@ class transposh_plugin_options {
      */
     function get_sorted_langs() {
 	if (isset($this->options[SORTED_LANGS]))
-		return array_merge(array_flip(explode(",", $this->options[SORTED_LANGS])), $GLOBALS['languages']);
-	return $GLOBALS['languages'];
+		return array_merge(array_flip(explode(",", $this->options[SORTED_LANGS])), transposh_consts::$languages);
+	return transposh_consts::$languages;
     }
 
     function get_widget_progressbar() {
@@ -207,8 +207,8 @@ class transposh_plugin_options {
      */
     function get_default_language() {
 	$default = $this->options[DEFAULT_LANG];
-	if (!$GLOBALS['languages'][$default]) {
-	    if (defined('WPLANG') && $GLOBALS['languages'][WPLANG]) {
+	if (!transposh_consts::$languages[$default]) {
+	    if (defined('WPLANG') && transposh_consts::$languages[WPLANG]) {
 		$default = WPLANG;
 	    } else {
 		$default = "en";
@@ -328,7 +328,7 @@ class transposh_plugin_options {
      * @param string $val Language set as default
      */
     function set_default_language($val) {
-	if (!$GLOBALS['languages'][$val]) {
+	if (!transposh_consts::$languages[$val]) {
 	    $val = "en";
 	}
 	$this->set_value($val, $this->options[DEFAULT_LANG]);

@@ -249,7 +249,7 @@ class transposh_database {
         // We are now passing all posted items
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
-                $original = base64_url_decode($_POST["tk$i"]);
+                $original = transposh_utils::base64_url_decode($_POST["tk$i"]);
                 //The original content is encoded as base64 before it is sent (i.e. token), after we
                 //decode it should just the same after it was parsed.
                 $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
@@ -341,7 +341,7 @@ class transposh_database {
     function get_translation_history($token, $lang) {
 
         $ref = getenv('HTTP_REFERER');
-        $original = base64_url_decode($token);
+        $original = transposh_utils::base64_url_decode($token);
         logger("Inside history for $original ($token)", 4);
 
         // check params

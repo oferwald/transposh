@@ -481,7 +481,7 @@ class parser {
     function create_edit_span($original_text, $translated_text, $source, $for_hidden_element = false) {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
-        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->segment_id . '" data-token="' . base64_url_encode($original_text) . '" data-source="'.$source.'"';
+        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->segment_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="'.$source.'"';
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
             $span .= ' data-orig="'.$original_text.'"';
@@ -670,7 +670,7 @@ class parser {
                         }
                         if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
                             // prevent duplicate translation (title = text)
-                            if (strpos($e->innertext, base64_url_encode($ep->phrase)) === false) {
+                            if (strpos($e->innertext, transposh_utils::base64_url_encode($ep->phrase)) === false) {
                                 //no need to translate span the same hidden phrase more than once
                                 if (!in_array($ep->phrase, $hidden_phrases)) {
                                     $this->stats->hidden_translateable_phrases++;
