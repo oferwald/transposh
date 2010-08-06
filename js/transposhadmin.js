@@ -106,6 +106,12 @@ function do_mass_ms_translate(batchtrans, callback) {
 // and the invoker
 function do_mass_ms_invoker(tokens, trans, lang) {
     t_jp.binglang = lang;
+    // fix this in ms mass...
+    if (t_jp.binglang === 'zh') {
+        t_jp.binglang = 'zh-chs';
+    } else if (t_jp.binglang === 'zh-tw') {
+        t_jp.binglang = 'zh-cht';
+    }
     do_mass_ms_translate(trans, function (result) {
         jQuery(result).each(function (i) {
             ajax_translate_me(tokens[i], this.TranslatedText, lang, 2); // notice the source
@@ -194,7 +200,7 @@ function translate_post(postid) {
                     // we have a winner
                     if (val.l.indexOf(currlang) !== -1) {
                         // add to candidates
-                        strings.push(name);
+                        strings.push(unescape(name));
                         tokens.push(val.t);
                         val.l.splice(val.l.indexOf(currlang), 1);
                         // if no more languages, we can remove the item from further processing
@@ -229,7 +235,7 @@ function translate_post(postid) {
         // also batch if we have the same language for all (far future TODO)
         for (name in json.p) {
             val = json.p[name];
-            do_mass_google_invoker_l(val.t, name, val.l);
+            do_mass_google_invoker_l(val.t, unescape(name), val.l);
         }
     // FIX??  ajax_translate_me(val.t,jQuery("<div>"+result.translation+"</div>").text(),lang);
     });
