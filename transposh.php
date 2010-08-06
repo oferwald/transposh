@@ -138,9 +138,12 @@ class transposh_plugin {
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
 
-        // full post wrapping
-        add_filter('the_content', array(&$this, 'post_wrap'));
-        add_filter('the_title', array(&$this, 'post_wrap'));
+        // full post wrapping (should happen late)
+        add_filter('the_content', array(&$this, 'post_wrap'), 9999);
+        add_filter('the_title', array(&$this, 'post_wrap'), 9999);
+        // allow to mark the language?
+//        add_action('admin_menu', array(&$this, 'transposh_post_language'));
+//        add_action('save_post', array(&$this, 'transposh_save_post_language'));
 
         //TODO add_action('manage_comments_nav', array(&$this,'manage_comments_nav'));
         //TODO comment_row_actions (filter)
@@ -737,6 +740,7 @@ class transposh_plugin {
         }
         return $url;
     }
+
     /**
      * Modify comments to include the relevant language span
      * @param string $text
@@ -759,10 +763,18 @@ class transposh_plugin {
      */
     function post_wrap($text) {
         global $id;
-        $lang = get_post_meta($id, 'tp_language',true);
-            if ($lang) {
+        $lang = get_post_meta($id, 'tp_language', true);
+        if ($lang) {
+            logger($_SERVER['REQUEST_URI']);
+            if (strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit') !== false) {
+                logger('iamhere?' . strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit'));
+                $plugpath = parse_url($this->transposh_plugin_url, PHP_URL_PATH);
+                list($langeng, $langorig, $langflag) = explode(',', $GLOBALS['languages'][$lang]);
+                $text = display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
+            } else {
                 $text = "<span lang =\"$lang\">" . $text . "</span>";
             }
+        }
         return $text;
     }
 
