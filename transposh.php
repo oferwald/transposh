@@ -140,7 +140,7 @@ class transposh_plugin {
 
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_wrap'), 9999);
-        add_filter('the_title', array(&$this, 'post_wrap'), 9999);
+        add_filter('the_title', array(&$this, 'post_wrap'), 9999, 2);
         // allow to mark the language?
 //        add_action('admin_menu', array(&$this, 'transposh_post_language'));
 //        add_action('save_post', array(&$this, 'transposh_save_post_language'));
@@ -761,8 +761,9 @@ class transposh_plugin {
      * @param string $text the post text (or title text)
      * @return string wrapped text
      */
-    function post_wrap($text) {
-        global $id;
+    function post_wrap($text, $id = 0) {
+        $id = (is_object($id)) ? $id->ID : $id;
+        if (!$id) return $text;
         $lang = get_post_meta($id, 'tp_language', true);
         if ($lang) {
             if (strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit') !== false) {
