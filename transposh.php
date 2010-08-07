@@ -139,7 +139,7 @@ class transposh_plugin {
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
 
         // full post wrapping (should happen late)
-        add_filter('the_content', array(&$this, 'post_wrap'), 9999);
+        add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
         add_filter('the_title', array(&$this, 'post_wrap'), 9999, 2);
         // allow to mark the language?
 //        add_action('admin_menu', array(&$this, 'transposh_post_language'));
@@ -756,9 +756,22 @@ class transposh_plugin {
     }
 
     /**
-     * Modify posts and posts title to have language wrapping
+     * Modify posts to have language wrapping
      * @global int $id the post id
      * @param string $text the post text (or title text)
+     * @return string wrapped text
+     */
+    function post_content_wrap($text) {
+        $lang = get_post_meta($GLOBALS['id'], 'tp_language', true);
+        if ($lang) {
+            $text = "<span lang =\"$lang\">" . $text . "</span>";
+        }
+        return $text;
+    }
+
+    /**
+     * Modify post title to have language wrapping
+     * @param string $text the post title text
      * @return string wrapped text
      */
     function post_wrap($text, $id = 0) {
