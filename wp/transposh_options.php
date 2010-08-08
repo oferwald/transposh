@@ -81,50 +81,51 @@ class transposh_plugin_options {
     private $changed = false;
 
     function transposh_plugin_options() {
-	logger("creating options");
-	// load them here
-	$this->options = get_option(TRANSPOSH_OPTIONS);
-	$this->migrate_old_config();
-	logger($this->options, 4);
+        logger("creating options");
+        // load them here
+        $this->options = get_option(TRANSPOSH_OPTIONS);
+        $this->migrate_old_config();
+        logger($this->options, 4);
     }
 
     // TODO: remove this function in a few versions (fix css, db version..., css flag
     private function migrate_old_config() {
-	logger("in migration");
-	if ($this->options[OLD_WIDGET_STYLE]) {
-	    if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
-		$this->set_widget_file('flags/tpw_flags.php');
-	    }
-	    if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 1) {
-		$this->set_widget_file('flags/tpw_flags_css.php');
-	    }
-	    if ($this->options[OLD_WIDGET_STYLE] == 2 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
-		$this->set_widget_file('flagslist/tpw_list_with_flags.php');
-	    }
-	    if ($this->options[OLD_WIDGET_STYLE] == 2 && $this->options[OLD_WIDGET_CSS_FLAGS] == 1) {
-		$this->set_widget_file('flagslist/tpw_list_with_flags_css.php');
-	    }
-	    unset($this->options[OLD_WIDGET_CSS_FLAGS]);
-	    unset($this->options[OLD_WIDGET_IN_LIST]);
-	    unset($this->options[OLD_WIDGET_STYLE]);
-	    unset($this->options[OLD_MSN_TRANSLATE_KEY]);
-	    unset($this->options[OLD_ENABLE_MSN_TRANSLATE]);
-	    logger($this->options);
-	    update_option(TRANSPOSH_OPTIONS, $this->options);
-	}
+        logger("in migration");
+        if ($this->options[OLD_WIDGET_STYLE]) {
+            if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
+                $this->set_widget_file('flags/tpw_flags.php');
+            }
+            if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 1) {
+                $this->set_widget_file('flags/tpw_flags_css.php');
+            }
+            if ($this->options[OLD_WIDGET_STYLE] == 2 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
+                $this->set_widget_file('flagslist/tpw_list_with_flags.php');
+            }
+            if ($this->options[OLD_WIDGET_STYLE] == 2 && $this->options[OLD_WIDGET_CSS_FLAGS] == 1) {
+                $this->set_widget_file('flagslist/tpw_list_with_flags_css.php');
+            }
+            unset($this->options[OLD_WIDGET_CSS_FLAGS]);
+            unset($this->options[OLD_WIDGET_IN_LIST]);
+            unset($this->options[OLD_WIDGET_STYLE]);
+            unset($this->options[OLD_MSN_TRANSLATE_KEY]);
+            unset($this->options[OLD_ENABLE_MSN_TRANSLATE]);
+            logger($this->options);
+            update_option(TRANSPOSH_OPTIONS, $this->options);
+        }
     }
 
     function get_anonymous_translation() {
-	if (!isset($this->options[ANONYMOUS_TRANSLATION])) return 1; // default is true
+        if (!isset($this->options[ANONYMOUS_TRANSLATION]))
+                return 1; // default is true
  return $this->options[ANONYMOUS_TRANSLATION];
     }
 
     function get_viewable_langs() {
-	return $this->options[VIEWABLE_LANGS];
+        return $this->options[VIEWABLE_LANGS];
     }
 
     function get_editable_langs() {
-	return $this->options[EDITABLE_LANGS];
+        return $this->options[EDITABLE_LANGS];
     }
 
     /**
@@ -133,17 +134,17 @@ class transposh_plugin_options {
      * @return array sorted list of languages, pointing to names and flags
      */
     function get_sorted_langs() {
-	if (isset($this->options[SORTED_LANGS]))
-		return array_merge(array_flip(explode(",", $this->options[SORTED_LANGS])), transposh_consts::$languages);
-	return transposh_consts::$languages;
+        if (isset($this->options[SORTED_LANGS]))
+                return array_merge(array_flip(explode(",", $this->options[SORTED_LANGS])), transposh_consts::$languages);
+        return transposh_consts::$languages;
     }
 
     function get_widget_progressbar() {
-	return $this->options[WIDGET_PROGRESSBAR];
+        return $this->options[WIDGET_PROGRESSBAR];
     }
 
     function get_widget_remove_logo() {
-	return $this->options[WIDGET_REMOVE_LOGO_FOR_AD];
+        return $this->options[WIDGET_REMOVE_LOGO_FOR_AD];
     }
 
     /**
@@ -152,53 +153,53 @@ class transposh_plugin_options {
      * @return string
      */
     function get_widget_file() {
-	return $this->options[WIDGET_FILE];
+        return $this->options[WIDGET_FILE];
     }
 
     function get_widget_allow_set_default_language() {
-	return $this->options[WIDGET_ALLOW_SET_DEFLANG];
+        return $this->options[WIDGET_ALLOW_SET_DEFLANG];
     }
 
     function get_enable_permalinks() {
-	return $this->options[ENABLE_PERMALINKS];
+        return $this->options[ENABLE_PERMALINKS];
     }
 
     function get_enable_footer_scripts() {
-	return $this->options[ENABLE_FOOTER_SCRIPTS];
+        return $this->options[ENABLE_FOOTER_SCRIPTS];
     }
 
     function get_enable_detect_language() {
-	return $this->options[ENABLE_DETECT_LANG_AND_REDIRECT];
+        return $this->options[ENABLE_DETECT_LANG_AND_REDIRECT];
     }
 
     function get_enable_default_translate() {
-	return $this->options[ENABLE_DEFAULT_TRANSLATE];
+        return $this->options[ENABLE_DEFAULT_TRANSLATE];
     }
 
     function get_enable_search_translate() {
-	// default is true
-	if (!isset($this->options[ENABLE_SEARCH_TRANSLATE])) return 1;
-	return $this->options[ENABLE_SEARCH_TRANSLATE];
+        // default is true
+        if (!isset($this->options[ENABLE_SEARCH_TRANSLATE])) return 1;
+        return $this->options[ENABLE_SEARCH_TRANSLATE];
     }
 
     function get_enable_url_translate() {
-	return $this->options[ENABLE_URL_TRANSLATE];
+        return $this->options[ENABLE_URL_TRANSLATE];
     }
 
     function get_enable_auto_translate() {
-	// default is true
-	if (!isset($this->options[ENABLE_AUTO_TRANSLATE])) return 1;
-	return $this->options[ENABLE_AUTO_TRANSLATE];
+        // default is true
+        if (!isset($this->options[ENABLE_AUTO_TRANSLATE])) return 1;
+        return $this->options[ENABLE_AUTO_TRANSLATE];
     }
 
     function get_enable_auto_post_translate() {
-	return $this->options[ENABLE_AUTO_POST_TRANSLATE];
+        return $this->options[ENABLE_AUTO_POST_TRANSLATE];
     }
 
     function get_preferred_translator() {
-	// default is google(1) (2 is msn)
-	if (!isset($this->options[PREFERRED_TRANSLATOR])) return 1;
-	return $this->options[PREFERRED_TRANSLATOR];
+        // default is google(1) (2 is msn)
+        if (!isset($this->options[PREFERRED_TRANSLATOR])) return 1;
+        return $this->options[PREFERRED_TRANSLATOR];
     }
 
     /**
@@ -206,23 +207,23 @@ class transposh_plugin_options {
      * @return string Default language
      */
     function get_default_language() {
-	$default = $this->options[DEFAULT_LANG];
-	if (!transposh_consts::$languages[$default]) {
-	    if (defined('WPLANG') && transposh_consts::$languages[WPLANG]) {
-		$default = WPLANG;
-	    } else {
-		$default = "en";
-	    }
-	}
-	return $default;
+        $default = $this->options[DEFAULT_LANG];
+        if (!transposh_consts::$languages[$default]) {
+            if (defined('WPLANG') && transposh_consts::$languages[WPLANG]) {
+                $default = WPLANG;
+            } else {
+                $default = "en";
+            }
+        }
+        return $default;
     }
 
     function get_transposh_key() {
-	return $this->options[TRANSPOSH_KEY];
+        return $this->options[TRANSPOSH_KEY];
     }
 
     function get_transposh_backup_schedule() {
-	return $this->options[TRANSPOSH_BACKUP_SCHEDULE];
+        return $this->options[TRANSPOSH_BACKUP_SCHEDULE];
     }
 
     /**
@@ -231,37 +232,37 @@ class transposh_plugin_options {
      * @param pointer $option Points to the option in the options array
      */
     private function set_value($val, &$option) {
-	if ($val !== $option) {
-	    $option = $val;
-	    $this->changed = true;
-	}
+        if ($val !== $option) {
+            $option = $val;
+            $this->changed = true;
+        }
     }
 
     function set_anonymous_translation($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ANONYMOUS_TRANSLATION]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ANONYMOUS_TRANSLATION]);
     }
 
     function set_viewable_langs($val) {
-	$this->set_value($val, $this->options[VIEWABLE_LANGS]);
+        $this->set_value($val, $this->options[VIEWABLE_LANGS]);
     }
 
     function set_editable_langs($val) {
-	$this->set_value($val, $this->options[EDITABLE_LANGS]);
+        $this->set_value($val, $this->options[EDITABLE_LANGS]);
     }
 
     function set_sorted_langs($val) {
-	$this->set_value($val, $this->options[SORTED_LANGS]);
+        $this->set_value($val, $this->options[SORTED_LANGS]);
     }
 
     function set_widget_progressbar($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[WIDGET_PROGRESSBAR]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[WIDGET_PROGRESSBAR]);
     }
 
-   function set_widget_remove_logo($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[WIDGET_REMOVE_LOGO_FOR_AD]);
+    function set_widget_remove_logo($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[WIDGET_REMOVE_LOGO_FOR_AD]);
     }
 
     /**
@@ -270,56 +271,56 @@ class transposh_plugin_options {
      * @param string $val
      */
     function set_widget_file($val) {
-	$this->set_value($val, $this->options[WIDGET_FILE]);
+        $this->set_value($val, $this->options[WIDGET_FILE]);
     }
 
     function set_widget_allow_set_default_language($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[WIDGET_ALLOW_SET_DEFLANG]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[WIDGET_ALLOW_SET_DEFLANG]);
     }
 
     function set_enable_permalinks($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_PERMALINKS]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_PERMALINKS]);
     }
 
     function set_enable_detect_language($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_DETECT_LANG_AND_REDIRECT]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_DETECT_LANG_AND_REDIRECT]);
     }
 
     function set_enable_footer_scripts($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_FOOTER_SCRIPTS]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_FOOTER_SCRIPTS]);
     }
 
     function set_enable_default_translate($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_DEFAULT_TRANSLATE]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_DEFAULT_TRANSLATE]);
     }
 
     function set_enable_search_translate($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_SEARCH_TRANSLATE]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_SEARCH_TRANSLATE]);
     }
 
     function set_enable_url_translate($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_URL_TRANSLATE]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_URL_TRANSLATE]);
     }
 
     function set_enable_auto_translate($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_AUTO_TRANSLATE]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_AUTO_TRANSLATE]);
     }
 
     function set_enable_auto_post_translate($val) {
-	$val = ($val) ? 1 : 0;
-	$this->set_value($val, $this->options[ENABLE_AUTO_POST_TRANSLATE]);
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[ENABLE_AUTO_POST_TRANSLATE]);
     }
 
     function set_preferred_translator($val) {
-	$this->set_value($val, $this->options[PREFERRED_TRANSLATOR]);
+        $this->set_value($val, $this->options[PREFERRED_TRANSLATOR]);
     }
 
     /**
@@ -328,30 +329,30 @@ class transposh_plugin_options {
      * @param string $val Language set as default
      */
     function set_default_language($val) {
-	if (!transposh_consts::$languages[$val]) {
-	    $val = "en";
-	}
-	$this->set_value($val, $this->options[DEFAULT_LANG]);
+        if (!transposh_consts::$languages[$val]) {
+            $val = "en";
+        }
+        $this->set_value($val, $this->options[DEFAULT_LANG]);
     }
 
     function set_transposh_key($val) {
-	$this->set_value($val, $this->options[TRANSPOSH_KEY]);
+        $this->set_value($val, $this->options[TRANSPOSH_KEY]);
     }
 
     function set_transposh_backup_schedule($val) {
-	$this->set_value($val, $this->options[TRANSPOSH_BACKUP_SCHEDULE]);
+        $this->set_value($val, $this->options[TRANSPOSH_BACKUP_SCHEDULE]);
     }
 
     /**
      * Updates options at the wordpress options table if there was a change
      */
     function update_options() {
-	if ($this->changed) {
-	    update_option(TRANSPOSH_OPTIONS, $this->options);
-	} else {
-	    logger("no changes and no updates done");
-	}
-	$this->changed = false;
+        if ($this->changed) {
+            update_option(TRANSPOSH_OPTIONS, $this->options);
+        } else {
+            logger("no changes and no updates done");
+        }
+        $this->changed = false;
     }
 
     /**
@@ -360,7 +361,7 @@ class transposh_plugin_options {
      * @return boolean Is this the default language?
      */
     function is_default_language($language) {
-	return ($this->get_default_language() == $language);
+        return ($this->get_default_language() == $language);
     }
 
     /**
@@ -368,7 +369,8 @@ class transposh_plugin_options {
      * @return boolean Is this language editable?
      */
     function is_editable_language($language) {
-	return (strpos($this->get_editable_langs(), $language) !== false);
+        if ($this->is_default_language($language)) return true;
+        return (strpos($this->get_editable_langs(), $language) !== false);
     }
 
     /**
@@ -376,7 +378,8 @@ class transposh_plugin_options {
      * @return boolean Is this language viewable?
      */
     function is_viewable_language($language) {
-	return (strpos($this->get_viewable_langs(), $language) !== false);
+        if ($this->is_default_language($language)) return true;
+        return (strpos($this->get_viewable_langs(), $language) !== false);
     }
 
 }
