@@ -100,4 +100,11 @@ elseif (isset($_GET['tgp'])) {
 elseif (isset($_GET['backup'])) {
     $my_transposh_plugin->run_backup();
 }
+// Start cleanup on demand
+elseif (isset($_GET['cleanup'])) {
+    // just make sure the admin started this... recently enough
+    check_ajax_referer('transposh-clean','nonce');
+    $my_transposh_plugin->database->cleanup($_GET['days']);
+}
+
 ?>
