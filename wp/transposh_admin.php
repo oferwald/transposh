@@ -201,6 +201,7 @@ class transposh_plugin_admin {
         add_meta_box('transposh-contentbox-translation', 'Translation settings', array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-autotranslation', 'Automatic translation settings', array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-general', 'Generic settings', array(&$this, 'on_contentbox_generic_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-database', 'Database maintenance', array(&$this, 'on_contentbox_database_content'), $this->pagehook, 'normal', 'core');
     }
 
     //executed to show the plugins complete admin page
@@ -532,6 +533,14 @@ class transposh_plugin_admin {
 
         /* WIP2
           echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */
+    }
+
+    function on_contentbox_database_content($data) {
+        /*
+         * Insert two buttons allowing removal of automated translations from database
+         */
+        echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="'.  wp_create_nonce('transposh-clean').'" class="button">Clean all automated translations</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="'.  wp_create_nonce('transposh-clean').'" class="button">Clean automated translations older than 14 days</a></div>';
     }
 
     function on_contentbox_community_content($data) {

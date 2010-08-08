@@ -487,6 +487,9 @@ class transposh_database {
         logger("Exit");
     }
 
+    /**
+     * Provides some stats about our database
+     */
     function db_stats() {
         echo "<h4>Database stats</h4>";
         $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
@@ -555,6 +558,25 @@ class transposh_database {
         }
 
         return $result;
+    }
+
+    /**
+     * This function removes translations and translation logs from the database, only
+     * when the last translation is automated
+     * @param int $days
+     */
+    function cleanup($days = 0) {
+        $days = intval($days); // some security
+        $cleanup = 'DELETE ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . ' ,' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .
+                ' FROM ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE .
+                ' INNER JOIN '. $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG.
+                ' ON '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE .'.original = '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .'.original'.
+                ' AND '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE .'.lang = '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .'.lang'.
+                ' WHERE '. $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE.'.source > 0'.
+                " AND timestamp < SUBDATE(NOW(),$days)";
+        apc_clear_cache('user'); // clean up cache so that results will actually show
+        $result = $GLOBALS['wpdb']->query($cleanup);
+        exit;
     }
 
 }

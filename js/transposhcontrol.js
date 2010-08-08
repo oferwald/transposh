@@ -120,20 +120,51 @@ jQuery(function() {
         return false;
     });
 
+    jQuery.ajaxSetup({
+        cache: false
+    });
+
     // backup button
     backupclick = function () {
-        jQuery("#transposh-backup").click(function(){
+        jQuery("#transposh-backup").unbind('click').click(function(){
             return false
-            }).text("Backup In Progress");
-        jQuery.get(t_jp.post_url + "?backup=" + Math.random(),function(data) {
+        }).text("Backup In Progress");
+        jQuery.get(t_jp.post_url + "?backup",function(data) {
             var color = 'red';
             if (data[0] == '2') color = 'green';
             jQuery('#backup_result').html(data).css('color',color);
-            jQuery("#transposh-backup").click(backupclick).text("Do Backup Now");
+            jQuery("#transposh-backup").unbind('click').click(backupclick).text("Do Backup Now");
         });
         return false;
     };
     jQuery("#transposh-backup").click(backupclick);
+
+    // cleanup button
+    cleanautoclick = function (days,button) {
+        if (!confirm("Are you sure you want to do this?")) return false;
+        if (days == 0 && !confirm("Are you REALLY sure you want to do this?")) return false;
+        //var button = jQuery(this);
+        console.log(button);
+        var prevtext = button.text();
+        button.unbind('click').click(function(){
+            return false
+        }).text("Cleanup in progress");
+        jQuery.get(t_jp.post_url + "?nonce="+button.attr('nonce')+"&days="+days+"&cleanup",function(data) {
+            button.unbind('click').click(function() {
+                cleanautoclick(days,button);
+                return false;
+            }).text(prevtext);
+        });
+        return false;
+    };
+    jQuery("#transposh-clean-auto").click(function() {
+        cleanautoclick(0,jQuery(this));
+        return false;
+    });
+    jQuery("#transposh-clean-auto14").click(function() {
+        cleanautoclick(14,jQuery(this));
+        return false;
+    });
 
     // translate all button
     do_translate_all = function () {
@@ -180,7 +211,7 @@ jQuery(function() {
             },0);
         });
         jQuery("#transposh-translate").text("Stop translate")
-        jQuery("#transposh-translate").click(stop_translate);
+        jQuery("#transposh-translate").unbind('click').click(stop_translate);
         return false;
     }
 
@@ -188,7 +219,7 @@ jQuery(function() {
         clearTimeout(timer2);
         stop_translate_var = true;
         jQuery("#transposh-translate").text("Translate All Now")
-        jQuery("#transposh-translate").click(do_translate_all);
+        jQuery("#transposh-translate").unbind('click').click(do_translate_all);
         return false;
     }
 
