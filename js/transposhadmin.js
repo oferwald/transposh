@@ -32,7 +32,7 @@ t_jp.MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6';
 function make_progress(translation, lang) {
     curr_pair += 1;
     jQuery("#progress_bar").progressbar('value', curr_pair / pair_count * 100);
-    jQuery('#p').text('(' + lang + ') ' + jQuery("<div>" + translation + "</div>").text());
+    jQuery('#p').text('(' + lang + ') ' + translation);
     if (curr_pair === pair_count) {
         jQuery("#tr_loading").data("done", true);
     }
@@ -40,6 +40,7 @@ function make_progress(translation, lang) {
 
 // batch items for posting to server.. nice touch added for different sources for same batch...
 function ajax_translate_me(token, translation, lang, source) {
+    translation = jQuery("<div>" + translation + "</div>").text(); // fix some char bugs
     make_progress(translation, lang);
     // we aggregate translations together, 200ms from the last translation we will send the timer
     // so here we remove it so nothing unexpected happens
