@@ -83,7 +83,7 @@ elseif (isset($_GET['tgp'])) {
     // we need curl for this proxy
     if (!function_exists('curl_init')) return;
     // we want to avoid unneeded work or dos attacks on languages we don't support
-    if (!in_array($_GET['tgl'], $google_proxied_languages) || !$my_transposh_plugin->options->is_editable_language($_GET['tgl']))
+    if (!in_array($_GET['tgl'], transposh_consts::$google_proxied_languages) || !$my_transposh_plugin->options->is_editable_language($_GET['tgl']))
             return;
     $url = 'http://translate.google.com/translate_a/t?client=a&text=' . urlencode($_GET['tgp']) . '&tl=' . $_GET['tgl'] . '&sl=auto';
     $ch = curl_init();
