@@ -100,6 +100,10 @@ elseif (isset($_GET['tgp'])) {
 elseif (isset($_GET['backup'])) {
     $my_transposh_plugin->run_backup();
 }
+// Start restore on demand
+elseif (isset($_GET['restore'])) {
+    $my_transposh_plugin->run_restore();
+}
 // Start cleanup on demand
 elseif (isset($_GET['cleanup'])) {
     // just make sure the admin started this... recently enough

@@ -579,5 +579,37 @@ class transposh_database {
         exit;
     }
 
+    function restore_translation($original,$lang,$translation,$by,$timestamp) {
+        // TODO in future
+        // if there is a newer human translation, just ignore this
+        // if there is a newer auto translation, remove it
+        // update it
+        $source = 0;
+        // for now - just update it...
+        $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
+        $delvalues .= "(original ='$original' AND lang='$lang')";
+       // Setting the transaction log records
+        $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $by . "',FROM_UNIXTIME(" . $timestamp . "),'" . $source . "')" ;
+
+        $update = "DELETE FROM " . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . " WHERE $delvalues";
+        logger($update, 3);
+        $result = $GLOBALS['wpdb']->query($update);
+        $update = "INSERT INTO " . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . " (original, translated, lang, source) VALUES $values";
+        logger($update, 3);
+        $result = $GLOBALS['wpdb']->query($update);
+
+        if ($result !== FALSE) {
+            // update the transaction log too
+            $log = "INSERT INTO " . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG . " (original, translated, lang, translated_by, timestamp, source) " .
+                    "VALUES $logvalues";
+            logger($log, 3);
+            $result = $GLOBALS['wpdb']->query($log);
+        } else {
+            logger(mysql_error(), 0);
+            logger("Error !!! failed to insert to db $original , $translation, $lang,", 0);
+            header("HTTP/1.0 404 Failed to update language database " . mysql_error());
+        }
+    }
+
 }
 ?>
