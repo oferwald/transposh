@@ -92,12 +92,24 @@ else
   echo "removed screenshots"
 fi
 
+DATE=`date -R`
+YEAR=`date +%Y`
 if [ "$DEBUG" != 'debug' ]; then
   echo "Minify .js files"
   for file in `find . -maxdepth 2 -iname '*.js'`; do 
     echo "minifying $file"
 #    java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
-    java -jar /root/googlecompiler/compiler.jar --js $file --js_output_file $TRANSPOSH_DIR/$file
+echo "/*
+ * Transposh v$VERSION
+ * http://transposh.org/
+ *
+ * Copyright $YEAR, Team Transposh
+ * Licensed under the GPL Version 2 or higher.
+ * http://transposh.org/license
+ *
+ * Date: $DATE
+ */" > $TRANSPOSH_DIR/$file
+    java -jar /root/googlecompiler/compiler.jar --create_source_map /tmp/map-${file:5} --js $file >> $TRANSPOSH_DIR/$file
   done;
 
   echo "Minify .css files"
