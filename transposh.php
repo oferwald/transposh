@@ -718,6 +718,15 @@ class transposh_plugin {
     }
 
     /**
+     * Runs a restore
+     */
+    function run_restore() {
+        logger('restoring..');
+        $my_transposh_backup = new transposh_backup($this);
+        $my_transposh_backup->do_restore();
+    }
+
+    /**
      * Adding the comment meta language, for later use in display
      * TODO: can use the language detection feature of some translation engines
      * @param int $post_id
