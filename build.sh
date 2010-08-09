@@ -51,12 +51,18 @@ done;
 echo
 
 #
+# Init replacement vars
+#
+DATE=`date -R`
+YEAR=`date +%Y`
+
+#
 #Add php files while removing logging operations
 #
 if [ "$DEBUG" != 'debug' ]; then
   echo "Adding .php files (without logging)"
   for file in `find . -maxdepth 4 -iname '*.php'`; do 
-    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/%VERSION%/$VERSION/;" $file > $TRANSPOSH_DIR/$file
+    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
 else
@@ -92,8 +98,6 @@ else
   echo "removed screenshots"
 fi
 
-DATE=`date -R`
-YEAR=`date +%Y`
 if [ "$DEBUG" != 'debug' ]; then
   echo "Minify .js files"
   for file in `find . -maxdepth 2 -iname '*.js'`; do 
