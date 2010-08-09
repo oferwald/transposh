@@ -289,7 +289,7 @@ class transposh_database {
             $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $loguser . "','" . $source . "')" . (($items != $i + 1) ? ', ' : '');
 
             // If we have caching - we remove previous entry from cache
-            if (ENABLE_APC && function_exists('apc_store')) {
+            if (ENABLE_APC && function_exists('apc_delete')) {
                 apc_delete($original . '___' . $lang);
             }
         }
@@ -569,17 +569,20 @@ class transposh_database {
         $days = intval($days); // some security
         $cleanup = 'DELETE ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . ' ,' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .
                 ' FROM ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE .
-                ' INNER JOIN '. $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG.
-                ' ON '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE .'.original = '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .'.original'.
-                ' AND '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE .'.lang = '.$GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .'.lang'.
-                ' WHERE '. $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE.'.source > 0'.
+                ' INNER JOIN ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG .
+                ' ON ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . '.original = ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG . '.original' .
+                ' AND ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . '.lang = ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG . '.lang' .
+                ' WHERE ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . '.source > 0' .
                 " AND timestamp < SUBDATE(NOW(),$days)";
-        apc_clear_cache('user'); // clean up cache so that results will actually show
+        // clean up cache so that results will actually show
+        if (ENABLE_APC && function_exists('apc_clear_cache'))
+                apc_clear_cache('user');
+
         $result = $GLOBALS['wpdb']->query($cleanup);
         exit;
     }
 
-    function restore_translation($original,$lang,$translation,$by,$timestamp) {
+    function restore_translation($original, $lang, $translation, $by, $timestamp) {
         // TODO in future
         // if there is a newer human translation, just ignore this
         // if there is a newer auto translation, remove it
@@ -588,8 +591,8 @@ class transposh_database {
         // for now - just update it...
         $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
         $delvalues .= "(original ='$original' AND lang='$lang')";
-       // Setting the transaction log records
-        $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $by . "',FROM_UNIXTIME(" . $timestamp . "),'" . $source . "')" ;
+        // Setting the transaction log records
+        $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $by . "',FROM_UNIXTIME(" . $timestamp . "),'" . $source . "')";
 
         $update = "DELETE FROM " . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . " WHERE $delvalues";
         logger($update, 3);
