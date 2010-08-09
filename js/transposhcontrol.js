@@ -144,7 +144,7 @@ jQuery(function() {
         if (!confirm("Are you sure you want to do this?")) return false;
         if (days == 0 && !confirm("Are you REALLY sure you want to do this?")) return false;
         //var button = jQuery(this);
-        console.log(button);
+        //console.log(button);
         var prevtext = button.text();
         button.unbind('click').click(function(){
             return false
