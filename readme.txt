@@ -146,6 +146,11 @@ change the .css from transparent background to your page background color. And l
 
 You can wrap the element with the "no_translate" class, or add a span similar to `<span class="no_translate">`
 
+= How to mark a post with a different than default language? =
+
+Using the wordpress editing, add a custom field called tp_language and insert the two letter code of the language used in that post, so if
+your blog is in English and you have a post in Spanish just add tp_language es as a custom field.
+
 = Can I make different images appear in different languages in my themes? =
 
 Yes, although a bit tricky - you can use the `$my_transposh_plugin->target_language` as part of the image descriptor, this will load different
@@ -186,6 +191,16 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/08/09 - 0.6.2 =
+ * Allow marking of complete posts in different languages (see FAQ)
+ * Fixed typo in buddypress stream (thanks revonorway)
+ * Allow parser processing of nested lang tags
+ * Treat the noscript tag as hidden, fixes bug with buddypress (thanks [Terence](http://virtualcrowds.org))
+ * Fixes to translate with non latin chars (thanks [Martin](http://www.maskaran.com))
+ * Fixes to mass translate with bing translator for Chinese and Taiwanese
+ * Moved functions and constants to static classes to reduce collisions (Such as with "WordPress MU Domain Mapping" plugin)
+ * Added functions to remove automated translations from the database, either all or those older than 14 days
+ * Shortened copyright notice in source files, and made it a bit more informative
 = 2010/08/01 - 0.6.1 =
  * Makes themes that support RTL actually use that support
  * Deeper integration with buddypress, support activity stream
