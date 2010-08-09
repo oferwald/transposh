@@ -196,7 +196,7 @@
 
     function do_tgp_invoke (token, trans) {
         $.getJSON(t_jp.post_url+'?tgp='+trans+'&tgl='+t_jp.lang, function(result) {
-            if (result.sentences[0].trans) {
+            if (result.sentences !== undefined && result.sentences[0].trans) {
                 auto_translate_success(token, result.sentences[0].trans);
             }
         });
