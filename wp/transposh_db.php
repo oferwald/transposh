@@ -63,12 +63,16 @@ class transposh_database {
             $cached = apc_fetch($key, $rc);
             if ($rc === false) return false;
             logger('apc', 5);
-        }
-        elseif (function_exists('xcache_get')) {
+        } elseif (function_exists('xcache_get')) {
             $rc = xcache_isset($key);
             if ($rc === false) return false;
             $cached = xcache_get($key);
             logger('xcache', 5);
+        } elseif (function_exists('eaccelerator_get')) {
+            $cached = eaccelerator_get($key);
+            if ($cached === null)
+                    return false; //TODO - unfortunantly null storing does not work here..
+ logger('eaccelerator', 5);
         }
         logger("Cached: $original", 5);
         return $cached;
@@ -95,7 +99,10 @@ class transposh_database {
             $rc = apc_store($key, $cache_entry, $ttl);
         } elseif (function_exists('xcache_set')) {
             $rc = xcache_set($key, $cache_entry, $ttl);
+        } elseif (function_exists('eaccelerator_put')) {
+            $rc = eaccelerator_put($key, $cache_entry, $ttl);
         }
+
         if ($rc) {
             logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
         }
@@ -114,6 +121,8 @@ class transposh_database {
             apc_delete($key);
         } elseif (function_exists('xcache_unset')) {
             xcache_unset($key);
+        } elseif (function_exists('eaccelerator_rm')) {
+            eaccelerator_rm($key);
         }
     }
 
@@ -122,9 +131,12 @@ class transposh_database {
      */
     function cache_clean() {
         if (!TP_ENABLE_CACHE) return;
-        if (function_exists('apc_clear_cache')) apc_clear_cache('user');
-        elseif (function_exists('xcache_unset_by_prefix'))
-                xcache_unset_by_prefix();
+        if (function_exists('apc_clear_cache')) {
+            apc_clear_cache('user');
+        } elseif (function_exists('xcache_unset_by_prefix')) {
+            xcache_unset_by_prefix();
+        }
+        //TODO - clean on eaccelerator is not so clean...
     }
 
     /**
