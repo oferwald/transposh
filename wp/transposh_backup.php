@@ -103,8 +103,7 @@ class transposh_backup {
                     $this->transposh->database->restore_translation($trans[0], $trans[1], $trans[2], $trans[3], $trans[4]);
         }
         // clean up cache so that results will actually show
-        if (ENABLE_APC && function_exists('apc_clear_cache'))
-                apc_clear_cache('user');
+        $this->transposh->database->cache_clean();
         exit;
     }
 
