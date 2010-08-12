@@ -43,28 +43,107 @@ class transposh_database {
     }
 
     /**
+     * Function to return a value from memory cache
+     * @param string $original string we want translated
+     * @param string $lang language we want it translated to
+     * @return mixed array with translation or false on cache miss
+     */
+    function cache_fetch($original, $lang) {
+        if (!TP_ENABLE_CACHE) return false;
+        $cached = false;
+        $key = $original . '___' . $lang;
+        if (function_exists('apc_fetch')) {
+            $cached = apc_fetch($key, $rc);
+            if ($rc === false) return false;
+            logger('apc', 5);
+        }
+        elseif (function_exists('xcache_get')) {
+            $rc = xcache_isset($key);
+            if ($rc === false) return false;
+            $cached = xcache_get($key);
+            logger('xcache', 5);
+        }
+        logger("Cached: $original", 5);
+        return $cached;
+    }
+
+    /**
+     * Function to store translation in memory cache
+     * @param string $original
+     * @param string $lang
+     * @param array $translated
+     * @param int $ttl time to live in the cache
+     * @return boolean true if stored successfully
+     */
+    function cache_store($original, $lang, $translated, $ttl) {
+        if (!TP_ENABLE_CACHE) return false;
+        $key = $original . '___' . $lang;
+        $cache_entry = $translated;
+        //If we don't have translation still we want to have it in cache
+        //update cache FIXME, do we really need this null to ""?
+        if ($cache_entry == NULL) {
+            $cache_entry = "";
+        }
+        if (function_exists('apc_store')) {
+            $rc = apc_store($key, $cache_entry, $ttl);
+        } elseif (function_exists('xcache_set')) {
+            $rc = xcache_set($key, $cache_entry, $ttl);
+        }
+        if ($rc) {
+            logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
+        }
+        return $rc;
+    }
+
+    /**
+     * Remove a value from memory cache
+     * @param string $original
+     * @param string $lang
+     */
+    function cache_delete($original, $lang) {
+        if (!TP_ENABLE_CACHE) return;
+        $key = $original . '___' . $lang;
+        if (function_exists('apc_delete')) {
+            apc_delete($key);
+        } elseif (function_exists('xcache_unset')) {
+            xcache_unset($key);
+        }
+    }
+
+    /**
+     * Clean the memory cache
+     */
+    function cache_clean() {
+        if (!TP_ENABLE_CACHE) return;
+        if (function_exists('apc_clear_cache')) apc_clear_cache('user');
+        elseif (function_exists('xcache_unset_by_prefix'))
+                xcache_unset_by_prefix();
+    }
+
+    /**
      * Allow fetching of multiple translation requests from the database with a single query
      * @param array $originals
      * @param string $lang
      */
     function prefetch_translations($originals, $lang) {
         if (!$originals) return;
+        logger($originals, 4);
         foreach ($originals as $original) {
             $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-            if (ENABLE_APC && function_exists('apc_fetch')) {
-                $cached = apc_fetch($original . '___' . $lang, $rc);
-                if ($rc === TRUE) {
-                    logger("Cached: $original", 4);
-                    continue;
-                }
+            $cached = $this->cache_fetch($original, $lang);
+            // if $cached is not false, there is something in the cache, so no need to prefetch
+            if ($cached !== false) {
+                continue;
             }
             $where .= ( ($where) ? ' OR ' : '') . "original = '$original'";
         }
+        // If we have nothing, we will do nothing
         if (!$where) return;
         $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
         $query = "SELECT original, translated, source FROM $table_name WHERE ($where) and lang = '$lang' ";
         $rows = $GLOBALS['wpdb']->get_results($query, ARRAY_A);
         if (empty($rows)) return;
+        // we are saving in the array and not directly to cache, because cache might not exist...
         foreach ($rows as $row) {
             $this->translations[$row['original']] = array(stripslashes($row['translated']), $row['source']);
         }
@@ -82,18 +161,15 @@ class transposh_database {
     function fetch_translation($original, $lang) {
         $translated = NULL;
         logger("Enter: $original", 4);
-
         //The original is saved in db in its escaped form
         $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-
-        if (ENABLE_APC && function_exists('apc_fetch')) {
-            $cached = apc_fetch($original . '___' . $lang, $rc);
-            if ($rc === TRUE) {
-                logger("Exit from cache: $cached", 4);
-                return $cached;
-            }
+        // first we look in the cache
+        $cached = $this->cache_fetch($original, $lang);
+        if ($cached !== false) {
+            logger("Exit from cache: {$cached[0]} {$cached[1]}", 4);
+            return $cached;
         }
-
+        // then we look for a prefetch
         if ($this->translations[$original]) {
             $translated = $this->translations[$original];
             logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 4);
@@ -110,22 +186,9 @@ class transposh_database {
                 logger("db result for $original >>> $translated_text ($lang) ({$row->source})", 4);
             }
         }
+        // we can store the result in the cache (or the fact we don't have one)
+        $this->cache_store($original, $lang, $translated, TP_CACHE_TTL);
 
-        if (ENABLE_APC && function_exists('apc_store')) {
-            //If we don't have translation still we want to have it in cache
-            $cache_entry = $translated;
-            if ($cache_entry == NULL) {
-                $cache_entry = "";
-            }
-
-            //update cache
-            $rc = apc_store($original . '___' . $lang, $cache_entry, 3600);
-            if ($rc === TRUE) {
-                logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 4);
-            }
-        }
-
-        logger("Exit: $translated", 4);
         return $translated;
     }
 
@@ -141,22 +204,19 @@ class transposh_database {
         $original = NULL;
         logger("Enter: $translation", 4);
 
-        //The original is saved in db in its escaped form
+        // The translation is saved in db in its escaped form
         $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
-
-        if (ENABLE_APC && function_exists('apc_fetch')) {
-            $cached = apc_fetch($translation . '_r_r_' . $lang, $rc);
-            if ($rc === TRUE) {
-                logger("Exit from cache: $cached", 4);
-                return $cached;
-            }
+        // The translation might be cached (notice the additional postfix)
+        $cached = $this->cache_fetch($translation . '_R_', $lang);
+        if ($cached !== false) {
+            logger("Exit from cache: $cached", 4);
+            return $cached;
         }
-
+        // FIXME - no prefetching for originals yet...
         if ($this->translations[$translation]) {
             $original = $this->translations[$translation];
-            logger("prefetch result for $translation >>> {$this->translations[$translation][0]} ({$this->translations[$translation][1]})", 4);
+            logger("prefetch result for $translation >>> {$this->translations[$translation][0]} ({$this->translations[$translation][1]})", 3);
         } else {
-
             $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
             $query = "SELECT * FROM $table_name WHERE translated = '$translation' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
@@ -167,21 +227,10 @@ class transposh_database {
             }
         }
 
-        if (ENABLE_APC && function_exists('apc_store')) {
-            //If we don't have translation still we want to have it in cache
-            $cache_entry = $original;
-            if ($cache_entry == NULL) {
-                $cache_entry = "";
-            }
+        // we can store the result in the cache (or the fact we don't have one)
+        $this->cache_store($translation . '_R_', $lang, $original, TP_CACHE_TTL);
 
-            //update cache
-            $rc = apc_store($translation . '_r_r_' . $lang, $cache_entry, 3600);
-            if ($rc === TRUE) {
-                logger("Stored in cache: $translation => $original", 4);
-            }
-        }
-
-        logger("Exit: $translation/$original", 3);
+        logger("Exit: $translation/$original", 4);
         return $original;
     }
 
@@ -217,7 +266,6 @@ class transposh_database {
                 }
             }
         }
-
         if (!($all_editable &&
                 ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
             logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'], 1);
@@ -228,7 +276,7 @@ class transposh_database {
         //add our own custom header - so we will know that we got here
         header("Transposh: v-" . TRANSPOSH_PLUGIN_VER . " db_version-" . DB_VERSION);
 
-        // transaction log stuff
+        // translation log stuff
         global $user_ID;
         get_currentuserinfo();
 
@@ -238,18 +286,18 @@ class transposh_database {
         } else {
             $loguser = $user_ID;
         }
-        // end tl
-        // We are now passing all posted items
+
+        // We are now processing all posted items
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
                 $original = transposh_utils::base64_url_decode($_POST["tk$i"]);
-                //The original content is encoded as base64 before it is sent (i.e. token), after we
-                //decode it should just the same after it was parsed.
+                // The original content is encoded as base64 before it is sent (i.e. token), after we
+                // decode it should just the same after it was parsed.
                 $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
             }
             if (isset($_POST["tr$i"])) {
                 $translation = $_POST["tr$i"];
-                //Decode & remove already escaped character to avoid double escaping
+                // Decode & remove already escaped character to avoid double escaping
                 $translation = $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translation))));
             }
             if (isset($_POST["ln$i"])) {
@@ -258,19 +306,20 @@ class transposh_database {
             if (isset($_POST["sr$i"])) {
                 $source = $_POST["sr$i"];
             }
-            // should we backup?
+
+            // should we backup? - yes on any human translation
             if ($source == 0) $backup_immidiate_possible = true;
 
             //Here we check we are not redoing stuff
             list($translated_text, $old_source) = $this->fetch_translation($original, $lang);
             if ($translated_text) {
                 if ($source > 0) {
-                    logger("Warning auto-translation for already translated: $original $lang", 0);
+                    logger("Warning auto-translation for already translated: $original $lang", 1);
                     continue;
                     //return; // too harsh, we just need to get to the next in for
                 }
                 if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
-                    logger("Warning attempt to retranslate with same text: $original, $translation", 0);
+                    logger("Warning attempt to retranslate with same text: $original, $translation", 1);
                     continue;
                     //return; // too harsh, we just need to get to the next in for
                 }
@@ -282,15 +331,13 @@ class transposh_database {
             $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $loguser . "','" . $source . "')" . (($items != $i + 1) ? ', ' : '');
 
             // If we have caching - we remove previous entry from cache
-            if (ENABLE_APC && function_exists('apc_delete')) {
-                apc_delete($original . '___' . $lang);
-            }
+            $this->cache_delete($original, $lang);
         }
 
-        // avoid empty work
+        // avoid empty database work
         if (!$values) return;
         // perform insertion to the database, with one query :)
-        // since we have no primary key, replace made no sense
+        // since we no longer have a primary key, replacement made no sense
         /* $update = "REPLACE INTO ".$GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE." (original, translated, lang, source)
           VALUES $values"; */
         //so we'll delete all values and insert them...
@@ -301,12 +348,11 @@ class transposh_database {
         logger($update, 3);
         $result = $GLOBALS['wpdb']->query($update);
 
+        // if the insertion worked, we will update the transaction log
         if ($result !== FALSE) {
-            // update the transaction log too
             $log = "INSERT INTO " . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG . " (original, translated, lang, translated_by, source) " .
                     "VALUES $logvalues";
             $result = $GLOBALS['wpdb']->query($log);
-
             logger("Inserted to db '$values'", 3);
         } else {
             logger(mysql_error(), 0);
@@ -314,7 +360,9 @@ class transposh_database {
             header("HTTP/1.0 404 Failed to update language database " . mysql_error());
         }
 
-        if ($source == 0) { // if its a human translation
+        // if its a human translation we will call the action, this takes the assumption of a single human translation in
+        // a function call, which should probably be verified (FIXME move up?)
+        if ($source == 0) {
             do_action('transposh_human_translation', $translation, $original, $lang);
         }
 
@@ -345,8 +393,8 @@ class transposh_database {
         }
         logger("Passed check for $lang", 4);
 
-        //Check permissions, first the lanugage must be on the edit list. Then either the user
-        //is a translator or automatic translation if it is enabled.
+        // Check permissions, first the lanugage must be on the edit list. Then either the user
+        // is a translator or automatic translation if it is enabled.
         if (!($this->transposh->options->is_editable_language($lang) && $this->transposh->is_translator())) {
             logger("Unauthorized history request " . $_SERVER['REMOTE_ADDR'], 1);
             header('HTTP/1.0 401 Unauthorized history');
@@ -357,11 +405,11 @@ class transposh_database {
         $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
         logger("table is $table_name", 4);
 
-        //The original content is encoded as base64 before it is sent (i.e. token), after we
-        //decode it should just the same after it was parsed.
+        // The original content is encoded as base64 before it is sent (i.e. token), after we
+        // decode it should just the same after it was parsed.
         $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
 
-        //add  our own custom header - so we will know that we got here
+        // add our own custom header - so we will know that we got here
         header('Transposh: v-' . TRANSPOSH_PLUGIN_VER . ' db_version-' . DB_VERSION);
 
         $query = "SELECT translated, translated_by, timestamp, source, user_login " .
@@ -372,7 +420,8 @@ class transposh_database {
         logger("query is $query");
 
         $rows = $GLOBALS['wpdb']->get_results($query);
-        logger($rows, 4); // trying
+        logger($rows, 4);
+        // TODO: work with json
         //header("Content-type: text/javascript");
         //echo json_encode($rows);
         if ($rows !== FALSE) {
@@ -403,9 +452,6 @@ class transposh_database {
 
         $table_name = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
         logger("table is $table_name", 4);
-
-        //add  our own custom header - so we will know that we got here
-//        header("Transposh: v-".TRANSPOSH_PLUGIN_VER." db_version-". DB_VERSION);
 
         if ($date != "null")
                 $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
@@ -443,11 +489,6 @@ class transposh_database {
                     source TINYINT NOT NULL, 
                     KEY original (original(6),lang)
                     ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
-            /*            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
-              "lang CHAR(5) NOT NULL,".
-              "translated VARCHAR(255),".
-              "source TINYINT NOT NULL,".
-              "PRIMARY KEY (original, lang)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci"; */
 
             dbDelta($sql);
 
@@ -465,13 +506,6 @@ class transposh_database {
                     timestamp TIMESTAMP, 
                     KEY original (original(6),lang,timestamp)
                     ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
-            /*            $sql = "CREATE TABLE $table_name (original VARCHAR(255) NOT NULL,".
-              "lang CHAR(5) NOT NULL,".
-              "translated VARCHAR(255),".
-              "translated_by VARCHAR(15),".
-              "source TINYINT NOT NULL,".
-              "timestamp TIMESTAMP,".
-              "PRIMARY KEY (original, lang, timestamp)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci"; */
 
             dbDelta($sql);
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
@@ -506,7 +540,6 @@ class transposh_database {
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             $td = mysql2date(get_option('date_format') . ' ' . get_option('time_format'), $row->timestamp);
-            //the_date();
             echo "<p>On <strong>{$td}</strong><br/>user <strong>{$row->translated_by}</strong> translated<br/>" .
             "\"<strong>{$row->original}</strong>\"<br/>to " .
             "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
@@ -567,11 +600,10 @@ class transposh_database {
                 ' AND ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . '.lang = ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG . '.lang' .
                 ' WHERE ' . $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE . '.source > 0' .
                 " AND timestamp < SUBDATE(NOW(),$days)";
-        // clean up cache so that results will actually show
-        if (ENABLE_APC && function_exists('apc_clear_cache'))
-                apc_clear_cache('user');
-
         $result = $GLOBALS['wpdb']->query($cleanup);
+        logger($cleanup, 4);
+        // clean up cache so that results will actually show
+        $this->cache_clean();
         exit;
     }
 
@@ -580,6 +612,9 @@ class transposh_database {
         // if there is a newer human translation, just ignore this
         // if there is a newer auto translation, remove it
         // update it
+        // TODO - change this part to use the update_translation function
+        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
         $source = 0;
         // for now - just update it...
         $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
