@@ -17,8 +17,10 @@ define('LANG_PARAM', 'lang');
 //Edit mode indicator in URL. i.e. lang=en&edit=true
 define('EDIT_PARAM', 'edit');
 
-//Enable apc usage
-define('ENABLE_APC', TRUE);
+//Enable in memory cache usage, APC, xcache
+define('TP_ENABLE_CACHE', TRUE);
+//What is the cache items TTL
+define('TP_CACHE_TTL', 3600);
 
 //Class marking a section not be translated.
 define('NO_TRANSLATE_CLASS', 'no_translate');
