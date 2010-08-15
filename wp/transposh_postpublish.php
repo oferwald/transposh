@@ -72,40 +72,60 @@ class transposh_postpublish {
     }
 
     /**
+     * Function to allow mass translate of tags
+     * @return array list of tags
+     */
+    function get_tags() {
+        $tags = get_terms('post_tag'); // Always query top tags
+        $phrases = array();
+        foreach ($tags as $tag) {
+            $phrases[] = $tag->name;
+        }
+        return $phrases;
+    }
+
+    /**
      * Loop through all the post phrases and return them in json formatted script
      * @param int $postID
      */
     function get_post_phrases($postID) {
         // Some security, to avoid others from seeing private posts
         if (!current_user_can('edit_post', $postID)) return;
-        $post = get_post($postID);
-        // Display filters
-        $title = apply_filters('the_title', $post->post_title);
-        $content = apply_filters('the_content', $post->post_content);
-        // TODO - grab phrases from rss excerpt
-        //$output = get_the_excerpt();
-        // echo apply_filters('the_excerpt_rss', $output);
-        //TODO - get comments text
+        // fake post for tags
+        if ($postID == -555) {
+            $phrases = $this->get_tags();
+            $title = "tags";
+        }
+        // a normal post
+        else {
+            $post = get_post($postID);
+            // Display filters
+            $title = apply_filters('the_title', $post->post_title);
+            $content = apply_filters('the_content', $post->post_content);
+            // TODO - grab phrases from rss excerpt
+            //$output = get_the_excerpt();
+            // echo apply_filters('the_excerpt_rss', $output);
+            //TODO - get comments text
 
-        $parser = new parser();
-        $phrases = $parser->get_phrases_list($content);
-        $phrases2 = $parser->get_phrases_list($title);
+            $parser = new parser();
+            $phrases = $parser->get_phrases_list($content);
+            $phrases2 = $parser->get_phrases_list($title);
 
-        // Merge the two arrays for traversing
-        $phrases = array_merge($phrases, $phrases2);
+            // Merge the two arrays for traversing
+            $phrases = array_merge($phrases, $phrases2);
 
-        // Add phrases from permalink
-        if ($this->transposh->options->get_enable_url_translate()) {
-            $permalink = get_permalink($postID);
-            $permalink = substr($permalink, strlen($this->transposh->home_url) + 1);
-            $parts = explode('/', $permalink);
-            foreach ($parts as $part) {
-                if (!$part || is_numeric($part)) continue;
-                $part = str_replace('-', ' ', $part);
-                $phrases[] = urldecode($part);
+            // Add phrases from permalink
+            if ($this->transposh->options->get_enable_url_translate()) {
+                $permalink = get_permalink($postID);
+                $permalink = substr($permalink, strlen($this->transposh->home_url) + 1);
+                $parts = explode('/', $permalink);
+                foreach ($parts as $part) {
+                    if (!$part || is_numeric($part)) continue;
+                    $part = str_replace('-', ' ', $part);
+                    $phrases[] = urldecode($part);
+                }
             }
         }
-
         foreach ($phrases as $key) {
             foreach (explode(',', $this->transposh->options->get_editable_langs()) as $lang) {
                 // if this isn't the default language or we specifically allow default language translation, we will seek this out...
