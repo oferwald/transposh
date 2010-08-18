@@ -14,6 +14,7 @@
 require_once("shd/simple_html_dom.php");
 require_once("constants.php");
 require_once("logging.php");
+require_once("utils.php");
 
 /**
  * parserstats class - holds parser statistics
@@ -88,7 +89,8 @@ class parser {
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
     public $prefetch_translate_func = null;
-    private $segment_id = 0;
+    /** @var int stores the number of the last used span_id */
+    private $span_id = 0;
     /** @var simple_html_dom_node Contains the current node */
     private $currentnode;
     /** @var simple_html_dom Contains the document dom model */
@@ -277,7 +279,7 @@ class parser {
      * @param int $start - beginning of phrase in element
      * @param int $end - end of phrase in element
      */
-    function tag_phrase($string, $start, $end) {
+    function tag_phrase($string, $start, $end, $gettext = false) {
         $phrase = trim(substr($string, $start, $end - $start));
         if ($phrase) {
             logger($phrase, 4);
@@ -287,8 +289,14 @@ class parser {
             $this->currentnode->nodes[] = $node;
             $node->_[HDOM_INFO_OUTER] = '';
             $node->phrase = $phrase;
+            $node->start = $start;
+            $node->len = strlen($phrase);
             if ($this->inbody) $node->inbody = $this->inbody;
             if ($this->inselect) $node->inselect = true;
+            if ($gettext) {
+                $node->phrase = substr(substr($phrase, 11), 0, -11);
+                $node->gettext = true;
+            }
         }
     }
 
@@ -317,6 +325,14 @@ class parser {
                     logger("entity ($entity) breaks", 5);
                     $this->tag_phrase($string, $start, $pos);
                     $start = $pos + $len_of_entity;
+                }
+                //goaway entity
+                if ($entity == '&transposh;') {
+                    $closerent = strpos($string, $entity, $start);
+                    $start = $pos;
+                    $this->tag_phrase($string, $start, $closerent + $len_of_entity, true); //special tagging?
+                    $start = $closerent + $len_of_entity;
+                    $pos = $closerent;
                 }
                 //skip past entity
                 $pos += $len_of_entity;
@@ -355,6 +371,9 @@ class parser {
                 }
                 $pos += $num_len + 1;
             } else {
+                // smarter marking of start location
+                if ($start == $pos && $this->is_white_space($string[$pos]))
+                        $start++;
                 $pos++;
             }
         }
@@ -475,7 +494,7 @@ class parser {
     function create_edit_span($original_text, $translated_text, $source, $for_hidden_element = false) {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
-        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->segment_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
+        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
             $span .= ' data-orig="' . $original_text . '"';
@@ -488,7 +507,12 @@ class parser {
             }
         }
         $span .= '>';
-        ++$this->segment_id;
+        if (!$for_hidden_element) {
+            if ($translated_text) $span .= $translated_text;
+            else $span .= $original_text;
+        }
+        $span .= '</span>';
+        ++$this->span_id;
         return $span;
     }
 
@@ -591,8 +615,7 @@ class parser {
         // actually translate tags
         // texts are first
         foreach ($this->html->find('text') as $e) {
-            $right = '';
-            $newtext = '';
+            $replace = array();
             foreach ($e->nodes as $ep) {
                 list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                 //stats
@@ -602,32 +625,23 @@ class parser {
                     if ($source == 0) $this->stats->human_translated_phrases++;
                 }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody */) {
-                    $spanend = '</span>';
                     if ($ep->inselect || !$ep->inbody) {
-                        $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source, true) . $spanend;
-                        $span = '';
-                        $spanend = '';
+                        $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source, true);
                     } else {
-                        $span = $this->create_edit_span($ep->phrase, $translated_text, $source);
-                        if ($translated_text == null)
-                                $translated_text = $ep->phrase;
+                        $translated_text = $this->create_edit_span($ep->phrase, $translated_text, $source);
                     }
                 }
-                else {
-                    $span = '';
-                    $spanend = '';
-                }
+                // store replacements
                 if ($translated_text) {
-                    list ($left, $right) = explode($ep->phrase, $e->outertext, 2);
-                    $newtext .= $left . $span . $translated_text . $spanend;
-                    $e->outertext = $right;
+                    $replace[$translated_text] = $ep;
                 }
             }
-            if ($newtext) {
-                $e->outertext = $newtext . $right;
-                logger("phrase: $newtext", 4);
+            // do replacements in reverse
+            foreach (array_reverse($replace, true) as $replace => $epg) {
+                $e->outertext = substr_replace($e->outertext, $replace, $epg->start, $epg->len);
             }
-            // hmm?
+
+            // this adds saved spans to the first not in select element which is in the body
             if (!$ep->inselect && $savedspan && $ep->inbody) {
                 $e->outertext = $savedspan . $e->outertext;
                 $savedspan = '';
@@ -635,13 +649,11 @@ class parser {
         }
 
         // now we handle the title attributes (and the value of submit buttons)
+        $hidden_phrases = array();
         foreach (array('title', 'value') as $title) {
-            $hidden_phrases = array();
             foreach ($this->html->find('[' . $title . ']') as $e) {
+                $replace = array();
                 $span = '';
-                $spanend = '';
-                $right = '';
-                $newtext = '';
                 // when we already have a parent outertext we'll have to update it directly
                 if ($e->parent->_[HDOM_INFO_OUTER]) {
                     $saved_outertext = $e->outertext;
@@ -668,22 +680,21 @@ class parser {
                                 //no need to translate span the same hidden phrase more than once
                                 if (!in_array($ep->phrase, $hidden_phrases)) {
                                     $this->stats->hidden_translateable_phrases++;
-                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true) . '</span>';
+                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true);
                                     //    logger ($span);
                                     $hidden_phrases[] = $ep->phrase;
                                 }
                             }
                         }
+                        // if we need to replace, we store this
                         if ($translated_text) {
-                            list ($left, $right) = explode($ep->phrase, $e->$title, 2);
-                            $newtext .= $left . $translated_text;
-                            $e->$title = $right;
+                            $replace[$translated_text] = $ep;
                         }
                     }
                 }
-                if ($newtext) {
-                    $e->$title = $newtext . $right;
-                    logger("$title-phrase: $newtext", 4);
+                // and later replace
+                foreach (array_reverse($replace, true) as $replace => $epg) {
+                    $e->title = substr_replace($e->title, $replace, $epg->start, $epg->len);
                 }
 
                 $e->outertext .= $span;
