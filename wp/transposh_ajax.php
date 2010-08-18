@@ -70,6 +70,8 @@ elseif (isset($_GET['translate_all'])) {
     $page_ids = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE (post_type='page' OR post_type='post') AND (post_status='publish' OR post_status='private') ORDER BY ID DESC");
     // only high capabilities users can...
     if (!current_user_can('edit_post', $page_ids[0])) return;
+    // add a fake post to translate things such as tags
+    $page_ids[] = "-555";
     echo json_encode($page_ids);
 }
 // Proxyed translation for google translate
