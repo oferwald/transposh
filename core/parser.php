@@ -329,10 +329,13 @@ class parser {
                 //goaway entity
                 if ($entity == '&transposh;') {
                     $closerent = strpos($string, $entity, $start);
+                    if ($closerent !== false) {
                     $start = $pos;
                     $this->tag_phrase($string, $start, $closerent + $len_of_entity, true); //special tagging?
                     $start = $closerent + $len_of_entity;
                     $pos = $closerent;
+                    logger("Process of transposh entity $pos $string $closerent");
+                    }
                 }
                 //skip past entity
                 $pos += $len_of_entity;
@@ -617,7 +620,7 @@ class parser {
         foreach ($this->html->find('text') as $e) {
             $replace = array();
             foreach ($e->nodes as $ep) {
-                list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
+                list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                 //stats
                 $this->stats->total_phrases++;
                 if ($translated_text) {
@@ -661,7 +664,7 @@ class parser {
                 logger("$title-original: $e->$title}", 4);
                 foreach ($e->nodes as $ep) {
                     if ($ep->tag == 'phrase') {
-                        list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
+                        list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                         // more stats
                         $this->stats->total_phrases++;
                         if ($ep->inbody) $this->stats->hidden_phrases++; else
@@ -716,7 +719,7 @@ class parser {
                     // even more stats
                     $this->stats->total_phrases++;
                     $this->stats->meta_phrases++;
-                    list ($translated_text, $source) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
+                    list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                     if ($translated_text) {
                         $this->stats->translated_phrases++;
                         $this->stats->meta_translated_phrases++;

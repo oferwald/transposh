@@ -58,7 +58,7 @@ class transposh_database {
     function cache_fetch($original, $lang) {
         if (!TP_ENABLE_CACHE) return false;
         $cached = false;
-        $key = $original . '___' . $lang;
+        $key = $lang . '_' . $original;
         if (function_exists('apc_fetch')) {
             $cached = apc_fetch($key, $rc);
             if ($rc === false) return false;
@@ -70,11 +70,12 @@ class transposh_database {
             logger('xcache', 5);
         } elseif (function_exists('eaccelerator_get')) {
             $cached = eaccelerator_get($key);
-            if ($cached === null)
-                    return false; //TODO - unfortunantly null storing does not work here..
- logger('eaccelerator', 5);
+            if ($cached === null) return false;
+            //TODO - unfortunantly null storing does not work here..
+            logger('eaccelerator', 5);
         }
-        logger("Cached: $original", 5);
+        logger("Cache fetched: $original => $cached", 3);
+        if ($cached !== null) $cached = explode('_', $cached, 2);
         return $cached;
     }
 
@@ -88,23 +89,24 @@ class transposh_database {
      */
     function cache_store($original, $lang, $translated, $ttl) {
         if (!TP_ENABLE_CACHE) return false;
-        $key = $original . '___' . $lang;
-        $cache_entry = $translated;
+        $key = $lang . '_' . $original;
+        if ($translated !== null) {
+            $translated = implode('_', $translated);
+        }
         //If we don't have translation still we want to have it in cache
         //update cache FIXME, do we really need this null to ""?
-        if ($cache_entry == NULL) {
-            $cache_entry = "";
-        }
         if (function_exists('apc_store')) {
-            $rc = apc_store($key, $cache_entry, $ttl);
+            $rc = apc_store($key, $translated, $ttl);
         } elseif (function_exists('xcache_set')) {
-            $rc = xcache_set($key, $cache_entry, $ttl);
+            $rc = xcache_set($key, $translated, $ttl);
         } elseif (function_exists('eaccelerator_put')) {
-            $rc = eaccelerator_put($key, $cache_entry, $ttl);
+            $rc = eaccelerator_put($key, $translated, $ttl);
         }
 
         if ($rc) {
-            logger("Stored in cache: $original => {$translated[0]},{$translated[1]}", 3);
+            logger("Stored in cache: $original => {$translated}", 3);
+        } else {
+            logger("Didn't cache: $original => {$translated}", 3);
         }
         return $rc;
     }
@@ -163,7 +165,7 @@ class transposh_database {
         if (empty($rows)) return;
         // we are saving in the array and not directly to cache, because cache might not exist...
         foreach ($rows as $row) {
-            $this->translations[$row['original']] = array(stripslashes($row['translated']), $row['source']);
+            $this->translations[$row['original']] = array($row['source'], stripslashes($row['translated']));
         }
         logger($this->translations, 5);
     }
@@ -174,11 +176,11 @@ class transposh_database {
      * Will return NULL if no translation is available.
      * @param string $original
      * @param string $lang
-     * @return array list(translation,source)
+     * @return array list(source,translation)
      */
     function fetch_translation($original, $lang) {
-        $translated = NULL;
-        logger("Enter: $original", 4);
+        $translated = null;
+        logger("Fetching for: $original-$lang", 4);
         //The original is saved in db in its escaped form
         $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
         // first we look in the cache
@@ -190,16 +192,15 @@ class transposh_database {
         // then we look for a prefetch
         if ($this->translations[$original]) {
             $translated = $this->translations[$original];
-            logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 4);
+            logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 3);
         } else {
             $query = "SELECT * FROM {$this->translation_table} WHERE original = '$original' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
 
-            if ($row !== FALSE) {
+            if ($row !== null) {
                 $translated_text = stripslashes($row->translated);
-                $translated = array($translated_text, $row->source);
-
-                logger("db result for $original >>> $translated_text ($lang) ({$row->source})", 4);
+                $translated = array($row->source, $translated_text);
+                logger("db result for $original >>> $translated_text ($lang) ({$row->source})", 3);
             }
         }
         // we can store the result in the cache (or the fact we don't have one)
@@ -217,13 +218,13 @@ class transposh_database {
      * @return array list(translation,source)
      */
     function fetch_original($translation, $lang) {
-        $original = NULL;
+        $original = null;
         logger("Enter: $translation", 4);
 
         // The translation is saved in db in its escaped form
         $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
         // The translation might be cached (notice the additional postfix)
-        $cached = $this->cache_fetch($translation . '_R_', $lang);
+        $cached = $this->cache_fetch('R_' . $translation, $lang);
         if ($cached !== false) {
             logger("Exit from cache: $cached", 4);
             return $cached;
@@ -236,14 +237,14 @@ class transposh_database {
             $query = "SELECT * FROM {$this->translation_table} WHERE translated = '$translation' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
 
-            if ($row !== FALSE) {
+            if ($row !== null) {
                 $original = stripslashes($row->original);
                 logger("db result for $translation >>> $original ($lang) ({$row->source})", 4);
             }
         }
 
         // we can store the result in the cache (or the fact we don't have one)
-        $this->cache_store($translation . '_R_', $lang, $original, TP_CACHE_TTL);
+        $this->cache_store('R_' . $translation, $lang, $original, TP_CACHE_TTL);
 
         logger("Exit: $translation/$original", 4);
         return $original;
@@ -646,4 +647,5 @@ class transposh_database {
     }
 
 }
+
 ?>
