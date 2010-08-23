@@ -90,11 +90,7 @@ class transposh_database {
     function cache_store($original, $lang, $translated, $ttl) {
         if (!TP_ENABLE_CACHE) return false;
         $key = $lang . '_' . $original;
-        if ($translated !== null) {
-            $translated = implode('_', $translated);
-        }
-        //If we don't have translation still we want to have it in cache
-        //update cache FIXME, do we really need this null to ""?
+        if ($translated !== null) $translated = implode('_', $translated);
         if (function_exists('apc_store')) {
             $rc = apc_store($key, $translated, $ttl);
         } elseif (function_exists('xcache_set')) {
@@ -143,13 +139,13 @@ class transposh_database {
 
     /**
      * Allow fetching of multiple translation requests from the database with a single query
-     * @param array $originals
+     * @param array $originals keys hold the strings...
      * @param string $lang
      */
     function prefetch_translations($originals, $lang) {
         if (!$originals) return;
         logger($originals, 4);
-        foreach ($originals as $original) {
+        foreach ($originals as $original => $truth) {
             $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
             $cached = $this->cache_fetch($original, $lang);
             // if $cached is not false, there is something in the cache, so no need to prefetch
@@ -167,7 +163,7 @@ class transposh_database {
         foreach ($rows as $row) {
             $this->translations[$row['original']] = array($row['source'], stripslashes($row['translated']));
         }
-        logger($this->translations, 5);
+        logger('prefetched: '.count($this->translations), 5);
     }
 
     /**

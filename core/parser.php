@@ -597,19 +597,19 @@ class parser {
         if ($this->prefetch_translate_func != null) {
             foreach ($this->html->find('text') as $e) {
                 foreach ($e->nodes as $ep) {
-                    if ($ep->phrase) $originals[$ep->phrase] = $ep->phrase;
+                    if ($ep->phrase) $originals[$ep->phrase] = true;
                 }
             }
             foreach (array('title', 'value') as $title) {
                 foreach ($this->html->find('[' . $title . ']') as $e) {
                     foreach ($e->nodes as $ep) {
-                        if ($ep->phrase) $originals[$ep->phrase] = $ep->phrase;
+                        if ($ep->phrase) $originals[$ep->phrase] = true;
                     }
                 }
             }
             foreach ($this->html->find('[content]') as $e) {
                 foreach ($e->nodes as $ep) {
-                    if ($ep->phrase) $originals[$ep->phrase] = $ep->phrase;
+                    if ($ep->phrase) $originals[$ep->phrase] = true;
                 }
             }
             call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
