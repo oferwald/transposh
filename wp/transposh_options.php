@@ -15,57 +15,57 @@
 // removed real old options support, no migration from 0.3.9 anymore
 // @since 0.5.6
 //Option defining transposh widget appearance
-define("OLD_WIDGET_STYLE", "widget_style");
+define('OLD_WIDGET_STYLE', 'widget_style');
 //Use CSS sprites for flags if available
-define("OLD_WIDGET_CSS_FLAGS", "widget_css_flags");
+define('OLD_WIDGET_CSS_FLAGS', 'widget_css_flags');
 //Wrap widget elements in an unordered list per #63 @since 0.3.7
-define("OLD_WIDGET_IN_LIST", "widget_in_list");
+define('OLD_WIDGET_IN_LIST', 'widget_in_list');
 //Option to enable/disable msn translation
-define("OLD_ENABLE_MSN_TRANSLATE", "enable_msntranslate");
+define('OLD_ENABLE_MSN_TRANSLATE', 'enable_msntranslate');
 //Option to store the msn API key
-define("OLD_MSN_TRANSLATE_KEY", "msn_key");
+define('OLD_MSN_TRANSLATE_KEY', 'msn_key');
 
 //defines are used to avoid typos
 //Option defining whether anonymous translation is allowed.
-define("ANONYMOUS_TRANSLATION", "allow_anonymous_translation");
+define('ANONYMOUS_TRANSLATION', 'allow_anonymous_translation');
 //Option defining the list of currentlly viewable languages
-define("VIEWABLE_LANGS", "viewable_languages");
+define('VIEWABLE_LANGS', 'viewable_languages');
 //Option defining the list of currentlly editable languages
-define("EDITABLE_LANGS", "editable_languages");
+define('EDITABLE_LANGS', 'editable_languages');
 //Option defining the ordered list of languages @since 0.3.9
-define("SORTED_LANGS", "sorted_languages");
+define('SORTED_LANGS', 'sorted_languages');
 //Option to enable/disable auto translation
-define("ENABLE_AUTO_TRANSLATE", "enable_autotranslate");
+define('ENABLE_AUTO_TRANSLATE', 'enable_autotranslate');
 //Option to enable/disable auto translation
-define("ENABLE_AUTO_POST_TRANSLATE", "enable_autoposttranslate");
+define('ENABLE_AUTO_POST_TRANSLATE', 'enable_autoposttranslate');
 //Option to store translator preference @since 0.4.2
-define("PREFERRED_TRANSLATOR", "preferred_translator");
+define('PREFERRED_TRANSLATOR', 'preferred_translator');
 //Option to enable/disable default language translation
-define("ENABLE_DEFAULT_TRANSLATE", "enable_default_translate");
+define('ENABLE_DEFAULT_TRANSLATE', 'enable_default_translate');
 //Option to enable/disable default language translation @since 0.3.6
-define("ENABLE_SEARCH_TRANSLATE", "enable_search_translate");
+define('ENABLE_SEARCH_TRANSLATE', 'enable_search_translate');
 //Option to enable/disable url translation @since 0.5.3
-define("ENABLE_URL_TRANSLATE", "enable_url_translate");
+define('ENABLE_URL_TRANSLATE', 'enable_url_translate');
 //Option to enable/disable rewrite of permalinks
-define("ENABLE_PERMALINKS", "enable_permalinks");
+define('ENABLE_PERMALINKS', 'enable_permalinks');
 //Option to enable/disable footer scripts (2.8 and up)
-define("ENABLE_FOOTER_SCRIPTS", "enable_footer_scripts");
+define('ENABLE_FOOTER_SCRIPTS', 'enable_footer_scripts');
 //Option to enable detect and redirect language @since 0.3.8
-define("ENABLE_DETECT_LANG_AND_REDIRECT", "enable_detect_redirect");
+define('ENABLE_DETECT_LANG_AND_REDIRECT', 'enable_detect_redirect');
 //Option defining the default language
-define("DEFAULT_LANG", "default_language");
+define('DEFAULT_LANG', 'default_language');
 //Option defining transposh widget file used @since 0.5.6
-define("WIDGET_FILE", "widget_file");
+define('WIDGET_FILE', 'widget_file');
 //Option allowing progress bar display
-define("WIDGET_PROGRESSBAR", "widget_progressbar");
+define('WIDGET_PROGRESSBAR', 'widget_progressbar');
 //Allows user to set his default language per #63 @since 0.3.8
-define("WIDGET_ALLOW_SET_DEFLANG", "widget_allow_set_deflang");
+define('WIDGET_ALLOW_SET_DEFLANG', 'widget_allow_set_deflang');
 //Allows removing of transposh logo in exchange for an ad @since 0.6.0
-define("WIDGET_REMOVE_LOGO_FOR_AD", "widget_remove_logo");
+define('WIDGET_REMOVE_LOGO_FOR_AD', 'widget_remove_logo');
 //Stores the site key to transposh services (backup @since 0.5.0)
-define("TRANSPOSH_KEY", "transposh_key");
+define('TRANSPOSH_KEY', 'transposh_key');
 //Stores the site key to transposh services (backup @since 0.5.0)
-define("TRANSPOSH_BACKUP_SCHEDULE", "transposh_backup_schedule");
+define('TRANSPOSH_BACKUP_SCHEDULE', 'transposh_backup_schedule');
 
 class transposh_plugin_options {
 //constructor of class, PHP4 compatible construction for backward compatibility
@@ -75,10 +75,35 @@ class transposh_plugin_options {
     /** @var boolean set to true if any option was changed */
     private $changed = false;
 
+    function set_default_option_value($option, $value = '') {
+        if (!isset($this->options[$option])) $this->options[$option] = $value;
+    }
+
     function transposh_plugin_options() {
         logger("creating options");
         // load them here
         $this->options = get_option(TRANSPOSH_OPTIONS);
+        $this->set_default_option_value(ANONYMOUS_TRANSLATION, 1);
+        $this->set_default_option_value(ENABLE_SEARCH_TRANSLATE, 1);
+        $this->set_default_option_value(ENABLE_AUTO_TRANSLATE, 1);
+        $this->set_default_option_value(PREFERRED_TRANSLATOR, 1);
+        $this->set_default_option_value(VIEWABLE_LANGS);
+        $this->set_default_option_value(EDITABLE_LANGS);
+        //$this->set_default_option_value(SORTED_LANGS);
+        $this->set_default_option_value(ENABLE_AUTO_POST_TRANSLATE);
+        $this->set_default_option_value(ENABLE_DEFAULT_TRANSLATE);
+        $this->set_default_option_value(ENABLE_SEARCH_TRANSLATE);
+        $this->set_default_option_value(ENABLE_URL_TRANSLATE);
+        $this->set_default_option_value(ENABLE_PERMALINKS);
+        $this->set_default_option_value(ENABLE_FOOTER_SCRIPTS);
+        $this->set_default_option_value(ENABLE_DETECT_LANG_AND_REDIRECT);
+        $this->set_default_option_value(DEFAULT_LANG);
+        $this->set_default_option_value(WIDGET_FILE);
+        $this->set_default_option_value(WIDGET_PROGRESSBAR);
+        $this->set_default_option_value(WIDGET_ALLOW_SET_DEFLANG);
+        $this->set_default_option_value(WIDGET_REMOVE_LOGO_FOR_AD);
+        $this->set_default_option_value(TRANSPOSH_KEY);
+        $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE);
         $this->migrate_old_config();
         logger($this->options, 4);
     }
@@ -86,7 +111,7 @@ class transposh_plugin_options {
     // TODO: remove this function in a few versions (fix css, db version..., css flag
     private function migrate_old_config() {
         logger("in migration");
-        if ($this->options[OLD_WIDGET_STYLE]) {
+        if (isset($this->options[OLD_WIDGET_STYLE])) {
             if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
                 $this->set_widget_file('flags/tpw_flags.php');
             }
@@ -110,9 +135,7 @@ class transposh_plugin_options {
     }
 
     function get_anonymous_translation() {
-        if (!isset($this->options[ANONYMOUS_TRANSLATION]))
-                return 1; // default is true
- return $this->options[ANONYMOUS_TRANSLATION];
+        return $this->options[ANONYMOUS_TRANSLATION];
     }
 
     function get_viewable_langs() {
@@ -172,8 +195,6 @@ class transposh_plugin_options {
     }
 
     function get_enable_search_translate() {
-        // default is true
-        if (!isset($this->options[ENABLE_SEARCH_TRANSLATE])) return 1;
         return $this->options[ENABLE_SEARCH_TRANSLATE];
     }
 
@@ -183,7 +204,6 @@ class transposh_plugin_options {
 
     function get_enable_auto_translate() {
         // default is true
-        if (!isset($this->options[ENABLE_AUTO_TRANSLATE])) return 1;
         return $this->options[ENABLE_AUTO_TRANSLATE];
     }
 
@@ -193,7 +213,6 @@ class transposh_plugin_options {
 
     function get_preferred_translator() {
         // default is google(1) (2 is msn)
-        if (!isset($this->options[PREFERRED_TRANSLATOR])) return 1;
         return $this->options[PREFERRED_TRANSLATOR];
     }
 
@@ -203,8 +222,8 @@ class transposh_plugin_options {
      */
     function get_default_language() {
         $default = $this->options[DEFAULT_LANG];
-        if (!transposh_consts::$languages[$default]) {
-            if (defined('WPLANG') && transposh_consts::$languages[WPLANG]) {
+        if (!isset(transposh_consts::$languages[$default])) {
+            if (defined('WPLANG') && isset(transposh_consts::$languages[WPLANG])) {
                 $default = WPLANG;
             } else {
                 $default = "en";

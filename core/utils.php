@@ -46,6 +46,7 @@ class transposh_utils {
             $parsedurl['query'] = implode('&', $params);
         }
 
+        $gluebackhome = false;
         //cleanup lang identifier in permalinks
         //remove the language from the url permalink (if in start of path, and is a defined language)
         $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");

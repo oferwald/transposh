@@ -85,10 +85,10 @@ class transposh_plugin_widget {
         }
 
         // Register widget
-        register_sidebar_widget(array('Transposh', 'widgets'), array(&$this, 'transposh_widget'));
+        wp_register_sidebar_widget('Transposh','Transposh', array(&$this, 'transposh_widget'), array( 'description' => __('Transposh language selection widget') ));
 
         // Register widget control
-        register_widget_control("Transposh", array(&$this, 'transposh_widget_control'));
+        wp_register_widget_control('Transposh','Transposh', array(&$this, 'transposh_widget_control'));
 
         // Register callback for widget's css and js
         add_action('wp_print_styles', array(&$this, 'add_transposh_widget_css'));
@@ -119,7 +119,7 @@ class transposh_plugin_widget {
     function add_transposh_widget_css() { //TODO ! goway
         $this->load_widget();
 
-        if (function_exists(tp_widget_css)) {
+        if (function_exists('tp_widget_css')) {
             tp_widget_css();
         } else {
             $widget_css = TRANSPOSH_DIR_WIDGETS . '/' . $this->base_widget_file_name . ".css";
@@ -137,7 +137,7 @@ class transposh_plugin_widget {
     function add_transposh_widget_js() { //TODO ! goway
         $this->load_widget();
 
-        if (function_exists(tp_widget_js)) {
+        if (function_exists('tp_widget_js')) {
             tp_widget_js();
         } else {
             $widget_js = TRANSPOSH_DIR_WIDGETS . '/' . $this->base_widget_file_name . ".js";
@@ -157,7 +157,7 @@ class transposh_plugin_widget {
 
         // hmmm, this should actually prepare all vars needed, include the correct widget and send the vars to that function,
         $calc_url = false; // By default, avoid calculating the urls
-        if (function_exists(tp_widget_needs_post_url))
+        if (function_exists('tp_widget_needs_post_url'))
                 $calc_url = tp_widget_needs_post_url();
 
         $widget_args = array();
