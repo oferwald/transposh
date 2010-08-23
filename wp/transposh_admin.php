@@ -285,37 +285,8 @@ class transposh_plugin_admin {
     }
 
     function on_sidebox_news_content($data) {
-        require_once(ABSPATH . WPINC . '/rss.php');
-
-        // ugly hack copy of RSS because of Unicode chars misprinting
-        function wp_rss2($url, $num_items = -1) {
-            if ($rss = fetch_rss($url)) {
-                echo '<ul>';
-
-                if ($num_items !== -1) {
-                    $rss->items = array_slice($rss->items, 0, $num_items);
-                }
-
-                foreach ((array) $rss->items as $item) {
-                    printf(
-                            '<li><a href="%1$s" title="%2$s">%3$s</a></li>',
-                            //esc_url( $item['link'] ),
-                            //esc_attr( strip_tags( $item['description'] ) ),
-                            // TODO - check Switched to 2.7 compatability functions
-                            clean_url($item['link']),
-                            attribute_escape(strip_tags($item['description'])),
-                            htmlentities($item['title'], ENT_COMPAT, 'UTF-8')
-                    );
-                }
-
-                echo '</ul>';
-            } else {
-                _e('An error has occurred, which probably means the feed is down. Try again later.');
-            }
-        }
-
         echo '<div style="margin:6px">';
-        wp_rss2('http://feeds2.feedburner.com/transposh', 5);
+        wp_widget_rss_output('http://feeds2.feedburner.com/transposh',array('items' => 5));
         echo '</div>';
     }
 
