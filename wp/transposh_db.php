@@ -74,7 +74,7 @@ class transposh_database {
             //TODO - unfortunantly null storing does not work here..
             logger('eaccelerator', 5);
         }
-        logger("Cache fetched: $original => $cached", 3);
+        logger("Cache fetched: $original => $cached", 4);
         if ($cached !== null) $cached = explode('_', $cached, 2);
         return $cached;
     }
@@ -114,7 +114,7 @@ class transposh_database {
      */
     function cache_delete($original, $lang) {
         if (!TP_ENABLE_CACHE) return;
-        $key = $original . '___' . $lang;
+        $key = $lang . '_' . $original;
         if (function_exists('apc_delete')) {
             apc_delete($key);
         } elseif (function_exists('xcache_unset')) {
