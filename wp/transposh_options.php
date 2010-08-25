@@ -375,7 +375,7 @@ class transposh_plugin_options {
      * @return boolean Is this the default language?
      */
     function is_default_language($language) {
-        return ($this->get_default_language() == $language);
+        return ($this->get_default_language() == $language || '' == $language);
     }
 
     /**
