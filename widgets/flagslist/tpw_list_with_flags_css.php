@@ -5,7 +5,7 @@
   Plugin URI: http://transposh.org/
   Description: Widget with flags links (using css sprites) followed by language name
   Author: Team Transposh
-  Version: 1.0
+  Version: 1.0.1
   Author URI: http://transposh.org/
   License: GPL (http://www.gnu.org/licenses/gpl.txt)
  */
@@ -47,7 +47,7 @@ function tp_widget_do($args) {
     echo "<div class=\"" . NO_TRANSLATE_CLASS . " transposh_flags\" >";
     foreach ($args as $langrecord) {
         echo "<a href=\"{$langrecord['url']}\"" . ($langrecord['active'] ? ' class="tr_active"' : '' ) . '>' .
-        transposh_utils::display_flag('', $langrecord['flag'], $langrecord['langorig'], false) . '</a>';
+        transposh_utils::display_flag('', $langrecord['flag'], $langrecord['langorig'], true) . '</a>';
         echo "<a href=\"{$langrecord['url']}\"" . ($langrecord['active'] ? ' class="tr_active"' : '' ) . '>' . "{$langrecord['langorig']}</a><br/>";
     }
     echo "</div>";
