@@ -113,6 +113,10 @@ class parser {
     protected $ignore_tags = array('script' => 1, 'style' => 1, 'code' => 1, 'wfw:commentrss' => 1, 'comments' => 1, 'guid' => 1);
     /** @var parserstats Contains parsing statistics */
     private $stats;
+    /** @var boolean Are we inside a translated gettext */
+    private $in_get_text = false;
+    /** @var boolean Are we inside an inner text %s in gettext */
+    private $in_get_text_inner = false;
 
     /**
      * Determine if the current position in buffer is a white space.
@@ -271,7 +275,7 @@ class parser {
      * @return int length of number.
      */
     function is_number($page, $position) {
-        return strspn($page, '0123456789-+$%,.\\/', $position);
+        return strspn($page, '0123456789-+$%#*,.\\/', $position);
     }
 
     /**
@@ -279,8 +283,12 @@ class parser {
      * @param int $start - beginning of phrase in element
      * @param int $end - end of phrase in element
      */
-    function tag_phrase($string, $start, $end, $gettext = false) {
+    function tag_phrase($string, $start, $end) {
         $phrase = trim(substr($string, $start, $end - $start));
+        if ($this->in_get_text && !$this->in_get_text_inner) {
+            logger('not tagging ' . $phrase . ' assumed gettext translated', 4);
+            return;
+        }
         if ($phrase) {
             logger($phrase, 4);
             $node = new simple_html_dom_node($this->html);
@@ -293,10 +301,6 @@ class parser {
             $node->len = strlen($phrase);
             if ($this->inbody) $node->inbody = $this->inbody;
             if ($this->inselect) $node->inselect = true;
-            if ($gettext) {
-                $node->phrase = substr(substr($phrase, 11), 0, -11);
-                $node->gettext = true;
-            }
         }
     }
 
@@ -322,20 +326,9 @@ class parser {
             if ($len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
                 if (($this->is_white_space($string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
-                    logger("entity ($entity) breaks", 5);
+                    logger("entity ($entity) breaks", 3);
                     $this->tag_phrase($string, $start, $pos);
                     $start = $pos + $len_of_entity;
-                }
-                //goaway entity
-                if ($entity == '&transposh;') {
-                    $closerent = strpos($string, $entity, $start);
-                    if ($closerent !== false) {
-                    $start = $pos;
-                    $this->tag_phrase($string, $start, $closerent + $len_of_entity, true); //special tagging?
-                    $start = $closerent + $len_of_entity;
-                    $pos = $closerent;
-                    logger("Process of transposh entity $pos $string $closerent");
-                    }
                 }
                 //skip past entity
                 $pos += $len_of_entity;
@@ -347,6 +340,21 @@ class parser {
                     $pos++;
                 $pos++;
                 $start = $pos;
+            } elseif ($string[$pos] == TP_GETTEXT_BREAKER) {
+                logger("text breaker $start $pos $string " . (($this->in_get_text) ? 'true' : 'false'), 5);
+                $this->tag_phrase($string, $start, $pos);
+                $pos++;
+                $start = $pos;
+                $this->in_get_text = !$this->in_get_text; // flipping state
+                if ($pos == 1)
+                        $this->in_get_text = true; // reset state based on string start
+ $this->in_get_text_inner = false;
+            } elseif ($string[$pos] == TP_GETTEXT_INNER_BREAKER) {
+                logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
+                $this->tag_phrase($string, $start, $pos);
+                $pos++;
+                $start = $pos;
+                $this->in_get_text_inner = !$this->in_get_text_inner;
             }
             // will break translation unit when there's a breaker ",.[]()..."
             elseif ($senb_len = $this->is_sentence_breaker($string[$pos], $string[$pos + 1], $string[$pos + 2])) {
@@ -746,9 +754,11 @@ class parser {
         if ($head != null)
                 $head->lastChild()->outertext .= "\n<meta name=\"translation-stats\" content='" . json_encode($this->stats) . "'/>";
 
+        // we make sure that the result is clear from our shananigans
+        return str_replace(array(TP_GETTEXT_BREAKER, TP_GETTEXT_INNER_BREAKER), '', $this->html->outertext);
         // Changed because of places where tostring failed
         //return $this->html;
-        return $this->html->outertext;
+        //return $this->html->outertext;
     }
 
     /**
@@ -772,4 +782,5 @@ class parser {
     }
 
 }
+
 ?>
