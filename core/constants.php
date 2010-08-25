@@ -27,6 +27,10 @@ define('NO_TRANSLATE_CLASS', 'no_translate');
 define('NO_TRANSLATE_CLASS_GOOGLE', 'notranslate');
 define('ONLY_THISLANGUAGE_CLASS', 'only_thislanguage');
 
+//Get text breakers
+define('TP_GETTEXT_BREAKER', chr(1));
+define('TP_GETTEXT_INNER_BREAKER', chr(2));
+
 /**
  * Holds our arrays staticly to reduce chance of namespace collision
  */
