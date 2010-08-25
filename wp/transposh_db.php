@@ -220,9 +220,9 @@ class transposh_database {
         // The translation is saved in db in its escaped form
         $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
         // The translation might be cached (notice the additional postfix)
-        $cached = $this->cache_fetch('R_' . $translation, $lang);
-        if ($cached !== false) {
-            logger("Exit from cache: $cached", 4);
+        list($rev,$cached) = $this->cache_fetch('R_' . $translation, $lang);
+        if ($rev == 'r') {
+            logger("Exit from cache: $translation $cached", 4);
             return $cached;
         }
         // FIXME - no prefetching for originals yet...
@@ -240,7 +240,7 @@ class transposh_database {
         }
 
         // we can store the result in the cache (or the fact we don't have one)
-        $this->cache_store('R_' . $translation, $lang, $original, TP_CACHE_TTL);
+        $this->cache_store('R_' . $translation, $lang, array('r',$original), TP_CACHE_TTL);
 
         logger("Exit: $translation/$original", 4);
         return $original;
@@ -399,7 +399,7 @@ class transposh_database {
         logger("Inside history for $original ($token)", 4);
 
         // check params
-        logger("Enter " . __FILE__ . " Params: $original , $translation, $lang, $ref", 3);
+        logger("Enter " . __FILE__ . " Params: $original , $lang, $ref", 3);
         if (!isset($original) || !isset($lang)) {
             logger("Enter " . __FILE__ . " missing params: $original, $lang," . $ref, 0);
             return;

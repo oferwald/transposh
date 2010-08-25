@@ -109,6 +109,7 @@ class transposh_utils {
         unset($parsedurl['query']);
 
         // remove the language from the url permalink (if in start of path, and is a defined language)
+        $gluebackhome = false;
         $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");
         logger("home: $home_path " . $parsedurl['path'], 5);
         if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
@@ -133,7 +134,7 @@ class transposh_utils {
 
         //$params ="";
         if ($is_edit) {
-            $params[edit] = EDIT_PARAM . '=1';
+            $params['edit'] = EDIT_PARAM . '=1';
         }
 
         if ($use_params_only && $lang) {
@@ -251,6 +252,8 @@ class transposh_utils {
      * @return string translated url permalink
      */
     public static function translate_url($href, $home_url, $target_language, $fetch_translation_func) {
+        $url='';
+        $querypart='';
         // todo - check query part... sanitize
         if (strpos($href, '?') !== false) {
             list ($href, $querypart) = explode('?', $href);
@@ -260,12 +263,12 @@ class transposh_utils {
         $parts = explode('/', $href);
         foreach ($parts as $part) {
             if (!$part) continue;
-            list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array($part, $target_language));
+            list($source, $translated_text) = call_user_func_array($fetch_translation_func, array($part, $target_language));
             if ($translated_text)
                     $url .= '/' . str_replace(' ', '-', $translated_text);
             else {
                 // now the same attempt with '-' replaced to ' '
-                list($translated_text, $old_source) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
+                list($source, $translated_text) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
                 //logger ($part. ' '.str_replace('-', ' ', $part).' '.$translated_text);
                 if ($translated_text)
                         $url .= '/' . str_replace(' ', '-', $translated_text);
@@ -288,6 +291,7 @@ class transposh_utils {
         $href = substr($href, strlen($home_url));
         $url = urldecode($href);
         $url = (($pos = strpos($url, '?')) ? substr($url, 0, $pos) : $url);
+        $url2 ='';
         $parts = explode('/', $url);
         foreach ($parts as $part) {
             if (!$part) continue;
