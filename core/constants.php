@@ -28,8 +28,10 @@ define('NO_TRANSLATE_CLASS_GOOGLE', 'notranslate');
 define('ONLY_THISLANGUAGE_CLASS', 'only_thislanguage');
 
 //Get text breakers
-define('TP_GETTEXT_BREAKER', chr(1));
-define('TP_GETTEXT_INNER_BREAKER', chr(2));
+define('TP_GTXT_BRK', chr(1)); // Gettext breaker
+define('TP_GTXT_IBRK', chr(2)); // Gettext inner breaker (around %s)
+define('TP_GTXT_BRK_CLOSER', chr(3)); // Gettext breaker closer
+define('TP_GTXT_IBRK_CLOSER', chr(4)); // Gettext inner breaker closer
 
 /**
  * Holds our arrays staticly to reduce chance of namespace collision
@@ -39,64 +41,64 @@ class transposh_consts {
 //Supported languages, new languages can be added here
 //the array directs from language code to - English Name, Native name, flag
     public static $languages = array(
-        'en' => 'English,English,us',
-        'af' => 'Afrikaans,Afrikaans,za',
-        'sq' => 'Albanian,Shqip,al',
-        'ar' => 'Arabic,العربية,sa',
-        'hy' => 'Armenian,Հայերեն,am',
-        'az' => 'Azerbaijani,azərbaycan dili,az',
-        'eu' => 'Basque,euskara,basque',
-        'be' => 'Belarusian,Беларуская,by',
-        'bg' => 'Bulgarian,Български,bg',
-        'ca' => 'Catalan,Català,catalonia',
-        'zh' => 'Chinese (Simplified),中文(简体),cn',
-        'zh-tw' => 'Chinese (Traditional),中文(漢字),tw',
-        'hr' => 'Croatian,Hrvatski,hr',
-        'cs' => 'Czech,čeština,cz',
-        'da' => 'Danish,dansk,dk',
-        'nl' => 'Dutch,Nederlands,nl',
-        'et' => 'Estonian,Eesti keel,ee',
-        'fi' => 'Finnish,Suomi,fi',
-        'fr' => 'French,Français,fr',
-        'gl' => 'Galician,Galego,galicia',
-        'ka' => 'Georgian,ქართული,ge',
-        'de' => 'German,Deutsch,de',
-        'el' => 'Greek,Ελληνικά,gr',
-        'ht' => 'Haitian,Kreyòl ayisyen,ht',
-        'he' => 'Hebrew,עברית,il',
-        'hi' => 'Hindi,हिन्दी; हिंदी,in',
-        'hu' => 'Hungarian,magyar,hu',
-        'is' => 'Icelandic,íslenska,is',
-        'id' => 'Indonesian,Bahasa Indonesia,id',
-        'ga' => 'Irish,Gaeilge,ie',
-        'it' => 'Italian,Italiano,it',
-        'ja' => 'Japanese,日本語,jp',
-        'ko' => 'Korean,우리말,kr',
-        'lv' => 'Latvian,latviešu valoda,lv',
-        'lt' => 'Lithuanian,lietuvių kalba,lt',
-        'mk' => 'Macedonian,македонски јазик,mk',
-        'ms' => 'Malay,bahasa Melayu,my',
-        'mt' => 'Maltese,Malti,mt',
-        'no' => 'Norwegian,Norsk,no',
-        'fa' => 'Persian,فارسی,ir',
-        'pl' => 'Polish,Polski,pl',
-        'pt' => 'Portuguese,Português,pt',
-        'ro' => 'Romanian,Română,ro',
-        'ru' => 'Russian,Русский,ru',
-        'sr' => 'Serbian,српски језик,rs',
-        'sk' => 'Slovak,slovenčina,sk',
-        'sl' => 'Slovene,slovenščina,sl', //slovenian
-        'es' => 'Spanish,Español,es',
-        'sw' => 'Swahili,Kiswahili,ke',
-        'sv' => 'Swedish,svenska,se',
-        'tl' => 'Tagalog,Tagalog,ph', // fhilipino
-        'th' => 'Thai,ภาษาไทย,th',
-        'tr' => 'Turkish,Türkçe,tr',
-        'uk' => 'Ukrainian,Українська,ua',
-        'ur' => 'Urdu,اردو,pk',
-        'vi' => 'Vietnamese,Tiếng Việt,vn',
-        'cy' => 'Welsh,Cymraeg,wales',
-        'yi' => 'Yiddish,ייִדיש,europeanunion'
+        'en' => 'English,English,us,en_US',
+        'af' => 'Afrikaans,Afrikaans,za,',
+        'sq' => 'Albanian,Shqip,al,',
+        'ar' => 'Arabic,العربية,sa,',
+        'hy' => 'Armenian,Հայերեն,am,',
+        'az' => 'Azerbaijani,azərbaycan dili,az,',
+        'eu' => 'Basque,euskara,basque,',
+        'be' => 'Belarusian,Беларуская,by,',
+        'bg' => 'Bulgarian,Български,bg,bg_BG',
+        'ca' => 'Catalan,Català,catalonia,',
+        'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
+        'zh-tw' => 'Chinese (Traditional),中文(漢字),tw,zh_TW',
+        'hr' => 'Croatian,Hrvatski,hr,',
+        'cs' => 'Czech,čeština,cz,cs_CZ',
+        'da' => 'Danish,dansk,dk,da_DK',
+        'nl' => 'Dutch,Nederlands,nl,',
+        'et' => 'Estonian,Eesti keel,ee,',
+        'fi' => 'Finnish,Suomi,fi,',
+        'fr' => 'French,Français,fr,fr_FR',
+        'gl' => 'Galician,Galego,galicia,gl_ES',
+        'ka' => 'Georgian,ქართული,ge,ka_GE',
+        'de' => 'German,Deutsch,de,de_DE',
+        'el' => 'Greek,Ελληνικά,gr,',
+        'ht' => 'Haitian,Kreyòl ayisyen,ht,',
+        'he' => 'Hebrew,עברית,il,he_IL',
+        'hi' => 'Hindi,हिन्दी; हिंदी,in,hi_IN',
+        'hu' => 'Hungarian,magyar,hu,hu_HU',
+        'is' => 'Icelandic,íslenska,is,',
+        'id' => 'Indonesian,Bahasa Indonesia,id,id_ID',
+        'ga' => 'Irish,Gaeilge,ie,',
+        'it' => 'Italian,Italiano,it,it_IT',
+        'ja' => 'Japanese,日本語,jp,',
+        'ko' => 'Korean,우리말,kr,ko_KR',
+        'lv' => 'Latvian,latviešu valoda,lv,',
+        'lt' => 'Lithuanian,lietuvių kalba,lt,',
+        'mk' => 'Macedonian,македонски јазик,mk,mk_MK',
+        'ms' => 'Malay,bahasa Melayu,my,ms_MY',
+        'mt' => 'Maltese,Malti,mt,',
+        'no' => 'Norwegian,Norsk,no,nb_NO',
+        'fa' => 'Persian,فارسی,ir,fa_IR',
+        'pl' => 'Polish,Polski,pl,pl_PL',
+        'pt' => 'Portuguese,Português,pt,pt_PT',
+        'ro' => 'Romanian,Română,ro,ro_RO',
+        'ru' => 'Russian,Русский,ru,ru_RU',
+        'sr' => 'Serbian,српски језик,rs,sr_RS',
+        'sk' => 'Slovak,slovenčina,sk,sk_SK',
+        'sl' => 'Slovene,slovenščina,sl,sl_SI', //slovenian
+        'es' => 'Spanish,Español,es,es_ES',
+        'sw' => 'Swahili,Kiswahili,ke,',
+        'sv' => 'Swedish,svenska,se,sv_SE',
+        'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
+        'th' => 'Thai,ภาษาไทย,th,',
+        'tr' => 'Turkish,Türkçe,tr,tr_TR',
+        'uk' => 'Ukrainian,Українська,ua,',
+        'ur' => 'Urdu,اردو,pk,',
+        'vi' => 'Vietnamese,Tiếng Việt,vn,',
+        'cy' => 'Welsh,Cymraeg,wales,',
+        'yi' => 'Yiddish,ייִדיש,europeanunion,'
     );
 //Language which are read from right to left (rtl)
     public static $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
@@ -324,4 +326,42 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   zu	Zulu	isiZulu
 
  */
+
+/* List of unused wordpress locales (27-Aug-2010)
+# bn_BD/ Bengali
+# bs_BA/ Bosnian
+# ckb/ Kurdish
+# cpp/ ??
+# el/
+# eo/ esperanto
+# es_CL/
+# es_PE/
+# es_VE/
+# fo/ foroese
+# fr_BE/
+# fy/
+# jv_ID/
+# /
+# kea/ ??
+# kn/
+# /
+# ky_KY/
+# ml_IN/
+# mn/
+# my_MM/
+# nb_NO/ ? good Question, popped into Norway
+# ne_NP/
+# nn_NO/ ? same question
+# pa_IN/
+# pt_BR/
+# ru_UA/
+# sd_PK/
+# si_LK/
+# su_ID/
+# ta_IN/
+# ug_CN/
+# uz_UZ/
+# zh_HK/
+*/
+
 ?>
