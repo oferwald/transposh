@@ -331,6 +331,7 @@ class transposh_plugin {
           logger("requested language: {$this->target_language}"); */
         // TODO TOCHECK!!!!!!!!!!!!!!!!!!!!!!!!!!1
         $this->target_language = $this->tgl;
+        if (!$this->target_language) $this->target_language = $this->options->get_default_language();
         logger("requested language: {$this->target_language}");
 
 
