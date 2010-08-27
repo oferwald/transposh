@@ -267,7 +267,7 @@ class parser {
                 return 3;
         //·
         if (ord($char) == 194 && ord($nextchar) == 183) return 2;
-        return (strpos(',?()[]"!:|;'.TP_GETTEXT_BREAKER.TP_GETTEXT_CLOSER.TP_GETTEXT_INNER_BREAKER.TP_GETTEXT_INNER_BREAKER_CLOSER, $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
+        return (strpos(',?()[]"!:|;'.TP_GTXT_BRK.TP_GTXT_BRK_CLOSER.TP_GTXT_IBRK.TP_GTXT_IBRK_CLOSER, $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
     }
 
     /**
