@@ -59,7 +59,6 @@ class transposh_plugin {
     public $postpublish;
     /** @var transposh_3rdparty Happens after editing */
     private $third_party;
-
     // list of properties
     /** @var string The site url */
     public $home_url;
@@ -71,8 +70,10 @@ class transposh_plugin {
     public $transposh_plugin_dir;
     /** @var boolean Enable rewriting of URLs */
     public $enable_permalinks_rewrite;
-    /** @var string The language to translate the page to */
+    /** @var string The language to translate the page to, from params */
     public $target_language;
+    /** @var string The language extracted from the url */
+    public $tgl;
     /** @var boolean Are we currently editing the page? */
     public $edit_mode;
     /** @var string Error message displayed for the admin in case of failure */
@@ -138,13 +139,17 @@ class transposh_plugin {
         // allow to mark the language?
 //        add_action('admin_menu', array(&$this, 'transposh_post_language'));
 //        add_action('save_post', array(&$this, 'transposh_save_post_language'));
-
         //TODO add_action('manage_comments_nav', array(&$this,'manage_comments_nav'));
         //TODO comment_row_actions (filter)
-        // toying around the mo/po stuff
-        add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 3);
+        // Intergrating with the gettext interface
+        add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 2);
+        add_filter('gettext_with_context', array(&$this, 'transposh_gettext_filter'), 10, 2);
+        add_filter('ngettext', array(&$this, 'transposh_ngettext_filter'), 10, 3);
+        add_filter('ngettext_with_context', array(&$this, 'transposh_ngettext_filter'), 10, 3);
         add_filter('locale', array(&$this, 'transposh_locale_filter'));
 
+        //CHECK TODO!!!!!!!!!!!!
+        $this->tgl = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
@@ -243,7 +248,7 @@ class transposh_plugin {
      * Page generation completed - flush buffer.
      */
     function on_shutdown() {
-        ob_flush();
+        //TODO !!!!!!!!!!!! ob_flush();
     }
 
     /**
@@ -320,10 +325,14 @@ class transposh_plugin {
         if ($this->target_language) return;
 
         // first we get the target language
-        $this->target_language = $wp->query_vars[LANG_PARAM];
-        if (!$this->target_language)
-                $this->target_language = $this->options->get_default_language();
+        /*        $this->target_language = (isset($wp->query_vars[LANG_PARAM])) ? $wp->query_vars[LANG_PARAM] : '';
+          if (!$this->target_language)
+          $this->target_language = $this->options->get_default_language();
+          logger("requested language: {$this->target_language}"); */
+        // TODO TOCHECK!!!!!!!!!!!!!!!!!!!!!!!!!!1
+        $this->target_language = $this->tgl;
         logger("requested language: {$this->target_language}");
+
 
         // make themes that support rtl - go rtl http://wordpress.tv/2010/05/01/yoav-farhi-right-to-left-themes-sf10
         if (in_array($this->target_language, transposh_consts::$rtl_languages)) {
@@ -675,6 +684,7 @@ class transposh_plugin {
             }
             $n = !empty($q['exact']) ? '' : '%';
             $searchand = '';
+            $search = '';
             foreach ((array) $q['search_terms'] as $term) {
                 // now we'll get possible translations for this term
                 $possible_original_terms = $this->database->get_orignal_phrases_for_search_term($term, $this->target_language);
@@ -819,13 +829,50 @@ class transposh_plugin {
         return $query;
     }
 
-    function transposh_gettext_filter($a, $orig, $domain) {
-        //logger("$a $orig $domain");
-        return $a;
+    /**
+     * This function adds our markings around gettext results
+     * @param string $translation
+     * @param string $orig
+     * @return string
+     */
+    function transposh_gettext_filter($translation, $orig) {
+        if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate())) {
+            logger($translation);
+            return $translation;
+        }
+        if ($translation != $orig) {
+            $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
+        }
+        $translation = str_replace(array('%s', '%1$s', '%2$s', '%3$s', '%4$s', '%5$s'), array(TP_GTXT_IBRK . '%s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%1$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%2$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%3$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%4$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%5$s' . TP_GTXT_IBRK_CLOSER), $translation);
+        return $translation;
+    }
+
+    /**
+     * This function adds our markings around ngettext results
+     * @param string $translation
+     * @param string $single
+     * @param string $plural
+     * @return string
+     */
+    function transposh_ngettext_filter($translation, $single, $plural) {
+        if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate()))
+                return $translation;
+        if ($translation != $single && $translation != $plural) {
+            $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
+        }
+        $translation = str_replace(array('%s', '%1$s', '%2$s', '%3$s', '%4$s', '%5$s'), array(TP_GTXT_IBRK . '%s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%1$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%2$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%3$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%4$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%5$s' . TP_GTXT_IBRK_CLOSER), $translation);
+        return $translation;
     }
 
     function transposh_locale_filter($locale) {
-        //logger($locale);
+        $lang = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
+        if (!$lang) return $locale;
+        list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);
+        if ($locale) {
+            return $locale;
+        } else {
+            return $lang;
+        }
         return $locale;
     }
 

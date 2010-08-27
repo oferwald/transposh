@@ -267,7 +267,7 @@ class parser {
                 return 3;
         //·
         if (ord($char) == 194 && ord($nextchar) == 183) return 2;
-        return (strpos(',?()[]"!:|;', $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
+        return (strpos(',?()[]"!:|;'.TP_GETTEXT_BREAKER.TP_GETTEXT_CLOSER.TP_GETTEXT_INNER_BREAKER.TP_GETTEXT_INNER_BREAKER_CLOSER, $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
     }
 
     /**
@@ -285,7 +285,10 @@ class parser {
      */
     function tag_phrase($string, $start, $end) {
         $phrase = trim(substr($string, $start, $end - $start));
-        if ($this->in_get_text && !$this->in_get_text_inner) {
+//        $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
+//        logger ("p:$phrase, s:$logstr, st:$start, en:$end, gt:{$this->in_get_text}, gti:{$this->in_get_text_inner}");
+//        logger ('');
+        if ($this->in_get_text > $this->in_get_text_inner) {
             logger('not tagging ' . $phrase . ' assumed gettext translated', 4);
             return;
         }
@@ -340,24 +343,32 @@ class parser {
                     $pos++;
                 $pos++;
                 $start = $pos;
-            } elseif ($string[$pos] == TP_GETTEXT_BREAKER) {
-                logger("text breaker $start $pos $string " . (($this->in_get_text) ? 'true' : 'false'), 5);
+            } elseif ($string[$pos] == TP_GTXT_BRK || $string[$pos] == TP_GTXT_BRK_CLOSER) {
+//                $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
+//                $closers = ($string[$pos] == TP_GTXT_BRK) ? '': 'closer';
+//                logger(" $closers TEXT breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text, 3);
                 $this->tag_phrase($string, $start, $pos);
+                ($string[$pos] == TP_GTXT_BRK) ? $this->in_get_text += 1: $this->in_get_text -= 1;
                 $pos++;
                 $start = $pos;
-                $this->in_get_text = !$this->in_get_text; // flipping state
-                if ($pos == 1)
-                        $this->in_get_text = true; // reset state based on string start
- $this->in_get_text_inner = false;
-            } elseif ($string[$pos] == TP_GETTEXT_INNER_BREAKER) {
-                logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
+                // reset state based on string start, no need to flip
+                //$this->in_get_text = ($pos == 1);
+                //if (!$this->in_get_text) $this->in_get_text_inner = false;
+            } elseif ($string[$pos] == TP_GTXT_IBRK || $string[$pos] == TP_GTXT_IBRK_CLOSER ) {
+//                $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
+//                $closers = ($string[$pos] == TP_GTXT_IBRK) ? '': 'closer';
+//                logger("   $closers INNER text breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text_inner, 3);
+                //logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
                 $this->tag_phrase($string, $start, $pos);
+                if ($this->in_get_text)
+                ($string[$pos] == TP_GTXT_IBRK) ? $this->in_get_text_inner += 1 : $this->in_get_text_inner -=1;
                 $pos++;
                 $start = $pos;
-                $this->in_get_text_inner = !$this->in_get_text_inner;
+                //$this->in_get_text_inner = !$this->in_get_text_inner;
             }
             // will break translation unit when there's a breaker ",.[]()..."
             elseif ($senb_len = $this->is_sentence_breaker($string[$pos], $string[$pos + 1], $string[$pos + 2])) {
+//                logger ("sentence breaker...");
                 $this->tag_phrase($string, $start, $pos);
                 $pos += $senb_len;
                 $start = $pos;
@@ -365,22 +376,27 @@ class parser {
             // Numbers also break, if they are followed by whitespace (or a sentence breaker) (don't break 42nd) // TODO: probably by breaking entities too...
             // also prefixed by whitespace?
             elseif ($num_len = $this->is_number($string, $pos)) {
+//                logger ("numnum... $num_len");
                 // this is the case of B2 or B2,
                 if (($this->is_white_space($string[$pos - 1]) || ($start == $pos)
                         || ($this->is_sentence_breaker($string[$pos + $num_len - 1], $string[$pos + $num_len], $string[$pos + $num_len + 1]))) &&
                         ($this->is_white_space($string[$pos + $num_len]) || $this->is_sentence_breaker($string[$pos + $num_len], $string[$pos + $num_len + 1], $string[$pos + $num_len + 2]))) {
                     // we will now compensate on the number followed by breaker case, if we need to
+//                            logger ("compensate part1?");
                     if (!($this->is_white_space($string[$pos - 1]) || ($start == $pos))) {
+//                            logger ("compensate part2?");
                         if ($this->is_sentence_breaker($string[$pos + $num_len - 1], $string[$pos + $num_len], $string[$pos + $num_len + 1])) {
+//                            logger ("compensate 3?");
                             $num_len--; //this makes the added number shorter by one, and the pos will be at a sentence breaker next so we don't have to compensate
                         }
                         $pos += $num_len;
                         $num_len = 0; // we have already added this
                     }
                     $this->tag_phrase($string, $start, $pos);
-                    $start = $pos + $num_len + 1;
+                    $start = $pos + $num_len /*+1*/;
                 }
-                $pos += $num_len + 1;
+                $pos += $num_len/* + 1*/;
+//                logger ("numnumpos... $pos");
             } else {
                 // smarter marking of start location
                 if ($start == $pos && $this->is_white_space($string[$pos]))
@@ -554,6 +570,7 @@ class parser {
         // create our dom
         $this->html = str_get_html($string);
         // mark translateable elements
+        $this->html->find('html', 0)->lang = ''; // Document defined lang may be preset to correct lang, but should be ignored TODO: Better?
         $this->translate_tagging($this->html->root);
 
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
@@ -755,7 +772,7 @@ class parser {
                 $head->lastChild()->outertext .= "\n<meta name=\"translation-stats\" content='" . json_encode($this->stats) . "'/>";
 
         // we make sure that the result is clear from our shananigans
-        return str_replace(array(TP_GETTEXT_BREAKER, TP_GETTEXT_INNER_BREAKER), '', $this->html->outertext);
+        return str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $this->html->outertext);
         // Changed because of places where tostring failed
         //return $this->html;
         //return $this->html->outertext;
