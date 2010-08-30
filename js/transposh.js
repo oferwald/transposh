@@ -135,7 +135,7 @@
 
     // happens on traslate success
     function auto_translate_success(token, translation) {
-        ajax_translate(token, $("<div>" + translation + "</div>").text());
+        ajax_translate(token, $("<div>" + $.trim(translation) + "</div>").text());
         make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
     }
 
