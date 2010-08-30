@@ -97,7 +97,7 @@
         $(":button:contains('Suggest - Bing')").attr("disabled", "").removeClass("ui-state-disabled");
         google_trans($("#" + t_jp.prefix + "original").val(), function (result) {
             if (result.responseStatus === 200) {
-                $("#" + t_jp.prefix + "translation").val($("<div>" + result.responseData.translatedText + "</div>").text())
+                $("#" + t_jp.prefix + "translation").val($("<div>" + $.trim(result.responseData.translatedText) + "</div>").text())
                 .keyup();
             }
         });
@@ -119,7 +119,7 @@
         $(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
         $(":button:contains('Suggest - Google')").attr("disabled", "").removeClass("ui-state-disabled");
         ms_trans($("#" + t_jp.prefix + "original").val(), function (translation) {
-            $("#" + t_jp.prefix + "translation").val($("<div>" + translation + "</div>").text())
+            $("#" + t_jp.prefix + "translation").val($("<div>" + $.trim(translation) + "</div>").text())
             .keyup();
         });
     }
