@@ -107,7 +107,7 @@ class transposh_plugin_widget {
         if ($file && file_exists($widget_src)) {
             include_once $widget_src;
         } else {
-            $file = 'tpw_default.php';
+            $file = 'default/tpw_default.php';
             include_once $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
         }
         $this->base_widget_file_name = substr($file, 0, -4);
