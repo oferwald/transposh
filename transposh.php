@@ -110,7 +110,7 @@ class transposh_plugin {
 
         $this->post_url = "{$this->transposh_plugin_url}/wp/transposh_ajax.php";
 
-        logger("Object created" . $_SERVER['REQUEST_URI'], 3);
+        logger('Object created: ' . $_SERVER['REQUEST_URI'], 3);
 
         //Register some functions into wordpress
         logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
@@ -132,6 +132,7 @@ class transposh_plugin {
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
+        // comment_moderation_text - future filter TODO
 
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
@@ -163,6 +164,7 @@ class transposh_plugin {
     function is_special_page($url) {
         return ( stripos($url, '/wp-login.php') !== FALSE ||
         stripos($url, '/wp-admin/') !== FALSE ||
+        stripos($url, '/wp-comments-post') !== FALSE ||
         stripos($url, '/xmlrpc.php') !== FALSE);
     }
 
@@ -178,43 +180,43 @@ class transposh_plugin {
         // Refrain from touching the administrative interface and important pages
         if ($this->is_special_page($_SERVER['REQUEST_URI'])) {
             logger("Skipping translation for admin pages", 3);
-            return $buffer;
         }
 
         // This one fixed a bug transposh created with other pages (xml generator for other plugins - such as the nextgen gallery)
         // TODO: need to further investigate (will it be needed?)
-        if ($this->target_language == '') return $buffer;
+        elseif ($this->target_language == '') {
+            logger("Skipping translation where target language is unset", 3);
+        }
         // Don't translate the default language unless specifically allowed to...
-        if ($this->options->is_default_language($this->target_language) && !$this->options->get_enable_default_translate()) {
+        elseif ($this->options->is_default_language($this->target_language) && !$this->options->get_enable_default_translate()) {
             logger("Skipping translation for default language {$this->target_language}", 3);
-            return $buffer;
+        } else {
+            logger("Translating {$_SERVER['REQUEST_URI']} to: {$this->target_language}", 1);
+
+            //translate the entire page
+            $parse = new parser();
+            $parse->fetch_translate_func = array(&$this->database, 'fetch_translation');
+            $parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
+            $parse->url_rewrite_func = array(&$this, 'rewrite_url');
+            $parse->dir_rtl = (in_array($this->target_language, transposh_consts::$rtl_languages));
+            $parse->lang = $this->target_language;
+            $parse->default_lang = $this->options->is_default_language($this->target_language);
+            $parse->is_edit_mode = $this->edit_mode;
+            $parse->is_auto_translate = $this->is_auto_translate_permitted();
+            $parse->allow_ad = $this->options->get_widget_remove_logo();
+            // TODO - check this!
+            if (stripos($_SERVER['REQUEST_URI'], '/feed/') !== FALSE) {
+                logger("in feed!");
+                $parse->is_auto_translate = false;
+                $parse->is_edit_mode = false;
+                $parse->feed_fix = true;
+            }
+            $buffer = $parse->fix_html($buffer);
+
+            $end_time = microtime(TRUE);
+            logger('Translation completed in ' . ($end_time - $start_time) . ' seconds', 1);
         }
-
-        logger("Translating {$_SERVER['REQUEST_URI']} to: {$this->target_language}", 1);
-
-        //translate the entire page
-        $parse = new parser();
-        $parse->fetch_translate_func = array(&$this->database, 'fetch_translation');
-        $parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
-        $parse->url_rewrite_func = array(&$this, 'rewrite_url');
-        $parse->dir_rtl = (in_array($this->target_language, transposh_consts::$rtl_languages));
-        $parse->lang = $this->target_language;
-        $parse->default_lang = $this->options->is_default_language($this->target_language);
-        $parse->is_edit_mode = $this->edit_mode;
-        $parse->is_auto_translate = $this->is_auto_translate_permitted();
-        $parse->allow_ad = $this->options->get_widget_remove_logo();
-        // TODO - check this!
-        if (stripos($_SERVER['REQUEST_URI'], '/feed/') !== FALSE) {
-            logger("in feed!");
-            $parse->is_auto_translate = false;
-            $parse->is_edit_mode = false;
-            $parse->feed_fix = true;
-        }
-        $buffer = $parse->fix_html($buffer);
-
-        $end_time = microtime(TRUE);
-        logger('Translation completed in ' . ($end_time - $start_time) . ' seconds', 1);
-
+ 
         return $buffer;
     }
 
@@ -331,7 +333,8 @@ class transposh_plugin {
           logger("requested language: {$this->target_language}"); */
         // TODO TOCHECK!!!!!!!!!!!!!!!!!!!!!!!!!!1
         $this->target_language = $this->tgl;
-        if (!$this->target_language) $this->target_language = $this->options->get_default_language();
+        if (!$this->target_language)
+                $this->target_language = $this->options->get_default_language();
         logger("requested language: {$this->target_language}");
 
 
@@ -838,7 +841,6 @@ class transposh_plugin {
      */
     function transposh_gettext_filter($translation, $orig) {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate())) {
-            logger($translation);
             return $translation;
         }
         if ($translation != $orig) {
