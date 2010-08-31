@@ -40,7 +40,7 @@ function make_progress(translation, lang) {
 
 // batch items for posting to server.. nice touch added for different sources for same batch...
 function ajax_translate_me(token, translation, lang, source) {
-    translation = jQuery("<div>" + $.trim(translation) + "</div>").text(); // fix some char bugs
+    translation = jQuery("<div>" + jQuery.trim(translation) + "</div>").text(); // fix some char bugs
     make_progress(translation, lang);
     // we aggregate translations together, 200ms from the last translation we will send the timer
     // so here we remove it so nothing unexpected happens
