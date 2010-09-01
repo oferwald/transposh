@@ -133,7 +133,6 @@ class transposh_plugin {
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
         // comment_moderation_text - future filter TODO
-
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
         add_filter('the_title', array(&$this, 'post_wrap'), 9999, 2);
@@ -216,7 +215,7 @@ class transposh_plugin {
             $end_time = microtime(TRUE);
             logger('Translation completed in ' . ($end_time - $start_time) . ' seconds', 1);
         }
- 
+
         return $buffer;
     }
 
@@ -432,8 +431,8 @@ class transposh_plugin {
         $GLOBALS['wp_rewrite']->flush_rules();
 
         // attempt to remove old files
-	@unlink($this->transposh_plugin_dir.'widgets/tpw_default.php');
-	@unlink($this->transposh_plugin_dir.'core/globals.php');
+        @unlink($this->transposh_plugin_dir . 'widgets/tpw_default.php');
+        @unlink($this->transposh_plugin_dir . 'core/globals.php');
 
         logger("plugin_activate exit: " . dirname(__FILE__));
         logger("testing name:" . plugin_basename(__FILE__));
@@ -618,6 +617,8 @@ class transposh_plugin {
     function rewrite_url($href) {
         $use_params = FALSE;
         logger("got: $href", 5);
+        // fix what might be messed up
+        $href = str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $href);
 
         // Ignore urls not from this site
         if (stripos($href, $this->home_url) === FALSE) {
