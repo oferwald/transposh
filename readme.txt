@@ -165,6 +165,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.6.3 =
+Support .po/.mo files
 = 0.6.0 =
 Much improved translation interface engine
 = 0.5.7 =
@@ -191,6 +193,14 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/09/01 - 0.6.3 =
+ * Support for gettext files (.po/.mo) files - see http://trac.transposh.org/wiki/UsingGetText
+ * Support backend memory caching with xcache and eaccelarator in addition to apc
+ * Improved caching to save resources (43% on APC) better overall performance with negative caching that is actually working
+ * Tags from the tag cloud will now be translated with mass translate
+ * Fix for the sneaky "not a valid plugin header" issue
+ * Fix for MS translate tendency to add an extra space
+ * Fixed bug with list with flags css widget preventing the view of flags
 = 2010/08/09 - 0.6.2 =
  * Allow marking of complete posts in different languages (see FAQ)
  * Fixed typo in buddypress stream (thanks revonorway)
