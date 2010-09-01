@@ -75,7 +75,8 @@ class transposh_database {
             logger('eaccelerator', 5);
         }
         logger("Cache fetched: $original => $cached", 4);
-        if ($cached !== null) $cached = explode('_', $cached, 2);
+        if ($cached !== null && $cached !== false)
+                $cached = explode('_', $cached, 2);
         return $cached;
     }
 
@@ -163,7 +164,7 @@ class transposh_database {
         foreach ($rows as $row) {
             $this->translations[$row['original']] = array($row['source'], stripslashes($row['translated']));
         }
-        logger('prefetched: '.count($this->translations), 5);
+        logger('prefetched: ' . count($this->translations), 5);
     }
 
     /**
@@ -220,7 +221,7 @@ class transposh_database {
         // The translation is saved in db in its escaped form
         $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
         // The translation might be cached (notice the additional postfix)
-        list($rev,$cached) = $this->cache_fetch('R_' . $translation, $lang);
+        list($rev, $cached) = $this->cache_fetch('R_' . $translation, $lang);
         if ($rev == 'r') {
             logger("Exit from cache: $translation $cached", 4);
             return $cached;
@@ -240,7 +241,7 @@ class transposh_database {
         }
 
         // we can store the result in the cache (or the fact we don't have one)
-        $this->cache_store('R_' . $translation, $lang, array('r',$original), TP_CACHE_TTL);
+        $this->cache_store('R_' . $translation, $lang, array('r', $original), TP_CACHE_TTL);
 
         logger("Exit: $translation/$original", 4);
         return $original;
