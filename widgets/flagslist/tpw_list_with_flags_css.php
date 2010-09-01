@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: List with flags (css)
+  Plugin Name: List with flags (CSS)
   Plugin URI: http://transposh.org/
   Description: Widget with flags links (using css sprites) followed by language name
   Author: Team Transposh
