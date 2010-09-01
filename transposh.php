@@ -431,6 +431,10 @@ class transposh_plugin {
         add_filter('rewrite_rules_array', array(&$this, 'update_rewrite_rules'));
         $GLOBALS['wp_rewrite']->flush_rules();
 
+        // attempt to remove old files
+	@unlink($this->transposh_plugin_dir.'widgets/tpw_default.php');
+	@unlink($this->transposh_plugin_dir.'core/globals.php');
+
         logger("plugin_activate exit: " . dirname(__FILE__));
         logger("testing name:" . plugin_basename(__FILE__));
         logger("testing name2:" . $this->get_plugin_name());
