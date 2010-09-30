@@ -128,6 +128,9 @@ define('SPAN_PREFIX', 'tr_');
 //The name of our admin page
 define('TRANSPOSH_ADMIN_PAGE_NAME', 'transposh');
 
+//Our text domain
+define('TRANSPOSH_TEXT_DOMAIN','transposh');
+
 //0.3.5 - Storing all options in this config option
 define('TRANSPOSH_OPTIONS', 'transposh_options');
 
