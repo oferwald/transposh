@@ -8,6 +8,8 @@
   Version: %VERSION%
   Author URI: http://transposh.org/
   License: GPL (http://www.gnu.org/licenses/gpl.txt)
+  Text Domain: transposh
+  Domain Path: /langs
  */
 
 /*
@@ -124,6 +126,7 @@ class transposh_plugin {
         add_filter('comment_post_redirect', array(&$this, 'comment_post_redirect_filter'));
         add_filter('comment_text', array(&$this, 'comment_text_wrap'), 9999); // this is a late filter...
         add_action('init', array(&$this, 'on_init'), 0); // really high priority
+//        add_action('admin_init', array(&$this, 'on_admin_init')); might use to mark where not to work?
         add_action('parse_request', array(&$this, 'on_parse_request'));
         add_action('plugins_loaded', array(&$this, 'plugin_loaded'));
         add_action('shutdown', array(&$this, 'on_shutdown'));
@@ -142,18 +145,34 @@ class transposh_plugin {
         //TODO add_action('manage_comments_nav', array(&$this,'manage_comments_nav'));
         //TODO comment_row_actions (filter)
         // Intergrating with the gettext interface
-        add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 2);
-        add_filter('gettext_with_context', array(&$this, 'transposh_gettext_filter'), 10, 2);
-        add_filter('ngettext', array(&$this, 'transposh_ngettext_filter'), 10, 3);
-        add_filter('ngettext_with_context', array(&$this, 'transposh_ngettext_filter'), 10, 3);
+        add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 3);
+        add_filter('gettext_with_context', array(&$this, 'transposh_gettext_filter'), 10, 3);
+        add_filter('ngettext', array(&$this, 'transposh_ngettext_filter'), 10, 4);
+        add_filter('ngettext_with_context', array(&$this, 'transposh_ngettext_filter'), 10, 4);
         add_filter('locale', array(&$this, 'transposh_locale_filter'));
 
+        //
+//FUTURE        add_action('update-custom_transposh', array(&$this, 'update'));
         //CHECK TODO!!!!!!!!!!!!
         $this->tgl = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
     }
+
+//    function update() {
+    //  echo 'hi';
+//        logger('meo');
+//        require_once('./admin-header.php');
+
+    /* 	$nonce = 'upgrade-plugin_' . $plugin;
+      $url = 'update.php?action=upgrade-plugin&plugin=' . $plugin;
+
+      $upgrader = new Plugin_Upgrader( new Plugin_Upgrader_Skin( compact('title', 'nonce', 'url', 'plugin') ) );
+      $upgrader->upgrade($plugin);
+     */
+//        include('./admin-footer.php');
+//    }
 
     /**
      * Check if page is special (one that we normally should not touch
@@ -219,6 +238,10 @@ class transposh_plugin {
         return $buffer;
     }
 
+//    function on_admin_init() {
+//        logger("admin init called");
+//    }
+
     /**
      * Setup a buffer that will contain the contents of the html page.
      * Once processing is completed the buffer will go into the translation process.
@@ -240,6 +263,9 @@ class transposh_plugin {
         if (substr($_SERVER['SCRIPT_FILENAME'], -11) == 'wp-load.php') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
         }
+
+        // load translation files for transposh
+        load_plugin_textdomain(TRANSPOSH_TEXT_DOMAIN, false, dirname(plugin_basename(__FILE__)) . '/langs');
 
         //set the callback for translating the page when it's done
         ob_start(array(&$this, "process_page"));
@@ -556,7 +582,6 @@ class transposh_plugin {
             'prefix' => SPAN_PREFIX,
             'preferred' => $this->options->get_preferred_translator()
         );
-        if ($this->edit_mode) $script_params['edit'] = 1;
         if (in_array($this->target_language, transposh_consts::$bing_languages))
                 $script_params['msn'] = 1;
         if (in_array($this->target_language, transposh_consts::$google_languages))
@@ -568,6 +593,15 @@ class transposh_plugin {
         if (!$this->options->get_enable_auto_translate())
                 $script_params['noauto'] = 1;
 
+        // load translations needed for edit interface
+        if ($this->edit_mode) {
+            $script_params['edit'] = 1;
+            $script_params['edit_box_title'] = _x('Edit Translation', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
+            $script_params['edit_box_translate'] = _x('Translate', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
+            $script_params['edit_box_history'] = _x('History', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
+            $script_params['edit_box_original'] = _x('Original Text', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
+            $script_params['edit_box_translate_to'] = _x('Translate To', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
+        }
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
         logger('Added transposh_js', 4);
@@ -652,7 +686,7 @@ class transposh_plugin {
      */
     function plugin_action_links($links) {
         logger('in plugin action');
-        return array_merge(array('<a href="' . admin_url('options-general.php?page=' . TRANSPOSH_ADMIN_PAGE_NAME) . '">Settings</a>'), $links);
+        return array_merge(array('<a href="' . admin_url('options-general.php?page=' . TRANSPOSH_ADMIN_PAGE_NAME) . '">' . __('Settings') . '</a>'), $links);
     }
 
     /**
@@ -844,10 +878,13 @@ class transposh_plugin {
      * @param string $orig
      * @return string
      */
-    function transposh_gettext_filter($translation, $orig) {
+    function transposh_gettext_filter($translation, $orig, $domain) {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate())) {
             return $translation;
         }
+        logger("($translation, $orig, $domain)");
+        // HACK - TODO - FIX
+        if ($domain == "MailPress") return $translation;
         if ($translation != $orig) {
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }
@@ -862,9 +899,11 @@ class transposh_plugin {
      * @param string $plural
      * @return string
      */
-    function transposh_ngettext_filter($translation, $single, $plural) {
+    function transposh_ngettext_filter($translation, $single, $plural, $domain) {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate()))
                 return $translation;
+        logger("($translation, $single, $plural, $domain)");
+        if ($domain == "MailPress") return $translation;
         if ($translation != $single && $translation != $plural) {
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }
@@ -873,6 +912,7 @@ class transposh_plugin {
     }
 
     function transposh_locale_filter($locale) {
+        //logger($locale);
         $lang = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
         if (!$lang) return $locale;
         list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);

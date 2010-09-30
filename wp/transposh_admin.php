@@ -136,9 +136,9 @@ class transposh_plugin_admin {
     //add some help
     function on_contextual_help($filterVal, $screen) {
         if ($screen == 'settings_page_transposh') {
-            $filterVal['settings_page_transposh'] = '<p>Transposh makes your blog translatable</p>' .
-                    '<a href="http://transposh.org/">Plugin homepage</a><br/>' .
-                    '<a href="http://transposh.org/faq/">Frequently asked questions</a>';
+            $filterVal['settings_page_transposh'] = '<p>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
+                    '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
+                    '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a>';
         }
         return $filterVal;
     }
@@ -146,7 +146,7 @@ class transposh_plugin_admin {
     // extend the admin menu
     function on_admin_menu() {
         //add our own option page, you can also add it to different sections or use your own one
-        $this->pagehook = add_options_page('Transposh control center', 'Transposh', 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'));
+        $this->pagehook = add_options_page(__('Transposh control center', TRANSPOSH_TEXT_DOMAIN), __('Transposh', TRANSPOSH_TEXT_DOMAIN), 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'));
         // register callback gets call prior your own page gets rendered
         add_action('load-' . $this->pagehook, array(&$this, 'on_load_page'));
     }
@@ -186,16 +186,16 @@ class transposh_plugin_admin {
 
 
         //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
-        add_meta_box('transposh-sidebox-about', 'About this plugin', array(&$this, 'on_sidebox_about_content'), $this->pagehook, 'side', 'core');
-        add_meta_box('transposh-sidebox-widget', 'Widget settings', array(&$this, 'on_sidebox_widget_content'), $this->pagehook, 'side', 'core');
-        add_meta_box('transposh-sidebox-news', 'Plugin news', array(&$this, 'on_sidebox_news_content'), $this->pagehook, 'side', 'core');
-        add_meta_box('transposh-sidebox-stats', 'Plugin stats', array(&$this, 'on_sidebox_stats_content'), $this->pagehook, 'side', 'core');
-        add_meta_box('transposh-sidebox-translate', 'Translate all', array(&$this, 'on_sidebox_translate_content'), $this->pagehook, 'side', 'core');
-        add_meta_box('transposh-contentbox-languages', 'Supported languages', array(&$this, 'on_contentbox_languages_content'), $this->pagehook, 'normal', 'core');
-        add_meta_box('transposh-contentbox-translation', 'Translation settings', array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
-        add_meta_box('transposh-contentbox-autotranslation', 'Automatic translation settings', array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
-        add_meta_box('transposh-contentbox-general', 'Generic settings', array(&$this, 'on_contentbox_generic_content'), $this->pagehook, 'normal', 'core');
-        add_meta_box('transposh-contentbox-database', 'Database maintenance', array(&$this, 'on_contentbox_database_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-sidebox-about', __('About this plugin', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_about_content'), $this->pagehook, 'side', 'core');
+        add_meta_box('transposh-sidebox-widget', __('Widget settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_widget_content'), $this->pagehook, 'side', 'core');
+        add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), $this->pagehook, 'side', 'core');
+        add_meta_box('transposh-sidebox-stats', __('Plugin stats', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_stats_content'), $this->pagehook, 'side', 'core');
+        add_meta_box('transposh-sidebox-translate', __('Translate all', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_translate_content'), $this->pagehook, 'side', 'core');
+        add_meta_box('transposh-contentbox-languages', __('Supported languages', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_languages_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-translation', __('Translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-autotranslation', __('Automatic translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-general', __('Generic settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_generic_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-database', __('Database maintenance', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_database_content'), $this->pagehook, 'normal', 'core');
     }
 
     //executed to show the plugins complete admin page
@@ -204,14 +204,14 @@ class transposh_plugin_admin {
         //global $screen_layout_columns;
         //add a 3rd content box now for demonstration purpose, boxes added at start of page rendering can't be switched on/off,
         //may be needed to ensure that a special box is always available
-        add_meta_box('transposh-contentbox-community', 'Transposh community features', array(&$this, 'on_contentbox_community_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-community', __('Transposh community features', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_community_content'), $this->pagehook, 'normal', 'core');
         //define some data can be given to each metabox during rendering - not used now
         //$data = array('My Data 1', 'My Data 2', 'Available Data 1');
 
         echo '<div id="transposh-general" class="wrap">';
         screen_icon('options-general');
 
-        echo '<h2>Transposh</h2>' .
+        echo '<h2>' . __('Transposh', TRANSPOSH_TEXT_DOMAIN) . '</h2>' .
         '<form action="admin-post.php" method="post">';
 
         wp_nonce_field(TR_NONCE);
@@ -255,7 +255,8 @@ class transposh_plugin_admin {
     // executed if the post arrives initiated by pressing the submit button of form
     function on_save_changes() {
         //user permission check
-        if (!current_user_can('manage_options')) wp_die(__('Problems?'));
+        if (!current_user_can('manage_options'))
+                wp_die(__('Problems?', TRANSPOSH_TEXT_DOMAIN));
         // cross check the given referer
         check_admin_referer(TR_NONCE);
 
@@ -271,11 +272,12 @@ class transposh_plugin_admin {
     // i did not describe each callback dedicated, what they do can be easily inspected and compare with the admin page displayed
 
     function on_sidebox_about_content($data) {
-        echo '<ul style="list-style-type:disc;margin-left:20px;">';
-        echo '<li><a href="http://transposh.org/">Plugin Homepage</a></li>';
-        echo '<li><a href="http://transposh.org/redir/newfeature">Suggest a Feature</a></li>';
+        global $wp_locale;
+        echo '<ul style="list-style-type:disc;margin-' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . ':20px;">';
+        echo '<li><a href="http://transposh.org/">' . __('Plugin Homepage', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="http://transposh.org/redir/newfeature">' . __('Suggest a Feature', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         // support Forum
-        echo '<li><a href="http://transposh.org/redir/newticket">Report a Bug</a></li>';
+        echo '<li><a href="http://transposh.org/redir/newticket">' . __('Report a Bug', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         // donate with PayPal
         echo '</ul>';
     }
@@ -286,7 +288,7 @@ class transposh_plugin_admin {
 
     function on_sidebox_news_content($data) {
         echo '<div style="margin:6px">';
-        wp_widget_rss_output('http://feeds2.feedburner.com/transposh',array('items' => 5));
+        wp_widget_rss_output('http://feeds2.feedburner.com/transposh', array('items' => 5));
         echo '</div>';
     }
 
@@ -296,8 +298,8 @@ class transposh_plugin_admin {
 
     function on_sidebox_translate_content($data) {
         echo '<div id="progress_bar_all"></div><div id="tr_translate_title"></div>';
-        echo '<div id="tr_loading" style="margin: 0 0 10px 0">Translate by clicking the button below</div>';
-        echo '<a id="transposh-translate" href="' . $this->transposh->post_url . '?translate_all&offset=1" onclick="return false;" class="button">Translate All Now</a><br/>';
+        echo '<div id="tr_loading" style="margin: 0 0 10px 0">' . __('Translate by clicking the button below', TRANSPOSH_TEXT_DOMAIN) . '</div>';
+        echo '<a id="transposh-translate" href="' . $this->transposh->post_url . '?translate_all&offset=1" onclick="return false;" class="button">' . __('Translate All Now', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         //get_posts
     }
 
@@ -307,9 +309,11 @@ class transposh_plugin_admin {
      */
     function on_contentbox_languages_content($data) {
         // we need some styles
+        global $wp_locale;
+
         echo '<style type="text/css">
 	#sortable { list-style-type: none; margin: 0; padding: 0; }
-	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: left; width: 190px; height: 14px;}
+	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: ' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . '; width: 190px; height: 14px;}
 	.languages {
             -moz-border-radius: 6px;
             -khtml-border-radius: 6px;
@@ -344,7 +348,7 @@ class transposh_plugin_admin {
         display: none;
         }
         .logoicon {
-            float: right;
+            float:' . ($wp_locale->text_direction == 'rtl' ? 'left' : 'right') . ';
             margin-left:2px;
             margin-top:-1px;
         }
@@ -352,38 +356,38 @@ class transposh_plugin_admin {
 
         // this is the default language location
         list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$this->transposh->options->get_default_language()]);
-        echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">Default Language (drag another language here to make it default)';
+        echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">' . __('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN);
         echo '<ul id="default_list"><li id="' . $this->transposh->options->get_default_language() . '" class="languages">'
         . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false/* $this->transposh->options->get_widget_css_flags() */)
         . '<input type="hidden" name="languages[]" value="' . $this->transposh->options->get_default_language() . '" />'
         . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></li>';
         echo '</ul></div>';
         // list of languages
-        echo '<div style="overflow:auto; clear: both;">Available Languages (Click to toggle language state - Drag to sort in the widget)';
+        echo '<div style="overflow:auto; clear: both;">' . __('Available Languages (Click to toggle language state - Drag to sort in the widget)', TRANSPOSH_TEXT_DOMAIN);
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             list ($langname, $langorigname, $flag) = explode(",", $langrecord);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_viewable_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "active" : "")
-            . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:left">'
+            . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . '">'
             . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, false /* $langorigname,$this->transposh->options->get_widget_css_flags() */)
             . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",") . ($this->transposh->options->is_viewable_language($langcode) ? ",t" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
             if (in_array($langcode, transposh_consts::$google_languages))
-                    echo '<img width="16" height="16" alt="g" class="logoicon" title="Language supported by google translate" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
+                    echo '<img width="16" height="16" alt="g" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
             if (in_array($langcode, transposh_consts::$bing_languages))
-                    echo '<img width="16" height="16" alt="b" class="logoicon" title="Language supported by bing translate" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
+                    echo '<img width="16" height="16" alt="b" class="logoicon" title="' . esc_attr__('Language supported by bing translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
             if (in_array($langcode, transposh_consts::$rtl_languages))
-                    echo '<img width="16" height="16" alt="r" class="logoicon" title="Language is written from right to left" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
+                    echo '<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
             echo '</li>';
         }
         echo "</ul></div>";
         // options to play with
-        echo '<div style="clear: both;">Display options:<br/><ul style="list-style-type: disc; margin-left: 20px;font-size:11px">';
-        echo '<li><a href="#" id="changename">Toggle names of languages between English and Original</a></li>';
-        echo '<li><a href="#" id="selectall">Make all languages active</a></li>';
-        echo '<li><a href="#" id="sortname">Sort by language name</a></li>';
-        echo '<li><a href="#" id="sortiso">Sort by lSO code</a></li></ul>';
-        echo 'Legend: Green - active, <span id="yellowcolor"' . ($this->transposh->options->get_anonymous_translation() ? ' class ="hidden"' : '') . '>Yellow - translateable (only translators will see this language), </span>blank - inactive';
+        echo '<div style="clear: both;">' . __('Display options:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: disc; margin-' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . ':20px;font-size:11px">';
+        echo '<li><a href="#" id="changename">' . __('Toggle names of languages between English and Original', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="#" id="selectall">' . __('Make all languages active', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="#" id="sortname">' . __('Sort by language name', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="#" id="sortiso">' . __('Sort by lSO code', TRANSPOSH_TEXT_DOMAIN) . '</a></li></ul>';
+        echo __('Legend:', TRANSPOSH_TEXT_DOMAIN) . ' ' . __('Green - active', TRANSPOSH_TEXT_DOMAIN) . ', <span id="yellowcolor"' . ($this->transposh->options->get_anonymous_translation() ? ' class ="hidden"' : '') . '>' . __('Yellow - translateable (only translators will see this language)', TRANSPOSH_TEXT_DOMAIN) . ', </span>' . __('blank - inactive', TRANSPOSH_TEXT_DOMAIN);
         echo '</div>';
     }
 
@@ -400,40 +404,40 @@ class transposh_plugin_admin {
         /*
          * Insert permissions section in the admin page
          */
-        echo '<h4>Who can translate ?</h4>';
+        echo '<h4>' . __('Who can translate ?', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         //display known roles and their permission to translate
         foreach ($GLOBALS['wp_roles']->get_names() as $role_name => $something) {
             echo '<input type="checkbox" value="1" name="' . $role_name . '" ' . $this->can_translate($role_name) .
-            '/> ' . ucfirst($role_name) . '&nbsp;&nbsp;&nbsp;';
+            '/> ' . _x(ucfirst($role_name), 'User role') . '&nbsp;&nbsp;&nbsp;';
         }
         //Add our own custom role
-        echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" ' . $this->can_translate('anonymous') . '/> Anonymous';
+        echo '<input id="tr_anon" type="checkbox" value="1" name="anonymous" ' . $this->can_translate('anonymous') . '/> ' . __('Anonymous', TRANSPOSH_TEXT_DOMAIN);
 
         /*
          * Insert the option to enable/disable default language translation.
          * Disabled by default.
          */
-        echo '<h4>Enable default language translation</h4>';
+        echo '<h4>' . __('Enable default language translation', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_DEFAULT_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_default_translate()) . '/> ' .
-        'Allow translation of default language - useful for sites with more than one major language';
+        __('Allow translation of default language - useful for sites with more than one major language', TRANSPOSH_TEXT_DOMAIN);
 
         /**
          * Insert the option to enable search in translated languages
          * Enabled by default.
          * @since 0.3.6
          */
-        echo '<h4>Enable search in translated languages</h4>';
+        echo '<h4>' . __('Enable search in translated languages', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_SEARCH_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_search_translate()) . '/> ' .
-        'Allow search of translated languages, in those languages (and the original language)';
+        __('Allow search of translated languages, in those languages (and the original language)', TRANSPOSH_TEXT_DOMAIN);
 
         /**
          * Insert the option to enable translation of urls
          * Disbaled by default.
          * @since 0.5.3
          */
-        echo '<h4>Enable url translation (experimental)</h4>';
+        echo '<h4>' . __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_URL_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_url_translate()) . '/> ' .
-        'Allow translation of permalinks and urls';
+        __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN);
     }
 
     function on_contentbox_auto_translation_content($data) {
@@ -442,26 +446,26 @@ class transposh_plugin_admin {
          * Insert the option to enable/disable automatic translation.
          * Enabled by default.
          */
-        echo '<h4>Enable automatic translation</h4>';
+        echo '<h4>' . __('Enable automatic translation', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_AUTO_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_auto_translate()) . '/> ' .
-        'Allow automatic translation of pages';
+        __('Allow automatic translation of pages', TRANSPOSH_TEXT_DOMAIN);
 
         /**
          * Insert the option to enable/disable automatic translation upon publishing.
          * Disabled by default.
          *  @since 0.3.5 */
-        echo '<h4>New - Enable automatic translation after posting</h4>';
+        echo '<h4>' . __('Enable automatic translation after posting', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_AUTO_POST_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_auto_post_translate()) . '/> ' .
-        'Do automatic translation immediately after a post has been published';
+        __('Do automatic translation immediately after a post has been published', TRANSPOSH_TEXT_DOMAIN);
 
         /*
          * Choose default translator... TODO (explain better in wiki)
          */
-        echo '<h4>Select preferred auto translation engine</h4>';
-        echo '<label for="' . PREFERRED_TRANSLATOR . '">Translation engine:' .
+        echo '<h4>' . __('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<label for="' . PREFERRED_TRANSLATOR . '">' . __('Translation engine:', TRANSPOSH_TEXT_DOMAIN) .
         '<select name="' . PREFERRED_TRANSLATOR . '">' .
-        '<option value="1"' . ($this->transposh->options->get_preferred_translator() == 1 ? ' selected="selected"' : '') . '>Google</option>' .
-        '<option value="2"' . ($this->transposh->options->get_preferred_translator() == 2 ? ' selected="selected"' : '') . '>Bing</option>' .
+        '<option value="1"' . ($this->transposh->options->get_preferred_translator() == 1 ? ' selected="selected"' : '') . '>' . __('Google', TRANSPOSH_TEXT_DOMAIN) . '</option>' .
+        '<option value="2"' . ($this->transposh->options->get_preferred_translator() == 2 ? ' selected="selected"' : '') . '>' . __('Bing', TRANSPOSH_TEXT_DOMAIN) . '</option>' .
         '</select>' .
         '</label>';
     }
@@ -471,30 +475,30 @@ class transposh_plugin_admin {
          * Insert the option to enable/disable rewrite of perlmalinks.
          * When disabled only parameters will be used to identify the current language.
          */
-        echo '<h4>Rewrite URLs</h4>';
+        echo '<h4>' . __('Rewrite URLs', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_PERMALINKS . '" ' . $this->checked($this->transposh->options->get_enable_permalinks()) . '/> ' .
-        'Rewrite URLs to be search engine friendly, ' .
-        'e.g.  (http://wordpress.org/<strong>en</strong>). ' .
-        'Requires that permalinks will be enabled.';
+        __('Rewrite URLs to be search engine friendly, ' .
+                'e.g.  (http://transposh.org/<strong>en</strong>). ' .
+                'Requires that permalinks will be enabled.', TRANSPOSH_TEXT_DOMAIN);
 
         /*
          * Insert the option to enable/disable pushing of scripts to footer.
          * Works on wordpress 2.8 and up
          */
         if (floatval($GLOBALS['wp_version']) >= 2.8) {
-            echo '<h4>Add scripts to footer</h4>';
+            echo '<h4>' . __('Add scripts to footer', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
             echo '<input type="checkbox" value="1" name="' . ENABLE_FOOTER_SCRIPTS . '" ' . $this->checked($this->transposh->options->get_enable_footer_scripts()) . '/> ' .
-            'Push transposh scripts to footer of page instead of header, makes pages load faster. ' .
-            'Requires that your theme should have proper footer support.';
+            __('Push transposh scripts to footer of page instead of header, makes pages load faster. ' .
+                    'Requires that your theme should have proper footer support.', TRANSPOSH_TEXT_DOMAIN);
         }
 
         /**
          * Insert the option to enable/disable language auto-detection
          * @since 0.3.8 */
-        echo '<h4>Auto detect language for users</h4>';
+        echo '<h4>' . __('Auto detect language for users', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_DETECT_LANG_AND_REDIRECT . '" ' . $this->checked($this->transposh->options->get_enable_detect_language()) . '/> ' .
-        'This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. ' .
-        'This will redirect the first page accessed in the session to the same page with the detected language.';
+        __('This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. ' .
+                'This will redirect the first page accessed in the session to the same page with the detected language.', TRANSPOSH_TEXT_DOMAIN);
 
         /* WIP2
           echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */
@@ -504,19 +508,20 @@ class transposh_plugin_admin {
         /*
          * Insert two buttons allowing removal of automated translations from database
          */
-        echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="'.  wp_create_nonce('transposh-clean').'" class="button">Clean all automated translations</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="'.  wp_create_nonce('transposh-clean').'" class="button">Clean automated translations older than 14 days</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
     }
 
     function on_contentbox_community_content($data) {
-        echo '<h4>Backup service for human translation</h4>';
-        echo '<input type="radio" value="1" name="' . TRANSPOSH_BACKUP_SCHEDULE . '" ' . $this->checked($this->transposh->options->get_transposh_backup_schedule() == 1) . '/>Enable daily backup<br/>';
-        echo '<input type="radio" value="2" name="' . TRANSPOSH_BACKUP_SCHEDULE . '" ' . $this->checked($this->transposh->options->get_transposh_backup_schedule() == 2) . '/>Enable live backup<br/>';
-        echo '<input type="radio" value="0" name="' . TRANSPOSH_BACKUP_SCHEDULE . '" ' . $this->checked($this->transposh->options->get_transposh_backup_schedule() == 0) . '/>Disable backup (Can be run manually by clicking the button below)<br/>';
-        echo 'Service Key: <input type="text" size="32" class="regular-text" value="' . $this->transposh->options->get_transposh_key() . '" id="' . TRANSPOSH_KEY . '" name="' . TRANSPOSH_KEY . '"/> <a target="_blank" href="http://transposh.org/faq/#restore">How to restore?</a><br/>';
+        echo '<h4>' . __('Backup service for human translation', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<input type="radio" value="1" name="' . TRANSPOSH_BACKUP_SCHEDULE . '" ' . $this->checked($this->transposh->options->get_transposh_backup_schedule() == 1) . '/>' . __('Enable daily backup', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
+        echo '<input type="radio" value="2" name="' . TRANSPOSH_BACKUP_SCHEDULE . '" ' . $this->checked($this->transposh->options->get_transposh_backup_schedule() == 2) . '/>' . __('Enable live backup', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
+        echo '<input type="radio" value="0" name="' . TRANSPOSH_BACKUP_SCHEDULE . '" ' . $this->checked($this->transposh->options->get_transposh_backup_schedule() == 0) . '/>' . __('Disable backup (Can be run manually by clicking the button below)', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
+        echo __('Service Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" value="' . $this->transposh->options->get_transposh_key() . '" id="' . TRANSPOSH_KEY . '" name="' . TRANSPOSH_KEY . '"/> <a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         echo '<div id="backup_result"></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-backup" href="#" class="button">Do Backup Now</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-backup" href="#" class="button">' . __('Do Backup Now', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
     }
 
 }
+
 ?>
