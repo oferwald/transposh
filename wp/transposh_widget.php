@@ -85,10 +85,10 @@ class transposh_plugin_widget {
         }
 
         // Register widget
-        wp_register_sidebar_widget('Transposh','Transposh', array(&$this, 'transposh_widget'), array( 'description' => __('Transposh language selection widget') ));
+        wp_register_sidebar_widget('Transposh',__('Transposh',TRANSPOSH_TEXT_DOMAIN), array(&$this, 'transposh_widget'), array( 'description' => __('Transposh language selection widget', TRANSPOSH_TEXT_DOMAIN) ));
 
         // Register widget control
-        wp_register_widget_control('Transposh','Transposh', array(&$this, 'transposh_widget_control'));
+        wp_register_widget_control('Transposh',__('Transposh',TRANSPOSH_TEXT_DOMAIN), array(&$this, 'transposh_widget_control'));
 
         // Register callback for widget's css and js
         add_action('wp_print_styles', array(&$this, 'add_transposh_widget_css'));
@@ -205,7 +205,7 @@ class transposh_plugin_widget {
         logger($args, 4);
 
         // widget default title
-        echo $before_widget . $before_title . __('Translation') . $after_title;
+        echo $before_widget . $before_title . __('Translation',TRANSPOSH_TEXT_DOMAIN) . $after_title;
 
         // the widget is inside a form used for posting a language change or edit request
         echo '<form id="tp_form" action="' . $clean_page_url . '" method="post">';
@@ -218,7 +218,7 @@ class transposh_plugin_widget {
             // this is the set default language line
             if ($this->transposh->options->get_widget_allow_set_default_language()) {
                 If ((isset($_COOKIE['TR_LNG']) && $_COOKIE['TR_LNG'] != $this->transposh->target_language) || (!isset($_COOKIE['TR_LNG']) && !$this->transposh->options->is_default_language($this->transposh->target_language))) {
-                    echo '<a id="' . SPAN_PREFIX . 'setdeflang" onClick="return false;" href="' . $this->transposh->post_url . '?tr_cookie_bck">Set as default language</a><br/>';
+                    echo '<a id="' . SPAN_PREFIX . 'setdeflang" onClick="return false;" href="' . $this->transposh->post_url . '?tr_cookie_bck">'.__('Set as default language',TRANSPOSH_TEXT_DOMAIN).'</a><br/>';
                 }
             }
             // add the edit checkbox only for translators for languages marked as editable
@@ -250,7 +250,7 @@ class transposh_plugin_widget {
         echo '<div id="' . SPAN_PREFIX . 'credit">';
         if (!$this->transposh->options->get_widget_remove_logo()) {
             echo 'by <a href="http://tran' . 'sposh.org"><img class="' . NO_TRANSLATE_CLASS . '" height="16" width="16" src="' .
-            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="Transposh" alt="Transposh"/></a>';
+            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="'.esc_attr__('Transposh',TRANSPOSH_TEXT_DOMAIN).'" alt="'.esc_attr__('Transposh',TRANSPOSH_TEXT_DOMAIN).'"/></a>';
         }
         echo '</div>';
         echo $after_widget;
@@ -329,7 +329,7 @@ class transposh_plugin_widget {
 
         $widgets = $this->get_widgets();
 
-        echo '<p><label for="' . WIDGET_FILE . '">Style:<br />' .
+        echo '<p><label for="' . WIDGET_FILE . '">'.__('Style:',TRANSPOSH_TEXT_DOMAIN).'<br/>' .
         '<select id="transposh-style" name="' . WIDGET_FILE . '">';
         foreach ($widgets as $file => $widget) {
             logger($widget, 4);
@@ -338,13 +338,13 @@ class transposh_plugin_widget {
         }
         echo '</select>' .
         '</label></p>' .
-        '<p><label for="transposh-progress">Effects:</label><br/>' .
+        '<p><label for="transposh-progress">'.__('Effects:',TRANSPOSH_TEXT_DOMAIN).'</label><br/>' .
         '<input type="checkbox" id="' . WIDGET_PROGRESSBAR . '" name="' . WIDGET_PROGRESSBAR . '"' . ($this->transposh->options->get_widget_progressbar() ? ' checked="checked"' : '') . '/>' .
-        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Show progress bar when a client triggers automatic translation">Show progress bar</span><br/>' .
+        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="'.esc_attr__('Show progress bar when a client triggers automatic translation',TRANSPOSH_TEXT_DOMAIN).'">'.__('Show progress bar',TRANSPOSH_TEXT_DOMAIN).'</span><br/>' .
         '<input type="checkbox" id="' . WIDGET_ALLOW_SET_DEFLANG . '" name="' . WIDGET_ALLOW_SET_DEFLANG . '"' . ($this->transposh->options->get_widget_allow_set_default_language() ? ' checked="checked"' : '') . '/>' .
-        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Widget will allow setting this language as user default.">Allow user to set current language as default</span><br/>' .
+        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="'.esc_attr__('Widget will allow setting this language as user default',TRANSPOSH_TEXT_DOMAIN).'">'.__('Allow user to set current language as default',TRANSPOSH_TEXT_DOMAIN).'</span><br/>' .
         '<input type="checkbox" id="' . WIDGET_REMOVE_LOGO_FOR_AD . '" name="' . WIDGET_REMOVE_LOGO_FOR_AD . '"' . ($this->transposh->options->get_widget_remove_logo() ? ' checked="checked"' : '') . '/>' .
-        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="Transposh logo will be eliminated from widget.">Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)</span><br/>' .
+        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="'.esc_attr__('Transposh logo will not appear on widget',TRANSPOSH_TEXT_DOMAIN).'">'.__('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)',TRANSPOSH_TEXT_DOMAIN).'</span><br/>' .
         '</p>' .
         '<input type="hidden" name="transposh-submit" id="transposh-submit" value="1"/>';
     }

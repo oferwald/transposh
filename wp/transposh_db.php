@@ -522,29 +522,27 @@ class transposh_database {
      * Provides some stats about our database
      */
     function db_stats() {
-        echo "<h4>Database stats</h4>";
+        echo '<h4>' . __('Database stats', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         $query = "SELECT count(*) as count FROM `{$this->translation_table}`";
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             if ($row->count)
-                    echo "<p>Total of <strong style=\"color:red\">{$row->count}</strong> translated phrases.</p>";
+                    printf('<p>' . __('Total of <strong style="color:red">%s</strong> translated phrases.', TRANSPOSH_TEXT_DOMAIN) . '</p>', $row->count);
         }
 
         $query = "SELECT count(*) as count,lang FROM `{$this->translation_table}` WHERE source='0' GROUP BY `lang` ORDER BY `count` DESC LIMIT 3";
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             if ($row->count)
-                    echo "<p><strong>{$row->lang}</strong> has <strong style=\"color:red\">{$row->count}</strong> human translated phrases.</p>";
+                    printf('<p>' . __('<strong>%1s</strong> has <strong style="color:red">%2s</strong> human translated phrases.', TRANSPOSH_TEXT_DOMAIN) . '</p>', $row->lang, $row->count);
         }
 
-        echo "<h4>Recent activity</h4>";
+        echo '<h4>' . __('Recent activity', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         $query = "SELECT * FROM `{$this->translation_log_table}` WHERE source='0' ORDER BY `timestamp` DESC LIMIT 3";
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             $td = mysql2date(get_option('date_format') . ' ' . get_option('time_format'), $row->timestamp);
-            echo "<p>On <strong>{$td}</strong><br/>user <strong>{$row->translated_by}</strong> translated<br/>" .
-            "\"<strong>{$row->original}</strong>\"<br/>to " .
-            "<strong style=\"color:red\">{$row->lang}</strong><br/>\"<strong>{$row->translated}</strong>\"</p>";
+            printf('<p>' . __('On <strong>%1s</strong><br/>user <strong>%2s</strong> translated<br/>"<strong>%3s</strong>"<br/>to <strong style="color:red">%4s</strong><br/>"<strong>%5s</strong>"', TRANSPOSH_TEXT_DOMAIN) . '</p>', $td, $row->translated_by, $row->original, $row->lang, $row->translated);
         }
     }
 

@@ -193,12 +193,12 @@
         };
 
         $("#" + t_jp.prefix + "d-tabs").remove();
-        $('<div id="' + t_jp.prefix + 'd-tabs" title="Edit Translation"/>').appendTo("body");
+        $('<div id="' + t_jp.prefix + 'd-tabs" title="'+t_jp.edit_box_title+'"/>').appendTo("body");
         $("#" + t_jp.prefix + "d-tabs").append('<ul/>').tabs({
             cache: true
         })
-        .tabs('add', "#" + t_jp.prefix + "d-tabs-1", 'Translate')
-        .tabs('add', t_jp.post_url + '?tr_token_hist=' + $("#" + t_jp.prefix + segment_id).attr('data-token') + '&lang=' + t_jp.lang, 'History')
+        .tabs('add', "#" + t_jp.prefix + "d-tabs-1", t_jp.edit_box_translate)
+        .tabs('add', t_jp.post_url + '?tr_token_hist=' + $("#" + t_jp.prefix + segment_id).attr('data-token') + '&lang=' + t_jp.lang, t_jp.edit_box_history)
         .css("text-align", "left")
         .css("padding", 0)
         // this is the history tab...
@@ -221,7 +221,7 @@
         })
         .bind('tabsselect', function (event, ui) {
             // Change buttons
-            if ($(ui.tab).text() === 'Translate') {
+            if ($(ui.tab).text() === t_jp.edit_box_translate) {
                 $("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', tButtons);
             } else {
                 $("#" + t_jp.prefix + "d-tabs").dialog('option', 'buttons', hButtons);
@@ -240,9 +240,9 @@
             /*'<table><tr><td>'+*/
             '<form id="' + t_jp.prefix + 'form">' +
             '<fieldset>' +
-            '<label for="original">Original Text</label>' +
+            '<label for="original">'+t_jp.edit_box_original+'</label>' +
             '<textarea cols="80" row="3" name="original" id="' + t_jp.prefix + 'original" class="text ui-widget-content ui-corner-all" readonly="y"/>' +
-            '<label for="translation">Translate To</label>' +
+            '<label for="translation">'+t_jp.edit_box_translate_to+'</label>' +
             '<textarea cols="80" row="3" name="translation" id="' + t_jp.prefix + 'translation" value="" class="text ui-widget-content ui-corner-all"/>' +
             '</fieldset>' +
             '</form>'/* +

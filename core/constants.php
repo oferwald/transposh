@@ -129,7 +129,7 @@ define('SPAN_PREFIX', 'tr_');
 define('TRANSPOSH_ADMIN_PAGE_NAME', 'transposh');
 
 //Our text domain
-define('TRANSPOSH_TEXT_DOMAIN','transposh');
+define('TRANSPOSH_TEXT_DOMAIN', 'transposh');
 
 //0.3.5 - Storing all options in this config option
 define('TRANSPOSH_OPTIONS', 'transposh_options');
@@ -331,40 +331,39 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
  */
 
 /* List of unused wordpress locales (27-Aug-2010)
-# bn_BD/ Bengali
-# bs_BA/ Bosnian
-# ckb/ Kurdish
-# cpp/ ??
-# el/
-# eo/ esperanto
-# es_CL/
-# es_PE/
-# es_VE/
-# fo/ foroese
-# fr_BE/
-# fy/
-# jv_ID/
-# /
-# kea/ ??
-# kn/
-# /
-# ky_KY/
-# ml_IN/
-# mn/
-# my_MM/
-# nb_NO/ ? good Question, popped into Norway
-# ne_NP/
-# nn_NO/ ? same question
-# pa_IN/
-# pt_BR/
-# ru_UA/
-# sd_PK/
-# si_LK/
-# su_ID/
-# ta_IN/
-# ug_CN/
-# uz_UZ/
-# zh_HK/
-*/
-
+  # bn_BD/ Bengali
+  # bs_BA/ Bosnian
+  # ckb/ Kurdish
+  # cpp/ ??
+  # el/
+  # eo/ esperanto
+  # es_CL/
+  # es_PE/
+  # es_VE/
+  # fo/ foroese
+  # fr_BE/
+  # fy/
+  # jv_ID/
+  # /
+  # kea/ ??
+  # kn/
+  # /
+  # ky_KY/
+  # ml_IN/
+  # mn/
+  # my_MM/
+  # nb_NO/ ? good Question, popped into Norway
+  # ne_NP/
+  # nn_NO/ ? same question
+  # pa_IN/
+  # pt_BR/
+  # ru_UA/
+  # sd_PK/
+  # si_LK/
+  # su_ID/
+  # ta_IN/
+  # ug_CN/
+  # uz_UZ/
+  # zh_HK/
+ */
 ?>
