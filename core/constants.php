@@ -74,6 +74,7 @@ class transposh_consts {
         'it' => 'Italian,Italiano,it,it_IT',
         'ja' => 'Japanese,日本語,jp,',
         'ko' => 'Korean,우리말,kr,ko_KR',
+        'la' => 'Latin,latīna,va,',
         'lv' => 'Latvian,latviešu valoda,lv,',
         'lt' => 'Lithuanian,lietuvių kalba,lt,',
         'mk' => 'Macedonian,македонски јазик,mk,mk_MK',
@@ -107,7 +108,7 @@ class transposh_consts {
 //@updated 2010-Jul-01 (hy,az,eu,ka,ur)
 //$google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
     public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
-    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'ur');
+    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur');
 //Bing supported languages
 //(got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
 //@updated 2010-Jun-30
