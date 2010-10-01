@@ -232,7 +232,7 @@ class transposh_plugin_admin {
         //do_meta_boxes($this->pagehook, 'additional', $data);
 
         echo '<p>' .
-        '<input type="submit" value="Save Changes" class="button-primary" name="Submit"/>' .
+        '<input type="submit" value="'.__('Save Changes').'" class="button-primary" name="Submit"/>' .
         '</p>' .
         '</div>' .
         '</div>' .
