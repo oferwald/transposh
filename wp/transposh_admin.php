@@ -232,7 +232,7 @@ class transposh_plugin_admin {
         //do_meta_boxes($this->pagehook, 'additional', $data);
 
         echo '<p>' .
-        '<input type="submit" value="'.__('Save Changes').'" class="button-primary" name="Submit"/>' .
+        '<input type="submit" value="' . __('Save Changes') . '" class="button-primary" name="Submit"/>' .
         '</p>' .
         '</div>' .
         '</div>' .
@@ -438,6 +438,15 @@ class transposh_plugin_admin {
         echo '<h4>' . __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_URL_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_url_translate()) . '/> ' .
         __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN);
+
+        /**
+         * Insert the option to enable gettext integration
+         * Enabled by default.
+         * @since 0.6.4
+         */
+        echo '<h4>' . __('Enable gettext integration', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')</h4>';
+        echo '<input type="checkbox" value="1" name="' . TRANSPOSH_GETTEXT_INTEGRATION . '" ' . $this->checked($this->transposh->options->get_transposh_gettext_integration()) . '/> ' .
+        __('Enable integration of Transposh with existing gettext interface (.po/.mo files)', TRANSPOSH_TEXT_DOMAIN);
     }
 
     function on_contentbox_auto_translation_content($data) {

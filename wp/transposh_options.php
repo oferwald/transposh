@@ -66,6 +66,8 @@ define('WIDGET_REMOVE_LOGO_FOR_AD', 'widget_remove_logo');
 define('TRANSPOSH_KEY', 'transposh_key');
 //Stores the site key to transposh services (backup @since 0.5.0)
 define('TRANSPOSH_BACKUP_SCHEDULE', 'transposh_backup_schedule');
+//Make the gettext interface optional (@since 0.6.4)
+define('TRANSPOSH_GETTEXT_INTEGRATION', 'transposh_gettext_integration');
 
 class transposh_plugin_options {
 //constructor of class, PHP4 compatible construction for backward compatibility
@@ -87,6 +89,7 @@ class transposh_plugin_options {
         $this->set_default_option_value(ENABLE_SEARCH_TRANSLATE, 1);
         $this->set_default_option_value(ENABLE_AUTO_TRANSLATE, 1);
         $this->set_default_option_value(PREFERRED_TRANSLATOR, 1);
+        $this->set_default_option_value(TRANSPOSH_GETTEXT_INTEGRATION, 1);
         $this->set_default_option_value(VIEWABLE_LANGS);
         $this->set_default_option_value(EDITABLE_LANGS);
         //$this->set_default_option_value(SORTED_LANGS);
@@ -240,6 +243,10 @@ class transposh_plugin_options {
         return $this->options[TRANSPOSH_BACKUP_SCHEDULE];
     }
 
+    function get_transposh_gettext_integration() {
+        return $this->options[TRANSPOSH_GETTEXT_INTEGRATION];
+    }
+
     /**
      * Sets a value at the options array
      * @param mixed $val
@@ -357,6 +364,11 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[TRANSPOSH_BACKUP_SCHEDULE]);
     }
 
+    function set_transposh_gettext_integration($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[TRANSPOSH_GETTEXT_INTEGRATION]);
+    }
+
     /**
      * Updates options at the wordpress options table if there was a change
      */
@@ -397,4 +409,5 @@ class transposh_plugin_options {
     }
 
 }
+
 ?>
