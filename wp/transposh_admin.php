@@ -111,6 +111,7 @@ class transposh_plugin_admin {
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
         $this->transposh->options->set_enable_search_translate($_POST[ENABLE_SEARCH_TRANSLATE]);
         $this->transposh->options->set_enable_url_translate($_POST[ENABLE_URL_TRANSLATE]);
+        $this->transposh->options->set_transposh_gettext_integration($_POST[TRANSPOSH_GETTEXT_INTEGRATION]);
         $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
         $this->transposh->options->set_transposh_key($_POST[TRANSPOSH_KEY]);
 
