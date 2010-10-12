@@ -145,15 +145,17 @@ class transposh_plugin {
         //TODO add_action('manage_comments_nav', array(&$this,'manage_comments_nav'));
         //TODO comment_row_actions (filter)
         // Intergrating with the gettext interface
-        add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 3);
-        add_filter('gettext_with_context', array(&$this, 'transposh_gettext_filter'), 10, 3);
-        add_filter('ngettext', array(&$this, 'transposh_ngettext_filter'), 10, 4);
-        add_filter('ngettext_with_context', array(&$this, 'transposh_ngettext_filter'), 10, 4);
-        add_filter('locale', array(&$this, 'transposh_locale_filter'));
+        if ($this->options->get_transposh_gettext_integration()) {
+            add_filter('gettext', array(&$this, 'transposh_gettext_filter'), 10, 3);
+            add_filter('gettext_with_context', array(&$this, 'transposh_gettext_filter'), 10, 3);
+            add_filter('ngettext', array(&$this, 'transposh_ngettext_filter'), 10, 4);
+            add_filter('ngettext_with_context', array(&$this, 'transposh_ngettext_filter'), 10, 4);
+            add_filter('locale', array(&$this, 'transposh_locale_filter'));
+        }
 
         //
-//FUTURE        add_action('update-custom_transposh', array(&$this, 'update'));
-        //CHECK TODO!!!!!!!!!!!!
+        // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
+        // CHECK TODO!!!!!!!!!!!!
         $this->tgl = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
@@ -884,7 +886,8 @@ class transposh_plugin {
         }
         logger("($translation, $orig, $domain)");
         // HACK - TODO - FIX
-        if ($domain == "MailPress") return $translation;
+        if (in_array($domain, transposh_consts::$ignored_po_domains))
+                return $translation;
         if ($translation != $orig) {
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }
@@ -903,7 +906,8 @@ class transposh_plugin {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate()))
                 return $translation;
         logger("($translation, $single, $plural, $domain)");
-        if ($domain == "MailPress") return $translation;
+        if (in_array($domain, transposh_consts::$ignored_po_domains))
+                return $translation;
         if ($translation != $single && $translation != $plural) {
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }

@@ -101,19 +101,20 @@ class transposh_consts {
         'cy' => 'Welsh,Cymraeg,wales,',
         'yi' => 'Yiddish,ייִדיש,europeanunion,'
     );
-//Language which are read from right to left (rtl)
+    // Language which are read from right to left (rtl)
     public static $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
-//Google supported languages
-//(got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
-//@updated 2010-Jul-01 (hy,az,eu,ka,ur)
-//$google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
+    // Google supported languages
+    // (got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
+    // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
+    // $google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
     public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
     public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur');
-//Bing supported languages
-//(got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
-//@updated 2010-Jun-30
-    public static $bing_languages = array('en', 'ar', 'bg', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hu', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr');
-
+    // Bing supported languages
+    // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
+    // @updated 2010-Jun-30
+    public static $bing_languages = array('en', 'ar', 'bg', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi');
+    // Array for holding po domains we have problems with
+    public static $ignored_po_domains = array('MailPress');
 
 }
 
