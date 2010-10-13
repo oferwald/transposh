@@ -193,6 +193,14 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/10/13 - 0.6.4 =
+ * Support for translation of our interface and admin pages
+ * Hebrew translation for transposh
+ * Add the option to disable the gettext interface
+ * Fix problem with gettext collision with mailpress
+ * Add support for Latin
+ * Three new languages on bing translate Indonesian, Ukrainian and Vietnamese
+ * This version is dedicated to Sgula, 15, 15, 15
 = 2010/09/01 - 0.6.3 =
  * Support for gettext files (.po/.mo) files - see http://trac.transposh.org/wiki/UsingGetText
  * Support backend memory caching with xcache and eaccelarator in addition to apc
