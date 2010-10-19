@@ -88,7 +88,7 @@ class transposh_consts {
         'ru' => 'Russian,Русский,ru,ru_RU',
         'sr' => 'Serbian,српски језик,rs,sr_RS',
         'sk' => 'Slovak,slovenčina,sk,sk_SK',
-        'sl' => 'Slovene,slovenščina,sl,sl_SI', //slovenian
+        'sl' => 'Slovene,slovenščina,si,sl_SI', //slovenian
         'es' => 'Spanish,Español,es,es_ES',
         'sw' => 'Swahili,Kiswahili,ke,',
         'sv' => 'Swedish,svenska,se,sv_SE',
