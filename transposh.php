@@ -820,6 +820,7 @@ class transposh_plugin {
      * @return string wrapped text
      */
     function post_content_wrap($text) {
+        if (!isset($GLOBALS['id'])) return $text;
         $lang = get_post_meta($GLOBALS['id'], 'tp_language', true);
         if ($lang) {
             $text = "<span lang =\"$lang\">" . $text . "</span>";
@@ -884,7 +885,7 @@ class transposh_plugin {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->get_enable_default_translate())) {
             return $translation;
         }
-        logger("($translation, $orig, $domain)");
+        logger("($translation, $orig, $domain)", 4);
         // HACK - TODO - FIX
         if (in_array($domain, transposh_consts::$ignored_po_domains))
                 return $translation;

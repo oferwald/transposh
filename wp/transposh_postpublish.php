@@ -46,12 +46,13 @@ class transposh_postpublish {
     function on_admin_menu() {
 //add our metabox to the post and pubish pages
         logger('adding metaboxes');
-        add_meta_box('transposh_postpublish', 'Transposh', array(&$this, "transposh_postpublish_box"), 'post', 'side', 'core');
-        add_meta_box('transposh_postpublish', 'Transposh', array(&$this, "transposh_postpublish_box"), 'page', 'side', 'core');
-        if ($_GET['justedited']) {
-            //wp_enqueue_script("google", "http://www.google.com/jsapi", array(), '1', true);
-            wp_enqueue_script("transposh", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhadmin.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
-            wp_localize_script("transposh", "t_jp", array(
+        add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'post', 'side', 'core');
+        add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'page', 'side', 'core');
+        if (!isset($_GET['post'])) return;
+        if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
+            $this->just_published = true; // this is later used in the meta boxes
+            wp_enqueue_script("transposhadmin", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhadmin.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
+            wp_localize_script("transposhadmin", "t_jp", array(
                 'post_url' => $this->transposh->post_url,
                 'post' => $_GET['post'],
                 'preferred' => $this->transposh->options->get_preferred_translator(),
@@ -68,6 +69,7 @@ class transposh_postpublish {
             ));
             wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css', array(), '1.8.2');
             wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js', array('jquery'), '1.8.2', true);
+            delete_post_meta($_GET['post'], 'transposh_can_translate'); // as we have used the meta - it can go now, another option would have been to put this in the getphrases
         }
     }
 
@@ -165,7 +167,7 @@ class transposh_postpublish {
      */
     function transposh_postpublish_box() {
         // the nonce will help double translation if time has passed
-        if ($_GET['justedited'] && wp_verify_nonce($_GET['justedited']))
+        if (get_post_meta($_GET['post'], 'transposh_can_translate', true))
                 $this->just_published = true;
 
         if ($this->just_published) {
@@ -176,21 +178,13 @@ class transposh_postpublish {
     }
 
     /**
-     * When this happens, the boxes are not created and a redirect happens, we currently use this to inform the next stage we are involved
+     * When this happens, the boxes are not created we now use a meta to inform the next step (cleaner)
      * @param int $postID
      */
     function on_edit($postID) {
-        add_filter('wp_redirect', array(&$this, 'inform_published'));
-    }
-
-    /**
-     * We add the justedited param here
-     * @param string $url Original URL
-     * @return string redirected URL
-     */
-    function inform_published($url) {
-        return add_query_arg('justedited', wp_create_nonce(), $url);
+        add_post_meta($postID, 'transposh_can_translate', 'true', true);
     }
 
 }
+
 ?>
