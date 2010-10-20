@@ -300,6 +300,11 @@ class transposh_database {
             $loguser = $user_ID;
         }
 
+        // reset values (for good code style)
+        $values = '';
+        $delvalues = '';
+        $logvalues = '';
+        $backup_immidiate_possible = false;
         // We are now processing all posted items
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
