@@ -85,10 +85,10 @@ class transposh_plugin_widget {
         }
 
         // Register widget
-        wp_register_sidebar_widget('Transposh',__('Transposh',TRANSPOSH_TEXT_DOMAIN), array(&$this, 'transposh_widget'), array( 'description' => __('Transposh language selection widget', TRANSPOSH_TEXT_DOMAIN) ));
+        wp_register_sidebar_widget('Transposh', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'transposh_widget'), array('description' => __('Transposh language selection widget', TRANSPOSH_TEXT_DOMAIN)));
 
         // Register widget control
-        wp_register_widget_control('Transposh',__('Transposh',TRANSPOSH_TEXT_DOMAIN), array(&$this, 'transposh_widget_control'));
+        wp_register_widget_control('Transposh', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'transposh_widget_control'));
 
         // Register callback for widget's css and js
         add_action('wp_print_styles', array(&$this, 'add_transposh_widget_css'));
@@ -148,6 +148,38 @@ class transposh_plugin_widget {
         logger('Added transposh_widget_js', 4);
     }
 
+    function create_widget_args($calc_url, $clean_page_url) {
+        $widget_args = array();
+        $page_url = '';
+        // loop on the languages
+        foreach ($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
+            list ($langname, $language, $flag) = explode(',', $langrecord);
+
+            // Only send languages which are viewable or (editable and the user is a translator)
+            if ($this->transposh->options->is_viewable_language($code) ||
+                    ($this->transposh->options->is_editable_language($code) && $this->transposh->is_translator()) ||
+                    ($this->transposh->options->is_default_language($code))) {
+                if ($calc_url) {
+                    if ($this->transposh->options->get_enable_url_translate()) {
+                        $page_url = transposh_utils::translate_url($clean_page_url, '', $code, array(&$this->transposh->database, 'fetch_translation'));
+                    } else {
+                        $page_url = $clean_page_url;
+                    }
+                    // clean $code in default lanaguge
+                    $page_url = transposh_utils::rewrite_url_lang_param($page_url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($code == $this->transposh->options->get_default_language()) ? '' : $code, $this->transposh->edit_mode);
+                }
+                $widget_args[] = array(
+                    'lang' => $langname,
+                    'langorig' => $language,
+                    'flag' => $flag,
+                    'isocode' => $code,
+                    'url' => $page_url,
+                    'active' => ($this->transposh->target_language == $code));
+            }
+        }
+        return $widget_args;
+    }
+
     /**
      * Creates the widget html
      * @param array $args Contains such as $before_widget, $after_widget, $before_title, $after_title, etc
@@ -160,42 +192,11 @@ class transposh_plugin_widget {
         if (function_exists('tp_widget_needs_post_url'))
                 $calc_url = tp_widget_needs_post_url();
 
-        $widget_args = array();
-        $page_url = $_SERVER['REQUEST_URI'];
+        $clean_page = $this->transposh->get_clean_url();
 
-        //remove any language identifier and find the "clean" url, used for posting and calculating urls if needed
-        $clean_page_url = transposh_utils::cleanup_url($page_url, $this->transposh->home_url, true);
-        // we need this if we are using url translations
-        if ($this->transposh->options->get_enable_url_translate() && $calc_url) {
-            $clean_page_url = transposh_utils::get_original_url($clean_page_url, '', $this->transposh->target_language, array($this->transposh->database, 'fetch_original'));
-        }
-        logger("WIDGET: clean page url: $clean_page_url ,orig: $page_url", 4);
+        logger("WIDGET: clean page url: $clean_page", 4);
 
-        // loop on the languages
-        foreach ($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
-            list ($langname, $language, $flag) = explode(',', $langrecord);
-
-            // Only send languages which are viewable or (editable and the user is a translator)
-            if ($this->transposh->options->is_viewable_language($code) ||
-                    ($this->transposh->options->is_editable_language($code) && $this->transposh->is_translator()) ||
-                    ($this->transposh->options->is_default_language($code))) {
-                if ($this->transposh->options->get_enable_url_translate() && $calc_url) {
-                    $page_url = transposh_utils::translate_url($clean_page_url, '', $code, array(&$this->transposh->database, 'fetch_translation'));
-                } else {
-                    $page_url = $clean_page_url;
-                }
-                // clean $code in default lanaguge
-                if ($calc_url)
-                        $page_url = transposh_utils::rewrite_url_lang_param($page_url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($code == $this->transposh->options->get_default_language()) ? '' : $code, $this->transposh->edit_mode);
-                $widget_args[] = array(
-                    'lang' => $langname,
-                    'langorig' => $language,
-                    'flag' => $flag,
-                    'isocode' => $code,
-                    'url' => $page_url,
-                    'active' => ($this->transposh->target_language == $code));
-            }
-        }
+        $widget_args = $this->create_widget_args($calc_url, $clean_page);
         // at this point the widget args are ready
 
         logger('Enter widget', 4);
@@ -205,10 +206,10 @@ class transposh_plugin_widget {
         logger($args, 4);
 
         // widget default title
-        echo $before_widget . $before_title . __('Translation',TRANSPOSH_TEXT_DOMAIN) . $after_title;
+        echo $before_widget . $before_title . __('Translation', TRANSPOSH_TEXT_DOMAIN) . $after_title;
 
         // the widget is inside a form used for posting a language change or edit request
-        echo '<form id="tp_form" action="' . $clean_page_url . '" method="post">';
+        echo '<form id="tp_form" action="' . $clean_page . '" method="post">';
 
         // actually run the external widget code
         tp_widget_do($widget_args);
@@ -218,7 +219,7 @@ class transposh_plugin_widget {
             // this is the set default language line
             if ($this->transposh->options->get_widget_allow_set_default_language()) {
                 If ((isset($_COOKIE['TR_LNG']) && $_COOKIE['TR_LNG'] != $this->transposh->target_language) || (!isset($_COOKIE['TR_LNG']) && !$this->transposh->options->is_default_language($this->transposh->target_language))) {
-                    echo '<a id="' . SPAN_PREFIX . 'setdeflang" onClick="return false;" href="' . $this->transposh->post_url . '?tr_cookie_bck">'.__('Set as default language',TRANSPOSH_TEXT_DOMAIN).'</a><br/>';
+                    echo '<a id="' . SPAN_PREFIX . 'setdeflang" onClick="return false;" href="' . $this->transposh->post_url . '?tr_cookie_bck">' . __('Set as default language', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
                 }
             }
             // add the edit checkbox only for translators for languages marked as editable
@@ -250,7 +251,7 @@ class transposh_plugin_widget {
         echo '<div id="' . SPAN_PREFIX . 'credit">';
         if (!$this->transposh->options->get_widget_remove_logo()) {
             echo 'by <a href="http://tran' . 'sposh.org"><img class="' . NO_TRANSLATE_CLASS . '" height="16" width="16" src="' .
-            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="'.esc_attr__('Transposh',TRANSPOSH_TEXT_DOMAIN).'" alt="'.esc_attr__('Transposh',TRANSPOSH_TEXT_DOMAIN).'"/></a>';
+            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . '" alt="' . esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . '"/></a>';
         }
         echo '</div>';
         echo $after_widget;
@@ -329,7 +330,7 @@ class transposh_plugin_widget {
 
         $widgets = $this->get_widgets();
 
-        echo '<p><label for="' . WIDGET_FILE . '">'.__('Style:',TRANSPOSH_TEXT_DOMAIN).'<br/>' .
+        echo '<p><label for="' . WIDGET_FILE . '">' . __('Style:', TRANSPOSH_TEXT_DOMAIN) . '<br/>' .
         '<select id="transposh-style" name="' . WIDGET_FILE . '">';
         foreach ($widgets as $file => $widget) {
             logger($widget, 4);
@@ -338,13 +339,13 @@ class transposh_plugin_widget {
         }
         echo '</select>' .
         '</label></p>' .
-        '<p><label for="transposh-progress">'.__('Effects:',TRANSPOSH_TEXT_DOMAIN).'</label><br/>' .
+        '<p><label for="transposh-progress">' . __('Effects:', TRANSPOSH_TEXT_DOMAIN) . '</label><br/>' .
         '<input type="checkbox" id="' . WIDGET_PROGRESSBAR . '" name="' . WIDGET_PROGRESSBAR . '"' . ($this->transposh->options->get_widget_progressbar() ? ' checked="checked"' : '') . '/>' .
-        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="'.esc_attr__('Show progress bar when a client triggers automatic translation',TRANSPOSH_TEXT_DOMAIN).'">'.__('Show progress bar',TRANSPOSH_TEXT_DOMAIN).'</span><br/>' .
+        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="' . esc_attr__('Show progress bar when a client triggers automatic translation', TRANSPOSH_TEXT_DOMAIN) . '">' . __('Show progress bar', TRANSPOSH_TEXT_DOMAIN) . '</span><br/>' .
         '<input type="checkbox" id="' . WIDGET_ALLOW_SET_DEFLANG . '" name="' . WIDGET_ALLOW_SET_DEFLANG . '"' . ($this->transposh->options->get_widget_allow_set_default_language() ? ' checked="checked"' : '') . '/>' .
-        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="'.esc_attr__('Widget will allow setting this language as user default',TRANSPOSH_TEXT_DOMAIN).'">'.__('Allow user to set current language as default',TRANSPOSH_TEXT_DOMAIN).'</span><br/>' .
+        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="' . esc_attr__('Widget will allow setting this language as user default', TRANSPOSH_TEXT_DOMAIN) . '">' . __('Allow user to set current language as default', TRANSPOSH_TEXT_DOMAIN) . '</span><br/>' .
         '<input type="checkbox" id="' . WIDGET_REMOVE_LOGO_FOR_AD . '" name="' . WIDGET_REMOVE_LOGO_FOR_AD . '"' . ($this->transposh->options->get_widget_remove_logo() ? ' checked="checked"' : '') . '/>' .
-        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="'.esc_attr__('Transposh logo will not appear on widget',TRANSPOSH_TEXT_DOMAIN).'">'.__('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)',TRANSPOSH_TEXT_DOMAIN).'</span><br/>' .
+        '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="' . esc_attr__('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN) . '">' . __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN) . '</span><br/>' .
         '</p>' .
         '<input type="hidden" name="transposh-submit" id="transposh-submit" value="1"/>';
     }
@@ -358,4 +359,5 @@ class transposh_plugin_widget {
 function transposh_widget($args = array()) {
     $GLOBALS['my_transposh_plugin']->widget->transposh_widget($args);
 }
+
 ?>
