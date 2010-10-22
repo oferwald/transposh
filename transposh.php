@@ -66,6 +66,8 @@ class transposh_plugin {
     public $home_url;
     /** @var string Where the javascript should post to */
     public $post_url;
+    /** @var a url of the request, assuming there was no language */
+    private $clean_url;
     /** @var string The url to the plugin directory */
     public $transposh_plugin_url;
     /** @var string The directory of the plugin */
@@ -132,6 +134,8 @@ class transposh_plugin {
         add_action('shutdown', array(&$this, 'on_shutdown'));
         add_action('wp_print_styles', array(&$this, 'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this, 'add_transposh_js'));
+        //TODO - on config
+        add_action('wp_head', array(&$this, 'add_rel_alternate'));
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
@@ -160,6 +164,17 @@ class transposh_plugin {
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
+    }
+
+    function get_clean_url() {
+        if (isset($this->clean_url)) return $this->clean_url;
+        //remove any language identifier and find the "clean" url, used for posting and calculating urls if needed
+        $this->clean_url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url, true);
+        // we need this if we are using url translations
+        if ($this->options->get_enable_url_translate()) {
+            $this->clean_url = transposh_utils::get_original_url($this->clean_url, '', $this->target_language, array($this->database, 'fetch_original'));
+        }
+        return $this->clean_url;
     }
 
 //    function update() {
@@ -386,6 +401,7 @@ class transposh_plugin {
                     if ($_COOKIE['TR_LNG'] != $this->target_language) {
                         $url = transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'], $this->edit_mode);
                         if ($this->options->is_default_language($_COOKIE['TR_LNG']))
+                        //TODO - fix wrt translation
                                 $url = transposh_utils::cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
                         logger("redirected to $url because of cookie", 4);
                         wp_redirect($url);
@@ -397,6 +413,7 @@ class transposh_plugin {
                     if ($bestlang && $bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
                         $url = transposh_utils::rewrite_url_lang_param($_SERVER['REQUEST_URI'], $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
                         if ($this->options->is_default_language($bestlang))
+                        //TODO - fix wrt translation
                                 $url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
                         logger("redirected to $url because of bestlang", 4);
                         wp_redirect($url);
@@ -607,6 +624,19 @@ class transposh_plugin {
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
         logger('Added transposh_js', 4);
+    }
+
+    /**
+     * Implements - http://googlewebmastercentral.blogspot.com/2010/09/unifying-content-under-multilingual.html
+     */
+    function add_rel_alternate() {
+        $widget_args = $this->widget->create_widget_args(true, $this->get_clean_url());
+        logger($widget_args);
+        foreach ($widget_args as $lang) {
+            if (!$lang['active']) {
+                echo '<link rel="alternate" hreflang="' . $lang['isocode'] . '" href="' . $lang['url'] . '"/>';
+            }
+        }
     }
 
     /**
