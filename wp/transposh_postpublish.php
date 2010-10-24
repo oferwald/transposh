@@ -133,9 +133,9 @@ class transposh_postpublish {
                 // if this isn't the default language or we specifically allow default language translation, we will seek this out...
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->get_enable_default_translate()) {
-                    // There is no point in returning phrases, languages pairs  that cannot be translated
+                    // There is no point in returning phrases, languages pairs that cannot be translated
                     if (in_array($lang, transposh_consts::$bing_languages) || in_array($lang, transposh_consts::$google_languages)) {
-                        list($translation, $source) = $this->transposh->database->fetch_translation($key, $lang);
+                        list($source, $translation) = $this->transposh->database->fetch_translation($key, $lang);
                         if (!$translation) {
                             // p stands for phrases, l stands for languages, t is token
                             if (!is_array($json['p'][$key]['l'])) {

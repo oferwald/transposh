@@ -92,6 +92,7 @@ class transposh_database {
         if (!TP_ENABLE_CACHE) return false;
         $key = $lang . '_' . $original;
         if ($translated !== null) $translated = implode('_', $translated);
+        $rc = false;
         if (function_exists('apc_store')) {
             $rc = apc_store($key, $translated, $ttl);
         } elseif (function_exists('xcache_set')) {
@@ -210,9 +211,9 @@ class transposh_database {
      * Fetch original from db or cache.
      * Returns the original for a given translation.
      * Will return NULL if no translation is available.
-     * @param string $original
+     * @param string $translation
      * @param string $lang
-     * @return array list(translation,source)
+     * @return string $original
      */
     function fetch_original($translation, $lang) {
         $original = null;
@@ -329,7 +330,7 @@ class transposh_database {
             if ($source == 0) $backup_immidiate_possible = true;
 
             //Here we check we are not redoing stuff
-            list($translated_text, $old_source) = $this->fetch_translation($original, $lang);
+            list($old_source, $translated_text) = $this->fetch_translation($original, $lang);
             if ($translated_text) {
                 if ($source > 0) {
                     logger("Warning auto-translation for already translated: $original $lang", 1);
