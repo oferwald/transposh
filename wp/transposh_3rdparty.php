@@ -87,6 +87,7 @@ class transposh_3rdparty {
      */
     function bp_uri_filter($uri) {
         $lang = transposh_utils::get_language_from_url($uri, $this->transposh->home_url);
+        //TODO - check using get_clean_url
         $uri = transposh_utils::cleanup_url($uri, $this->transposh->home_url);
         if ($this->transposh->options->get_enable_url_translate()) {
             $uri = transposh_utils::get_original_url($uri, '', $lang, array($this->transposh->database, 'fetch_original'));

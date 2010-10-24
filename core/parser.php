@@ -108,6 +108,8 @@ class parser {
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
+    /** @var boolean should we attempt to handle page as json */
+    public $might_json = false;
     public $allow_ad = false;
     //first three are html, later 3 come from feeds xml (link is problematic...)
     protected $ignore_tags = array('script' => 1, 'style' => 1, 'code' => 1, 'wfw:commentrss' => 1, 'comments' => 1, 'guid' => 1);
@@ -267,7 +269,7 @@ class parser {
                 return 3;
         //·
         if (ord($char) == 194 && ord($nextchar) == 183) return 2;
-        return (strpos(',?()[]"!:|;'.TP_GTXT_BRK.TP_GTXT_BRK_CLOSER.TP_GTXT_IBRK.TP_GTXT_IBRK_CLOSER, $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
+        return (strpos(',?()[]{}"!:|;' . TP_GTXT_BRK . TP_GTXT_BRK_CLOSER . TP_GTXT_IBRK . TP_GTXT_IBRK_CLOSER, $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
     }
 
     /**
@@ -329,7 +331,7 @@ class parser {
             if ($len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
                 if (($this->is_white_space($string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
-                    logger("entity ($entity) breaks", 3);
+                    logger("entity ($entity) breaks", 4);
                     $this->tag_phrase($string, $start, $pos);
                     $start = $pos + $len_of_entity;
                 }
@@ -348,20 +350,20 @@ class parser {
 //                $closers = ($string[$pos] == TP_GTXT_BRK) ? '': 'closer';
 //                logger(" $closers TEXT breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text, 3);
                 $this->tag_phrase($string, $start, $pos);
-                ($string[$pos] == TP_GTXT_BRK) ? $this->in_get_text += 1: $this->in_get_text -= 1;
+                ($string[$pos] == TP_GTXT_BRK) ? $this->in_get_text += 1 : $this->in_get_text -= 1;
                 $pos++;
                 $start = $pos;
                 // reset state based on string start, no need to flip
                 //$this->in_get_text = ($pos == 1);
                 //if (!$this->in_get_text) $this->in_get_text_inner = false;
-            } elseif ($string[$pos] == TP_GTXT_IBRK || $string[$pos] == TP_GTXT_IBRK_CLOSER ) {
+            } elseif ($string[$pos] == TP_GTXT_IBRK || $string[$pos] == TP_GTXT_IBRK_CLOSER) {
 //                $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
 //                $closers = ($string[$pos] == TP_GTXT_IBRK) ? '': 'closer';
 //                logger("   $closers INNER text breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text_inner, 3);
                 //logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
                 $this->tag_phrase($string, $start, $pos);
                 if ($this->in_get_text)
-                ($string[$pos] == TP_GTXT_IBRK) ? $this->in_get_text_inner += 1 : $this->in_get_text_inner -=1;
+                        ($string[$pos] == TP_GTXT_IBRK) ? $this->in_get_text_inner += 1 : $this->in_get_text_inner -=1;
                 $pos++;
                 $start = $pos;
                 //$this->in_get_text_inner = !$this->in_get_text_inner;
@@ -393,9 +395,9 @@ class parser {
                         $num_len = 0; // we have already added this
                     }
                     $this->tag_phrase($string, $start, $pos);
-                    $start = $pos + $num_len /*+1*/;
+                    $start = $pos + $num_len /* +1 */;
                 }
-                $pos += $num_len/* + 1*/;
+                $pos += $num_len/* + 1 */;
 //                logger ("numnumpos... $pos");
             } else {
                 // smarter marking of start location
@@ -567,6 +569,21 @@ class parser {
     function fix_html($string) {
         // ready our stats
         $this->stats = new parserstats();
+        // handler for possible json (buddypress)
+        if ($this->might_json) {
+            if ($string[0] == '{') {
+                $jsoner = json_decode($string);
+                if ($jsoner != null) {
+                    logger("json detected", 4);
+                    // currently we only handle contents (which buddypress heavily use)
+                    if ($jsoner->contents) {
+                        $jsoner->contents = $this->fix_html($jsoner->contents);
+                        return json_encode($jsoner);
+                    }
+                }
+            }
+        }
+
         // create our dom
         $this->html = str_get_html($string);
         // mark translateable elements

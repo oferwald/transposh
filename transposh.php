@@ -86,6 +86,8 @@ class transposh_plugin {
     private $search_s;
     /** @var variable to make sure we only attempt to fix the url once, could have used remove_filter */
     private $got_request = false;
+    /** @var might be that page is json... */
+    private $attempt_json = false;
 
     /**
      * class constructor
@@ -265,6 +267,7 @@ class transposh_plugin {
             $parse->lang = $this->target_language;
             $parse->default_lang = $this->options->is_default_language($this->target_language);
             $parse->is_edit_mode = $this->edit_mode;
+            $parse->might_json = $this->attempt_json;
             $parse->is_auto_translate = $this->is_auto_translate_permitted();
             $parse->allow_ad = $this->options->get_widget_remove_logo();
             // TODO - check this!
@@ -307,6 +310,7 @@ class transposh_plugin {
         logger(substr($_SERVER['SCRIPT_FILENAME'], -11), 4);
         if (substr($_SERVER['SCRIPT_FILENAME'], -11) == 'wp-load.php') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->attempt_json = true;
         }
 
         // load translation files for transposh
