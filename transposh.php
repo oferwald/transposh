@@ -157,6 +157,9 @@ class transposh_plugin {
             add_filter('locale', array(&$this, 'transposh_locale_filter'));
         }
 
+        // debug function for bad redirects
+        // add_filter('wp_redirect', array(&$this, 'on_wp_redirect'), 10, 2);
+        add_filter('redirect_canonical', array(&$this, 'on_redirect_canonical'), 10, 2);
         //
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
         // CHECK TODO!!!!!!!!!!!!
@@ -164,6 +167,31 @@ class transposh_plugin {
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
+    }
+
+//    function on_wp_redirect($location, $status) {
+//        logger($location);
+//        logger($status);
+//        $trace = debug_backtrace();
+//        logger($trace);
+//        return $location;
+//    }
+
+    /**
+     * Function to fix canonical redirection for some translated urls (such as tags with params)
+     * @param string $red - url wordpress assumes it will redirect to
+     * @param string $req - url that was originally requested
+     * @return mixed false if redirect unneeded - new url if we think we should
+     */
+    function on_redirect_canonical($red, $req) {
+        logger("$red .. $req", 4);
+        // if the urls are actually the same, don't redirect (same - if it had our proper take care of)
+        if ($this->rewrite_url($red) == urldecode($req)) return false;
+        // if this is not the default language, we need to make sure it redirects to what we believe is the proper url
+        if (!$this->options->is_default_language($this->target_language)) {
+            $red = str_replace(array('%2F', '%3A', '%3B', '%3F', '%3D', '%26'), array('/', ':', ';', '?', '=', '&'), urlencode($this->rewrite_url($red)));
+        }
+        return $red;
     }
 
     function get_clean_url() {
@@ -631,7 +659,7 @@ class transposh_plugin {
      */
     function add_rel_alternate() {
         $widget_args = $this->widget->create_widget_args(true, $this->get_clean_url());
-        logger($widget_args);
+        logger($widget_args, 4);
         foreach ($widget_args as $lang) {
             if (!$lang['active']) {
                 echo '<link rel="alternate" hreflang="' . $lang['isocode'] . '" href="' . $lang['url'] . '"/>';
