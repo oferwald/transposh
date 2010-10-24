@@ -160,13 +160,13 @@ class transposh_plugin_widget {
                     ($this->transposh->options->is_editable_language($code) && $this->transposh->is_translator()) ||
                     ($this->transposh->options->is_default_language($code))) {
                 if ($calc_url) {
-                    if ($this->transposh->options->get_enable_url_translate()) {
+                    if ($this->transposh->options->get_enable_url_translate() && !$this->transposh->options->is_default_language($code)) {
                         $page_url = transposh_utils::translate_url($clean_page_url, '', $code, array(&$this->transposh->database, 'fetch_translation'));
                     } else {
                         $page_url = $clean_page_url;
                     }
                     // clean $code in default lanaguge
-                    $page_url = transposh_utils::rewrite_url_lang_param($page_url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($code == $this->transposh->options->get_default_language()) ? '' : $code, $this->transposh->edit_mode);
+                    $page_url = transposh_utils::rewrite_url_lang_param($page_url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $this->transposh->options->is_default_language($code) ? '' : $code, $this->transposh->edit_mode);
                 }
                 $widget_args[] = array(
                     'lang' => $langname,
