@@ -193,6 +193,12 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/10/25 - 0.6.5 =
+ * Fixed Slovenian flag bug reported by anphicle
+ * Added support for rel alternate in the headers - see http://googlewebmastercentral.blogspot.com/2010/09/unifying-content-under-multilingual.html
+ * Fixed bug with canonical redirects and url rewritings as reported by Marco
+ * Fixed a bug with translate all and after post translation which hindered their ability to work - (thanks nightsurfer [#122](http://trac.transposh.org/ticket/122))
+ * Fixed json translation for buddypress stream issue - (thanks Inocima [#121](http://trac.transposh.org/ticket/121))
 = 2010/10/13 - 0.6.4 =
  * Support for translation of our interface and admin pages
  * Hebrew translation for transposh
