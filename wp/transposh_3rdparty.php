@@ -39,7 +39,7 @@ class transposh_3rdparty {
         add_action('transposh_human_translation', array(&$this, 'transposh_buddypress_stream'), 10, 3);
 
         // google xml sitemaps - with patch
-        add_action("sm_addurl", array(&$this, 'add_sm_transposh_urls'));
+        add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
     }
 
     function super_cache_invalidate() {
@@ -161,11 +161,11 @@ class transposh_3rdparty {
     /**
      * This function integrates with google sitemap generator, and adds for each viewable language, the rest of the languages url
      * Also - priority is reduced by 0.2
-     * And this requires the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
-     * do_action('sm_addurl', &$page);
+     * And this requires the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.4)
+     * do_action('sm_addurl', $page);
      * @param GoogleSitemapGeneratorPage $sm_page Object containing the page information
      */
-    function add_sm_transposh_urls(&$sm_page) {
+    function add_sm_transposh_urls($sm_page) {
         logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority());
         // we need the generator object (we know it must exist...)
         $generatorObject = &GoogleSitemapGenerator::GetInstance();
