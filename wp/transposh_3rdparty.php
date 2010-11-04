@@ -167,6 +167,7 @@ class transposh_3rdparty {
      */
     function add_sm_transposh_urls($sm_page) {
         logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority());
+        $sm_page = clone $sm_page;
         // we need the generator object (we know it must exist...)
         $generatorObject = &GoogleSitemapGenerator::GetInstance();
         // we reduce the priorty by 0.2, but not below zero
