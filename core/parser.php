@@ -172,7 +172,7 @@ class parser {
      * @return boolean true if not a breaker (apostrophy)
      */
     function is_entity_breaker($entity) {
-        return!(stripos('&#8217;&apos;&quot;&#039;&#39;', $entity) !== FALSE);
+        return!(stripos('&#8217;&apos;&quot;&#039;&#39;&rsquo;&lsquo;&rdquo;&ldquo;', $entity) !== FALSE);
     }
 
     /**
