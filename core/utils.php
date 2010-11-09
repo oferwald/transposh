@@ -172,7 +172,8 @@ class transposh_utils {
             foreach ($params as $key => $param) {
                 if (stripos($param, LANG_PARAM) === 0) {
                     $langa = explode("=", $params[$key]);
-                    return ($langa[1]);
+                    if (isset(transposh_consts::$languages[$langa[1]]))
+                            return ($langa[1]);
                 }
             }
         }
@@ -252,8 +253,8 @@ class transposh_utils {
      * @return string translated url permalink
      */
     public static function translate_url($href, $home_url, $target_language, $fetch_translation_func) {
-        $url='';
-        $querypart='';
+        $url = '';
+        $querypart = '';
         // todo - check query part... sanitize
         if (strpos($href, '?') !== false) {
             list ($href, $querypart) = explode('?', $href);
@@ -291,7 +292,7 @@ class transposh_utils {
         $href = substr($href, strlen($home_url));
         $url = urldecode($href);
         $url = (($pos = strpos($url, '?')) ? substr($url, 0, $pos) : $url);
-        $url2 ='';
+        $url2 = '';
         $parts = explode('/', $url);
         foreach ($parts as $part) {
             if (!$part) continue;
@@ -397,4 +398,5 @@ class transposh_utils {
     }
 
 }
+
 ?>
