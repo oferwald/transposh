@@ -25,6 +25,15 @@ require_once("logging.php");
 class transposh_utils {
 
     /**
+     * Encode URLs based of RFC 3986
+     */
+    public static function urlencode($url) {
+        $entities = array('%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B', '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D');
+        $replacements = array('!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?", "%", "#", "[", "]");
+        return str_replace($entities, $replacements, urlencode($url));
+    }
+
+    /**
      * Remove from url any language (or editing) params that were added for our use.
      * Return the scrubed url
      */
@@ -73,7 +82,7 @@ class transposh_utils {
         }
         $url = transposh_utils::glue_url($parsedurl);
         if (!$url) return '/';
-        return $url;
+        return transposh_utils::urlencode($url);
     }
 
     /**

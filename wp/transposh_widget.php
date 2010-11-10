@@ -63,7 +63,7 @@ class transposh_plugin_widget {
             if ($lang && $this->transposh->options->get_enable_url_translate()) {
                 // and then, we might have to translate it
                 $ref = transposh_utils::translate_url($ref, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
-                $ref = str_replace(array('%2F', '%3A', '%3B', '%3F', '%3D', '%26'), array('/', ':', ';', '?', '=', '&'), urlencode($ref));
+                $ref = transposh_utils::urlencode($ref);
                 logger("translated to referrer: $ref, lang: $lang", 3);
             }
             $ref = transposh_utils::rewrite_url_lang_param($ref, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $_POST[EDIT_PARAM]);
