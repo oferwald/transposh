@@ -119,10 +119,10 @@ Users of php speedy will have to deactivate it, add “transposh.js” in the ig
 
 Currently the plugin is able to add the multilingual urls to the sitemap, and you need to add the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
 
-`do_action('sm_addurl', &$page);`
+`do_action('sm_addurl', $page);`
 
-We hope that future versions will include this by default, and for now you can get the patched file from our site.
-After a change of languages used, you are welcomed to trigger a new sitemap buildup.
+As of version 4 beta 3 this is included by default, for earlier versions you can get the patched file from our trac site.
+After a change of languages used, you are welcomed to trigger a new sitemap buildup (not needed in v4).
 
 = Plugin support: WP-Super-Cache =
 
@@ -165,6 +165,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.6.6 =
+Fixed two XSS vulnerabilities
 = 0.6.3 =
 Support .po/.mo files
 = 0.6.0 =
@@ -193,6 +195,10 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/11/11 - 0.6.6 =
+ * Added support for some more breaker html entities such as &rsquo; (thanks archon810)
+ * fix XSS vulnerability on IE<8 (Thanks [Joshua Hansen and Scott Caveza](http://www.godaddy.com/security/website-security.aspx))
+ * Integration with Google Sitemaps XML v4 beta
 = 2010/10/25 - 0.6.5 =
  * Fixed Slovenian flag bug reported by anphicle
  * Added support for rel alternate in the headers - see http://googlewebmastercentral.blogspot.com/2010/09/unifying-content-under-multilingual.html
