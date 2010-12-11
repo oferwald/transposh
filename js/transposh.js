@@ -139,21 +139,22 @@
         make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
     }
 
-    function do_mass_google_translate(batchtrans, callback) {
-        var q = '';
+    function do_mass_google_translate(batchtrans, usedefault, callback) {
+        var q = '',ol = '';
         $(batchtrans).each(function (i) {
             q += '&q=' + encodeURIComponent(batchtrans[i]);
         });
+        if (usedefault) ol = t_jp.olang;
         $.ajax({
             url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-            '?v=1.0' + q + '&langpair=%7C' + t_jp.lang,
+            '?v=1.0' + q + '&langpair=' + ol + '%7C' + t_jp.lang,
             dataType: "jsonp",
             success: callback
         });
     }
 
-    function do_mass_google_invoker(tokens, trans) {
-        do_mass_google_translate(trans, function (result) {
+    function do_mass_google_invoker(tokens, trans, usedefault) {
+        do_mass_google_translate(trans, usedefault, function (result) {
             // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
             if (result.responseStatus >= 200 && result.responseStatus < 300) {
                 // single items get handled differently
@@ -163,10 +164,12 @@
                     $(result.responseData).each(function (i) {
                         if (this.responseStatus === 200) {
                             auto_translate_success(tokens[i], this.responseData.translatedText);
-
                         }
                     });
                 }
+            // we will rerun with a source language if we failed (only once)
+            } else if (result.responseStatus >= 400 && !usedefault) {
+                do_mass_google_invoker(tokens, trans, true);
             }
         });
     }
@@ -211,7 +214,7 @@
                 do_tgp_invoke(batchtokens[0], batchtrans[0]);
             }
         } else {
-            do_mass_google_invoker(batchtokens, batchtrans);
+            do_mass_google_invoker(batchtokens, batchtrans, false);
         }
     }
 
@@ -220,7 +223,9 @@
         // auto_translated_previously...
         var auto_translated_phrases = [], batchlength = 0, batchtrans = [], batchtokens = [];
 
-        if (t_jp.tgp) {BATCH_SIZE = 0;} // Transposh Google Proxy can't batch..
+        if (t_jp.tgp) {
+            BATCH_SIZE = 0;
+        } // Transposh Google Proxy can't batch..
 
         $("." + t_jp_prefix + '[data-source=""]').each(function (i) {
             var token = $(this).attr('data-token'),
