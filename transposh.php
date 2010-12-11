@@ -629,6 +629,7 @@ class transposh_plugin {
             'plugin_url' => $this->transposh_plugin_url,
             'lang' => $this->target_language,
             //TODO - orig language?
+            'olang' => $this->options->get_default_language(),
             // those two options show if the script can support said engines
             'prefix' => SPAN_PREFIX,
             'preferred' => $this->options->get_preferred_translator()
