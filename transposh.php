@@ -251,18 +251,20 @@ class transposh_plugin {
         elseif ($this->target_language == '') {
             logger("Skipping translation where target language is unset", 3);
         }
-        // This one allows to redirect to a static element which we can find, since the redirection will remove
-        // the target language, we are able to avoid nasty redirection loops
-        elseif (is_404 ()) {
-            global $wp;
-            if (file_exists(ABSPATH . $wp->query_vars['pagename'])) {
-                wp_redirect('/' . $wp->query_vars['pagename'], 301);
-            }
-        }
         // Don't translate the default language unless specifically allowed to...
         elseif ($this->options->is_default_language($this->target_language) && !$this->options->get_enable_default_translate()) {
             logger("Skipping translation for default language {$this->target_language}", 3);
         } else {
+            // This one allows to redirect to a static element which we can find, since the redirection will remove
+            // the target language, we are able to avoid nasty redirection loops
+            if (is_404 ()) {
+                global $wp;
+                if (file_exists(ABSPATH . $wp->query_vars['pagename'])) {
+                    logger('Redirecting a static file ' . $wp->query_vars['pagename'], 1);
+                    wp_redirect('/' . $wp->query_vars['pagename'], 301);
+                }
+            }
+
             logger("Translating {$_SERVER['REQUEST_URI']} to: {$this->target_language}", 1);
 
             //translate the entire page
