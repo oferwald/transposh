@@ -246,11 +246,18 @@ class transposh_plugin {
         if ($this->is_special_page($_SERVER['REQUEST_URI'])) {
             logger("Skipping translation for admin pages", 3);
         }
-
         // This one fixed a bug transposh created with other pages (xml generator for other plugins - such as the nextgen gallery)
         // TODO: need to further investigate (will it be needed?)
         elseif ($this->target_language == '') {
             logger("Skipping translation where target language is unset", 3);
+        }
+        // This one allows to redirect to a static element which we can find, since the redirection will remove
+        // the target language, we are able to avoid nasty redirection loops
+        elseif (is_404 ()) {
+            global $wp;
+            if (file_exists(ABSPATH . $wp->query_vars['pagename'])) {
+                wp_redirect('/' . $wp->query_vars['pagename'], 301);
+            }
         }
         // Don't translate the default language unless specifically allowed to...
         elseif ($this->options->is_default_language($this->target_language) && !$this->options->get_enable_default_translate()) {
