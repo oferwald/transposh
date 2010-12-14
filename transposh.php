@@ -166,6 +166,9 @@ class transposh_plugin {
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
         // CHECK TODO!!!!!!!!!!!!
         $this->tgl = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
+        if (!$this->options->is_viewable_language($this->tgl)) {
+            $this->tgl = '';
+        }
 
         register_activation_hook(__FILE__, array(&$this, 'plugin_activate'));
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
@@ -991,6 +994,9 @@ class transposh_plugin {
     function transposh_locale_filter($locale) {
         //logger($locale);
         $lang = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
+        if (!$this->options->is_viewable_language($lang)) {
+            $lang = '';
+        }
         if (!$lang) return $locale;
         list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);
         if ($locale) {
