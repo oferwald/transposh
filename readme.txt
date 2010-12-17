@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.8
-Tested up to: 3.0.1
+Tested up to: 3.0.3
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -18,7 +18,7 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 * Multiple selection for widget appearances - with pluggable widgets
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
-* Use either Google Translate or MS Translate backends - 57 languages supported!
+* Use either Google Translate or MS Translate backends - 59 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags and titles
@@ -195,9 +195,14 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2010/12/17 - 0.6.7 =
+ * Allow Google to attempt a retranslation if it is unable to detect source language at first attempt
+ * Direct links to static files have a good chance of being answered now (thanks krizzz)
+ * Ignore not viewable languages entered directly into urls
+ * Fixed typo in readme.txt, we did support 59 languages already
 = 2010/11/11 - 0.6.6 =
  * Added support for some more breaker html entities such as &rsquo; (thanks archon810)
- * fix XSS vulnerability on IE<8 (Thanks [Joshua Hansen and Scott Caveza](http://www.godaddy.com/security/website-security.aspx))
+ * Fixed XSS vulnerability on IE<8 (Thanks [Joshua Hansen and Scott Caveza](http://www.godaddy.com/security/website-security.aspx))
  * Integration with Google Sitemaps XML v4 beta
 = 2010/10/25 - 0.6.5 =
  * Fixed Slovenian flag bug reported by anphicle
