@@ -650,6 +650,8 @@ class transposh_plugin {
                 $script_params['msn'] = 1;
         if (in_array($this->target_language, transposh_consts::$google_languages))
                 $script_params['google'] = 1;
+        if (in_array($this->target_language, transposh_consts::$apertium_languages))
+                $script_params['apertium'] = 1;
         if (function_exists('curl_init') && in_array($this->target_language, transposh_consts::$google_proxied_languages))
                 $script_params['tgp'] = 1;
         if ($this->options->get_widget_progressbar())
