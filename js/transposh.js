@@ -204,11 +204,45 @@
             }
         });
     }
-    
+
+    // mass apertium translation
+    function do_mass_apertium_translate(batchtrans, callback) {
+        var q = '';
+        $(batchtrans).each(function (i) {
+            q += '&q=' + encodeURIComponent(batchtrans[i]);
+        });
+        $.ajax({
+            url: 'http://api.apertium.org/json/translate' +
+            '?' + q + '&langpair=' + t_jp.olang + '%7C' + t_jp.lang + '&markUnknown=no',
+            dataType: "jsonp",
+            success: callback
+        });
+    }
+
+    function do_mass_apertium_invoker(tokens, trans) {
+        do_mass_apertium_translate(trans, function (result) {
+            // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
+            if (result.responseStatus >= 200 && result.responseStatus < 300) {
+                // single items get handled differently
+                if (result.responseData.translatedText !== undefined) {
+                    auto_translate_success(tokens[0], result.responseData.translatedText);
+                } else {
+                    $(result.responseData).each(function (i) {
+                        if (this.responseStatus === 200) {
+                            auto_translate_success(tokens[i], this.responseData.translatedText);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     // invokes the correct mass translatot based on the prefered one...
     function do_mass_invoke(batchtokens, batchtrans) {
         if (t_jp.msn && t_jp.preferred === '2') {
             do_mass_ms_invoker(batchtokens, batchtrans);
+        } else if (t_jp.apertium && (t_jp.olang === 'en' || t_jp.olang === 'es')) {
+            do_mass_apertium_invoker(batchtokens, batchtrans);
         } else if (t_jp.tgp) {
             if (batchtrans[0]) {
                 do_tgp_invoke(batchtokens[0], batchtrans[0]);
@@ -282,7 +316,7 @@
             // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
             // we'll translate if there's any candidate...?
             if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-            (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.tgp)) {
+            (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium || t_jp.tgp)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 if (t_jp.progress) {
                     var loaduiandtranslate = function () {

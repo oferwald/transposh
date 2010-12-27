@@ -100,8 +100,6 @@
 
     function getgt()
     {
-        $(":button:contains('Suggest - Google')").attr("disabled", "disabled").addClass("ui-state-disabled");
-        $(":button:contains('Suggest - Bing')").attr("disabled", "").removeClass("ui-state-disabled");
         google_trans($(idprefix + "original").val(), function (result) {
             if (result.responseStatus === 200) {
                 $(idprefix + "translation").val($("<div>" + $.trim(result.responseData.translatedText) + "</div>").text())
@@ -123,10 +121,26 @@
     // fetch translation from bing translate...
     function getbt()
     {
-        $(":button:contains('Suggest - Bing')").attr("disabled", "disabled").addClass("ui-state-disabled");
-        $(":button:contains('Suggest - Google')").attr("disabled", "").removeClass("ui-state-disabled");
         ms_trans($(idprefix + "original").val(), function (translation) {
             $(idprefix + "translation").val($("<div>" + $.trim(translation) + "</div>").text())
+            .keyup();
+        });
+    }
+
+    // perform apertium translate of single phrase via jsonp
+    function apertium_trans(to_trans, callback) {
+        $.ajax({
+            url: 'http://api.apertium.org/json/translate?q=' + encodeURIComponent(to_trans) + '&langpair=en%7C' + t_jp.lang, // || &key=YOURAPIKEY&markUnknown=yes
+            dataType: "jsonp",
+            success: callback
+        });
+    }
+
+    // fetch translation from apertium translate...
+    function getat()
+    {
+        apertium_trans($(idprefix + "original").val(), function (result) {
+            $(idprefix + "translation").val($("<div>" + $.trim(result.responseData.translatedText) + "</div>").text())
             .keyup();
         });
     }
@@ -135,7 +149,7 @@
         $('<div id="dial" title="Close without saving?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You have made a change to the translation. Are you sure you want to discard it?</p></div>').appendTo("body").dialog({
             bgiframe: true,
             resizable: false,
-            height: 140,
+//            height: 140,
             modal: true,
             overlay: {
                 backgroundColor: '#000',
@@ -157,7 +171,7 @@
     //Open translation dialog
     function translate_dialog(segment_id) {
         //only add button is bing support is defined for the language
-        var bingbutton, googlebutton, floatr = 'right', previcon = 'prev', nexticon = 'next', dialog = idprefix + "dialog";
+        var bingbutton = '', googlebutton = '', apertiumbutton = '', floatr = 'right', previcon = 'prev', nexticon = 'next', dialog = idprefix + "dialog";
         if (jQuery("html").attr("dir") === 'rtl') {
             floatr = 'left';
             previcon = 'next';
@@ -165,13 +179,15 @@
         }
 
         if (t_jp.msn) {
-            bingbutton = '<button id="' + prefix + 'bing">bing suggest</button>';
+            bingbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'bing">bing suggest</button>';
         }
         // Only add button if google supports said language
         if (t_jp.google) {
-            googlebutton = '<button id="' + prefix + 'google">google suggest</button>';
+            googlebutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'google">google suggest</button>';
         }
-
+        if (t_jp.apertium) {
+            apertiumbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'apertium">apertium suggest</button>';
+        }
 
         // this is our current way of cleaning up, might reconsider?
         $(dialog).remove();
@@ -197,6 +213,7 @@
             '<button id="' + prefix + 'keyboard">virtual keyboard</button>' +
             googlebutton +
             bingbutton +
+            apertiumbutton +
             '<button id="' + prefix + 'approve">approve translation</button>' +
             '</span>' +
             '</div>'
@@ -211,7 +228,7 @@
         $(dialog + ' textarea').css({
             'width': '485px',
             'padding': '.4em',
-            'margin': '2px 0 -3px 0',
+            'margin': '2px 0 0 0',
             'resize': 'vertical' // this is for chrome and firefox
         }).addClass('text ui-widget-content ui-corner-all');
 
@@ -310,8 +327,8 @@
             text: false
         }).click(function () {
             getgt();
+            $('.' + prefix + 'suggest').button("enable");
             $(this).button("disable");
-            $(idprefix + 'bing').button("enable");
         });
         $(idprefix + 'bing').button({
             icons: {
@@ -320,8 +337,18 @@
             text: false
         }).click(function () {
             getbt();
+            $('.' + prefix + 'suggest').button("enable");
             $(this).button("disable");
-            $(idprefix + 'google').button("enable");
+        });
+        $(idprefix + 'apertium').button({
+            icons: {
+                primary: "tr-icon-apertium"
+            },
+            text: false
+        }).click(function () {
+            getat();
+            $('.' + prefix + 'suggest').button("enable");
+            $(this).button("disable");
         });
         $(idprefix + 'approve').button({
             icons: {

@@ -57,6 +57,7 @@ class transposh_consts {
         'cs' => 'Czech,čeština,cz,cs_CZ',
         'da' => 'Danish,dansk,dk,da_DK',
         'nl' => 'Dutch,Nederlands,nl,',
+        'eo' => 'Esperanto,Esperanto,esperanto,',
         'et' => 'Estonian,Eesti keel,ee,',
         'fi' => 'Finnish,Suomi,fi,',
         'fr' => 'French,Français,fr,fr_FR',
@@ -113,7 +114,11 @@ class transposh_consts {
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2010-Jun-30
     public static $bing_languages = array('en', 'ar', 'bg', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi');
-    // Array for holding po domains we have problems with
+    // Apertium supported languages
+    // a bit tricky, but we'll see - starting with just esperanto
+    public static $apertium_languages = array('eo');
+
+// Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
 
 }
