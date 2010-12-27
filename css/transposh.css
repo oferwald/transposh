@@ -25,3 +25,9 @@
 .tr-icon-green {
 	background-position:-24px 0;
 }
+.tr-icon-google {
+	background-image:url(../img/googleicon.png) !important;
+}
+.tr-icon-bing {
+	background-image:url(../img/bingicon.png) !important;
+}
