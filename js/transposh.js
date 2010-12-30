@@ -26,7 +26,7 @@
     t_jp_prefix = t_jp.prefix,
     progressbar_id = t_jp_prefix + "pbar",
     progressbar_posted_id = progressbar_id + "_s",
-    // source - 0 is human, 1 is google translate - 2 is msn translate , and higher reserved for future engines
+    // source - 0 is human, 1 is google translate, 2 is msn translate, 3 is apertium - higher reserved for future engines
     source = 1,
     //Ajax translation
     done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
@@ -220,6 +220,7 @@
     }
 
     function do_mass_apertium_invoker(tokens, trans) {
+        source = 3;
         do_mass_apertium_translate(trans, function (result) {
             // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
             if (result.responseStatus >= 200 && result.responseStatus < 300) {
