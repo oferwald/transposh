@@ -248,10 +248,36 @@ class transposh_plugin_widget {
         // last - you can now remove the logo in exchange to a few percentage of ad and affiliate revenues on your pages, isn't that better?
         $plugpath = parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
 
+        if (!$this->transposh->options->get_widget_remove_logo()) {
+            $tagline = esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . ' - ';
+            switch (ord(md5($_SERVER['REQUEST_URI'])) % 5) {
+                case 0:
+                    $tagline .= esc_attr__('translation plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
+                    break;
+                case 1:
+                    $tagline .= esc_attr__('wordpress translation plugin', TRANSPOSH_TEXT_DOMAIN);
+                    break;
+                case 2:
+                    $tagline .= esc_attr__('translate your blog to 60+ languages', TRANSPOSH_TEXT_DOMAIN);
+                    break;
+                case 3:
+                    $tagline .= esc_attr__('website crowdsourcing translation plugin', TRANSPOSH_TEXT_DOMAIN);
+                    break;
+                case 4:
+                    $tagline .= esc_attr__('google translate and bing translate plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
+                    break;
+            }
+
+            $extralang = '';
+            if ($this->transposh->target_language != 'en') {
+                $extralang = $this->transposh->target_language;
+            }
+        }
+
         echo '<div id="' . SPAN_PREFIX . 'credit">';
         if (!$this->transposh->options->get_widget_remove_logo()) {
-            echo 'by <a href="http://tran' . 'sposh.org"><img class="' . NO_TRANSLATE_CLASS . '" height="16" width="16" src="' .
-            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . '" alt="' . esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . '"/></a>';
+            echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img class="' . NO_TRANSLATE_CLASS . '" height="16" width="16" src="' .
+            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
         }
         echo '</div>';
         echo $after_widget;
