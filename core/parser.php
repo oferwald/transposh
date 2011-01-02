@@ -101,10 +101,11 @@ class parser {
     public $lang;
     /** @var boolean Contains the fact that this language is the default one (only parse other lanaguage spans) */
     public $default_lang = false;
+    /** @var string Contains the iso of the source language - if a lang attribute is found */
+    public $srclang;
     private $inbody = false;
+    /** @var hold fact that we are in select or other similar elements */
     private $inselect = false;
-    /** @var int holds level of non default language */
-    private $inlangnondef = false;
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
@@ -119,6 +120,8 @@ class parser {
     private $in_get_text = false;
     /** @var boolean Are we inside an inner text %s in gettext */
     private $in_get_text_inner = false;
+    /** @var string Additional header information */
+    public $added_header;
 
     /**
      * Determine if the current position in buffer is a white space.
@@ -304,6 +307,7 @@ class parser {
             $node->phrase = $phrase;
             $node->start = $start;
             $node->len = strlen($phrase);
+            if ($this->srclang) $node->srclang = $this->srclang;
             if ($this->inbody) $node->inbody = $this->inbody;
             if ($this->inselect) $node->inselect = true;
         }
@@ -418,52 +422,49 @@ class parser {
      * it currently also rewrites urls, and should consider if this is smart
      * @param simple_html_dom_node $node
      */
-    function translate_tagging($node, $level = 0, $lang = null) {
+    function translate_tagging($node, $level = 0) {
         $this->currentnode = $node;
         // we don't want to translate non-translatable classes
         if (stripos($node->class, NO_TRANSLATE_CLASS) !== false || stripos($node->class, NO_TRANSLATE_CLASS_GOOGLE) !== false)
                 return;
 
         // the node lang is the current node lang or its parent lang
-        $lang = $node->lang ? $node->lang : $lang;
-        // we avoid processing if the node lang is the target lang, however - we recurse with that lang
-        if (strtolower($lang) === $this->lang) {
-            foreach ($node->nodes as $c) {
-                $this->translate_tagging($c, $level + 1, $lang);
-            }
-            return;
+        if ($node->lang) {
+            // allow nesting of srclang (again - local var)
+            $prevsrclang = $this->srclang;
+            $this->srclang = strtolower($node->lang);
+            // using a local variable scope for later
+            $src_set_here = true;
+            // eliminate the lang tag from the html, since we aim to translate it
+            unset($node->lang);
         }
-
-        if ($this->inselect && $level <= $this->inselect)
-                $this->inselect = false;
-
-        if ($this->inlangnondef && $level <= $this->inlangnondef)
-                $this->inlangnondef = false;
-
-        if ($this->default_lang && $node->lang != '' && stripos($node->lang, $this->lang) === false)
-                $this->inlangnondef = $level;
 
         // we can only do translation for elements which are in the body, not in other places, and this must
         // move here due to the possibility of early recurse in default language
         if ($node->tag == 'body') {
             $this->inbody = true;
         }
+
         // this again should be here, the different behaviour on select and textarea
+        // for now - we assume that they can't include each other
         elseif ($node->tag == 'select' || $node->tag == 'textarea' || $node->tag == 'noscript') {
-            $this->inselect = $level;
+            $this->inselect = true;
+            $inselect_set_here = true;
         }
 
         //support only_thislanguage class, (nulling the node if it should not display)
-        if (strtolower($node->lang) != $this->lang && stripos($node->class, ONLY_THISLANGUAGE_CLASS) !== false) {
+        if ($src_set_here && $this->srclang != $this->lang && stripos($node->class, ONLY_THISLANGUAGE_CLASS) !== false) {
             $node->outertext = '';
             return;
         }
 
         // if we are in the default lang, and we have no foreign langs classes, we'll recurse from here
-        if ($this->default_lang && !$this->inlangnondef) {
+        // we also avoid processing if the node lang is the target lang
+        if (($this->default_lang && !$this->srclang) || ($this->srclang === $this->lang)) {
             foreach ($node->nodes as $c) {
                 $this->translate_tagging($c, $level + 1);
             }
+            if ($src_set_here) $this->srclang = $prevsrclang;
             return;
         }
 
@@ -510,6 +511,8 @@ class parser {
         foreach ($node->nodes as $c) {
             $this->translate_tagging($c, $level + 1);
         }
+        if ($src_set_here) $this->srclang = $prevsrclang;
+        if ($inselect_set_here) $this->inselect = false;
     }
 
     /**
@@ -518,12 +521,17 @@ class parser {
      * @param string $translated_text
      * @param int $source (Either "0" for Human, "1" for Machine or "" for untouched)
      * @param boolean $for_hidden_element
+     * @param string $src_lang - if source lang of element is different that default (eg. wrapped in lang="xx" attr)
      * @return string
      */
-    function create_edit_span($original_text, $translated_text, $source, $for_hidden_element = false) {
+    function create_edit_span($original_text, $translated_text, $source, $for_hidden_element = false, $src_lang = '') {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
         $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
+        // if we have a source language
+        if ($src_lang) {
+            $span .= ' data-srclang="' . $src_lang . '"';
+        }
         // those are needed for on the fly image creation / hidden elements translations
         if ($this->is_edit_mode || $for_hidden_element) {
             $span .= ' data-orig="' . $original_text . '"';
@@ -671,9 +679,9 @@ class parser {
                 }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody */) {
                     if ($ep->inselect || !$ep->inbody) {
-                        $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source, true);
+                        $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
                     } else {
-                        $translated_text = $this->create_edit_span($ep->phrase, $translated_text, $source);
+                        $translated_text = $this->create_edit_span($ep->phrase, $translated_text, $source, false, $ep->srclang);
                     }
                 }
                 // store replacements
@@ -725,7 +733,7 @@ class parser {
                                 //no need to translate span the same hidden phrase more than once
                                 if (!in_array($ep->phrase, $hidden_phrases)) {
                                     $this->stats->hidden_translateable_phrases++;
-                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true);
+                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
                                     //    logger ($span);
                                     $hidden_phrases[] = $ep->phrase;
                                 }
@@ -785,6 +793,7 @@ class parser {
         // This adds a meta tag with our statistics json-encoded inside...
         $this->stats->stop_timing();
         $head = $this->html->find('head', 0);
+        if ($head != null) $head->lastChild()->outertext .= $this->added_header;
         if ($head != null)
                 $head->lastChild()->outertext .= "\n<meta name=\"translation-stats\" content='" . json_encode($this->stats) . "'/>";
 
