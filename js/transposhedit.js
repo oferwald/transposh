@@ -227,6 +227,7 @@
                 opacity: 0.5
             },
             buttons: {
+                // TODO: Fix this...
                 'Discard': function () {
                     $(idprefix + "translation").data('changed', false);
                     $(this).dialog('close');
@@ -335,16 +336,8 @@
                             if (data === false) {
                                 $(row).children().addClass('ui-state-error');
                             } else {
-                                console.log (data);
-                                console.log($(idprefix + segment_id).attr('data-token'),data.translated, data.source);
                                 $(row).empty();
                                 fix_page_human($(idprefix + segment_id).attr('data-token'),data.translated, data.source);
-                            //            var translation = $(idprefix + 'translation').val(),
-                            //token = $(idprefix + segment_id).attr('data-token');
-                            // we allow approval on computer generated translations too
-                            //            if ($(idprefix + 'translation').data("changed") || $(idprefix + segment_id).attr('data-source') !== "0") {
-                            //                ajax_translate_human(token, translation);
-
                             }
                         }
                     });
@@ -387,10 +380,9 @@
 
         $(dialog).css("padding", "1px").append(
             '<div style="width: 100%">' +
-            '<label for="original">' + __('Original text') +' (<span id="'+prefix+'orglang">'+l[segmentlang]+'</span>)'+ '</label>' +
+            '<label for="original">' + __('Original text') +' (<a href="#" title="'+__('read alternate translations')+'" id="'+prefix+'orglang">'+l[segmentlang]+'</a>)'+ '</label>' +
             '<textarea cols="80" row="3" name="original" id="' + prefix + 'original" readonly="y"/>' +
             '<span id="' + prefix + 'utlbar">' +
-            '<button id="' + prefix + 'flag">'+__('read alternate translations')+'</button>' +
             '<button id="' + prefix + 'prev">'+__('previous translation')+'</button>' +
             '<button id="' + prefix + 'zoom">'+__('find on page')+'</button>' +
             '<button id="' + prefix + 'next">'+__('next translation')+'</button>' +
@@ -434,12 +426,7 @@
         });
 
         // buttonize
-        $(idprefix + 'flag').button({
-            icons: {
-                primary: "ui-icon-flag"
-            },
-            text: false
-        }).click(function () {
+        $(idprefix + 'orglang').click(function () {
             if ($(idprefix + "langmenu").length) {
                 $(idprefix + "langmenu").toggle();
             } else {
@@ -480,15 +467,16 @@
                                     top:0,
                                     left:0
                                 }).position({
-                                    my: right + ' top',
-                                    at: left +' top',
-                                    of: $(idprefix + 'flag')
+                                    my: left + ' top',
+                                    at: left +' bottom',
+                                    of: $(idprefix + 'orglang')
                                 });
                             }
                         });
                     }
                 });
             }
+            return false;
         });
 
         $(idprefix + 'prev').button({
@@ -659,6 +647,9 @@
             width: 500//,
         //   buttons: tButtons
         });
+
+        // we don't need no focus, we don't need element control
+        $(idprefix + 'orglang').blur();
 
         // remove virtual keyboard and history on close
         $(dialog).bind("dialogclose", function (event, ui) {
