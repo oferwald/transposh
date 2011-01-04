@@ -662,11 +662,9 @@ class transposh_plugin {
         // load translations needed for edit interface
         if ($this->edit_mode) {
             $script_params['edit'] = 1;
-            $script_params['edit_box_title'] = _x('Edit Translation', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
-            $script_params['edit_box_translate'] = _x('Translate', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
-            $script_params['edit_box_history'] = _x('History', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
-            $script_params['edit_box_original'] = _x('Original Text', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
-            $script_params['edit_box_translate_to'] = _x('Translate To', 'Edit Interface', TRANSPOSH_TEXT_DOMAIN);
+            if (file_exists($this->transposh_plugin_dir.TRANSPOSH_DIR_JS.'/l/'.$this->target_language.'.js')) {
+                $script_params['locale'] = 1;
+            }
         }
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
