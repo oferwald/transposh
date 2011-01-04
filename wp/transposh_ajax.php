@@ -44,7 +44,15 @@ if (isset($_POST['translation_posted'])) {
 }
 // getting translation history
 elseif (isset($_GET['tr_token_hist'])) {
+    // deleting
+    if (isset($_GET['action']) && $_GET['action'] == 'delete') {
+        $my_transposh_plugin->database->del_translation_history($_GET['tr_token_hist'], $_GET['lang'], $_GET['timestamp']);
+    }
     $my_transposh_plugin->database->get_translation_history($_GET['tr_token_hist'], $_GET['lang']);
+}
+// getting translation alternates
+elseif (isset($_GET['tr_token_alt'])) {
+    $my_transposh_plugin->database->get_translation_alt($_GET['tr_token_alt']);
 }
 // getting phrases of a post (if we are in admin)
 elseif (isset($_GET['tr_phrases_post'])) {

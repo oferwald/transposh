@@ -147,6 +147,7 @@ class transposh_database {
     function prefetch_translations($originals, $lang) {
         if (!$originals) return;
         logger($originals, 4);
+        $where = '';
         foreach ($originals as $original => $truth) {
             $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
             $cached = $this->cache_fetch($original, $lang);
@@ -437,26 +438,108 @@ class transposh_database {
         logger("query is $query");
 
         $rows = $GLOBALS['wpdb']->get_results($query);
-        logger($rows, 4);
-        // TODO: work with json
-        //header("Content-type: text/javascript");
-        //echo json_encode($rows);
-        if ($rows !== FALSE) {
-            echo '<table>' .
-            '<thead>' .
-            '<tr>' .
-            '<th>Translated</th><th/><th>By</th><th>At</th>' .
-            '</tr>' .
-            '</thead>' .
-            '<tbody>';
-            foreach ($rows as $row) {
-                if (is_null($row->user_login))
-                        $row->user_login = $row->translated_by;
-                echo "<tr><td>{$row->translated}</td><td source=\"{$row->source}\"/><td user_id=\"{$row->translated_by}\">{$row->user_login}</td><td>{$row->timestamp}</td></tr>";
+        for ($i = 0; $i < count($rows); $i++) {
+            if (($rows[$i]->translated_by == $_SERVER['REMOTE_ADDR'] && $rows[$i]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options')) {
+                $rows[$i]->can_delete = true;
             }
-            echo '</tbody></table>';
+        }
+        // sending as json
+        // CHECK!!! header("Content-type: application/json");
+        echo json_encode($rows);
+        exit;
+    }
+
+    /**
+     * Delete a specific translation history from the logs
+     * @param string $token
+     * @param string $lang
+     * @param string $timestamp
+     */
+    function del_translation_history($token, $lang, $timestamp) {
+        $original = transposh_utils::base64_url_decode($token);
+        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $lang = $GLOBALS['wpdb']->escape($lang);
+        $timestamp = $GLOBALS['wpdb']->escape($timestamp);
+        header('Transposh: v-' . TRANSPOSH_PLUGIN_VER . ' db_version-' . DB_VERSION);
+        $query = "SELECT translated, translated_by, timestamp, source " .
+                "FROM {$this->translation_log_table} " .
+                "WHERE original='$original' AND lang='$lang' AND timestamp='$timestamp' " .
+                "ORDER BY timestamp DESC";
+        $rows = $GLOBALS['wpdb']->get_results($query);
+        // We only delete if we found something to delete and it is allowed to delete it (user either did that - by ip, has the translator role or is an admin)
+        if (!empty($rows) && (($rows[0]->translated_by == $_SERVER['REMOTE_ADDR'] && $rows[0]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options'))) {
+            // delete faulty record
+            $query = "DELETE " .
+                    "FROM {$this->translation_log_table} " .
+                    "WHERE original='$original' AND lang='$lang' AND timestamp='$timestamp'";
+            $GLOBALS['wpdb']->query($query);
+            // retrieve last translation
+            $query = "SELECT translated, source " .
+                    "FROM {$this->translation_log_table} " .
+                    "WHERE original='$original' AND lang='$lang' " .
+                    "ORDER BY timestamp DESC";
+            $rows = $GLOBALS['wpdb']->get_results($query);
+
+            // delete and revert to last in database
+            $delvalues = "(original ='$original' AND lang='$lang')";
+            $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
+            logger($update, 3);
+            $result = $GLOBALS['wpdb']->query($update);
+            if (!empty($rows)) {
+                $values = "('" . $original . "','" . $rows[0]->translated . "','" . $lang . "','" . $rows[0]->source . "')";
+                $update = "INSERT INTO " . $this->translation_table . " (original, translated, lang, source) VALUES $values";
+                logger($update, 3);
+                $result = $GLOBALS['wpdb']->query($update);
+            } else {
+                // there is nothing to revert to...
+                $rows[0]->translated = '';
+            }
+            echo json_encode($rows[0]);
+        } else {
+            echo json_encode(false);
+        }
+        exit;
+    }
+
+    /**
+     * Get translation alternatives for some translation.
+     * @param string $token
+     */
+    function get_translation_alt($token) {
+
+        //$ref = getenv('HTTP_REFERER');
+        $original = transposh_utils::base64_url_decode($token);
+        logger("Inside alt for $original ($token)", 4);
+
+        if (!isset($original)) {
+            exit;
         }
 
+        // Check permissions
+        if (!($this->transposh->is_translator())) {
+            logger("Unauthorized alt request " . $_SERVER['REMOTE_ADDR'], 1);
+            header('HTTP/1.0 401 Unauthorized alt request');
+            exit;
+        }
+        logger('Passed check for editable and translator', 4);
+
+        // The original content is encoded as base64 before it is sent (i.e. token), after we
+        // decode it should just the same after it was parsed.
+        // TODO - check if needed later
+        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+
+        // add our own custom header - so we will know that we got here
+        // TODO - move to ajax file?
+        header('Transposh: v-' . TRANSPOSH_PLUGIN_VER . ' db_version-' . DB_VERSION);
+
+        $query = "SELECT translated, lang " .
+                "FROM {$this->translation_table} " .
+                "WHERE original='$original' AND source=0 " .
+                "ORDER BY lang";
+        logger("query is $query");
+        $rows = $GLOBALS['wpdb']->get_results($query);
+
+        echo json_encode($rows);
         exit;
     }
 

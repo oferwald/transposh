@@ -15,12 +15,82 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window, VKI_attach, VKI_show, VKI_close */
+/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_jl, window, VKI_attach, VKI_show, VKI_close */
 (function ($) { // closure
+
+    function __(str){
+        var s;
+        if(typeof(t_jl) === 'object' && (s=t_jl[str]) ) return s;
+        return str;
+    }
+
+    var l = {
+        en: 'English',
+        af: 'Afrikaans',
+        sq: 'Shqip',
+        ar: 'العربية',
+        hy: 'Հայերեն',
+        az: 'azərbaycan dili',
+        eu: 'Euskara',
+        be: 'Беларуская',
+        bg: 'Български',
+        ca: 'Català',
+        zh: '中文 - 简体',
+        'zh-tw': '中文 - 漢字',
+        hr: 'Hrvatski',
+        cs: 'Čeština',
+        da: 'Dansk',
+        nl: 'Nederlands',
+        eo: 'Esperanto',
+        et: 'Eesti keel',
+        fi: 'Suomi',
+        fr: 'Français',
+        gl: 'Galego',
+        ka: 'ქართული',
+        de: 'Deutsch',
+        el: 'Ελληνικά',
+        ht: 'Kreyòl ayisyen',
+        he: 'עברית',
+        hi: 'हिन्दी; हिंदी',
+        hu: 'Magyar',
+        is: 'Íslenska',
+        id: 'Bahasa Indonesia',
+        ga: 'Gaeilge',
+        it: 'Italiano',
+        ja: '日本語',
+        ko: '우리말',
+        la: 'latīna',
+        lv: 'Latviešu valoda',
+        lt: 'Lietuvių kalba',
+        mk: 'македонски јазик',
+        ms: 'Bahasa Melayu',
+        mt: 'Malti',
+        no: 'Norsk',
+        fa: 'فارسی',
+        pl: 'Polski',
+        pt: 'Português',
+        ro: 'Română',
+        ru: 'Русский',
+        sr: 'Cрпски језик',
+        sk: 'Slovenčina',
+        sl: 'Slovenščina', //slovenian
+        es: 'Español',
+        sw: 'Kiswahili',
+        sv: 'svenska',
+        tl: 'Tagalog', // fhilipino
+        th: 'ภาษาไทย',
+        tr: 'Türkçe',
+        uk: 'Українська',
+        ur: 'اردو',
+        vi: 'Tiếng Việt',
+        cy: 'Cymraeg',
+        yi: 'ייִדיש'
+    }
 
     var prefix = t_jp.prefix,
     idprefix = "#" + prefix;
-    function fix_page_human(token, translation) {
+
+    function fix_page_human(token, translation, source) {
         //reset to the original content - the unescaped version if translation is empty
         // TODO!
         if ($.trim(translation).length === 0) {
@@ -30,10 +100,13 @@
         var fix_image = function () { // handle the image changes
             var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1),
             img = $(idprefix + "img_" + img_segment_id);
-            $(idprefix + img_segment_id).attr('data-source', 0); // source is 0 human
-            img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-green');
-        // TODO if ($.trim(translation).length !== 0) { remove green on zero length?
-
+            $(idprefix + img_segment_id).attr('data-source', source); // source is 0 human
+            img.removeClass('tr-icon-yellow').removeClass('tr-icon-green')
+            if (source == 0) {
+                img.addClass('tr-icon-green');
+            } else if (source) {
+                img.addClass('tr-icon-yellow');
+            }
         };
         // rewrite text for all matching items at once
         $("*[data-token='" + token + "'][data-hidden!='y']")
@@ -55,7 +128,7 @@
     function ajax_translate_human(token, translation) {
         // push translations
         // This is a change - as we fix the pages before we got actual confirmation (worked well for auto-translation)
-        fix_page_human(token, translation);
+        fix_page_human(token, translation, 0);
         var data = {
             ln0: t_jp.lang,
             sr0: 0, // implicit human
@@ -146,10 +219,8 @@
     }
 
     function confirm_close() {
-        $('<div id="dial" title="Close without saving?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You have made a change to the translation. Are you sure you want to discard it?</p></div>').appendTo("body").dialog({
-            bgiframe: true,
+        $('<div id="dial" title="'+__('Close without saving?')+'"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>'+__('You have made a change to the translation. Are you sure you want to discard it?') + '</p></div>').appendTo("body").dialog({
             resizable: false,
-//            height: 140,
             modal: true,
             overlay: {
                 backgroundColor: '#000',
@@ -159,7 +230,7 @@
                 'Discard': function () {
                     $(idprefix + "translation").data('changed', false);
                     $(this).dialog('close');
-                    $(idprefix + "d-tabs").dialog('close');
+                    $(idprefix + "dialog").dialog('close');
                 },
                 Cancel: function () {
                     $(this).dialog('close');
@@ -168,62 +239,186 @@
         });
     }
 
+    function history_dialog(segment_id){
+        var dialog = idprefix + "historydialog", left = "left", right = "right";
+        /*if ($(dialog).length) {
+            $(dialog).dialog('open');
+            return;
+        }*/
+        if (jQuery("html").attr("dir") === 'rtl') {
+            right = 'left';
+            left = 'right';
+        }
+
+        $(dialog).remove();
+        //$(idprefix+'historydialog').remove();
+
+        $('<div id="' + prefix + 'historydialog" title="' + __('History') + '">'+__('Loading...')+'</div>').appendTo("body");
+        $(dialog).css('padding', 0).dialog({
+            width: '450px',
+            // dialogClass: 'ui-widget-shadow',
+            show: 'slide'//,
+        //stack: true
+        });
+        $.ajax({
+            url: t_jp.post_url,
+            data: {
+                tr_token_hist: $(idprefix + segment_id).attr('data-token'),
+                lang: t_jp.lang
+            },
+            dataType: "json",
+            success: function(data) {
+                var icon, icontitle, iconline, delline;
+                $(dialog).empty().append(
+                    '<table width="100%">' +
+                    '<col style="width: 80%;">' +
+                    '<col>' +
+                    '<col>' +
+                    '<thead>'+
+                    '<tr> ' +
+                    '<th>'+__('Translated')+'</th><th>'+__('By')+'</th><th>'+__('At')+'</th>' +
+                    '</tr>' +
+                    '</thead>' +
+                    '<tbody>' +
+                    '</tbody>' +
+                    '</table>');
+                $.each(data, function(index, row) {
+                    switch(row.source)
+                    {
+                        case '1':
+                            icon = 'tr-icon-google';
+                            icontitle = __('google');
+                            break;
+                        case '2':
+                            icon = 'tr-icon-bing';
+                            icontitle = __('bing');
+                            break;
+                        case '3':
+                            icon = 'tr-icon-apertium';
+                            icontitle = __('apertium');
+                            break;
+                        default:
+                            icon = 'ui-icon-person';
+                            icontitle = __('human translation');
+                    }
+                    if (row.user_login === null) {
+                        row.user_login = row.translated_by;
+                    }
+                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0px; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default;" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display: inline-block; "></span></span>'
+                    if (row.can_delete) {
+                        delline = '<span class="' + prefix + 'delete" title="' + __('delete') + '" style="width: 18px; margin-' + left + ': 3px">';
+                    } else {
+                        delline = '';
+                    }
+                    $(dialog + " tbody").append('<tr><td>' + row.translated + '</td><td id="' + prefix +'histby">' + iconline + row.user_login + '</td><td id="' + prefix +'histstamp">' +row.timestamp + delline + '</td></tr>');
+                });
+                $(idprefix + "histby," + idprefix + "histstamp").css('white-space','nowrap');
+                $(dialog + " th").addClass('ui-widget-header').css('padding', '3px');
+                $(dialog + " td").addClass('ui-widget-content').css('padding', '3px');
+                $("." + prefix + "delete").button({
+                    icons: {
+                        primary: "ui-icon-circle-close"
+                    },
+                    text: false
+                }).click(function() {
+                    var row = $(this).parents('tr');
+                    $.ajax({
+                        url: t_jp.post_url,
+                        data: {
+                            tr_token_hist: $(idprefix + segment_id).attr('data-token'),
+                            timestamp: $(this).parents('tr').children(":last").text(),
+                            action: 'delete',
+                            lang: t_jp.lang
+                        },
+                        dataType: "json",
+                        success: function(data) {
+                            if (data === false) {
+                                $(row).children().addClass('ui-state-error');
+                            } else {
+                                console.log (data);
+                                console.log($(idprefix + segment_id).attr('data-token'),data.translated, data.source);
+                                $(row).empty();
+                                fix_page_human($(idprefix + segment_id).attr('data-token'),data.translated, data.source);
+                            //            var translation = $(idprefix + 'translation').val(),
+                            //token = $(idprefix + segment_id).attr('data-token');
+                            // we allow approval on computer generated translations too
+                            //            if ($(idprefix + 'translation').data("changed") || $(idprefix + segment_id).attr('data-source') !== "0") {
+                            //                ajax_translate_human(token, translation);
+
+                            }
+                        }
+                    });
+                });
+                $("." + prefix + "delete .ui-button-text").css('display','inline-block');
+            }
+        });
+
+    }
     //Open translation dialog
     function translate_dialog(segment_id) {
         //only add button is bing support is defined for the language
-        var bingbutton = '', googlebutton = '', apertiumbutton = '', floatr = 'right', previcon = 'prev', nexticon = 'next', dialog = idprefix + "dialog";
+        var bingbutton = '', googlebutton = '', apertiumbutton = '', right = 'right', left = 'left', previcon = 'prev', nexticon = 'next', dialog = idprefix + "dialog";
         if (jQuery("html").attr("dir") === 'rtl') {
-            floatr = 'left';
+            right = 'left';
+            left = 'right';
             previcon = 'next';
             nexticon = 'prev';
         }
 
         if (t_jp.msn) {
-            bingbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'bing">bing suggest</button>';
+            bingbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'bing">'+__('bing suggest')+'</button>';
         }
         // Only add button if google supports said language
         if (t_jp.google) {
-            googlebutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'google">google suggest</button>';
+            googlebutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'google">'+__('google suggest')+'</button>';
         }
         if (t_jp.apertium) {
-            apertiumbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'apertium">apertium suggest</button>';
+            apertiumbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'apertium">'+__('apertium suggest')+'</button>';
         }
 
         // this is our current way of cleaning up, might reconsider?
         $(dialog).remove();
-        $('<div id="' + prefix + 'dialog" title="' + t_jp.edit_box_title + '"/>').appendTo("body");
-        //.tabs('add', t_jp.post_url + '?tr_token_hist=' + $(idprefix + segment_id).attr('data-token') + '&lang=' + t_jp.lang, t_jp.edit_box_history)
+        $('<div id="' + prefix + 'dialog" title="' + __('Edit Translation') + '"/>').appendTo("body");
 
-        // fix for templates messing with li -not needed, tabs gone
-        // $(idprefix + "d-tabs li").css("list-style-type", "none").css("list-style-position", "outside");
+        var segmentlang = $(idprefix + segment_id).attr('data-srclang');
+        if (segmentlang === undefined ) {
+            segmentlang = t_jp.olang;
+        }
 
         $(dialog).css("padding", "1px").append(
             '<div style="width: 100%">' +
-            '<label for="original">' + t_jp.edit_box_original + '</label>' +
+            '<label for="original">' + __('Original text') +' (<span id="'+prefix+'orglang">'+l[segmentlang]+'</span>)'+ '</label>' +
             '<textarea cols="80" row="3" name="original" id="' + prefix + 'original" readonly="y"/>' +
             '<span id="' + prefix + 'utlbar">' +
-            '<button id="' + prefix + 'flag">read alternate translations</button>' +
-            '<button id="' + prefix + 'prev">previous translation</button>' +
-            '<button id="' + prefix + 'zoom">find on page</button>' +
-            '<button id="' + prefix + 'next">next translation</button>' +
+            '<button id="' + prefix + 'flag">'+__('read alternate translations')+'</button>' +
+            '<button id="' + prefix + 'prev">'+__('previous translation')+'</button>' +
+            '<button id="' + prefix + 'zoom">'+__('find on page')+'</button>' +
+            '<button id="' + prefix + 'next">'+__('next translation')+'</button>' +
             '</span>' +
-            '<label for="translation">' + t_jp.edit_box_translate_to + '</label>' +
+            '<label for="translation">' + __('Translate to') + '</label>' +
             '<textarea cols="80" row="3" name="translation" lang="' + t_jp.lang + '"id="' + prefix + 'translation"/>' +
             '<span id="' + prefix + 'ltlbar">' +
-            '<button id="' + prefix + 'keyboard">virtual keyboard</button>' +
+            '<button id="' + prefix + 'history">'+__('view translation log')+'</button>' +
+            '<button id="' + prefix + 'keyboard">'+__('virtual keyboard')+'</button>' +
             googlebutton +
             bingbutton +
             apertiumbutton +
-            '<button id="' + prefix + 'approve">approve translation</button>' +
+            '<button id="' + prefix + 'approve">'+__('approve translation')+'</button>' +
             '</span>' +
-            '</div>'
+            '</div>' 
             );
 
         // toolbars should float...
         $(idprefix + 'utlbar,' + idprefix + 'ltlbar').css({
-            'float' : floatr
-        }).addClass('ui-widget-header ui-corner-all');
-
+            'float' : right
+        }).buttonset();
+        // rtl fix for buttonsets
+        if (jQuery("html").attr("dir") === 'rtl') {
+            jQuery('#tr_utlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
+            jQuery('#tr_utlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
+            jQuery('#tr_ltlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
+            jQuery('#tr_ltlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
+        }
         // css for textareas
         $(dialog + ' textarea').css({
             'width': '485px',
@@ -244,7 +439,58 @@
                 primary: "ui-icon-flag"
             },
             text: false
+        }).click(function () {
+            if ($(idprefix + "langmenu").length) {
+                $(idprefix + "langmenu").toggle();
+            } else {
+                // We will show languages that have a human translation on the server
+                $.xLazyLoader({
+                    js: [t_jp.plugin_url + '/js/jquery.ui.menu.js'],
+                    success: function () {
+                        $.ajax({
+                            url: t_jp.post_url,
+                            data: {
+                                tr_token_alt: $(idprefix + segment_id).attr('data-token')
+                            },
+                            dataType: "json",
+                            success: function(data) {
+                                var itemlang
+                                if (!(itemlang = $(idprefix + segment_id).attr('data-srclang'))) {
+                                    itemlang = t_jp.olang;
+                                }
+                                var liflag = '<li data-translated="' + $(idprefix + segment_id).attr('data-orig') + '"><a href="#">' + l[itemlang] + '</a></li>'
+                                $(data).each(function(index, item) {
+                                    if (item.lang !== t_jp.lang) {
+                                        liflag = liflag + '<li data-translated="' + item.translated + '"><a href="#">' + l[item.lang] + '</a></li>'
+                                    }
+                                });
+                                $('<ul style="position: absolute; top: 0px" id="' + prefix + 'langmenu">' + liflag).appendTo(dialog);
+
+                                $(idprefix + "langmenu").menu({
+                                    select: function(event, ui) {
+                                        $(this).hide();
+                                        $(idprefix + "original").val(ui.item.attr('data-translated'));
+                                        $(idprefix + "orglang").text(ui.item.text()).addClass('ui-state-highlight');
+                                        if (l[itemlang] === ui.item.text()) {
+                                            $(idprefix + "orglang").removeClass('ui-state-highlight');
+                                        }
+                                    },
+                                    input: $(this)
+                                }).show().css({
+                                    top:0,
+                                    left:0
+                                }).position({
+                                    my: right + ' top',
+                                    at: left +' top',
+                                    of: $(idprefix + 'flag')
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         });
+
         $(idprefix + 'prev').button({
             icons: {
                 primary: "ui-icon-seek-" + previcon
@@ -303,6 +549,15 @@
         } else {
             $(idprefix + 'next').button("disable");
         }
+
+        $(idprefix + 'history').button({
+            icons: {
+                primary: "ui-icon-clipboard"
+            },
+            text: false
+        }).click(function () {
+            history_dialog(segment_id)
+        });
 
         $(idprefix + 'keyboard').button({
             icons: {
@@ -397,7 +652,6 @@
 
         // time to create the dialog
         $(dialog).dialog({
-            //bgiframe: true,
             //modal: true,
             //width: 'auto',
             //autoopen: false,
@@ -406,13 +660,14 @@
         //   buttons: tButtons
         });
 
-        // remove virtual keyboard on close
+        // remove virtual keyboard and history on close
         $(dialog).bind("dialogclose", function (event, ui) {
             if (typeof VKI_close === 'function') {
                 VKI_close(jQuery(idprefix + "translation").get(0));
             }
+            $(idprefix+'historydialog').remove();
         });
-        
+
         // show confirmation dialog before closing
         $(dialog).bind('dialogbeforeclose', function (event, ui) {
             if ($(idprefix + "translation").data("changed")) {
@@ -431,7 +686,7 @@
         $(this).after('<span id="' + prefix + 'img_' + translated_id + '" class="tr-icon" title="' + $(this).attr('data-orig') + '"></span>');
         img = $(idprefix + 'img_' + translated_id);
         img.click(function () {
-            //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict
+            //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict !!!!!!!!!!!
             if (typeof $.fn.tabs !== 'function' || typeof $.fn.dialog !== 'function') {
                 $.ajaxSetup({
                     cache: true
@@ -441,12 +696,31 @@
                         js: ['http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js'],
                         css: ['http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/ui-lightness/jquery-ui.css'],
                         success: function () {
-                            translate_dialog(translated_id);
+                            // Load locale - todo - better...
+                            if (t_jp.locale) {
+                                $.xLazyLoader({
+                                    js: [t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js'],
+                                    success: function () {
+                                        translate_dialog(translated_id);
+                                    }
+                                });
+                            } else {
+                                translate_dialog(translated_id);
+                            }
                         }
                     });
                 });
             } else {
-                translate_dialog(translated_id);
+                if (t_jp.locale) {
+                    $.xLazyLoader({
+                        js: [t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js'],
+                        success: function () {
+                            translate_dialog(translated_id);
+                        }
+                    });
+                } else {
+                    translate_dialog(translated_id);
+                }
             }
             return false;
         }).css({
