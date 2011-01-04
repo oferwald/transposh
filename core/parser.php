@@ -334,7 +334,7 @@ class parser {
             // Some HTML entities make us break, almost all but apostrophies
             if ($len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
-                if (($this->is_white_space($string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
+                if (($this->is_white_space(@$string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
                     logger("entity ($entity) breaks", 4);
                     $this->tag_phrase($string, $start, $pos);
                     $start = $pos + $len_of_entity;
@@ -373,7 +373,7 @@ class parser {
                 //$this->in_get_text_inner = !$this->in_get_text_inner;
             }
             // will break translation unit when there's a breaker ",.[]()..."
-            elseif ($senb_len = $this->is_sentence_breaker($string[$pos], $string[$pos + 1], $string[$pos + 2])) {
+            elseif ($senb_len = $this->is_sentence_breaker($string[$pos], @$string[$pos + 1], @$string[$pos + 2])) {
 //                logger ("sentence breaker...");
                 $this->tag_phrase($string, $start, $pos);
                 $pos += $senb_len;
@@ -384,12 +384,12 @@ class parser {
             elseif ($num_len = $this->is_number($string, $pos)) {
 //                logger ("numnum... $num_len");
                 // this is the case of B2 or B2,
-                if (($this->is_white_space($string[$pos - 1]) || ($start == $pos)
+                if (($start == $pos) || ($this->is_white_space($string[$pos - 1])
                         || ($this->is_sentence_breaker($string[$pos + $num_len - 1], $string[$pos + $num_len], $string[$pos + $num_len + 1]))) &&
-                        ($this->is_white_space($string[$pos + $num_len]) || $this->is_sentence_breaker($string[$pos + $num_len], $string[$pos + $num_len + 1], $string[$pos + $num_len + 2]))) {
+                        ($this->is_white_space(@$string[$pos + $num_len]) || $this->is_sentence_breaker(@$string[$pos + $num_len], @$string[$pos + $num_len + 1], @$string[$pos + $num_len + 2]))) {
                     // we will now compensate on the number followed by breaker case, if we need to
 //                            logger ("compensate part1?");
-                    if (!($this->is_white_space($string[$pos - 1]) || ($start == $pos))) {
+                    if (!(($start == $pos) || $this->is_white_space($string[$pos - 1]))) {
 //                            logger ("compensate part2?");
                         if ($this->is_sentence_breaker($string[$pos + $num_len - 1], $string[$pos + $num_len], $string[$pos + $num_len + 1])) {
 //                            logger ("compensate 3?");
@@ -453,7 +453,7 @@ class parser {
         }
 
         //support only_thislanguage class, (nulling the node if it should not display)
-        if ($src_set_here && $this->srclang != $this->lang && stripos($node->class, ONLY_THISLANGUAGE_CLASS) !== false) {
+        if (isset($src_set_here) && $src_set_here && $this->srclang != $this->lang && stripos($node->class, ONLY_THISLANGUAGE_CLASS) !== false) {
             $node->outertext = '';
             return;
         }
@@ -464,7 +464,8 @@ class parser {
             foreach ($node->nodes as $c) {
                 $this->translate_tagging($c, $level + 1);
             }
-            if ($src_set_here) $this->srclang = $prevsrclang;
+            if (isset($src_set_here) && $src_set_here)
+                    $this->srclang = $prevsrclang;
             return;
         }
 
@@ -511,8 +512,10 @@ class parser {
         foreach ($node->nodes as $c) {
             $this->translate_tagging($c, $level + 1);
         }
-        if ($src_set_here) $this->srclang = $prevsrclang;
-        if ($inselect_set_here) $this->inselect = false;
+        if (isset($src_set_here) && $src_set_here)
+                $this->srclang = $prevsrclang;
+        if (isset($inselect_set_here) && $inselect_set_here)
+                $this->inselect = false;
     }
 
     /**
@@ -669,6 +672,7 @@ class parser {
         // texts are first
         foreach ($this->html->find('text') as $e) {
             $replace = array();
+            $savedspan = '';
             foreach ($e->nodes as $ep) {
                 list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                 //stats
@@ -708,7 +712,7 @@ class parser {
                 $replace = array();
                 $span = '';
                 // when we already have a parent outertext we'll have to update it directly
-                if ($e->parent->_[HDOM_INFO_OUTER]) {
+                if (isset($e->parent->_[HDOM_INFO_OUTER])) {
                     $saved_outertext = $e->outertext;
                 }
                 logger("$title-original: $e->$title}", 4);
@@ -752,7 +756,7 @@ class parser {
 
                 $e->outertext .= $span;
                 // this is where we update in the outercase issue
-                if ($e->parent->_[HDOM_INFO_OUTER]) {
+                if (isset($e->parent->_[HDOM_INFO_OUTER])) {
                     $e->parent->outertext = implode($e->outertext, explode($saved_outertext, $e->parent->outertext, 2));
                 }
             }
