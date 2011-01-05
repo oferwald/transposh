@@ -62,6 +62,8 @@ define('WIDGET_PROGRESSBAR', 'widget_progressbar');
 define('WIDGET_ALLOW_SET_DEFLANG', 'widget_allow_set_deflang');
 //Allows removing of transposh logo in exchange for an ad @since 0.6.0
 define('WIDGET_REMOVE_LOGO_FOR_AD', 'widget_remove_logo');
+//Allows theming of the progressbar and edit window @since 0.7.0
+define('WIDGET_THEME', 'widget_theme');
 //Stores the site key to transposh services (backup @since 0.5.0)
 define('TRANSPOSH_KEY', 'transposh_key');
 //Stores the site key to transposh services (backup @since 0.5.0)
@@ -105,6 +107,7 @@ class transposh_plugin_options {
         $this->set_default_option_value(WIDGET_PROGRESSBAR);
         $this->set_default_option_value(WIDGET_ALLOW_SET_DEFLANG);
         $this->set_default_option_value(WIDGET_REMOVE_LOGO_FOR_AD);
+        $this->set_default_option_value(WIDGET_THEME, 'ui-lightness');
         $this->set_default_option_value(TRANSPOSH_KEY);
         $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE);
         $this->migrate_old_config();
@@ -175,6 +178,15 @@ class transposh_plugin_options {
      */
     function get_widget_file() {
         return $this->options[WIDGET_FILE];
+    }
+
+    /**
+     * return theme
+     * @since 0.7.0
+     * @return string 
+     */
+    function get_widget_theme() {
+        return $this->options[WIDGET_THEME];
     }
 
     function get_widget_allow_set_default_language() {
@@ -293,6 +305,15 @@ class transposh_plugin_options {
      */
     function set_widget_file($val) {
         $this->set_value($val, $this->options[WIDGET_FILE]);
+    }
+
+     /**
+     * Set the widget theme
+     * @since 0.7.0
+     * @param string $val
+     */
+    function set_widget_theme($val) {
+        $this->set_value($val, $this->options[WIDGET_THEME]);
     }
 
     function set_widget_allow_set_default_language($val) {

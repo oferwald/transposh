@@ -17,13 +17,7 @@
 
 /*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_jl, window, VKI_attach, VKI_show, VKI_close */
 (function ($) { // closure
-
-    function __(str){
-        var s;
-        if(typeof(t_jl) === 'object' && (s=t_jl[str]) ) return s;
-        return str;
-    }
-
+    // list of languages
     var l = {
         en: 'English',
         af: 'Afrikaans',
@@ -85,10 +79,29 @@
         vi: 'Tiếng Việt',
         cy: 'Cymraeg',
         yi: 'ייִדיש'
+    },
+    prefix = t_jp.prefix,
+    idprefix = "#" + prefix,
+    previcon = 'prev',
+    nexticon = 'next',
+    right = 'right',
+    left = 'left';
+
+    // fix rtl stuff
+    if ($("html").attr("dir") === 'rtl') {
+        right = 'left';
+        left = 'right';
+        previcon = 'next';
+        nexticon = 'prev';
     }
 
-    var prefix = t_jp.prefix,
-    idprefix = "#" + prefix;
+    // translation function
+    function __(str){
+        var s;
+        if(typeof(t_jp.l) === 'object' && (s=t_jp.l[str]) ) return s;
+        return str;
+    }
+
 
     function fix_page_human(token, translation, source) {
         //reset to the original content - the unescaped version if translation is empty
@@ -241,15 +254,11 @@
     }
 
     function history_dialog(segment_id){
-        var dialog = idprefix + "historydialog", left = "left", right = "right";
+        var dialog = idprefix + "historydialog";
         /*if ($(dialog).length) {
             $(dialog).dialog('open');
             return;
         }*/
-        if (jQuery("html").attr("dir") === 'rtl') {
-            right = 'left';
-            left = 'right';
-        }
 
         $(dialog).remove();
         //$(idprefix+'historydialog').remove();
@@ -300,12 +309,12 @@
                             break;
                         default:
                             icon = 'ui-icon-person';
-                            icontitle = __('human translation');
+                            icontitle = __('manual translation');
                     }
                     if (row.user_login === null) {
                         row.user_login = row.translated_by;
                     }
-                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0px; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default;" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display: inline-block; "></span></span>'
+                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0px; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display: inline-block; "></span></span>'
                     if (row.can_delete) {
                         delline = '<span class="' + prefix + 'delete" title="' + __('delete') + '" style="width: 18px; margin-' + left + ': 3px">';
                     } else {
@@ -350,13 +359,7 @@
     //Open translation dialog
     function translate_dialog(segment_id) {
         //only add button is bing support is defined for the language
-        var bingbutton = '', googlebutton = '', apertiumbutton = '', right = 'right', left = 'left', previcon = 'prev', nexticon = 'next', dialog = idprefix + "dialog";
-        if (jQuery("html").attr("dir") === 'rtl') {
-            right = 'left';
-            left = 'right';
-            previcon = 'next';
-            nexticon = 'prev';
-        }
+        var bingbutton = '', googlebutton = '', apertiumbutton = '', dialog = idprefix + "dialog";
 
         if (t_jp.msn) {
             bingbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'bing">'+__('bing suggest')+'</button>';
@@ -405,11 +408,11 @@
             'float' : right
         }).buttonset();
         // rtl fix for buttonsets
-        if (jQuery("html").attr("dir") === 'rtl') {
-            jQuery('#tr_utlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
-            jQuery('#tr_utlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
-            jQuery('#tr_ltlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
-            jQuery('#tr_ltlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
+        if ($("html").attr("dir") === 'rtl') {
+            $('#tr_utlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
+            $('#tr_utlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
+            $('#tr_ltlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
+            $('#tr_ltlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
         }
         // css for textareas
         $(dialog + ' textarea').css({
@@ -516,7 +519,7 @@
                 'position': 'fixed'
             });
             // animate the scroll
-            jQuery(idprefix + segment_id).animate({
+            $(idprefix + segment_id).animate({
                 opacity: 0.1
             }, "slow").animate({
                 opacity: 1
@@ -557,8 +560,8 @@
                 js: [t_jp.plugin_url + '/js/keyboard.js'],
                 css: [t_jp.plugin_url + '/css/keyboard.css'],
                 success: function () {
-                    VKI_attach(jQuery(idprefix + "translation").get(0));
-                    VKI_show(jQuery(idprefix + "translation").get(0));
+                    VKI_attach($(idprefix + "translation").get(0));
+                    VKI_show($(idprefix + "translation").get(0));
                 }
             });
         });
@@ -654,7 +657,7 @@
         // remove virtual keyboard and history on close
         $(dialog).bind("dialogclose", function (event, ui) {
             if (typeof VKI_close === 'function') {
-                VKI_close(jQuery(idprefix + "translation").get(0));
+                VKI_close($(idprefix + "translation").get(0));
             }
             $(idprefix+'historydialog').remove();
         });
@@ -684,8 +687,8 @@
                 });
                 $.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
                     $.xLazyLoader({
-                        js: ['http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js'],
-                        css: ['http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/ui-lightness/jquery-ui.css'],
+                        js: t_jp.jQueryUI + 'jquery-ui.min.js',
+                        css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
                         success: function () {
                             // Load locale - todo - better...
                             if (t_jp.locale) {

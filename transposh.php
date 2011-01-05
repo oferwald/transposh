@@ -662,10 +662,15 @@ class transposh_plugin {
         // load translations needed for edit interface
         if ($this->edit_mode) {
             $script_params['edit'] = 1;
-            if (file_exists($this->transposh_plugin_dir.TRANSPOSH_DIR_JS.'/l/'.$this->target_language.'.js')) {
+            if (file_exists($this->transposh_plugin_dir . TRANSPOSH_DIR_JS . '/l/' . $this->target_language . '.js')) {
                 $script_params['locale'] = 1;
             }
         }
+        // set theme when it is needed
+        if ($this->options->get_widget_progressbar() || $this->edit_mode) {
+            $script_params['theme'] = $this->options->get_widget_theme();
+        }
+
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
         logger('Added transposh_js', 4);
