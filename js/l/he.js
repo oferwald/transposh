@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-window.t_jl = {
+t_jp.l = {
     'Close without saving?': 'לסגור בלי לשמור?',
     'You have made a change to the translation. Are you sure you want to discard it?': 'ביצעת שינוי בתרגום, האם אתה בטוח שאתה רוצה לוותר עליו?',
     'History': 'היסטוריה',
@@ -14,7 +14,7 @@ window.t_jl = {
     'google': 'גוגל',
     'bing': 'בינג',
     'apertium': 'אפרטיום',
-    'human translation': 'תרגום אנושי',
+    'manual translation': 'תרגום ידני',
     'bing suggest': 'הצעות בינג',
     'google suggest': 'הצעות גוגל',
     'apertium suggest': 'הצעות אפרטיום',

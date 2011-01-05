@@ -34,6 +34,8 @@
 
     // transposh app_id for msn translate, now global
     t_jp.MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6';
+    // set base uri for jQueryUI
+    t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/';
 
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
@@ -149,6 +151,9 @@
             url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
             '?v=1.0' + q + '&langpair=' + ol + '%7C' + t_jp.lang,
             dataType: "jsonp",
+            // can use (and test)
+            // data: {v: '1.0', langpair: ol+'|'+t_jp.lang,q: batchtrans}
+            // traditional: true
             success: callback
         });
     }
@@ -322,8 +327,8 @@
                 if (t_jp.progress) {
                     var loaduiandtranslate = function () {
                         $.xLazyLoader({
-                            js: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js',
-                            css: 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css',
+                            js: t_jp.jQueryUI + 'jquery-ui.min.js',
+                            css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
                             success: function () {
                                 create_progress_bar();
                                 do_auto_translate();

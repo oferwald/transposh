@@ -18,6 +18,7 @@
 	overflow:hidden;
 	text-indent:-99999px;
         display:inline-block;
+        cursor: pointer;
 }
 .tr-icon-yellow {
 	background-position:-12px 0;

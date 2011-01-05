@@ -290,6 +290,7 @@ class transposh_plugin_widget {
         $this->transposh->options->set_widget_progressbar($_POST[WIDGET_PROGRESSBAR]);
         $this->transposh->options->set_widget_allow_set_default_language($_POST[WIDGET_ALLOW_SET_DEFLANG]);
         $this->transposh->options->set_widget_remove_logo($_POST[WIDGET_REMOVE_LOGO_FOR_AD]);
+        $this->transposh->options->set_widget_theme($_POST[WIDGET_THEME]);
         if ($save) $this->transposh->options->update_options();
         // Avoid coming here twice...
         unset($_POST['transposh-submit']);
@@ -353,6 +354,9 @@ class transposh_plugin_widget {
      */
     function transposh_widget_control() {
         if (isset($_POST['transposh-submit'])) $this->transposh_widget_post();
+        $themes = array('base', 'black-tie', 'blitzer', 'cupertino', 'dark-hive', 'dot-luv', 'eggplant', 'excite-bike', 'flick',
+            'hot-sneaks', 'humanity', 'le-frog', 'mint-choc', 'overcast', 'pepper-grinder', 'redmond', 'smoothness', 'south-street',
+            'start', 'sunny', 'swanky-purse', 'trontastic', 'ui-darkness', 'ui-lightness', 'vader');
 
         $widgets = $this->get_widgets();
 
@@ -372,7 +376,16 @@ class transposh_plugin_widget {
         '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="' . esc_attr__('Widget will allow setting this language as user default', TRANSPOSH_TEXT_DOMAIN) . '">' . __('Allow user to set current language as default', TRANSPOSH_TEXT_DOMAIN) . '</span><br/>' .
         '<input type="checkbox" id="' . WIDGET_REMOVE_LOGO_FOR_AD . '" name="' . WIDGET_REMOVE_LOGO_FOR_AD . '"' . ($this->transposh->options->get_widget_remove_logo() ? ' checked="checked"' : '') . '/>' .
         '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="' . esc_attr__('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN) . '">' . __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN) . '</span><br/>' .
-        '</p>' .
+        '</p>';
+
+        echo '<p><label for="' . WIDGET_THEME . '">' . __('Theme:', TRANSPOSH_TEXT_DOMAIN) . '<br/>' .
+        '<select id="transposh-style" name="' . WIDGET_THEME . '">';
+        foreach ($themes as $theme) {
+            $selected = ($this->transposh->options->get_widget_theme() == $theme) ? ' selected="selected"' : '';
+            echo "<option value=\"$theme\"$selected>{$theme}</option>";
+        }
+        echo '</select>' .
+        '</label></p>' .
         '<input type="hidden" name="transposh-submit" id="transposh-submit" value="1"/>';
     }
 
