@@ -504,8 +504,8 @@ class parser {
         // titles are also good places to translate, exist in a, img, abbr, acronym
         if ($node->title) $this->parsetext($node->title);
 
-        // Meta content (keywords, description) are also good places to translate
-        if ($node->tag == 'meta' && $node->content)
+        // Meta content (keywords, description) are also good places to translate (but not in robots...)
+        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots'))
                 $this->parsetext($node->content);
 
         // recurse
@@ -668,11 +668,14 @@ class parser {
             call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
         }
 
+        // this is used to reserve spans we cannot add directly (out of body, metas, etc)
+        $hiddenspans = '';
+        $savedspan = '';
+
         // actually translate tags
         // texts are first
         foreach ($this->html->find('text') as $e) {
             $replace = array();
-            $savedspan = '';
             foreach ($e->nodes as $ep) {
                 list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                 //stats
@@ -682,8 +685,10 @@ class parser {
                     if ($source == 0) $this->stats->human_translated_phrases++;
                 }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody */) {
-                    if ($ep->inselect || !$ep->inbody) {
+                    if ($ep->inselect) {
                         $savedspan .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
+                    } elseif (!$ep->inbody) {
+                        $hiddenspans .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
                     } else {
                         $translated_text = $this->create_edit_span($ep->phrase, $translated_text, $source, false, $ep->srclang);
                     }
@@ -762,8 +767,9 @@ class parser {
             }
         }
 
-        // now we handle the meta content - which is simpler because they can't be edited or auto-translated
+        // now we handle the meta content - which is simpler because they can't be edited or auto-translated in place
         // we also don't expect any father modifications here
+        // so we now add all those spans right before the <body> tag end
         foreach ($this->html->find('[content]') as $e) {
             $right = '';
             $newtext = '';
@@ -783,12 +789,25 @@ class parser {
                         $newtext .= $left . $translated_text;
                         $e->content = $right;
                     }
+                    if ($this->is_edit_mode) {
+                            $hiddenspans .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
+                    }
+                    if (!$translated_text && $this->is_auto_translate && !$this->is_edit_mode) {
+                        logger('untranslated meta for ' . $ep->phrase . ' ' . $this->lang);
+                        if ($this->is_edit_mode || $this->is_auto_translate) { // FIX
+                        }
+                    }
                 }
             }
             if ($newtext) {
                 $e->content = $newtext . $right;
                 logger("content-phrase: $newtext", 4);
             }
+        }
+
+        if ($hiddenspans) {
+            $body = $this->html->find('body', 0);
+            if ($body != null) $body->lastChild()->outertext .= $hiddenspans;
         }
         // only in 5 out of 100 pages, with just translated pages, we might show an ad for transposh
         if ($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) {
