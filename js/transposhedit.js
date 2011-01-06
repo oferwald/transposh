@@ -409,10 +409,11 @@
         }).buttonset();
         // rtl fix for buttonsets
         if ($("html").attr("dir") === 'rtl') {
-            $('#tr_utlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
-            $('#tr_utlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
-            $('#tr_ltlbar button:first').addClass('ui-corner-right').removeClass('ui-icon-left');
-            $('#tr_ltlbar button:last').addClass('ui-corner-left').removeClass('ui-icon-right');
+            var uicorner = 'ui-corner-';
+            $('#tr_utlbar button:first').addClass(uicorner + right).removeClass(uicorner + left);
+            $('#tr_utlbar button:last').addClass(uicorner + left).removeClass(uicorner + right);
+            $('#tr_ltlbar button:first').addClass(uicorner + right).removeClass(uicorner + left);
+            $('#tr_ltlbar button:last').addClass(uicorner + left).removeClass(uicorner + right);
         }
         // css for textareas
         $(dialog + ' textarea').css({
@@ -518,18 +519,26 @@
                 'top': $(dialog).dialog("widget").offset().top  - window.scrollY,
                 'position': 'fixed'
             });
-            // animate the scroll
+            // animate the scroll (3 blinks)
             $(idprefix + segment_id).animate({
                 opacity: 0.1
-            }, "slow").animate({
-                opacity: 1
             }, "slow", function () {
                 //make it absolute again
                 $(dialog).dialog('widget').css({
                     'top': $(dialog).dialog("widget").offset().top,
                     'position': 'absolute'
                 });
-            });
+            }).animate({
+                opacity: 1
+            }, "slow").animate({
+                opacity: 0.1
+            }, "slow").animate({
+                opacity: 1
+            }, "slow").animate({
+                opacity: 0.1
+            }, "slow").animate({
+                opacity: 1
+            }, "slow");
         });
 
         // next button click
