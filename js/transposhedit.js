@@ -277,6 +277,7 @@
                 lang: t_jp.lang
             },
             dataType: "json",
+            cache: false,
             success: function(data) {
                 var icon, icontitle, iconline, delline;
                 $(dialog).empty().append(
@@ -341,6 +342,7 @@
                             lang: t_jp.lang
                         },
                         dataType: "json",
+                        cache: false,
                         success: function(data) {
                             if (data === false) {
                                 $(row).children().addClass('ui-state-error');
@@ -444,6 +446,7 @@
                                 tr_token_alt: $(idprefix + segment_id).attr('data-token')
                             },
                             dataType: "json",
+                            cache: false,
                             success: function(data) {
                                 var itemlang
                                 if (!(itemlang = $(idprefix + segment_id).attr('data-srclang'))) {
