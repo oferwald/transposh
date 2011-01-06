@@ -157,6 +157,9 @@ class transposh_database {
             }
             $where .= ( ($where) ? ' OR ' : '') . "original = '$original'";
         }
+        // make sure $lang is reasonable, unless someone is messing with us, it will be ok
+        if (!($this->transposh->options->is_editable_language($lang))) return;
+
         // If we have nothing, we will do nothing
         if (!$where) return;
         $query = "SELECT original, translated, source FROM {$this->translation_table} WHERE ($where) and lang = '$lang' ";
@@ -189,10 +192,12 @@ class transposh_database {
             return $cached;
         }
         // then we look for a prefetch
-        if ($this->translations[$original]) {
+        if (isset($this->translations[$original])) {
             $translated = $this->translations[$original];
             logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 3);
         } else {
+            // make sure $lang is reasonable, unless someone is messing with us, it will be ok
+            if (!($this->transposh->options->is_editable_language($lang))) return; 
             $query = "SELECT * FROM {$this->translation_table} WHERE original = '$original' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
 
@@ -228,6 +233,7 @@ class transposh_database {
             logger("Exit from cache: $translation $cached", 4);
             return $cached;
         }
+        // lang
         // FIXME - no prefetching for originals yet...
         if ($this->translations[$translation]) {
             $original = $this->translations[$translation];
@@ -307,6 +313,7 @@ class transposh_database {
         $delvalues = '';
         $logvalues = '';
         $backup_immidiate_possible = false;
+        $firstitem = true;
         // We are now processing all posted items
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
@@ -345,13 +352,14 @@ class transposh_database {
                 }
             }
             // Setting the values string for the database (notice how concatanation is handled)
-            $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')" . (($items != $i + 1) ? ', ' : '');
-            $delvalues .= "(original ='$original' AND lang='$lang')" . (($items != $i + 1) ? ' OR ' : '');
+            $values .= ( $firstitem ? '' : ', ') . "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
+            $delvalues .= ( $firstitem ? '' : ' OR ') . "(original ='$original' AND lang='$lang')";
             // Setting the transaction log records
-            $logvalues .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $loguser . "','" . $source . "')" . (($items != $i + 1) ? ', ' : '');
+            $logvalues .= ( $firstitem ? '' : ', ') . "('" . $original . "','" . $translation . "','" . $lang . "','" . $loguser . "','" . $source . "')";
 
             // If we have caching - we remove previous entry from cache
             $this->cache_delete($original, $lang);
+            $firstitem = false;
             // TODO - maybe store value here?
         }
 
@@ -483,6 +491,7 @@ class transposh_database {
             // delete and revert to last in database
             $delvalues = "(original ='$original' AND lang='$lang')";
             $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
+            $this->cache_delete($original, $lang);
             logger($update, 3);
             $result = $GLOBALS['wpdb']->query($update);
             if (!empty($rows)) {
@@ -643,15 +652,16 @@ class transposh_database {
      */
     function get_orignal_phrases_for_search_term($term, $language) {
         $n = '%';
-        $term = addslashes_gpc($term);
+        $term = $GLOBALS['wpdb']->escape(html_entity_decode($term, ENT_NOQUOTES, 'UTF-8'));
+        $language = $GLOBALS['wpdb']->escape($language);
         $query = "SELECT original" .
                 " FROM `{$this->translation_table}`" .
-                " WHERE `lang` LIKE '$language'" .
+                " WHERE `lang` = '$language'" .
                 " AND `translated` LIKE '{$n}{$term}{$n}'";
         //TODO wait for feedbacks to see if we should put a limit here.
-
         logger($query, 4);
         $result = array();
+        if(strlen($term) < 3) return $result;
         $rows = $GLOBALS['wpdb']->get_results($query);
 
         foreach ($rows as $row) {
