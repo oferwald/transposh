@@ -504,8 +504,8 @@ class parser {
         // titles are also good places to translate, exist in a, img, abbr, acronym
         if ($node->title) $this->parsetext($node->title);
 
-        // Meta content (keywords, description) are also good places to translate (but not in robots...)
-        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots'))
+        // Meta content (keywords, description) are also good places to translate (but not in robots... or http-equiv)
+        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots') && ($node->{'http-equiv'} != 'Content-Type'))
                 $this->parsetext($node->content);
 
         // recurse
