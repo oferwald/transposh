@@ -410,10 +410,10 @@
         // rtl fix for buttonsets
         if ($("html").attr("dir") === 'rtl') {
             var uicorner = 'ui-corner-';
-            $('#tr_utlbar button:first').addClass(uicorner + right).removeClass(uicorner + left);
-            $('#tr_utlbar button:last').addClass(uicorner + left).removeClass(uicorner + right);
-            $('#tr_ltlbar button:first').addClass(uicorner + right).removeClass(uicorner + left);
-            $('#tr_ltlbar button:last').addClass(uicorner + left).removeClass(uicorner + right);
+            $('#tr_utlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+            $('#tr_utlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+            $('#tr_ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+            $('#tr_ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
         }
         // css for textareas
         $(dialog + ' textarea').css({
