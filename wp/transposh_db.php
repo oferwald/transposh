@@ -197,7 +197,8 @@ class transposh_database {
             logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 3);
         } else {
             // make sure $lang is reasonable, unless someone is messing with us, it will be ok
-            if (!($this->transposh->options->is_editable_language($lang))) return; 
+            if (!($this->transposh->options->is_editable_language($lang)))
+                    return;
             $query = "SELECT * FROM {$this->translation_table} WHERE original = '$original' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
 
@@ -314,6 +315,7 @@ class transposh_database {
         $logvalues = '';
         $backup_immidiate_possible = false;
         $firstitem = true;
+        $alreadybatched = array();
         // We are now processing all posted items
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
@@ -334,6 +336,12 @@ class transposh_database {
                 $source = $_POST["sr$i"];
             }
 
+            // we attempt to avoid
+            if (isset($alreadybatched[$original . '---' . $lang])) {
+                logger("Warning same item appeared twice in batch: $original $lang", 1);
+                continue;
+            }
+            $alreadybatched[$original . '---' . $lang] = true;
             // should we backup? - yes on any human translation
             if ($source == 0) $backup_immidiate_possible = true;
 
@@ -474,6 +482,7 @@ class transposh_database {
                 "WHERE original='$original' AND lang='$lang' AND timestamp='$timestamp' " .
                 "ORDER BY timestamp DESC";
         $rows = $GLOBALS['wpdb']->get_results($query);
+        logger($query, 3);
         // We only delete if we found something to delete and it is allowed to delete it (user either did that - by ip, has the translator role or is an admin)
         if (!empty($rows) && (($rows[0]->translated_by == $_SERVER['REMOTE_ADDR'] && $rows[0]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options'))) {
             // delete faulty record
@@ -481,12 +490,14 @@ class transposh_database {
                     "FROM {$this->translation_log_table} " .
                     "WHERE original='$original' AND lang='$lang' AND timestamp='$timestamp'";
             $GLOBALS['wpdb']->query($query);
+            logger($query, 3);
             // retrieve last translation
             $query = "SELECT translated, source " .
                     "FROM {$this->translation_log_table} " .
                     "WHERE original='$original' AND lang='$lang' " .
                     "ORDER BY timestamp DESC";
             $rows = $GLOBALS['wpdb']->get_results($query);
+            logger($query, 3);
 
             // delete and revert to last in database
             $delvalues = "(original ='$original' AND lang='$lang')";
@@ -495,7 +506,8 @@ class transposh_database {
             logger($update, 3);
             $result = $GLOBALS['wpdb']->query($update);
             if (!empty($rows)) {
-                $values = "('" . $original . "','" . $rows[0]->translated . "','" . $lang . "','" . $rows[0]->source . "')";
+                $translated = $GLOBALS['wpdb']->escape($rows[0]->translated);
+                $values = "('" . $original . "','" . $translated . "','" . $lang . "','" . $rows[0]->source . "')";
                 $update = "INSERT INTO " . $this->translation_table . " (original, translated, lang, source) VALUES $values";
                 logger($update, 3);
                 $result = $GLOBALS['wpdb']->query($update);
@@ -661,7 +673,7 @@ class transposh_database {
         //TODO wait for feedbacks to see if we should put a limit here.
         logger($query, 4);
         $result = array();
-        if(strlen($term) < 3) return $result;
+        if (strlen($term) < 3) return $result;
         $rows = $GLOBALS['wpdb']->get_results($query);
 
         foreach ($rows as $row) {
@@ -701,6 +713,93 @@ class transposh_database {
         $result = $GLOBALS['wpdb']->query($cleanup);
         logger($cleanup, 4);
         // clean up cache so that results will actually show
+        $this->cache_clean();
+        exit;
+    }
+
+    function db_maint() {
+        // clean duplicate log entries
+        $dedup = 'SELECT * , count( * )' .
+                ' FROM ' . $this->translation_log_table .
+                ' GROUP BY `original` , `lang` , `translated` , `translated_by` , `timestamp` , `source`' .
+                ' HAVING count( * ) >1';
+        $rows = $GLOBALS['wpdb']->get_results($dedup);
+        logger($dedup, 3);
+        foreach ($rows as $row) {
+            $row->original = $GLOBALS['wpdb']->escape($row->original);
+            $row->translated = $GLOBALS['wpdb']->escape($row->translated);
+            $row->translated_by = $GLOBALS['wpdb']->escape($row->translated_by);
+            $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}' AND translated='{$row->translated}'" .
+                    " AND translated_by='{$row->translated_by}' AND timestamp='{$row->timestamp}' AND source='{$row->source}')";
+            $update = "DELETE FROM " . $this->translation_log_table . " WHERE $delvalues";
+            logger($update, 3);
+            $result = $GLOBALS['wpdb']->query($update);
+            $values = "('{$row->original}','{$row->lang}','{$row->translated}','$row->translated_by','$row->timestamp','$row->source')";
+            $update = "INSERT INTO " . $this->translation_log_table . " (original, lang, translated, translated_by, timestamp, source) VALUES $values";
+            logger($update, 3);
+            $result = $GLOBALS['wpdb']->query($update);
+            $this->cache_delete($row->original, $row->lang);
+        }
+        //$this->cache_clean();
+        // clean autotranslate entries post dating a human translation
+        $autojunk = 'SELECT w2 . *' .
+                ' FROM ' . $this->translation_log_table . ' AS w1' .
+                ' INNER JOIN ' . $this->translation_log_table . ' AS w2' .
+                ' ON w1.original = w2.original' .
+                ' AND w1.lang = w2.lang' .
+                ' AND w1.source =0' .
+                ' AND w2.source >0' .
+                ' AND w1.timestamp < w2.timestamp';
+        $rows = $GLOBALS['wpdb']->get_results($autojunk);
+        logger($autojunk, 3);
+        foreach ($rows as $row) {
+            $row->original = $GLOBALS['wpdb']->escape($row->original);
+            $row->translated = $GLOBALS['wpdb']->escape($row->translated);
+            $row->translated_by = $GLOBALS['wpdb']->escape($row->translated_by);
+            $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}' AND translated='{$row->translated}'" .
+                    " AND translated_by='{$row->translated_by}' AND timestamp='{$row->timestamp}' AND source='{$row->source}')";
+            $update = "DELETE FROM " . $this->translation_log_table . " WHERE $delvalues";
+            $result = $GLOBALS['wpdb']->query($update);
+            logger($update, 3);
+            $this->cache_delete($row->original, $row->lang);
+        }
+        // check for discrepencies (last translation in log does not equal current translation)
+        // TODO
+        /* SELECT *
+          FROM `wp_translations` AS w1
+          INNER JOIN wp_translations_log AS w2 ON w1.original = w2.original
+          AND w1.lang = w2.lang
+          LEFT OUTER JOIN wp_translations_log AS w3 ON ( w2.original = w3.original
+          AND w2.lang = w3.lang
+          AND w2.timestamp < w3.timestamp )
+          WHERE w3.original IS NULL
+          AND w1.translated != w2.translated */
+
+        // check for transalations that have no log representation
+        // TODO
+        /* SELECT *
+          FROM   wp_translations
+          LEFT OUTER JOIN wp_translations_log
+          ON (wp_translations.original = wp_translations_log.original AND wp_translations.lang = wp_translations_log.lang)
+          WHERE wp_translations_log.original IS NULL
+         */
+
+        // if we have multiple translations for the same item, we will delete them and revert to latest from log
+        // TODO - handle this, but not now, case sensativity issues
+        /* $duptrans = 'SELECT *' .
+          ' FROM ' . $this->translation_table .
+          ' GROUP BY original, lang' .
+          ' HAVING count( * ) >1';
+          $rows = $GLOBALS['wpdb']->get_results($duptrans);
+          logger($duptrans, 3);
+          foreach ($rows as $row) {
+          $row->original = $GLOBALS['wpdb']->escape($row->original);
+          $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}')";
+          $row->original = $GLOBALS['wpdb']->escape($row->original);
+          $update = "DELETE FROM " . $this->translation_log_table . " WHERE $delvalues";
+          logger($update, 3);
+          // $result = $GLOBALS['wpdb']->query($update);
+          } */
         $this->cache_clean();
         exit;
     }
