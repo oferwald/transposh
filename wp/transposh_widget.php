@@ -378,7 +378,7 @@ class transposh_plugin_widget {
         '<span style="border-bottom: 1px dotted #333; cursor: help; margin-left: 4px" title="' . esc_attr__('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN) . '">' . __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN) . '</span><br/>' .
         '</p>';
 
-        echo '<p><label for="' . WIDGET_THEME . '">' . __('Theme:', TRANSPOSH_TEXT_DOMAIN) . '<br/>' .
+        echo '<p><label for="' . WIDGET_THEME . '">' . __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN) . '<br/>' .
         '<select id="transposh-style" name="' . WIDGET_THEME . '">';
         foreach ($themes as $theme) {
             $selected = ($this->transposh->options->get_widget_theme() == $theme) ? ' selected="selected"' : '';
