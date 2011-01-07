@@ -114,4 +114,10 @@ elseif (isset($_GET['cleanup'])) {
     check_ajax_referer('transposh-clean', 'nonce');
     $my_transposh_plugin->database->cleanup($_GET['days']);
 }
+// Start maint
+elseif (isset($_GET['maint'])) {
+    // just make sure the admin started this... recently enough
+    check_ajax_referer('transposh-clean', 'nonce');
+    $my_transposh_plugin->database->db_maint();
+}
 ?>

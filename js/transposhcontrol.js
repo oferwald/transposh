@@ -161,8 +161,29 @@ jQuery(function() {
         cleanautoclick(0,jQuery(this));
         return false;
     });
+
     jQuery("#transposh-clean-auto14").click(function() {
         cleanautoclick(14,jQuery(this));
+        return false;
+    });
+
+    maintclick = function (button) {
+        if (!confirm("Are you sure you want to do this?")) return false;
+        var prevtext = button.text();
+        button.unbind('click').click(function(){
+            return false
+        }).text("Maintenance in progress");
+        jQuery.get(t_jp.post_url + "?nonce="+button.attr('nonce')+"&maint",function(data) {
+            button.unbind('click').click(function() {
+                maintclick(button);
+                return false;
+            }).text(prevtext);
+        });
+        return false;
+    }
+    
+    jQuery("#transposh-maint").click(function() {
+        maintclick(jQuery(this));
         return false;
     });
 
