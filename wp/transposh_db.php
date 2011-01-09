@@ -603,7 +603,7 @@ class transposh_database {
                     translated TEXT, 
                     source TINYINT NOT NULL, 
                     KEY original (original(6),lang)
-                    ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+                    ) DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
 
             dbDelta($sql);
 
@@ -619,7 +619,7 @@ class transposh_database {
                     source TINYINT NOT NULL, 
                     timestamp TIMESTAMP, 
                     KEY original (original(6),lang,timestamp)
-                    ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+                    ) DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
 
             dbDelta($sql);
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
