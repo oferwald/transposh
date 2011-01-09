@@ -24,7 +24,7 @@ define('TRANSLATIONS_TABLE', 'translations');
 define('TRANSLATIONS_LOG', 'translations_log');
 
 //Database version
-define('DB_VERSION', '1.04');
+define('DB_VERSION', '1.05');
 
 //Constant used as key in options database
 define('TRANSPOSH_DB_VERSION', "transposh_db_version");
@@ -596,7 +596,7 @@ class transposh_database {
         if ($installed_ver != DB_VERSION) {
             logger("Attempting to create table {$this->translation_table}", 0);
             // notice - keep every field on a new line or dbdelta fails
-            $GLOBALS['wpdb']->query("ALTER TABLE $table_name DROP PRIMARY KEY");
+            $GLOBALS['wpdb']->query("ALTER TABLE {$this->translation_table} DROP PRIMARY KEY");
             $sql = "CREATE TABLE {$this->translation_table} (
                     original TEXT NOT NULL, 
                     lang CHAR(5) NOT NULL, 
@@ -606,11 +606,12 @@ class transposh_database {
                     ) DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
 
             dbDelta($sql);
+            $GLOBALS['wpdb']->query("ALTER TABLE {$this->translation_table} CONVERT TO CHARSET utf8 COLLATE utf8_bin");
 
             logger("Attempting to create table {$this->translation_log_table}", 0);
             // notice - keep every field on a new line or dbdelta fails
             // this should be removed in a far future...
-            $GLOBALS['wpdb']->query("ALTER TABLE $table_name DROP PRIMARY KEY");
+            $GLOBALS['wpdb']->query("ALTER TABLE {$this->translation_log_table} DROP PRIMARY KEY");
             $sql = "CREATE TABLE {$this->translation_log_table} (
                     original text NOT NULL, 
                     lang CHAR(5) NOT NULL, 
@@ -622,6 +623,8 @@ class transposh_database {
                     ) DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
 
             dbDelta($sql);
+            $GLOBALS['wpdb']->query("ALTER TABLE {$this->translation_log_table} CONVERT TO CHARSET utf8 COLLATE utf8_bin");
+
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
         }
 
