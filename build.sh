@@ -100,7 +100,7 @@ fi
 
 if [ "$DEBUG" != 'debug' ]; then
   echo "Minify .js files"
-  for file in `find . -maxdepth 2 -iname '*.js'`; do 
+  for file in `find ./js -maxdepth 3 -iname '*.js' ! -name keyboard.js ! -name lazy.js ! -name jquery.ui.menu.js`; do
     echo "minifying $file"
 #    java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
 echo "/*
@@ -113,8 +113,16 @@ echo "/*
  *
  * Date: $DATE
  */" > $TRANSPOSH_DIR/$file
-    java -jar /root/googlecompiler/compiler.jar --create_source_map /tmp/map-${file:5} --js $file >> $TRANSPOSH_DIR/$file
+#    java -jar /root/googlecompiler/compiler.jar --create_source_map /tmp/map-${file:5} --js $file >> $TRANSPOSH_DIR/$file
+    java -jar /root/googlecompiler/compiler.jar --js $file >> $TRANSPOSH_DIR/$file
   done;
+# handle the third party .js and honor their copyrights
+  head -n 13 js/lazy.js > $TRANSPOSH_DIR/js/lazy.js
+  java -jar /root/googlecompiler/compiler.jar --js js/lazy.js >> $TRANSPOSH_DIR/js/lazy.js
+  head -n 13 js/jquery.ui.menu.js > $TRANSPOSH_DIR/js/jquery.ui.menu.js
+  java -jar /root/googlecompiler/compiler.jar --js js/jquery.ui.menu.js >> $TRANSPOSH_DIR/js/jquery.ui.menu.js
+  head -n 57 js/keyboard.js > $TRANSPOSH_DIR/js/keyboard.js
+  java -jar /root/googlecompiler/compiler.jar --js js/keyboard.js >> $TRANSPOSH_DIR/js/keyboard.js
 
   echo "Minify .css files"
   for file in `find . -maxdepth 2 -iname '*.css'`; do 
