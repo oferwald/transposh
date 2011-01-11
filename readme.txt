@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.8
-Tested up to: 3.0.3
+Tested up to: 3.1
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -18,7 +18,7 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 * Multiple selection for widget appearances - with pluggable widgets
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
-* Use either Google Translate or MS Translate backends - 59 languages supported!
+* Use either Google Translate or MS Translate backends - 60 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags and titles
@@ -165,6 +165,8 @@ images based on the current language
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.7.0 =
+New edit interface, tons of other fixes
 = 0.6.6 =
 Fixed two XSS vulnerabilities
 = 0.6.3 =
@@ -195,6 +197,23 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 This version allows sorting of languages within the widget
 
 == Changelog ==
+= 2011/01/11 - 0.7.0 =
+ * Revamped edit interface
+ * Allow simple localization of interface
+ * Go to previous/next translation item
+ * Focus on phrase being translated
+ * Allow viewing original in other language if it was translated previously by a human (thanks [Hanan](http://www.galgalyarok.org/))
+ * Allow approval of auto translation
+ * Support for virtual keyboard from http://www.greywyvern.com/code/javascript/keyboard
+ * Support theming of interface using [themeroller](http://ui-dev.jquery.com/themeroller/) themes
+ * Bad translations may be deleted using the history log dialog
+ * Cleaned close confirmation dialog
+ * First plugin to date to support Esperanto using Apertium (from sites in Spanish or English)
+ * Allow translations of meta tags
+ * Database cleanup function added
+ * Changed collation of database to UTF8_bin in order to support different translations for different capitalizations (hello -> hola, Hello -> Hola)
+ * Hebrew translation of front end thanks [Amir](http://colnect.com/he)
+ * Spanish translation of front end thanks [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
 = 2010/12/17 - 0.6.7 =
  * Allow Google to attempt a retranslation if it is unable to detect source language at first attempt
  * Direct links to static files have a good chance of being answered now (thanks krizzz)
