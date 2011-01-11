@@ -138,7 +138,7 @@ class transposh_postpublish {
                         list($source, $translation) = $this->transposh->database->fetch_translation($key, $lang);
                         if (!$translation) {
                             // p stands for phrases, l stands for languages, t is token
-                            if (!is_array($json['p'][$key]['l'])) {
+                            if (!@is_array($json['p'][$key]['l'])) {
                                 $json['p'][$key]['l'] = array();
                             }
                             array_push($json['p'][$key]['l'], $lang);
@@ -147,9 +147,9 @@ class transposh_postpublish {
                 }
             }
             // only if a languages list was created we'll need to translate this
-            if (is_array($json['p'][$key]['l'])) {
+            if (@is_array($json['p'][$key]['l'])) {
                 $json['p'][$key]['t'] = transposh_utils::base64_url_encode($key);
-                $json['length']++;
+                @$json['length']++;
             }
         }
 
