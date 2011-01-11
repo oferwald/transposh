@@ -28,5 +28,8 @@ t_jp.l = {
     'view translation log': 'muestra diario de traducion',
     'virtual keyboard': 'teclado virtual',
     'approve translation': 'aprueba traducion',
-    'delete': 'eliminar'
+    'delete': 'eliminar',
+    'Discard': 'Descartar',
+    'Cancel': 'Cancelar'
+
 };
