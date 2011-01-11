@@ -231,26 +231,78 @@
         });
     }
 
+    // switch position of text and close button in ui-dialog for rtl
+    function fix_dialog_header_rtl(dialog) {
+        var uit, uitc, valr, vall;
+        uit = $(dialog).dialog("widget").find('.ui-dialog-title');
+        valr = uit.css('margin-right');
+        vall = uit.css('margin-left');
+        uit.css({
+            'float': left,
+            'margin-right': vall,
+            'margin-left': valr
+        });
+        uitc = $(dialog).dialog("widget").find('.ui-dialog-titlebar-close');
+        valr = uitc.css('right');
+        vall = uitc.css('left');
+        uitc.css({
+            right: vall,
+            left: valr
+        });
+    }
+
     function confirm_close() {
-        $('<div id="dial" title="'+__('Close without saving?')+'"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>'+__('You have made a change to the translation. Are you sure you want to discard it?') + '</p></div>').appendTo("body").dialog({
+        var dialog = idprefix + "confirmdialog";
+        $(dialog).remove();
+        $('<div id="' + prefix + 'confirmdialog" title="'+__('Close without saving?')+
+            '"><span class="ui-icon ui-icon-alert" style="float:'+left+'; margin-bottom:20px; margin-'+right+':7px"></span>' +
+            '<span style="clear:both">' +
+            __('You have made a change to the translation. Are you sure you want to discard it?') +
+            '<span><span id="' + prefix + 'dcbar" style="display:block">' +
+            '<button id="' + prefix + 'cancel">'+__('Cancel')+'</button>' +
+            '<button id="' + prefix + 'discard">'+__('Discard')+'</button>' +
+            '</span>' +
+            + '</div>').appendTo("body").dialog({
             resizable: false,
             modal: true,
+            minHeight: 50,
             overlay: {
                 backgroundColor: '#000',
                 opacity: 0.5
-            },
-            buttons: {
-                // TODO: Fix this...
-                'Discard': function () {
-                    $(idprefix + "translation").data('changed', false);
-                    $(this).dialog('close');
-                    $(idprefix + "dialog").dialog('close');
-                },
-                Cancel: function () {
-                    $(this).dialog('close');
-                }
             }
         });
+
+        $(idprefix + 'cancel').button({
+            icons: {
+                primary: "ui-icon-closethick"
+            },
+            text: false
+        }).click( function () {
+            $(dialog).dialog('close');
+        });
+
+        $(idprefix + 'discard').button({
+            icons: {
+                primary: "ui-icon-check"
+            },
+            text: false
+        }).click( function () {
+            $(idprefix + "translation").data('changed', false);
+            $(dialog).dialog('close');
+            $(idprefix + "dialog").dialog('close');
+        });
+
+        // toolbars should float...
+        $(idprefix + 'dcbar').css({
+            'float' : right
+        }).buttonset();
+        // rtl fix for buttonsets
+        if ($("html").attr("dir") === 'rtl') {
+            fix_dialog_header_rtl(dialog);
+            var uicorner = 'ui-corner-';
+            $(idprefix + 'dcbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+            $(idprefix + 'dcbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+        }
     }
 
     function history_dialog(segment_id){
@@ -270,6 +322,9 @@
             show: 'slide'//,
         //stack: true
         });
+        if ($("html").attr("dir") === 'rtl') {
+            fix_dialog_header_rtl(dialog);
+        }        
         $.ajax({
             url: t_jp.post_url,
             data: {
@@ -409,14 +464,6 @@
         $(idprefix + 'utlbar,' + idprefix + 'ltlbar').css({
             'float' : right
         }).buttonset();
-        // rtl fix for buttonsets
-        if ($("html").attr("dir") === 'rtl') {
-            var uicorner = 'ui-corner-';
-            $('#tr_utlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
-            $('#tr_utlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
-            $('#tr_ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
-            $('#tr_ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
-        }
         // css for textareas
         $(dialog + ' textarea').css({
             'width': '485px',
@@ -662,6 +709,16 @@
             width: 500//,
         //   buttons: tButtons
         });
+
+        // rtl fix for buttonsets, dialog
+        if ($("html").attr("dir") === 'rtl') {
+            fix_dialog_header_rtl(dialog);
+            var uicorner = 'ui-corner-';
+            $(idprefix + 'utlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+            $(idprefix + 'utlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+            $(idprefix + 'ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+            $(idprefix + 'ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+        }
 
         // we don't need no focus, we don't need element control
         $(idprefix + 'orglang').blur();

@@ -28,5 +28,7 @@ t_jp.l = {
     'view translation log': 'הצג לוג תרגום',
     'virtual keyboard': 'מקלדת וירטואלית',
     'approve translation': 'אשר תרגום',
-    'delete': 'מחק'
+    'delete': 'מחק',
+    'Discard': 'וותר',
+    'Cancel': 'בטל'
 };
