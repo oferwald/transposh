@@ -289,7 +289,7 @@ class transposh_database {
             }
         }
         if (!($all_editable &&
-                ($this->transposh->is_translator() || ($source == 1 && $this->transposh->options->get_enable_auto_translate())))) {
+                ($this->transposh->is_translator() || ($source > 0 && $this->transposh->options->get_enable_auto_translate())))) {
             logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'], 1);
             header("HTTP/1.0 401 Unauthorized translation");
             exit;
