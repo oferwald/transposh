@@ -11,6 +11,8 @@ Transposh filter allows in context quick translation of websites, it allows you 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
 
+[youtube http://www.youtube.com/watch?v=ktGtPb6SB34]
+
 ***Transposh includes the following features:***
 
 * Support for any language - including RTL/LTR layouts
@@ -18,10 +20,10 @@ Transposh translation filter for WordPress offers a unique approach to blog tran
 * Multiple selection for widget appearances - with pluggable widgets
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
-* Use either Google Translate or MS Translate backends - 60 languages supported!
+* Use either Google Translate,MS Translate or Apertium backends - 60 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
-* Takes care of hidden elements, link tags and titles
+* Takes care of hidden elements, link tags, meta contents and titles
 * Translated languages are searchable
 * Buddypress integration
 
