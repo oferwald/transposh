@@ -67,9 +67,9 @@ elseif (isset($_GET['tr_cookie'])) {
 elseif (isset($_GET['tr_cookie_bck'])) {
     setcookie('TR_LNG', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $my_transposh_plugin->home_url), time() + 90 * 24 * 60 * 60, COOKIEPATH, COOKIE_DOMAIN);
     if ($_SERVER['HTTP_REFERER']) {
-        wp_redirect($_SERVER['HTTP_REFERER']);
+        $this->transposh->tp_redirect($_SERVER['HTTP_REFERER']);
     } else {
-        wp_redirect($my_transposh_plugin->home_url);
+        $this->transposh->tp_redirect($my_transposh_plugin->home_url);
     }
 }
 // Start full translation

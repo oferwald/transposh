@@ -266,7 +266,7 @@ class transposh_plugin_admin {
         $this->update_admin_options();
 
         // lets redirect the post request into get request (you may add additional params at the url, if you need to show save results
-        wp_redirect($_POST['_wp_http_referer']);
+        $this->transposh->tp_redirect($_POST['_wp_http_referer']);
     }
 
     // below you will find for each registered metabox the callback method, that produces the content inside the boxes

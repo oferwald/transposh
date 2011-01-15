@@ -37,7 +37,8 @@ class transposh_3rdparty {
         add_filter('bp_get_activity_content_body', array(&$this, 'bp_get_activity_content_body'), 10, 2);
         add_action('bp_activity_after_save', array(&$this, 'bp_activity_after_save'));
         add_action('transposh_human_translation', array(&$this, 'transposh_buddypress_stream'), 10, 3);
-
+        //bp_activity_permalink_redirect_url (can fit here if generic setting fails)
+        
         // google xml sitemaps - with patch
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
     }
@@ -189,4 +190,5 @@ class transposh_3rdparty {
     }
 
 }
+
 ?>

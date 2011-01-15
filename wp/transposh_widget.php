@@ -70,7 +70,7 @@ class transposh_plugin_widget {
 
             logger("Widget redirect url: $ref", 3);
 
-            wp_redirect($ref);
+            $this->transposh->tp_redirect($ref);
             exit;
         }
     }
@@ -276,7 +276,7 @@ class transposh_plugin_widget {
 
         echo '<div id="' . SPAN_PREFIX . 'credit">';
         if (!$this->transposh->options->get_widget_remove_logo()) {
-            echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img class="' . NO_TRANSLATE_CLASS . '" height="16" width="16" src="' .
+            echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img height="16" width="16" src="' .
             $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
         }
         echo '</div>';
