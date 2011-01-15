@@ -88,6 +88,8 @@ class transposh_plugin {
     private $got_request = false;
     /** @var might be that page is json... */
     private $attempt_json = false;
+    /** @var boolean Is the wp_redirect being called by transposh? */
+    private $transposh_redirect = false;
 
     /**
      * class constructor
@@ -160,7 +162,7 @@ class transposh_plugin {
         }
 
         // debug function for bad redirects
-        // add_filter('wp_redirect', array(&$this, 'on_wp_redirect'), 10, 2);
+        add_filter('wp_redirect', array(&$this, 'on_wp_redirect'), 10, 2);
         add_filter('redirect_canonical', array(&$this, 'on_redirect_canonical'), 10, 2);
         //
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
@@ -174,13 +176,33 @@ class transposh_plugin {
         register_deactivation_hook(__FILE__, array(&$this, 'plugin_deactivate'));
     }
 
-//    function on_wp_redirect($location, $status) {
-//        logger($location);
-//        logger($status);
-//        $trace = debug_backtrace();
-//        logger($trace);
-//        return $location;
-//    }
+    /**
+     * Attempt to fix a wp_redirect being called by someone else to include the language
+     * hoping for no cycles
+     * @param string $location
+     * @param int $status
+     * @return string
+     */
+    function on_wp_redirect($location, $status) {
+        if ($this->transposh_redirect) return $location;
+        logger($status . ' ' . $location);
+        // $trace = debug_backtrace();
+        // logger($trace);
+        // logger($this->target_language);
+        $location = str_replace(array('%2F', '%3A', '%3B', '%3F', '%3D', '%26'), array('/', ':', ';', '?', '=', '&'), urlencode($this->rewrite_url($location)));
+        return $location;
+    }
+
+    /**
+     * Internally used by transposh redirection, to avoid being rewritten by self
+     * assuming we know what we are doing when redirecting
+     * @param string $location
+     * @param int $status
+     */
+    function tp_redirect($location, $status = 302) {
+        $this->transposh_redirect = true;
+        wp_redirect($location, $status);
+    }
 
     /**
      * Function to fix canonical redirection for some translated urls (such as tags with params)
@@ -264,7 +286,7 @@ class transposh_plugin {
                 global $wp;
                 if (file_exists(ABSPATH . $wp->query_vars['pagename'])) {
                     logger('Redirecting a static file ' . $wp->query_vars['pagename'], 1);
-                    wp_redirect('/' . $wp->query_vars['pagename'], 301);
+                    $this->tp_redirect('/' . $wp->query_vars['pagename'], 301);
                 }
             }
 
@@ -448,7 +470,7 @@ class transposh_plugin {
                         //TODO - fix wrt translation
                                 $url = transposh_utils::cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
                         logger("redirected to $url because of cookie", 4);
-                        wp_redirect($url);
+                        $this->tp_redirect($url);
                         exit;
                     }
                 } else {
@@ -460,7 +482,7 @@ class transposh_plugin {
                         //TODO - fix wrt translation
                                 $url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
                         logger("redirected to $url because of bestlang", 4);
-                        wp_redirect($url);
+                        $this->tp_redirect($url);
                         exit;
                     }
                 }
@@ -476,7 +498,7 @@ class transposh_plugin {
                 add_action('posts_where_request', array(&$this, 'posts_where_request'));
             }
             if (transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url) && !transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url)) {
-                wp_redirect(transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), false)); //."&stop=y");
+                $this->tp_redirect(transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), false)); //."&stop=y");
                 exit;
             }
         }
