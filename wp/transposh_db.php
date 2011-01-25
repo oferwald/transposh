@@ -167,7 +167,9 @@ class transposh_database {
         if (empty($rows)) return;
         // we are saving in the array and not directly to cache, because cache might not exist...
         foreach ($rows as $row) {
-            $this->translations[$row['original']] = array($row['source'], stripslashes($row['translated']));
+            // we are making sure to use the escaped version, because that is what we'll ask about
+            $ro = $GLOBALS['wpdb']->escape(html_entity_decode($row['original'], ENT_NOQUOTES, 'UTF-8'));
+            $this->translations[$ro] = array($row['source'], stripslashes($row['translated']));
         }
         logger('prefetched: ' . count($this->translations), 5);
     }
