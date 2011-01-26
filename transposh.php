@@ -146,6 +146,7 @@ class transposh_plugin {
         // comment_moderation_text - future filter TODO
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
+        add_filter('the_excerpt', array(&$this, 'post_content_wrap'), 9999);
         add_filter('the_title', array(&$this, 'post_wrap'), 9999, 2);
         // allow to mark the language?
 //        add_action('admin_menu', array(&$this, 'transposh_post_language'));
@@ -184,12 +185,15 @@ class transposh_plugin {
      * @return string
      */
     function on_wp_redirect($location, $status) {
+        // no point in mangling redirection if its our own or its the default language
         if ($this->transposh_redirect) return $location;
+        if ($this->options->is_default_language($this->target_language))
+                return $location;
         logger($status . ' ' . $location);
         // $trace = debug_backtrace();
         // logger($trace);
         // logger($this->target_language);
-        $location = str_replace(array('%2F', '%3A', '%3B', '%3F', '%3D', '%26'), array('/', ':', ';', '?', '=', '&'), urlencode($this->rewrite_url($location)));
+        $location = $this->rewrite_url($location);
         return $location;
     }
 
