@@ -1,8 +1,6 @@
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/*
+ * Thanks: Amir Wald (http://colnect.com)
  */
-
 t_jp.l = {
     'Close without saving?': 'לסגור בלי לשמור?',
     'You have made a change to the translation. Are you sure you want to discard it?': 'ביצעת שינוי בתרגום, האם אתה בטוח שאתה רוצה לוותר עליו?',
