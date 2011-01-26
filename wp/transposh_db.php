@@ -196,7 +196,7 @@ class transposh_database {
         // then we look for a prefetch
         if (isset($this->translations[$original])) {
             $translated = $this->translations[$original];
-            logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 3);
+            logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 4);
         } else {
             // make sure $lang is reasonable, unless someone is messing with us, it will be ok
             if (!($this->transposh->options->is_editable_language($lang)))

@@ -759,7 +759,6 @@ class transposh_plugin {
         $ret = array();
         // Ignore urls not from this site
         if (!transposh_utils::is_rewriteable_url($href, $this->home_url)) {
-            logger($href);
             return $ret;
         }
 
@@ -788,7 +787,6 @@ class transposh_plugin {
                 $ret[] = str_replace('-', ' ', $part);
             }
         }
-        logger($ret);
         return $ret;
     }
 
@@ -957,6 +955,9 @@ class transposh_plugin {
         $comment_lang = get_comment_meta(get_comment_ID(), 'tp_language', true);
         if ($comment_lang) {
             $text = "<span lang =\"$comment_lang\">" . $text . "</span>";
+            if (strpos($text, '<a href="' . $this->home_url) !== FALSE) {
+                $text = str_replace('<a href="' . $this->home_url, '<a lang="' . $this->options->get_default_language() . '" href="' . $this->home_url, $text);
+            }
         }
         logger("$comment_lang " . get_comment_ID(), 4);
         return $text;
@@ -973,6 +974,9 @@ class transposh_plugin {
         $lang = get_post_meta($GLOBALS['id'], 'tp_language', true);
         if ($lang) {
             $text = "<span lang =\"$lang\">" . $text . "</span>";
+            if (strpos($text, '<a href="' . $this->home_url) !== FALSE) {
+                $text = str_replace('<a href="' . $this->home_url, '<a lang="' . $this->options->get_default_language() . '" href="' . $this->home_url, $text);
+            }
         }
         return $text;
     }

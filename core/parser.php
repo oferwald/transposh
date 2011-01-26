@@ -671,13 +671,11 @@ class parser {
             // if we should split, we will split some urls for translation prefetching
             if ($this->split_url_func != null) {
                 foreach ($this->atags as $e) {
-                    logger($e->href);
                     foreach (call_user_func_array($this->split_url_func, array($e->href)) as $part) {
                         $originals[$part] = true;
                     }
                 }
                 foreach ($this->otags as $e) {
-                    logger($e->value);
                     foreach (call_user_func_array($this->split_url_func, array($e->value)) as $part) {
                         $originals[$part] = true;
                     }
@@ -688,11 +686,9 @@ class parser {
 
         // fix urls...
         foreach ($this->atags as $e) {
-            logger($e->href);
             $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
         }
         foreach ($this->otags as $e) {
-            logger($e->value);
             $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
         }
 
@@ -732,7 +728,7 @@ class parser {
             }
 
             // this adds saved spans to the first not in select element which is in the body
-            if (!$ep->inselect && $savedspan && $ep->inbody) {
+            if (!$ep->inselect && $savedspan && $ep->inbody) { // (TODO: might not be...?)
                 $e->outertext = $savedspan . $e->outertext;
                 $savedspan = '';
             }
