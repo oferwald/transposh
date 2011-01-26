@@ -86,9 +86,11 @@ class parserstats {
  */
 class parser {
 
+    // funnctions that need to be defined... //
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
     public $prefetch_translate_func = null;
+    public $split_url_func = null;
     /** @var int stores the number of the last used span_id */
     private $span_id = 0;
     /** @var simple_html_dom_node Contains the current node */
@@ -122,6 +124,10 @@ class parser {
     private $in_get_text_inner = false;
     /** @var string Additional header information */
     public $added_header;
+    /** @var array Contains reference to changable a tags */
+    private $atags = array();
+    /** @var array Contains reference to changable option values */
+    private $otags = array();
 
     /**
      * Determine if the current position in buffer is a white space.
@@ -486,15 +492,11 @@ class parser {
         }
         // for anchors we will rewrite urls if we can
         elseif ($node->tag == 'a') {
-            if ($this->url_rewrite_func != null) {
-                $node->href = call_user_func_array($this->url_rewrite_func, array($node->href));
-            }
+            array_push($this->atags, $node);
         }
         // same for options, although normally not required (ticket #34)
         elseif ($node->tag == 'option') {
-            if ($this->url_rewrite_func != null) {
-                $node->value = call_user_func_array($this->url_rewrite_func, array($node->value));
-            }
+            array_push($this->otags, $node);
         }
         // in submit type inputs, we want to translate the value
         elseif ($node->tag == 'input' && $node->type == 'submit') {
@@ -665,7 +667,32 @@ class parser {
                     if ($ep->phrase) $originals[$ep->phrase] = true;
                 }
             }
+            // if we should split, we will split some urls for translation prefetching
+            if ($this->split_url_func != null) {
+                foreach ($this->atags as $e) {
+                    logger($e->href);
+                    foreach (call_user_func_array($this->split_url_func, array($e->href)) as $part) {
+                        $originals[$part] = true;
+                    }
+                }
+                foreach ($this->otags as $e) {
+                    logger($e->value);
+                    foreach (call_user_func_array($this->split_url_func, array($e->value)) as $part) {
+                        $originals[$part] = true;
+                    }
+                }
+            }
             call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
+        }
+
+        // fix urls...
+        foreach ($this->atags as $e) {
+            logger($e->href);
+            $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+        }
+        foreach ($this->otags as $e) {
+            logger($e->value);
+            $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
         }
 
         // this is used to reserve spans we cannot add directly (out of body, metas, etc)
@@ -790,7 +817,7 @@ class parser {
                         $e->content = $right;
                     }
                     if ($this->is_edit_mode) {
-                            $hiddenspans .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
+                        $hiddenspans .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
                     }
                     if (!$translated_text && $this->is_auto_translate && !$this->is_edit_mode) {
                         logger('untranslated meta for ' . $ep->phrase . ' ' . $this->lang);
