@@ -1,0 +1,35 @@
+/* 
+ * To add a language to the front end interface this file should be edited and be renamed to the two letter iso code of the language it is destined for
+ * For each original phrase just write the translation between the '' following it
+ */
+
+t_jp.l = {
+    'Close without saving?': '',
+    'You have made a change to the translation. Are you sure you want to discard it?': '',
+    'History': '',
+    'Loading...': '',
+    'Translated': '',
+    'By': '',
+    'At': '',
+    'google': '',
+    'bing': '',
+    'apertium': '',
+    'manual translation': '',
+    'bing suggest': '',
+    'google suggest': '',
+    'apertium suggest': '',
+    'Edit Translation': '',
+    'Original text': '',
+    'read alternate translations': '',
+    'previous translation': '',
+    'find on page': '',
+    'next translation': '',
+    'Translate to': '',
+    'view translation log': '',
+    'virtual keyboard': '',
+    'approve translation': '',
+    'delete': '',
+    'Discard': '',
+    'Cancel': ''
+
+};

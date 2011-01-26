@@ -1,8 +1,6 @@
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/*
+ * Thanks: Ignacio F. López Vico
  */
-
 t_jp.l = {
     'Close without saving?': 'Cerrar sin guardar?',
     'You have made a change to the translation. Are you sure you want to discard it?': 'Has cambiado la traducion. Estas seguro que lo quieres eliminar?',

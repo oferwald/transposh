@@ -649,6 +649,7 @@ class parser {
         }
 
         // try some prefetching... (//todo - maybe move directly to the phrase create)
+        $originals = array();
         if ($this->prefetch_translate_func != null) {
             foreach ($this->html->find('text') as $e) {
                 foreach ($e->nodes as $ep) {
