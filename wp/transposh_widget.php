@@ -270,7 +270,7 @@ class transposh_plugin_widget {
 
             $extralang = '';
             if ($this->transposh->target_language != 'en') {
-                $extralang = $this->transposh->target_language;
+                $extralang = $this->transposh->target_language . '/';
             }
         }
 

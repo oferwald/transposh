@@ -297,6 +297,7 @@ class transposh_plugin {
             $parse->fetch_translate_func = array(&$this->database, 'fetch_translation');
             $parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
             $parse->url_rewrite_func = array(&$this, 'rewrite_url');
+            $parse->split_url_func = array(&$this, 'split_url');
             $parse->dir_rtl = (in_array($this->target_language, transposh_consts::$rtl_languages));
             $parse->lang = $this->target_language;
             $parse->default_lang = $this->options->is_default_language($this->target_language);
@@ -746,6 +747,48 @@ class transposh_plugin {
     }
 
     /**
+     * Splits a url to translatable segments
+     * @param string $href
+     * @return array parts that may be translated
+     */
+    function split_url($href) {
+        $ret = array();
+        // Ignore urls not from this site
+        if (!transposh_utils::is_rewriteable_url($href, $this->home_url)) {
+            logger($href);
+            return $ret;
+        }
+
+        // don't fix links pointing to real files as it will cause that the
+        // web server will not be able to locate them
+        if (stripos($href, '/wp-admin') !== FALSE ||
+                stripos($href, WP_CONTENT_URL) !== FALSE ||
+                stripos($href, '/wp-login') !== FALSE ||
+                stripos($href, '/.php') !== FALSE) /* ??? */ {
+            return $ret;
+        }
+
+        // todo - check query part... sanitize
+        //if (strpos($href, '?') !== false) {
+        //    list ($href, $querypart) = explode('?', $href);
+        //}
+        //$href = substr($href, strlen($this->home_url));
+        // this might include the sub directory for non rooted sites, but its not that important to avoid
+        $href = parse_url($href, PHP_URL_PATH);
+        $parts = explode('/', $href);
+        foreach ($parts as $part) {
+            if (!$part) continue;
+            if (is_numeric($part)) continue;
+            $ret[] = $part;
+            if ($part != str_replace('-', ' ', $part)) {
+                $ret[] = str_replace('-', ' ', $part);
+            }
+        }
+        logger($ret);
+        return $ret;
+    }
+
+    /**
      * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
      * Some urls should be modified only by adding parameters and should be identified by this
      * function.
@@ -755,11 +798,11 @@ class transposh_plugin {
     function rewrite_url($href) {
         $use_params = FALSE;
         logger("got: $href", 5);
-        // fix what might be messed up
+        // fix what might be messed up -- TODO
         $href = str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $href);
 
         // Ignore urls not from this site
-        if (stripos($href, $this->home_url) === FALSE) {
+        if (!transposh_utils::is_rewriteable_url($href, $this->home_url)) {
             return $href;
         }
 
@@ -768,7 +811,7 @@ class transposh_plugin {
         if (stripos($href, '/wp-admin') !== FALSE ||
                 stripos($href, WP_CONTENT_URL) !== FALSE ||
                 stripos($href, '/wp-login') !== FALSE ||
-                stripos($href, '/.php') !== FALSE) {
+                stripos($href, '/.php') !== FALSE) /* ??? */ {
             return $href;
         }
         $use_params = !$this->enable_permalinks_rewrite;

@@ -264,7 +264,12 @@ class transposh_utils {
     public static function translate_url($href, $home_url, $target_language, $fetch_translation_func) {
         $url = '';
         $querypart = '';
-        // todo - check query part... sanitize
+        $fragment = '';
+        // todo - check query part/fragment... sanitize
+        if (strpos($href, '#') !== false) {
+            list ($href, $fragment) = explode('#', $href);
+            $fragment = '#' . $fragment;
+        }
         if (strpos($href, '?') !== false) {
             list ($href, $querypart) = explode('?', $href);
             $querypart = '?' . $querypart;
@@ -273,7 +278,11 @@ class transposh_utils {
         $parts = explode('/', $href);
         foreach ($parts as $part) {
             if (!$part) continue;
-            list($source, $translated_text) = call_user_func_array($fetch_translation_func, array($part, $target_language));
+            if (is_numeric($part)) {
+                $translated_text = $part;
+            } else {
+                list($source, $translated_text) = call_user_func_array($fetch_translation_func, array($part, $target_language));
+            }
             if ($translated_text)
                     $url .= '/' . str_replace(' ', '-', $translated_text);
             else {
@@ -286,7 +295,7 @@ class transposh_utils {
             }
         }
         if (substr($href, strlen($href) - 1) == '/') $url.='/';
-        return $home_url . $url . $querypart;
+        return $home_url . $url . $querypart . $fragment;
     }
 
     /**
@@ -333,6 +342,16 @@ class transposh_utils {
         //$href = $this->home_url.$url2;
         if (substr($href, strlen($href) - 1) == '/') $url2.='/';
         return $home_url . $url2;
+    }
+
+    /**
+     * Checks that we may perform a rewrite on said url
+     * @param url to be checked $url
+     * @param the base url of the site $home_url
+     * @return boolean if this is rewritable 
+     */
+    public static function is_rewriteable_url($url, $home_url) {
+        return (stripos($url, $home_url) !== FALSE);
     }
 
     /**
