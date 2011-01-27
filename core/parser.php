@@ -103,8 +103,8 @@ class parser {
     public $lang;
     /** @var boolean Contains the fact that this language is the default one (only parse other lanaguage spans) */
     public $default_lang = false;
-    /** @var string Contains the iso of the source language - if a lang attribute is found */
-    public $srclang;
+    /** @var string Contains the iso of the source language - if a lang attribute is found, assumed to be en by default */
+    public $srclang = 'en';
     private $inbody = false;
     /** @var hold fact that we are in select or other similar elements */
     private $inselect = false;
