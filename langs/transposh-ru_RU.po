@@ -1,0 +1,549 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/transposh-translation-filter-for-wordpress\n"
+"POT-Creation-Date: 2010-10-13 10:21+0000\n"
+"PO-Revision-Date: 2011-01-29 17:12+0200\n"
+"Last-Translator: Janis <lv111@inbox.lv>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: \n"
+"X-Poedit-Country: \n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: \n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: transposh.php:840
+#@ default
+msgid "Settings"
+msgstr "Настройки"
+
+#: wp/transposh_3rdparty.php:148
+#, php-format
+#@ buddypress
+msgid "%s translated a phrase to %s with transposh:"
+msgstr "%s перевёл фразу на %s используя transposh:"
+
+#: wp/transposh_admin.php:140
+#@ transposh
+msgid "Transposh makes your blog translatable"
+msgstr "Transposh делает ваш блог переводимым"
+
+#: wp/transposh_admin.php:141
+#@ transposh
+msgid "Plugin homepage"
+msgstr "Домашняя страница плагина"
+
+#: wp/transposh_admin.php:142
+#@ transposh
+msgid "Frequently asked questions"
+msgstr "Часто задаваемые вопросы"
+
+#: wp/transposh_admin.php:150
+#@ transposh
+msgid "Transposh control center"
+msgstr "Контрольный центр Transposh"
+
+#: wp/transposh_admin.php:150
+#: wp/transposh_admin.php:215
+#: wp/transposh_postpublish.php:49
+#: wp/transposh_postpublish.php:50
+#: wp/transposh_widget.php:88
+#: wp/transposh_widget.php:91
+#: wp/transposh_widget.php:252
+#@ transposh
+msgid "Transposh"
+msgstr "Transposh"
+
+#: wp/transposh_admin.php:190
+#@ transposh
+msgid "About this plugin"
+msgstr "О плагине"
+
+#: wp/transposh_admin.php:191
+#@ transposh
+msgid "Widget settings"
+msgstr "Настройки виджета"
+
+#: wp/transposh_admin.php:192
+#@ transposh
+msgid "Plugin news"
+msgstr "Новости плагина"
+
+#: wp/transposh_admin.php:193
+#@ transposh
+msgid "Plugin stats"
+msgstr "Статистика плагина"
+
+#: wp/transposh_admin.php:194
+#@ transposh
+msgid "Translate all"
+msgstr "Перевести всё"
+
+#: wp/transposh_admin.php:195
+#@ transposh
+msgid "Supported languages"
+msgstr "Поддерживаемые языки"
+
+#: wp/transposh_admin.php:196
+#@ transposh
+msgid "Translation settings"
+msgstr "Настройки перевода"
+
+#: wp/transposh_admin.php:197
+#@ transposh
+msgid "Automatic translation settings"
+msgstr "Настройки автоматического перевода"
+
+#: wp/transposh_admin.php:198
+#@ transposh
+msgid "Generic settings"
+msgstr "Общие настройки"
+
+#: wp/transposh_admin.php:199
+#@ transposh
+msgid "Database maintenance"
+msgstr "Управление базой данных"
+
+#: wp/transposh_admin.php:208
+#@ transposh
+msgid "Transposh community features"
+msgstr "Возможности сообщества Transposh"
+
+#: wp/transposh_admin.php:236
+#@ default
+msgid "Save Changes"
+msgstr "Сохранить Изменения"
+
+#: wp/transposh_admin.php:260
+#@ transposh
+msgid "Problems?"
+msgstr "Проблемы?"
+
+#: wp/transposh_admin.php:278
+#@ transposh
+msgid "Plugin Homepage"
+msgstr "Домашняя страница плагина"
+
+#: wp/transposh_admin.php:279
+#@ transposh
+msgid "Suggest a Feature"
+msgstr "Предложить функцию"
+
+#: wp/transposh_admin.php:281
+#@ transposh
+msgid "Report a Bug"
+msgstr "Сообщить об ошибке"
+
+#: wp/transposh_admin.php:302
+#@ transposh
+msgid "Translate by clicking the button below"
+msgstr "Переведите, нажав кнопку ниже"
+
+#: wp/transposh_admin.php:303
+#@ transposh
+msgid "Translate All Now"
+msgstr "Перевести всё сейчас"
+
+#: wp/transposh_admin.php:360
+#@ transposh
+msgid "Default Language (drag another language here to make it default)"
+msgstr "Основной язык (перетащите  сюда другой язык, чтобы сделать его основным)"
+
+#: wp/transposh_admin.php:367
+#@ transposh
+msgid "Available Languages (Click to toggle language state - Drag to sort in the widget)"
+msgstr "Доступные языки (Нажмите для переключения состояния языка - Перетащите, чтобы сортировать в виджете)"
+
+#: wp/transposh_admin.php:377
+#@ transposh
+msgid "Language supported by google translate"
+msgstr "Язык, поддерживаемый переводчиком google"
+
+#: wp/transposh_admin.php:379
+#@ transposh
+msgid "Language supported by bing translate"
+msgstr "Язык, поддерживаемый переводчиком bing"
+
+#: wp/transposh_admin.php:383
+#@ transposh
+msgid "Language is written from right to left"
+msgstr "Язык написан справа налево"
+
+#: wp/transposh_admin.php:388
+#@ transposh
+msgid "Display options:"
+msgstr "Опции отображения:"
+
+#: wp/transposh_admin.php:389
+#@ transposh
+msgid "Toggle names of languages between English and Original"
+msgstr "Переключить названия языков с английского на оригинал"
+
+#: wp/transposh_admin.php:390
+#@ transposh
+msgid "Make all languages active"
+msgstr "Сделать все языки активными"
+
+#: wp/transposh_admin.php:391
+#@ transposh
+msgid "Sort by language name"
+msgstr "Сортировать по названию языка"
+
+#: wp/transposh_admin.php:392
+#@ transposh
+msgid "Sort by lSO code"
+msgstr "Сортировать по коду lSO"
+
+#: wp/transposh_admin.php:393
+#@ transposh
+msgid "Legend:"
+msgstr "Обозначения:"
+
+#: wp/transposh_admin.php:393
+#@ transposh
+msgid "Green - active"
+msgstr "Зеленый - активный"
+
+#: wp/transposh_admin.php:393
+#@ transposh
+msgid "Yellow - translateable (only translators will see this language)"
+msgstr "Желтый - переводимый (только переводчики увидят этот язык)"
+
+#: wp/transposh_admin.php:393
+#@ transposh
+msgid "blank - inactive"
+msgstr "пустой - неактивный"
+
+#: wp/transposh_admin.php:410
+#@ transposh
+msgid "Who can translate ?"
+msgstr "Кто может переводить?"
+
+#: wp/transposh_admin.php:417
+#@ transposh
+msgid "Anonymous"
+msgstr "Аноним"
+
+#: wp/transposh_admin.php:423
+#@ transposh
+msgid "Enable default language translation"
+msgstr "Включить возможность перевода основного языка"
+
+#: wp/transposh_admin.php:425
+#@ transposh
+msgid "Allow translation of default language - useful for sites with more than one major language"
+msgstr "Разрешить возможность перевода основного языка - полезно для сайтов с двумя и более основными языками"
+
+#: wp/transposh_admin.php:432
+#@ transposh
+msgid "Enable search in translated languages"
+msgstr "Включить поиск на переведенных языках"
+
+#: wp/transposh_admin.php:434
+#@ transposh
+msgid "Allow search of translated languages, in those languages (and the original language)"
+msgstr "Включить поиск на переведенных языках, на этих языках (и языке-оригинале)"
+
+#: wp/transposh_admin.php:441
+#@ transposh
+msgid "Enable url translation"
+msgstr "Включить перевод url"
+
+#: wp/transposh_admin.php:441
+#: wp/transposh_admin.php:450
+#@ transposh
+msgid "experimental"
+msgstr "экспериментальный"
+
+#: wp/transposh_admin.php:443
+#@ transposh
+msgid "Allow translation of permalinks and urls"
+msgstr "Разрешить перевод пермалинков и URL-адресов"
+
+#: wp/transposh_admin.php:450
+#@ transposh
+msgid "Enable gettext integration"
+msgstr "Включить интеграцию gettext"
+
+#: wp/transposh_admin.php:452
+#@ transposh
+msgid "Enable integration of Transposh with existing gettext interface (.po/.mo files)"
+msgstr "Включить интеграцию Transposh и существующего интерфейса gettext (файлы .po / .mo)"
+
+#: wp/transposh_admin.php:461
+#@ transposh
+msgid "Enable automatic translation"
+msgstr "Включить автоматический перевод"
+
+#: wp/transposh_admin.php:463
+#@ transposh
+msgid "Allow automatic translation of pages"
+msgstr "Разрешить автоматический перевод страниц"
+
+#: wp/transposh_admin.php:469
+#@ transposh
+msgid "Enable automatic translation after posting"
+msgstr "Включение автоматического перевода после публикации"
+
+#: wp/transposh_admin.php:471
+#@ transposh
+msgid "Do automatic translation immediately after a post has been published"
+msgstr "Производить автоматический перевод при публикации"
+
+#: wp/transposh_admin.php:476
+#@ transposh
+msgid "Select preferred auto translation engine"
+msgstr "Выбрать предпочтительный двигатель авто перевода"
+
+#: wp/transposh_admin.php:477
+#@ transposh
+msgid "Translation engine:"
+msgstr "Двигатель перевода:"
+
+#: wp/transposh_admin.php:479
+#@ transposh
+msgid "Google"
+msgstr "Google"
+
+#: wp/transposh_admin.php:480
+#@ transposh
+msgid "Bing"
+msgstr "Bing"
+
+#: wp/transposh_admin.php:490
+#@ transposh
+msgid "Rewrite URLs"
+msgstr "Переписать URL-адреса"
+
+#: wp/transposh_admin.php:501
+#@ transposh
+msgid "Add scripts to footer"
+msgstr "Добавить коды в дно сайта"
+
+#: wp/transposh_admin.php:510
+#@ transposh
+msgid "Auto detect language for users"
+msgstr "Автоматическое определение языка для пользователей"
+
+#: wp/transposh_admin.php:523
+#@ transposh
+msgid "Delete all automated translations"
+msgstr "Удалить все автоматизированные переводы"
+
+#: wp/transposh_admin.php:524
+#@ transposh
+msgid "Delete automated translations older than 14 days"
+msgstr "Удалить автоматизированные переводы старше 14 дней"
+
+#: wp/transposh_admin.php:529
+#@ transposh
+msgid "Backup service for human translation"
+msgstr "Сервис резервных копий для человеческого перевода"
+
+#: wp/transposh_admin.php:530
+#@ transposh
+msgid "Enable daily backup"
+msgstr "Включить ежедневное резервное копирование"
+
+#: wp/transposh_admin.php:531
+#@ transposh
+msgid "Enable live backup"
+msgstr "Включить живое резервное копирование"
+
+#: wp/transposh_admin.php:532
+#@ transposh
+msgid "Disable backup (Can be run manually by clicking the button below)"
+msgstr "Отключение резервного копирования (может быть запущен вручную, нажав кнопку ниже)"
+
+#: wp/transposh_admin.php:533
+#@ transposh
+msgid "Service Key:"
+msgstr "Сервис-ключ:"
+
+#: wp/transposh_admin.php:533
+#@ transposh
+msgid "How to restore?"
+msgstr "Как восстановить?"
+
+#: wp/transposh_admin.php:535
+#@ transposh
+msgid "Do Backup Now"
+msgstr "Сделать резервную копию сейчас"
+
+#: wp/transposh_db.php:640
+#@ transposh
+msgid "Database stats"
+msgstr "Статистика базы данных"
+
+#: wp/transposh_db.php:645
+#, php-format
+#@ transposh
+msgid "Total of <strong style=\"color:red\">%s</strong> translated phrases."
+msgstr "Сумма переведенных фраз <strong style=\"color:red\">%s</strong>."
+
+#: wp/transposh_db.php:652
+#, php-format
+#@ transposh
+msgid "<strong>%1s</strong> has <strong style=\"color:red\">%2s</strong> human translated phrases."
+msgstr "<strong>%1s</strong> насчитывает <strong style=\"color:red\">%2s</strong> фраз человеческого перевода."
+
+#: wp/transposh_db.php:655
+#@ transposh
+msgid "Recent activity"
+msgstr "Последние действия"
+
+#: wp/transposh_db.php:660
+#, php-format
+#@ transposh
+msgid "On <strong>%1s</strong><br/>user <strong>%2s</strong> translated<br/>\"<strong>%3s</strong>\"<br/>to <strong style=\"color:red\">%4s</strong><br/>\"<strong>%5s</strong>\""
+msgstr "<strong>%1s</strong><br/>пользователь <strong>%2s</strong> перевел<br/>\"<strong>%3s</strong>\"<br/>на <strong style=\"color:red\">%4s</strong><br/>\"<strong>%5s</strong>\""
+
+#: wp/transposh_widget.php:88
+#@ transposh
+msgid "Transposh language selection widget"
+msgstr "виджет выбора языка Transposh"
+
+#: wp/transposh_widget.php:209
+#@ transposh
+msgid "Translation"
+msgstr "Перевод"
+
+#: wp/transposh_widget.php:222
+#@ transposh
+msgid "Set as default language"
+msgstr "Сделать основным языком"
+
+#: wp/transposh_widget.php:363
+#@ transposh
+msgid "Style:"
+msgstr "Стиль:"
+
+#: wp/transposh_widget.php:372
+#@ transposh
+msgid "Effects:"
+msgstr "Эффекты:"
+
+#: wp/transposh_widget.php:374
+#@ transposh
+msgid "Show progress bar when a client triggers automatic translation"
+msgstr "Показать индикатор продвижения, когда пользователь вызывает автоматический перевод"
+
+#: wp/transposh_widget.php:374
+#@ transposh
+msgid "Show progress bar"
+msgstr "Показать индикатор продвижения"
+
+#: wp/transposh_widget.php:376
+#@ transposh
+msgid "Widget will allow setting this language as user default"
+msgstr "Виджет позволит установить пользователю язык по умолчанию"
+
+#: wp/transposh_widget.php:376
+#@ transposh
+msgid "Allow user to set current language as default"
+msgstr "Разрешить пользователю установить текущий язык основным"
+
+#: wp/transposh_widget.php:378
+#@ transposh
+msgid "Transposh logo will not appear on widget"
+msgstr "логотип Transposh не будет отображаться в виджете"
+
+#: wp/transposh_widget.php:378
+#@ transposh
+msgid "Remove transposh logo (see <a href=\"http://transposh.org/logoterms\">terms</a>)"
+msgstr "Убрать логотип Transposh (смотрите <a href=\"http://transposh.org/logoterms\">условия</a>)"
+
+#. translators: plugin header field 'Name'
+#: transposh.php:0
+#@ transposh
+msgid "Transposh Translation Filter"
+msgstr ""
+
+#. translators: plugin header field 'PluginURI'
+#. translators: plugin header field 'AuthorURI'
+#: transposh.php:0
+#@ transposh
+msgid "http://transposh.org/"
+msgstr ""
+
+#. translators: plugin header field 'Description'
+#: transposh.php:0
+#@ transposh
+msgid "Translation filter for WordPress, After enabling please set languages at the <a href=\"options-general.php?page=transposh\">the options page</a> Want to help? visit our development site at <a href=\"http://trac.transposh.org/\">trac.transposh.org</a>."
+msgstr ""
+
+#. translators: plugin header field 'Author'
+#: transposh.php:0
+#@ transposh
+msgid "Team Transposh"
+msgstr ""
+
+#. translators: plugin header field 'Version'
+#: transposh.php:0
+#, php-format
+#@ transposh
+msgid "%VERSION%"
+msgstr ""
+
+#: wp/transposh_admin.php:381
+#@ transposh
+msgid "Language supported by apertium translate"
+msgstr ""
+
+#: wp/transposh_admin.php:494
+#@ transposh
+msgid "Rewrite URLs to be search engine friendly, e.g.  (http://transposh.org/<strong>en</strong>). Requires that permalinks will be enabled."
+msgstr ""
+
+#: wp/transposh_admin.php:504
+#@ transposh
+msgid "Push transposh scripts to footer of page instead of header, makes pages load faster. Requires that your theme should have proper footer support."
+msgstr ""
+
+#: wp/transposh_admin.php:513
+#@ transposh
+msgid "This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. This will redirect the first page accessed in the session to the same page with the detected language."
+msgstr ""
+
+#: wp/transposh_admin.php:525
+#@ transposh
+msgid "Attempt to fix errors caused by previous versions - please backup first"
+msgstr ""
+
+#: wp/transposh_widget.php:255
+#@ transposh
+msgid "translation plugin for wordpress"
+msgstr ""
+
+#: wp/transposh_widget.php:258
+#@ transposh
+msgid "wordpress translation plugin"
+msgstr ""
+
+#: wp/transposh_widget.php:261
+#@ transposh
+msgid "translate your blog to 60+ languages"
+msgstr ""
+
+#: wp/transposh_widget.php:264
+#@ transposh
+msgid "website crowdsourcing translation plugin"
+msgstr ""
+
+#: wp/transposh_widget.php:267
+#@ transposh
+msgid "google translate and bing translate plugin for wordpress"
+msgstr ""
+
+#: wp/transposh_widget.php:381
+#@ transposh
+msgid "Edit interface (and progress bar) theme:"
+msgstr ""
+
