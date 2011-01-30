@@ -288,7 +288,7 @@ class transposh_plugin {
             // the target language, we are able to avoid nasty redirection loops
             if (is_404 ()) {
                 global $wp;
-                if (file_exists(ABSPATH . $wp->query_vars['pagename'])) {
+                if (isset($wp->query_vars['pagename']) && file_exists(ABSPATH . $wp->query_vars['pagename'])) { // Hmm
                     logger('Redirecting a static file ' . $wp->query_vars['pagename'], 1);
                     $this->tp_redirect('/' . $wp->query_vars['pagename'], 301);
                 }
