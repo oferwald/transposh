@@ -198,8 +198,24 @@ This version provides integration with google-sitemaps-xml and wp-super-cache
 = 0.3.9 =
 This version allows sorting of languages within the widget
 
+== Credits ==
+= Translation credits =
+ * Dutch translation by [Roland Nieuwendijk](http://blog.imagitect.nl/)
+ * Russian translation by Romans Matusevics
+ * Hebrew translation by [Amir](http://colnect.com/he)
+ * Frontend Spanish translation by [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
+
 == Changelog ==
+= 2011/01/30 - 0.7.1 =
+ * Fix excerpt for tp_language marked posts
+ * Added Dutch translation by [Roland Nieuwendijk](http://blog.imagitect.nl/)
+ * Added Russian translation by Romans Matusevics
+ * Dramatically reduce number of database queries on translatable urls
+ * Fix auto translate with no anonymous translation support for non google engines
+ * Fix buddypress (and hopefully other) redirections on single activities
+ * Fix regression with after post translation and translate all
 = 2011/01/11 - 0.7.0 =
+ [youtube http://www.youtube.com/watch?v=ktGtPb6SB34]
  * Revamped edit interface
  * Allow simple localization of interface
  * Go to previous/next translation item
