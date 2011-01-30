@@ -104,7 +104,7 @@ class parser {
     /** @var boolean Contains the fact that this language is the default one (only parse other lanaguage spans) */
     public $default_lang = false;
     /** @var string Contains the iso of the source language - if a lang attribute is found, assumed to be en by default */
-    public $srclang = 'en';
+    public $srclang;
     private $inbody = false;
     /** @var hold fact that we are in select or other similar elements */
     private $inselect = false;
@@ -860,7 +860,7 @@ class parser {
     function get_phrases_list($string) {
         $result = array();
         // create our dom
-        $this->html = str_get_html($string);
+        $this->html = str_get_html('<span lang="xx">' . $string . '<span>');
         // mark translateable elements
         $this->translate_tagging($this->html->root);
         foreach ($this->html->nodes as $ep) {
