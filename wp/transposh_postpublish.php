@@ -104,17 +104,22 @@ class transposh_postpublish {
             // Display filters
             $title = apply_filters('the_title', $post->post_title);
             $content = apply_filters('the_content', $post->post_content);
-            // TODO - grab phrases from rss excerpt
-            //$output = get_the_excerpt();
-            // echo apply_filters('the_excerpt_rss', $output);
+            $the_content_feed = apply_filters('the_content_feed', $content);
+            $excerpt = apply_filters('get_the_excerpt', $post->post_excerpt);
+            $excerpt_rss = apply_filters('the_excerpt_rss', $excerpt);
+
             //TODO - get comments text
 
             $parser = new parser();
             $phrases = $parser->get_phrases_list($content);
             $phrases2 = $parser->get_phrases_list($title);
+            $phrases3 = $parser->get_phrases_list($the_content_feed);
+            $phrases4 = $parser->get_phrases_list($excerpt);
+            $phrases5 = $parser->get_phrases_list($excerpt_rss);
 
             // Merge the two arrays for traversing
-            $phrases = array_merge($phrases, $phrases2);
+            $phrases = array_merge($phrases, $phrases2, $phrases3, $phrases4, $phrases5);
+            logger($phrases,4);
 
             // Add phrases from permalink
             if ($this->transposh->options->get_enable_url_translate()) {
