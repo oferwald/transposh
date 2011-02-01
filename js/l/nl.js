@@ -1,7 +1,6 @@
 /* 
- * Thanks: Roland Nieuwendijk
+ * Thanks: Roland Nieuwendijk (http://blog.imagitect.nl/)
  */
-
 t_jp.l = {
     'Close without saving?': 'Sluiten zonder op te slaan?',
     'You have made a change to the translation. Are you sure you want to discard it?': 'Je hebt de vertaling aangepast. Weet je zeker dat je dat wilt annuleren?',
@@ -30,5 +29,4 @@ t_jp.l = {
     'delete': 'verwijder',
     'Discard': 'weggooien',
     'Cancel': 'Annuleren'
-
 };
