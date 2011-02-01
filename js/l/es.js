@@ -29,5 +29,4 @@ t_jp.l = {
     'delete': 'eliminar',
     'Discard': 'Descartar',
     'Cancel': 'Cancelar'
-
 };
