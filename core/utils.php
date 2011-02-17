@@ -308,7 +308,7 @@ class transposh_utils {
      */
     public static function get_original_url($href, $home_url, $target_language, $fetch_translation_func) {
         $href = substr($href, strlen($home_url));
-        $url = urldecode($href);
+        $url = stripslashes(urldecode($href));
         $url = (($pos = strpos($url, '?')) ? substr($url, 0, $pos) : $url);
         $url2 = '';
         $parts = explode('/', $url);
