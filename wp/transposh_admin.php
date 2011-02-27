@@ -100,7 +100,8 @@ class transposh_plugin_admin {
         if ($this->transposh->options->get_enable_permalinks() != $_POST[ENABLE_PERMALINKS]) {
             $this->transposh->options->set_enable_permalinks($_POST[ENABLE_PERMALINKS]);
             // rewrite rules - refresh. - because we want them set or unset upon this change
-            add_filter('rewrite_rules_array', 'update_rewrite_rules');
+            // TODO - need to check if its even needed
+            add_filter('rewrite_rules_array', array(&$this->transposh, 'update_rewrite_rules'));
             $GLOBALS['wp_rewrite']->flush_rules();
         }
 
@@ -431,7 +432,7 @@ class transposh_plugin_admin {
          */
         echo '<h4>' . __('Enable search in translated languages', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_SEARCH_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_search_translate()) . '/> ' .
-        __('Allow search of translated languages, in those languages (and the original language)', TRANSPOSH_TEXT_DOMAIN);
+        __('Allow search of translated languages (and the original language)', TRANSPOSH_TEXT_DOMAIN);
 
         /**
          * Insert the option to enable translation of urls
