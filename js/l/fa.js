@@ -1,12 +1,5 @@
 /*
- * Transposh v0.7.1
- * http://transposh.org/
- *
- * Copyright 2011,    Team Transposh
- * Licensed under the GPL Version 2 or higher.
- * http://transposh.org/license
- *
- * Date:  Sun,    30 Jan 2011 12: 58: 12 +0200
+ * Thanks: Sushyant Zavarzadeh (http://zavarzadeh.org)
  */
 t_jp.l={
     'Close without saving?': 'بدون نگه داری ببندیم؟',

@@ -135,6 +135,10 @@ redundant calls to the machine translation agent. After a change in the widget l
 
 Please make sure you are using PHP5 and up, PHP4 is not supported
 
+= I am getting blank pages instead of translated pages =
+
+Increase the php memory limits or ask your provider to do so
+
 = I want my own css image with less flags =
 
 This is on our todo list
@@ -204,8 +208,17 @@ This version allows sorting of languages within the widget
  * Russian translation by Romans Matusevics
  * Hebrew translation by [Amir](http://colnect.com/he)
  * Frontend Spanish translation by [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
+ * Italian translation by Marco Rossi
+ * Persian translation by [Sushyant Zavarzadeh] (http://zavarzadeh.org)
+ * Spanish translation by [Angel Torregrosa] (http://wordp.relatividad.org)
 
 == Changelog ==
+= 2011/03/01 - 0.7.2 =
+ * Added Italian translation by Marco Rossi
+ * Added Persian translation by [Sushyant Zavarzadeh] (http://zavarzadeh.org)
+ * Added Spanish translation by [Angel Torregrosa] (http://wordp.relatividad.org)
+ * Fixed some url rewriting bugs reported by [Angel Torregrosa] (http://wordp.relatividad.org)
+ * The two years anniversary release
 = 2011/01/30 - 0.7.1 =
  * Fix excerpt for tp_language marked posts
  * Added Dutch translation by [Roland Nieuwendijk](http://blog.imagitect.nl/)
