@@ -457,9 +457,12 @@ class transposh_plugin {
             $wp_locale->text_direction = 'rtl';
         }
 
-        // we'll go into this code of redirection only if we have options that need it (and no bot is involved, for the non-cookie)  and this is not a special page or one that is refered by our site
+        // we'll go into this code of redirection only if we have options that need it (and no bot is involved, for the non-cookie)
+        //  and this is not a special page or one that is refered by our site
+        // bots can skip this altogether
         if (($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) &&
-                !($this->is_special_page($_SERVER['REQUEST_URI']) || strpos($_SERVER['HTTP_REFERER'], $this->home_url) !== false)) {
+                !($this->is_special_page($_SERVER['REQUEST_URI']) || strpos($_SERVER['HTTP_REFERER'], $this->home_url) !== false) &&
+                !(preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
             // we are starting a session if needed
             if (!session_id()) session_start();
             // no redirections if we already redirected in this session or we suspect cyclic redirections
@@ -481,7 +484,7 @@ class transposh_plugin {
                 } else {
                     $bestlang = transposh_utils::prefered_language(explode(',', $this->options->get_viewable_langs()), $this->options->get_default_language());
                     // we won't redirect if we should not, or this is a presumable bot
-                    if ($bestlang && $bestlang != $this->target_language && $this->options->get_enable_detect_language() && !(preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
+                    if ($bestlang && $bestlang != $this->target_language && $this->options->get_enable_detect_language()) {
                         $url = transposh_utils::rewrite_url_lang_param($_SERVER['REQUEST_URI'], $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
                         if ($this->options->is_default_language($bestlang))
                         //TODO - fix wrt translation
