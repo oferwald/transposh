@@ -425,6 +425,10 @@ class transposh_utils {
         return $bestlang;
     }
 
+    public static function is_bot() {
+        return preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']);
+    }
+
 }
 
 ?>

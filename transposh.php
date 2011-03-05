@@ -462,7 +462,7 @@ class transposh_plugin {
         // bots can skip this altogether
         if (($this->options->get_enable_detect_language() || $this->options->get_widget_allow_set_default_language()) &&
                 !($this->is_special_page($_SERVER['REQUEST_URI']) || strpos($_SERVER['HTTP_REFERER'], $this->home_url) !== false) &&
-                !(preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']))) {
+                !(transposh_utils::is_bot())) {
             // we are starting a session if needed
             if (!session_id()) session_start();
             // no redirections if we already redirected in this session or we suspect cyclic redirections
@@ -512,6 +512,11 @@ class transposh_plugin {
         }
         if (isset($wp->query_vars[EDIT_PARAM]) && $wp->query_vars[EDIT_PARAM] && $this->is_editing_permitted()) {
             $this->edit_mode = true;
+            // redirect bots away from edit pages to avoid double indexing
+            if (transposh_utils::is_bot()) {
+                $this->tp_redirect(transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, transposh_utils::get_language_from_url($_SERVER["REQUEST_URI"], $this->home_url), false)); //."&stop=y");
+                exit;
+            }
         } else {
             $this->edit_mode = false;
         }
