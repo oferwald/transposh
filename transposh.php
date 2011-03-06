@@ -165,6 +165,9 @@ class transposh_plugin {
         // debug function for bad redirects
         add_filter('wp_redirect', array(&$this, 'on_wp_redirect'), 10, 2);
         add_filter('redirect_canonical', array(&$this, 'on_redirect_canonical'), 10, 2);
+
+        // support shortcodes
+        add_shortcode('tp', array(&$this, 'tp_shortcode'));
         //
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
         // CHECK TODO!!!!!!!!!!!!
@@ -514,7 +517,7 @@ class transposh_plugin {
             $this->edit_mode = true;
             // redirect bots away from edit pages to avoid double indexing
             if (transposh_utils::is_bot()) {
-                $this->tp_redirect(transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, transposh_utils::get_language_from_url($_SERVER["REQUEST_URI"], $this->home_url), false)); //."&stop=y");
+                $this->tp_redirect(transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, transposh_utils::get_language_from_url($_SERVER["REQUEST_URI"], $this->home_url), false), 301);
                 exit;
             }
         } else {
@@ -1091,6 +1094,43 @@ class transposh_plugin {
             return $lang;
         }
         return $locale;
+    }
+
+    /**
+     * Support for tp shortcodes - [tp]
+     * @see http://trac.transposh.org/wiki/ShortCodes
+     * @param array $atts
+     * @param string $content
+     * @return string 
+     */
+    function tp_shortcode($atts, $content = null) {
+        $only_class = '';
+        $lang = '';
+        $nt_class = '';
+
+        if (isset($atts['not_in'])) {
+            if (stripos($atts['not_in'], $this->target_language) !== false) {
+                return;
+            }
+        }
+
+        if (isset($atts['lang'])) {
+            $lang = ' lang="' . $atts['lang'] . '"';
+        }
+
+        if (isset($atts['only'])) {
+            $only_class = ' class="' . ONLY_THISLANGUAGE_CLASS . '"';
+        }
+
+        if (isset($atts['no_translate'])) {
+            $nt_class = ' class="' . NO_TRANSLATE_CLASS . '"';
+        }
+
+        if ($lang || $only_class || $nt_class) {
+            return '<span '.$only_class.$nt_class.$lang.'>' . do_shortcode($content) . '</span>';
+        } else {
+            return do_shortcode($content);
+        }
     }
 
 }
