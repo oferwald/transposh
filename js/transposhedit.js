@@ -750,7 +750,7 @@
         img = $(idprefix + 'img_' + translated_id);
         img.click(function () {
             //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict !!!!!!!!!!!
-            if (typeof $.fn.tabs !== 'function' || typeof $.fn.dialog !== 'function') {
+            if (typeof $.fn.tabs !== 'function' || typeof $.fn.buttonset !== 'function' || typeof $.fn.dialog !== 'function') {
                 $.ajaxSetup({
                     cache: true
                 });
