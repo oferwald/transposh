@@ -172,7 +172,7 @@ class transposh_plugin {
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
         // CHECK TODO!!!!!!!!!!!!
         $this->tgl = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
-        if (!$this->options->is_viewable_language($this->tgl)) {
+        if (!$this->options->is_viewable_language($this->tgl) && !$this->options->is_editable_language($this->tgl)) {
             $this->tgl = '';
         }
 
@@ -449,6 +449,12 @@ class transposh_plugin {
           logger("requested language: {$this->target_language}"); */
         // TODO TOCHECK!!!!!!!!!!!!!!!!!!!!!!!!!!1
         $this->target_language = $this->tgl;
+        // avoid viewing of editable languages which are not viewable by non translators
+        if (!$this->options->is_viewable_language($this->target_language) &&
+                $this->options->is_editable_language($this->target_language) &&
+                !$this->is_translator()) {
+            $this->target_language = '';
+        }
         if (!$this->target_language)
                 $this->target_language = $this->options->get_default_language();
         logger("requested language: {$this->target_language}");
@@ -1127,7 +1133,7 @@ class transposh_plugin {
         }
 
         if ($lang || $only_class || $nt_class) {
-            return '<span '.$only_class.$nt_class.$lang.'>' . do_shortcode($content) . '</span>';
+            return '<span ' . $only_class . $nt_class . $lang . '>' . do_shortcode($content) . '</span>';
         } else {
             return do_shortcode($content);
         }
