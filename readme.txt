@@ -209,15 +209,22 @@ This version allows sorting of languages within the widget
  * Hebrew translation by [Amir](http://colnect.com/he)
  * Frontend Spanish translation by [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
  * Italian translation by Marco Rossi
- * Persian translation by [Sushyant Zavarzadeh] (http://zavarzadeh.org)
- * Spanish translation by [Angel Torregrosa] (http://wordp.relatividad.org)
+ * Persian translation by [Sushyant Zavarzadeh](http://zavarzadeh.org)
+ * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
 
 == Changelog ==
+= 2011/03/24 - 0.7.3 =
+ [youtube http://www.youtube.com/watch?v=X0CGgYeBiHg]
+ * Shortcode support - see http://trac.transposh.org/wiki/ShortCodes
+ * Make bots redirect away from edit pages
+ * Avoid creation of session files for bots
+ * Fix for languages that are only visible to translators
+ * Fix another possible jQueryUI conflict
 = 2011/03/01 - 0.7.2 =
  * Added Italian translation by Marco Rossi
- * Added Persian translation by [Sushyant Zavarzadeh] (http://zavarzadeh.org)
- * Added Spanish translation by [Angel Torregrosa] (http://wordp.relatividad.org)
- * Fixed some url rewriting bugs reported by [Angel Torregrosa] (http://wordp.relatividad.org)
+ * Added Persian translation by [Sushyant Zavarzadeh](http://zavarzadeh.org)
+ * Added Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
+ * Fixed some url rewriting bugs reported by [Angel Torregrosa](http://wordp.relatividad.org)
  * The two years anniversary release
 = 2011/01/30 - 0.7.1 =
  * Fix excerpt for tp_language marked posts
