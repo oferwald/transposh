@@ -172,7 +172,7 @@ class transposh_postpublish {
      */
     function transposh_postpublish_box() {
         // the nonce will help double translation if time has passed
-        if (get_post_meta($_GET['post'], 'transposh_can_translate', true))
+        if (isset($_GET['post']) && get_post_meta($_GET['post'], 'transposh_can_translate', true))
                 $this->just_published = true;
 
         if ($this->just_published) {
