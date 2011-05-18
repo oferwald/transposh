@@ -289,7 +289,7 @@ class transposh_plugin {
         } else {
             // This one allows to redirect to a static element which we can find, since the redirection will remove
             // the target language, we are able to avoid nasty redirection loops
-            if (is_404 ()) {
+            if (is_404()) {
                 global $wp;
                 if (isset($wp->query_vars['pagename']) && file_exists(ABSPATH . $wp->query_vars['pagename'])) { // Hmm
                     logger('Redirecting a static file ' . $wp->query_vars['pagename'], 1);
@@ -1092,14 +1092,14 @@ class transposh_plugin {
         if (!$this->options->is_viewable_language($lang)) {
             $lang = '';
         }
-        if (!$lang) return $locale;
+        if (!$lang) $lang = $this->options->get_default_language();
         list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);
         if ($locale) {
             return $locale;
         } else {
             return $lang;
         }
-        return $locale;
+        return $this->options->get_default_language();
     }
 
     /**
