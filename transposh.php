@@ -1120,6 +1120,13 @@ class transposh_plugin {
             }
         }
 
+        if (isset($atts['mylang'])) {
+            if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
+                return;
+            }
+            return $this->target_language;
+        }
+
         if (isset($atts['lang'])) {
             $lang = ' lang="' . $atts['lang'] . '"';
         }
