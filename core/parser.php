@@ -16,6 +16,10 @@ require_once("constants.php");
 require_once("logging.php");
 require_once("utils.php");
 
+define('PUNCT_BREAKS', TRUE); // Will punctiations such as , . ( and such will break a phrase
+define('NUM_BREAKS', TRUE); // Will a number break a phrase
+define('ENT_BREAKS', TRUE); // Will an HTML entity break a phrase
+
 /**
  * parserstats class - holds parser statistics
  */
@@ -338,7 +342,7 @@ class parser {
 
         while ($pos < strlen($string)) {
             // Some HTML entities make us break, almost all but apostrophies
-            if ($len_of_entity = $this->is_html_entity($string, $pos)) {
+            if (ENT_BREAKS && $len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
                 if (($this->is_white_space(@$string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
                     logger("entity ($entity) breaks", 4);
@@ -379,7 +383,7 @@ class parser {
                 //$this->in_get_text_inner = !$this->in_get_text_inner;
             }
             // will break translation unit when there's a breaker ",.[]()..."
-            elseif ($senb_len = $this->is_sentence_breaker($string[$pos], @$string[$pos + 1], @$string[$pos + 2])) {
+            elseif (PUNCT_BREAKS && $senb_len = $this->is_sentence_breaker($string[$pos], @$string[$pos + 1], @$string[$pos + 2])) {
 //                logger ("sentence breaker...");
                 $this->tag_phrase($string, $start, $pos);
                 $pos += $senb_len;
@@ -387,7 +391,7 @@ class parser {
             }
             // Numbers also break, if they are followed by whitespace (or a sentence breaker) (don't break 42nd) // TODO: probably by breaking entities too...
             // also prefixed by whitespace?
-            elseif ($num_len = $this->is_number($string, $pos)) {
+            elseif (NUM_BREAKS && $num_len = $this->is_number($string, $pos)) {
 //                logger ("numnum... $num_len");
                 // this is the case of B2 or B2,
                 if (($start == $pos) || ($this->is_white_space($string[$pos - 1])
@@ -692,20 +696,20 @@ class parser {
 
         //fix urls more
         // WORK IN PROGRESS
-        /*foreach ($this->atags as $e) {
-            $hrefspans = '';
-            foreach (call_user_func_array($this->split_url_func, array($e->href)) as $part) {
-                // fix - not for dashes
-                list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($part, $this->lang));
-                $hrefspans .= $this->create_edit_span($part, $translated_text, $source, true);
-            }
-            $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
-            $e->outertext .= $hrefspans;
-        }*/
+        /* foreach ($this->atags as $e) {
+          $hrefspans = '';
+          foreach (call_user_func_array($this->split_url_func, array($e->href)) as $part) {
+          // fix - not for dashes
+          list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($part, $this->lang));
+          $hrefspans .= $this->create_edit_span($part, $translated_text, $source, true);
+          }
+          $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+          $e->outertext .= $hrefspans;
+          } */
 
         // fix urls...
-             foreach ($this->atags as $e) {
-              $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+        foreach ($this->atags as $e) {
+            $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
         }
         foreach ($this->otags as $e) {
             $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
