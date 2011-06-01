@@ -460,6 +460,7 @@ class parser {
 
         //support only_thislanguage class, (nulling the node if it should not display)
         if (isset($src_set_here) && $src_set_here && $this->srclang != $this->lang && stripos($node->class, ONLY_THISLANGUAGE_CLASS) !== false) {
+            $this->srclang = $prevsrclang; //we should return to the previous src lang or it will be kept and carried
             $node->outertext = '';
             return;
         }
@@ -501,6 +502,11 @@ class parser {
         // in submit type inputs, we want to translate the value
         elseif ($node->tag == 'input' && $node->type == 'submit') {
             $this->parsetext($node->value);
+        }
+        // for iframes we will rewrite urls if we can
+        elseif ($node->tag == 'iframe') {
+            $node->src = call_user_func_array($this->url_rewrite_func, array($node->src));
+            logger($node->src);
         }
 
         // titles are also good places to translate, exist in a, img, abbr, acronym
@@ -684,9 +690,22 @@ class parser {
             call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
         }
 
-        // fix urls...
-        foreach ($this->atags as $e) {
+        //fix urls more
+        // WORK IN PROGRESS
+        /*foreach ($this->atags as $e) {
+            $hrefspans = '';
+            foreach (call_user_func_array($this->split_url_func, array($e->href)) as $part) {
+                // fix - not for dashes
+                list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($part, $this->lang));
+                $hrefspans .= $this->create_edit_span($part, $translated_text, $source, true);
+            }
             $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+            $e->outertext .= $hrefspans;
+        }*/
+
+        // fix urls...
+             foreach ($this->atags as $e) {
+              $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
         }
         foreach ($this->otags as $e) {
             $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
