@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.8
-Tested up to: 3.1
+Tested up to: 3.1.3
 Stable tag: %VERSION%
 
 Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
@@ -11,7 +11,9 @@ Transposh filter allows in context quick translation of websites, it allows you 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
 
-[youtube http://www.youtube.com/watch?v=ktGtPb6SB34]
+[youtube http://www.youtube.com/watch?v=hN0WppbhoFQ]
+
+You can watch the video above, made by Fabrice Meuwissen of obviousidea.com which describes basic usage of Transposh, more videos can be found in the changelog
 
 ***Transposh includes the following features:***
 
@@ -211,10 +213,19 @@ This version allows sorting of languages within the widget
  * Italian translation by Marco Rossi
  * Persian translation by [Sushyant Zavarzadeh](http://zavarzadeh.org)
  * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
+ * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
 
 == Changelog ==
+= 2011/06/03 - 0.7.4 =
+ * Allow default language of Transposh to override the one set in WP_LANG, this allows a Wordpress MU installation in which every site can be managed in a different language
+ * Fixed bug with using the only="y" parameter of the tp shortcode which made incorrect detections of source language further in parsing
+ * Added German translation by [Jenny Beelens](http://www.professionaltranslation.com)
+ * Added a new parameter for shortcode which provides the current language and can be used in image selection
+ * Iframes should be properly corrected to the current target language (thanks deepbevel)
+ * Added constants at the begining of the parser which allows some basic changes to parser behaviour wrt to numbers and punctuations
 = 2011/03/24 - 0.7.3 =
  [youtube http://www.youtube.com/watch?v=X0CGgYeBiHg]
+
  * Shortcode support - see http://trac.transposh.org/wiki/ShortCodes
  * Make bots redirect away from edit pages
  * Avoid creation of session files for bots
@@ -236,6 +247,7 @@ This version allows sorting of languages within the widget
  * Fix regression with after post translation and translate all
 = 2011/01/11 - 0.7.0 =
  [youtube http://www.youtube.com/watch?v=ktGtPb6SB34]
+
  * Revamped edit interface
  * Allow simple localization of interface
  * Go to previous/next translation item
