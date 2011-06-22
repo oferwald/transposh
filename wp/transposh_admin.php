@@ -113,6 +113,7 @@ class transposh_plugin_admin {
         $this->transposh->options->set_enable_search_translate($_POST[ENABLE_SEARCH_TRANSLATE]);
         $this->transposh->options->set_enable_url_translate($_POST[ENABLE_URL_TRANSLATE]);
         $this->transposh->options->set_transposh_gettext_integration($_POST[TRANSPOSH_GETTEXT_INTEGRATION]);
+        $this->transposh->options->set_transposh_default_locale_override($_POST[TRANSPOSH_DEFAULT_LOCALE_OVERRIDE]);
         $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
         $this->transposh->options->set_transposh_key($_POST[TRANSPOSH_KEY]);
 
@@ -451,6 +452,15 @@ class transposh_plugin_admin {
         echo '<h4>' . __('Enable gettext integration', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')</h4>';
         echo '<input type="checkbox" value="1" name="' . TRANSPOSH_GETTEXT_INTEGRATION . '" ' . $this->checked($this->transposh->options->get_transposh_gettext_integration()) . '/> ' .
         __('Enable integration of Transposh with existing gettext interface (.po/.mo files)', TRANSPOSH_TEXT_DOMAIN);
+
+        /**
+         * Insert the option to enable default locale override
+         * Enabled by default.
+         * @since 0.7.5
+         */
+        echo '<h4>' . __('Enable override for default locale', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<input type="checkbox" value="1" name="' . TRANSPOSH_DEFAULT_LOCALE_OVERRIDE . '" ' . $this->checked($this->transposh->options->get_transposh_default_locale_override()) . '/> ' .
+        __('Enable overriding the default locale that is set in WP_LANG on default languages pages (such as untranslated pages and admin pages)', TRANSPOSH_TEXT_DOMAIN);
     }
 
     function on_contentbox_auto_translation_content($data) {
