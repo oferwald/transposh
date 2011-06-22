@@ -1086,20 +1086,25 @@ class transposh_plugin {
         return $translation;
     }
 
+    /**
+     * This function makes sure wordpress sees the appropriate locale on translated pages for .po/.mo and mu integration
+     * @param string $locale
+     * @return string 
+     */
     function transposh_locale_filter($locale) {
-        //logger($locale);
         $lang = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
         if (!$this->options->is_viewable_language($lang)) {
             $lang = '';
         }
-        if (!$lang) $lang = $this->options->get_default_language();
-        list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);
-        if ($locale) {
-            return $locale;
-        } else {
-            return $lang;
+        if (!$lang) {
+            if (!$this->options->get_transposh_default_locale_override()) {
+                return $locale;
+            }
+            $lang = $this->options->get_default_language();
         }
-        return $this->options->get_default_language();
+        list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);
+
+        return ($locale) ? $locale : $lang;
     }
 
     /**

@@ -46,6 +46,10 @@ define('ENABLE_DEFAULT_TRANSLATE', 'enable_default_translate');
 define('ENABLE_SEARCH_TRANSLATE', 'enable_search_translate');
 //Option to enable/disable url translation @since 0.5.3
 define('ENABLE_URL_TRANSLATE', 'enable_url_translate');
+//Make the gettext interface optional (@since 0.6.4)
+define('TRANSPOSH_GETTEXT_INTEGRATION', 'transposh_gettext_integration');
+//Allow override for default locale (@since 0.7.5)
+define('TRANSPOSH_DEFAULT_LOCALE_OVERRIDE', 'transposh_locale_override');
 //Option to enable/disable rewrite of permalinks
 define('ENABLE_PERMALINKS', 'enable_permalinks');
 //Option to enable/disable footer scripts (2.8 and up)
@@ -68,8 +72,6 @@ define('WIDGET_THEME', 'widget_theme');
 define('TRANSPOSH_KEY', 'transposh_key');
 //Stores the site key to transposh services (backup @since 0.5.0)
 define('TRANSPOSH_BACKUP_SCHEDULE', 'transposh_backup_schedule');
-//Make the gettext interface optional (@since 0.6.4)
-define('TRANSPOSH_GETTEXT_INTEGRATION', 'transposh_gettext_integration');
 
 class transposh_plugin_options {
 //constructor of class, PHP4 compatible construction for backward compatibility
@@ -92,6 +94,7 @@ class transposh_plugin_options {
         $this->set_default_option_value(ENABLE_AUTO_TRANSLATE, 1);
         $this->set_default_option_value(PREFERRED_TRANSLATOR, 1);
         $this->set_default_option_value(TRANSPOSH_GETTEXT_INTEGRATION, 1);
+        $this->set_default_option_value(TRANSPOSH_DEFAULT_LOCALE_OVERRIDE, 1);
         $this->set_default_option_value(VIEWABLE_LANGS);
         $this->set_default_option_value(EDITABLE_LANGS);
         //$this->set_default_option_value(SORTED_LANGS);
@@ -259,6 +262,10 @@ class transposh_plugin_options {
         return $this->options[TRANSPOSH_GETTEXT_INTEGRATION];
     }
 
+    function get_transposh_default_locale_override() {
+        return $this->options[TRANSPOSH_DEFAULT_LOCALE_OVERRIDE];
+    }
+
     /**
      * Sets a value at the options array
      * @param mixed $val
@@ -388,6 +395,11 @@ class transposh_plugin_options {
     function set_transposh_gettext_integration($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[TRANSPOSH_GETTEXT_INTEGRATION]);
+    }
+
+    function set_transposh_default_locale_override($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[TRANSPOSH_DEFAULT_LOCALE_OVERRIDE]);
     }
 
     /**
