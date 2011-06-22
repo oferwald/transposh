@@ -49,6 +49,7 @@ class transposh_consts {
         'az' => 'Azerbaijani,azərbaycan dili,az,',
         'eu' => 'Basque,Euskara,basque,',
         'be' => 'Belarusian,Беларуская,by,',
+        'bn' => 'Bengali,বাংলা,bd,bn_BD',
         'bg' => 'Bulgarian,Български,bg,bg_BG',
         'ca' => 'Catalan,Català,catalonia,',
         'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
@@ -65,6 +66,7 @@ class transposh_consts {
         'ka' => 'Georgian,ქართული,ge,ka_GE',
         'de' => 'German,Deutsch,de,de_DE',
         'el' => 'Greek,Ελληνικά,gr,',
+        'gu' => 'Gujarati,ગુજરાતી,in,',
         'ht' => 'Haitian,Kreyòl ayisyen,ht,',
         'he' => 'Hebrew,עברית,il,he_IL',
         'hi' => 'Hindi,हिन्दी; हिंदी,in,hi_IN',
@@ -74,6 +76,7 @@ class transposh_consts {
         'ga' => 'Irish,Gaeilge,ie,',
         'it' => 'Italian,Italiano,it,it_IT',
         'ja' => 'Japanese,日本語,jp,',
+        'kn' => 'Kannada,ಕನ್ನಡ,in,',
         'ko' => 'Korean,우리말,kr,ko_KR',
         'la' => 'Latin,Latīna,va,',
         'lv' => 'Latvian,Latviešu valoda,lv,',
@@ -94,6 +97,8 @@ class transposh_consts {
         'sw' => 'Swahili,Kiswahili,ke,',
         'sv' => 'Swedish,Svenska,se,sv_SE',
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
+        'ta' => 'Tamil,தமிழ்,lk,ta_LK',
+        'te' => 'Telugu,తెలుగు,in,',
         'th' => 'Thai,ภาษาไทย,th,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
         'uk' => 'Ukrainian,Українська,ua,',
@@ -109,7 +114,7 @@ class transposh_consts {
     // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
     // $google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
     public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
-    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur');
+    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu');
     // Bing supported languages
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2010-Jun-30
@@ -118,7 +123,7 @@ class transposh_consts {
     // a bit tricky, but we'll see - starting with just esperanto
     public static $apertium_languages = array('eo');
 
-// Array for holding po domains we have problems with
+    // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
 
 }
@@ -337,8 +342,7 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
 
  */
 
-/* List of unused wordpress locales (27-Aug-2010)
-  # bn_BD/ Bengali
+/* List of unused wordpress locales (22-Jun-2011)
   # bs_BA/ Bosnian
   # ckb/ Kurdish
   # cpp/ ??
@@ -353,7 +357,6 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # jv_ID/
   # /
   # kea/ ??
-  # kn/
   # /
   # ky_KY/
   # ml_IN/
