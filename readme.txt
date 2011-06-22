@@ -22,7 +22,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Multiple selection for widget appearances - with pluggable widgets
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
-* Use either Google Translate,MS Translate or Apertium backends - 60 languages supported!
+* Use either Google Translate,MS Translate or Apertium backends - 65 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -216,6 +216,10 @@ This version allows sorting of languages within the widget
  * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
 
 == Changelog ==
+= 2011/06/22 - 0.7.5 =
+ * Added support to 5 new indic languages - Bengali, Gujarati, Kannada, Tamil and Telugu, thanks to the support provided by Google translate
+ * Added the option not to override the default locale with Transposh's default language
+ * Translation interface improvements, next and prev now save changes, and the dialog will not move on the page
 = 2011/06/03 - 0.7.4 =
  * Allow default language of Transposh to override the one set in WP_LANG, this allows a Wordpress MU installation in which every site can be managed in a different language
  * Fixed bug with using the only="y" parameter of the tp shortcode which made incorrect detections of source language further in parsing
