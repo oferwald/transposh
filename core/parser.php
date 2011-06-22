@@ -132,6 +132,7 @@ class parser {
     private $atags = array();
     /** @var array Contains reference to changable option values */
     private $otags = array();
+    private $edit_span_created = false;
 
     /**
      * Determine if the current position in buffer is a white space.
@@ -542,6 +543,7 @@ class parser {
     function create_edit_span($original_text, $translated_text, $source, $for_hidden_element = false, $src_lang = '') {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
+        $this->edit_span_created = true;
         $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
         // if we have a source language
         if ($src_lang) {
@@ -709,10 +711,10 @@ class parser {
 
         // fix urls...
         foreach ($this->atags as $e) {
-            $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+            if ($e->href) $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
         }
         foreach ($this->otags as $e) {
-            $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
+            if ($e->value) $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
         }
 
         // this is used to reserve spans we cannot add directly (out of body, metas, etc)
@@ -863,7 +865,12 @@ class parser {
         // This adds a meta tag with our statistics json-encoded inside...
         $this->stats->stop_timing();
         $head = $this->html->find('head', 0);
-        if ($head != null) $head->lastChild()->outertext .= $this->added_header;
+        if ($this->edit_span_created) {
+            if ($head != null) {
+                $head->lastChild()->outertext .= $this->added_header;
+            }
+        }
+        //exit;
         if ($head != null)
                 $head->lastChild()->outertext .= "\n<meta name=\"translation-stats\" content='" . json_encode($this->stats) . "'/>";
 
