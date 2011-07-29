@@ -85,7 +85,7 @@ class transposh_consts {
         'ms' => 'Malay,Bahasa Melayu,my,ms_MY',
         'mt' => 'Maltese,Malti,mt,',
         'no' => 'Norwegian,Norsk,no,nb_NO',
-        'fa' => 'Persian,فارسی,ir,fa_IR',
+        'fa' => 'Persian,پارسی,ir,fa_IR',
         'pl' => 'Polish,Polski,pl,pl_PL',
         'pt' => 'Portuguese,Português,pt,pt_PT',
         'ro' => 'Romanian,Română,ro,ro_RO',
