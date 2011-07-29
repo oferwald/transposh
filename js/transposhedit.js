@@ -487,7 +487,7 @@
         }).buttonset();
         // css for textareas
         $(dialog + ' textarea').css({
-            'width': '485px',
+            'width': '483px',
             'padding': '.4em',
             'margin': '2px 0 0 0',
             'resize': 'vertical' // this is for chrome and firefox
@@ -731,10 +731,10 @@
             fix_dialog_header_rtl(dialog);
             var uicorner = 'ui-corner-';
             // to remove with jqueryui-1.8.14
-            $(idprefix + 'utlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
-            $(idprefix + 'utlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
-            $(idprefix + 'ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
-            $(idprefix + 'ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+//            $(idprefix + 'utlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+//            $(idprefix + 'utlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+//            $(idprefix + 'ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+//            $(idprefix + 'ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
         }
 
         // we don't need no focus, we don't need element control
