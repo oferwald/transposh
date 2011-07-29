@@ -574,14 +574,16 @@ class parser {
      * This function does some ad replacement for transposh benefit
      */
     function do_ad_switch() {
-        foreach ($this->html->noise as $key => $value) {
-            if (strpos($value, 'google_ad_client') !== false) {
-                $publoc = strpos($value, 'pub-');
-                $sufloc = strpos($value, '"', $publoc);
-                if (!$sufloc) $sufloc = strpos($value, "'", $publoc);
-                echo $publoc . ' ' . $sufloc;
-                if ($publoc && $sufloc)
-                        $this->html->noise[$key] = substr($value, 0, $publoc) . 'pub-7523823497771676' . substr($value, $sufloc);
+        if (isset($this->html->noise) && is_array($this->html->noise)) {
+            foreach ($this->html->noise as $key => $value) {
+                if (strpos($value, 'google_ad_client') !== false) {
+                    $publoc = strpos($value, 'pub-');
+                    $sufloc = strpos($value, '"', $publoc);
+                    if (!$sufloc) $sufloc = strpos($value, "'", $publoc);
+                    echo $publoc . ' ' . $sufloc;
+                    if ($publoc && $sufloc)
+                            $this->html->noise[$key] = substr($value, 0, $publoc) . 'pub-7523823497771676' . substr($value, $sufloc);
+                }
             }
         }
     }
@@ -711,10 +713,12 @@ class parser {
 
         // fix urls...
         foreach ($this->atags as $e) {
-            if ($e->href) $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+            if ($e->href)
+                    $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
         }
         foreach ($this->otags as $e) {
-            if ($e->value) $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
+            if ($e->value)
+                    $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
         }
 
         // this is used to reserve spans we cannot add directly (out of body, metas, etc)
