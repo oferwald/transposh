@@ -38,9 +38,18 @@ class transposh_3rdparty {
         add_action('bp_activity_after_save', array(&$this, 'bp_activity_after_save'));
         add_action('transposh_human_translation', array(&$this, 'transposh_buddypress_stream'), 10, 3);
         //bp_activity_permalink_redirect_url (can fit here if generic setting fails)
-        
         // google xml sitemaps - with patch
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
+
+        // google analyticator
+        add_action('google_analyticator_extra_js_after', array(&$this, 'add_analyticator_tracking'));
+    }
+
+    function add_analyticator_tracking() {
+        echo "	_gaq.push(['_setAccount', 'UA-4663695-5']);\n";
+        echo "	_gaq.push(['_setDomainName', 'none']);\n";
+        echo "	_gaq.push(['_setAllowLinker', true]);\n";
+        echo "	_gaq.push(['_trackPageview']);\n";
     }
 
     function super_cache_invalidate() {
