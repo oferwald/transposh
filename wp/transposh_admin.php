@@ -25,6 +25,8 @@ class transposh_plugin_admin {
 
     /** @var transposh_plugin $transposh father class */
     private $transposh;
+    private $localeright = 'right';
+    private $localeleft = 'left';
 
 // constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
@@ -37,6 +39,8 @@ class transposh_plugin_admin {
         add_action('admin_menu', array(&$this, 'on_admin_menu'));
         // register the callback been used if options of page been submitted and needs to be processed
         add_action('admin_post_save_transposh', array(&$this, 'on_save_changes'));
+        // register a callback to allow admin removal of warnings
+        add_action('wp_ajax_closed_tpwarn', array(&$this, 'on_closed_tpwarn'));
     }
 
     /**
@@ -187,7 +191,6 @@ class transposh_plugin_admin {
         wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css', array(), '1.8.2');
         wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js', array('jquery'), '1.8.2', true);
 
-
         //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
         add_meta_box('transposh-sidebox-about', __('About this plugin', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_about_content'), $this->pagehook, 'side', 'core');
         add_meta_box('transposh-sidebox-widget', __('Widget settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_widget_content'), $this->pagehook, 'side', 'core');
@@ -203,6 +206,12 @@ class transposh_plugin_admin {
 
     //executed to show the plugins complete admin page
     function on_show_page() {
+        global $wp_locale;
+        if ($wp_locale->text_direction == 'rtl') {
+            $this->localeleft = 'right';
+            $this->localeright = 'left';
+        }
+
         //we need the global screen column value to beable to have a sidebar in WordPress 2.8
         //global $screen_layout_columns;
         //add a 3rd content box now for demonstration purpose, boxes added at start of page rendering can't be switched on/off,
@@ -213,9 +222,17 @@ class transposh_plugin_admin {
 
         echo '<div id="transposh-general" class="wrap">';
         screen_icon('options-general');
-
         echo '<h2>' . __('Transposh', TRANSPOSH_TEXT_DOMAIN) . '</h2>' .
         '<form action="admin-post.php" method="post">';
+
+        // add some user warnings that leads to some FAQs
+        if ((int) ini_get('memory_limit') < 64) {
+            $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')));
+        }
+
+        if (!function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
+            $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN));
+        }
 
         wp_nonce_field(TR_NONCE);
         wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false);
@@ -275,8 +292,7 @@ class transposh_plugin_admin {
     // i did not describe each callback dedicated, what they do can be easily inspected and compare with the admin page displayed
 
     function on_sidebox_about_content($data) {
-        global $wp_locale;
-        echo '<ul style="list-style-type:disc;margin-' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . ':20px;">';
+        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
         echo '<li><a href="http://transposh.org/">' . __('Plugin Homepage', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="http://transposh.org/redir/newfeature">' . __('Suggest a Feature', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         // support Forum
@@ -312,11 +328,9 @@ class transposh_plugin_admin {
      */
     function on_contentbox_languages_content($data) {
         // we need some styles
-        global $wp_locale;
-
         echo '<style type="text/css">
 	#sortable { list-style-type: none; margin: 0; padding: 0; }
-	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: ' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . '; width: 190px; height: 14px;}
+	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: ' . $this->localeleft . '; width: 190px; height: 14px;}
 	.languages {
             -moz-border-radius: 6px;
             -khtml-border-radius: 6px;
@@ -351,7 +365,7 @@ class transposh_plugin_admin {
         display: none;
         }
         .logoicon {
-            float:' . ($wp_locale->text_direction == 'rtl' ? 'left' : 'right') . ';
+            float:' . $this->localeright . ';
             margin-left:2px;
             margin-top:-1px;
         }
@@ -371,7 +385,7 @@ class transposh_plugin_admin {
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             list ($langname, $langorigname, $flag) = explode(",", $langrecord);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_viewable_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "active" : "")
-            . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . '">'
+            . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:' . $this->localeleft . '">'
             . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, false /* $langorigname,$this->transposh->options->get_widget_css_flags() */)
             . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",") . ($this->transposh->options->is_viewable_language($langcode) ? ",t" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
@@ -387,7 +401,7 @@ class transposh_plugin_admin {
         }
         echo "</ul></div>";
         // options to play with
-        echo '<div style="clear: both;">' . __('Display options:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: disc; margin-' . ($wp_locale->text_direction == 'rtl' ? 'right' : 'left') . ':20px;font-size:11px">';
+        echo '<div style="clear: both;">' . __('Display options:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: disc; margin-' . $this->localeleft . ':20px;font-size:11px">';
         echo '<li><a href="#" id="changename">' . __('Toggle names of languages between English and Original', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="selectall">' . __('Make all languages active', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="sortname">' . __('Sort by language name', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
@@ -544,6 +558,22 @@ class transposh_plugin_admin {
         echo __('Service Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" value="' . $this->transposh->options->get_transposh_key() . '" id="' . TRANSPOSH_KEY . '" name="' . TRANSPOSH_KEY . '"/> <a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         echo '<div id="backup_result"></div>';
         echo '<div style="margin:10px 0"><a id="transposh-backup" href="#" class="button">' . __('Do Backup Now', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+    }
+
+    function add_warning($id, $message) {
+        if (!$this->transposh->options->get_transposh_admin_hide_warning($id)) {
+            echo '<div id="' . $id . '" class="error">' .
+            '<span class="ui-icon ui-icon-alert" style="float: ' . $this->localeleft . '; margin-' . $this->localeright . ': .3em;"></span>' .
+            $message .
+            '<span class="warning-close ui-icon ui-icon-closethick" style="float:' . $this->localeright . '; margin-' . $this->localeleft . ': .3em;"></span>' .
+            '</div>';
+        }
+    }
+
+    function on_closed_tpwarn() {
+        $this->transposh->options->set_transposh_admin_hide_warning($_POST['id']);
+        $this->transposh->options->update_options();
+        die(); // this is required to return a proper result
     }
 
 }
