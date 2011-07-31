@@ -44,10 +44,12 @@ class transposh_postpublish {
      * Admin menu created action, where we create our metaboxes
      */
     function on_admin_menu() {
-//add our metabox to the post and pubish pages
+        //add our metaboxs to the post and publish pages
         logger('adding metaboxes');
         add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'post', 'side', 'core');
         add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'page', 'side', 'core');
+        add_meta_box('transposh_setlanguage', __('Set post language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), 'post', 'advanced', 'core');
+        add_meta_box('transposh_setlanguage', __('Set page language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), 'page', 'advanced', 'core');
         if (!isset($_GET['post'])) return;
         if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
             $this->just_published = true; // this is later used in the meta boxes
@@ -56,19 +58,10 @@ class transposh_postpublish {
                 'post_url' => $this->transposh->post_url,
                 'post' => $_GET['post'],
                 'preferred' => $this->transposh->options->get_preferred_translator(),
-                'l10n_print_after' => 't_jp.g_langs = ' . json_encode(transposh_consts::$google_languages) . '; t_jp.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';'/*
-                      'plugin_url' => $this->transposh_plugin_url,
-                      'edit' => ($this->edit_mode? '1' : ''),
-                      //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
-                      'lang' => $this->target_language,
-                      // those two options show if the script can support said engines
-                      'prefix' => SPAN_PREFIX,
-
-                      'progress'=>$this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '') */
-//			'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
+                'l10n_print_after' => 't_jp.g_langs = ' . json_encode(transposh_consts::$google_languages) . '; t_jp.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';'
             ));
-            wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css', array(), '1.8.2');
-            wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js', array('jquery'), '1.8.2', true);
+            wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/ui-lightness/jquery-ui.css', array(), '1.8.14');
+            wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js', array('jquery'), '1.8.14', true);
             delete_post_meta($_GET['post'], 'transposh_can_translate'); // as we have used the meta - it can go now, another option would have been to put this in the getphrases
         }
     }
@@ -119,7 +112,7 @@ class transposh_postpublish {
 
             // Merge the two arrays for traversing
             $phrases = array_merge($phrases, $phrases2, $phrases3, $phrases4, $phrases5);
-            logger($phrases,4);
+            logger($phrases, 4);
 
             // Add phrases from permalink
             if ($this->transposh->options->get_enable_url_translate()) {
@@ -171,7 +164,6 @@ class transposh_postpublish {
      * This is the box that appears on the side
      */
     function transposh_postpublish_box() {
-        // the nonce will help double translation if time has passed
         if (isset($_GET['post']) && get_post_meta($_GET['post'], 'transposh_can_translate', true))
                 $this->just_published = true;
 
@@ -183,11 +175,32 @@ class transposh_postpublish {
     }
 
     /**
+     * This is a selection of language box which should hopefully appear below the post edit
+     */
+    function transposh_setlanguage_box() {
+        $lang = get_post_meta($_GET['post'], 'tp_language', true);
+        echo '<select name="transposh_tp_language">';
+        echo '<option value="">' . __('Default') . '</option>';
+        foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
+            list ($langname, $langorigname, $flag) = explode(",", $langrecord);
+            echo '<option value="' . $langcode . ($langcode == $lang ? '" selected="selected' : '') . '">' . $langname . ' - ' . $langorigname . '</option>';
+        }
+        echo '</select>';
+    }
+
+    /**
      * When this happens, the boxes are not created we now use a meta to inform the next step (cleaner)
+     * we now also update the tp_language meta for the post
      * @param int $postID
      */
     function on_edit($postID) {
         add_post_meta($postID, 'transposh_can_translate', 'true', true);
+        if ($_POST['transposh_tp_language'] == '') {
+            delete_post_meta($postID, 'tp_language');
+        } else {
+            update_post_meta($postID, 'tp_language', $_POST['transposh_tp_language']);
+        }
+        logger($postID . ' ' . $_POST['transposh_tp_language']);
     }
 
 }

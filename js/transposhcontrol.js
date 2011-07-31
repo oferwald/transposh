@@ -247,9 +247,7 @@ jQuery(function() {
     jQuery("#transposh-translate").click(do_translate_all);
     
     jQuery(".warning-close").click(function() {
-        //alert(this);
         jQuery(this).parent().hide();
-        //alert();
         jQuery.post(ajaxurl, {
             action: 'closed_tpwarn',
             id: jQuery(this).parent().attr('id')
