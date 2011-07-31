@@ -585,6 +585,8 @@ class simple_html_dom {
     // clean up memory due to php5 circular references memory leak...
     function clear() {
         foreach($this->nodes as $n) {$n->clear(); $n = null;}
+          // This add next line is documented in the sourceforge repository. 2977248 as a fix for ongoing memory leaks that occur even with the use of clear.
+        if (isset($this->children)) foreach ($this->children as $n) {$n->clear(); $n = null;}
         if (isset($this->parent)) {$this->parent->clear(); unset($this->parent);}
         if (isset($this->root)) {$this->root->clear(); unset($this->root);}
         unset($this->doc);
