@@ -199,6 +199,11 @@ class transposh_postpublish {
             delete_post_meta($postID, 'tp_language');
         } else {
             update_post_meta($postID, 'tp_language', $_POST['transposh_tp_language']);
+            // if a language is set for a post, default language translate must be enabled, so we enable it
+            if (!$this->transposh->options->get_enable_default_translate()) {
+                $this->transposh->options->set_enable_default_translate(true);
+                $this->transposh->options->update_options();
+            }
         }
         logger($postID . ' ' . $_POST['transposh_tp_language']);
     }
