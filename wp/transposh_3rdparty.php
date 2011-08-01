@@ -42,7 +42,9 @@ class transposh_3rdparty {
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
 
         // google analyticator
-        add_action('google_analyticator_extra_js_after', array(&$this, 'add_analyticator_tracking'));
+        if ($this->transposh->options->get_transposh_collect_stats()) {
+            add_action('google_analyticator_extra_js_after', array(&$this, 'add_analyticator_tracking'));
+        }
     }
 
     function add_analyticator_tracking() {

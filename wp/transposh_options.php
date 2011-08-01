@@ -74,9 +74,10 @@ define('TRANSPOSH_KEY', 'transposh_key');
 define('TRANSPOSH_BACKUP_SCHEDULE', 'transposh_backup_schedule');
 //Stores hidden warnings (@since 0.7.6)
 define('TRANSPOSH_ADMIN_HIDE_WARNINGS', 'transposh_admin_hide_warnings');
+//Should I allow collecting of anonymous stats (@since 0.7.6)
+define('TRANSPOSH_COLLECT_STATS', 'transposh_admin_hide_warnings');
 
 class transposh_plugin_options {
-//constructor of class, PHP4 compatible construction for backward compatibility
 
     /** @var array storing all our options */
     private $options = array();
@@ -116,6 +117,7 @@ class transposh_plugin_options {
         $this->set_default_option_value(TRANSPOSH_KEY);
         $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE);
         $this->set_default_option_value(TRANSPOSH_ADMIN_HIDE_WARNINGS);
+        $this->set_default_option_value(TRANSPOSH_COLLECT_STATS, 1);
         $this->migrate_old_config();
         logger($this->options, 4);
     }
@@ -273,6 +275,10 @@ class transposh_plugin_options {
         return strpos($this->options[TRANSPOSH_ADMIN_HIDE_WARNINGS], $id . ',') !== false;
     }
 
+    function get_transposh_collect_stats() {
+        return $this->options[TRANSPOSH_COLLECT_STATS];
+    }
+
     /**
      * Sets a value at the options array
      * @param mixed $val
@@ -413,6 +419,11 @@ class transposh_plugin_options {
         if (!$this->get_transposh_admin_hide_warning($id)) {
             $this->set_value($this->options[TRANSPOSH_ADMIN_HIDE_WARNINGS] . $id . ',', $this->options[TRANSPOSH_ADMIN_HIDE_WARNINGS]);
         }
+    }
+
+    function set_transposh_collect_stats($val) {
+        $val = ($val) ? 1 : 0;
+        $this->set_value($val, $this->options[TRANSPOSH_COLLECT_STATS]);
     }
 
     /**
