@@ -111,6 +111,7 @@ class transposh_plugin_admin {
 
         $this->transposh->options->set_enable_footer_scripts($_POST[ENABLE_FOOTER_SCRIPTS]);
         $this->transposh->options->set_enable_detect_language($_POST[ENABLE_DETECT_LANG_AND_REDIRECT]);
+        $this->transposh->options->set_transposh_collect_stats($_POST[TRANSPOSH_COLLECT_STATS]);
         $this->transposh->options->set_enable_auto_translate($_POST[ENABLE_AUTO_TRANSLATE]);
         $this->transposh->options->set_enable_auto_post_translate($_POST[ENABLE_AUTO_POST_TRANSLATE]);
         $this->transposh->options->set_enable_default_translate($_POST[ENABLE_DEFAULT_TRANSLATE]);
@@ -227,11 +228,11 @@ class transposh_plugin_admin {
 
         // add some user warnings that leads to some FAQs
         if ((int) ini_get('memory_limit') < 64) {
-            $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')));
+            $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
         if (!function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
-            $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN));
+            $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
         wp_nonce_field(TR_NONCE);
@@ -536,6 +537,13 @@ class transposh_plugin_admin {
         echo '<input type="checkbox" value="1" name="' . ENABLE_DETECT_LANG_AND_REDIRECT . '" ' . $this->checked($this->transposh->options->get_enable_detect_language()) . '/> ' .
         __('This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. ' .
                 'This will redirect the first page accessed in the session to the same page with the detected language.', TRANSPOSH_TEXT_DOMAIN);
+
+        /**
+         * Insert the option to enable/disable statics collection
+         * @since 0.3.8 */
+        echo '<h4>' . __('Allow collecting usage statistics', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<input type="checkbox" value="1" name="' . TRANSPOSH_COLLECT_STATS . '" ' . $this->checked($this->transposh->options->get_transposh_collect_stats()) . '/> ' .
+        __('This option enables collection of statistics by transposh that will be used to improve the product. ', TRANSPOSH_TEXT_DOMAIN);
 
         /* WIP2
           echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */
