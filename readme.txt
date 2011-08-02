@@ -3,10 +3,10 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.8
-Tested up to: 3.1.3
+Tested up to: 3.2.1
 Stable tag: %VERSION%
 
-Transposh filter allows in context quick translation of websites, it allows you to crowd-source the translation to your users
+Transposh adds best of breed translation support to wordpress, 65 languages are automatically translated and can be manually corrected with ease.
 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
@@ -51,118 +51,13 @@ Technology has been thoroughly tested on a large dynamic site with millions of m
 
 == Frequently Asked Questions ==
 
-= My requested language does not appear on the list =
+= How come this plugin is so awesome? =
 
-You can edit the constants.php and add a line to the languages array, or just contact us to add your language
+We are working really hard to make this the best possible wordpress translation plugin available, feedback from the community is what made the plugin so great
 
-= I am using the flag interface and would like to change the flag used for some language =
+= Where are the real FAQs =
 
-In the languages array in the constants.php file change the two letter ISO code used for the flag
-
-= I have a feature to suggest =
-
-The correct place for that would be our [development site](http://trac.transposh.org "ticket system")
-
-= The interface looks messed up =
-
-Another .css file might intervene with our in ways we didn't predict yet, either fix that .css alone or contact us
-
-= What do the colors of the translation icons mean? =
-
-There are currently three colors used
-
-* Red - no translation was done
-* Yellow - translation was done by a robot
-* Green - translation was done by human (or approved by one)
-
-= What are the colors in the administrative interface? =
-
-Three background colors are used
-* Green - this language is active and all users will see it
-* Yellow - only users with translation capability can see this language (this is disabled once anonymous translation is available)
-* Blank - language won't appear on widgets
-
-= What is the dragging of languages for? =
-
-You may drag the languages in order to set the order in which they appear in the widget, you can use the sorting links below
-which will sort the languages and put the default language first. Dragging also is used to select the default language.
-
-= Why should I allow anonymous translation? =
-
-Wiki has proven itself quite a valid model on the Internet. More people have good intentions than bad intentions and that can be
-harnessed to get your message out to more people. Future versions will give more focus on preventing spammers from defacing sites
-
-= I have installed the plugin - nothing happens =
-
-By default, automatic translation is on and it should be kicking in. If its off, and you don’t have enough privileges to translate, nothing will happen.
-
-Please be reminded of the following “rules of thumb”
-
-1. A language marked as viewable will have its flag shown inside the widget.
-1. A language marked for editing will allow a translator (anyone marked in the ‘who can translate’ section) to manually edit the page. i.e. the translate check-box will appear in the widget.
-1. Enabling automatic translation will automatically translate a page (without requiring entering edit mode) for EVERYONE viewing the page regardless of the their role. However it will only take place for languages marked as editable.
-
-Also - please take extra care to validate your html, adding extra tags that are unclosed in the template may lead to our parser breaking. Use the w3c validator service for more details. If everything is setup correctly and still nothing happens, please contact us.
-
-= I have installed the plugin - nothing happens - themes related =
-
-The plugin works on one theme yet seems to fail on another. This might be caused by themes which don't include the wp_head and/or wp_foot
-functions so the transposh.js file is not being included, try to include it manually by modifying your theme
-
-= How can I add the plugin interface without using the sidebar widget? =
-
-Just add the following line to your template:
-
-`<?php if(function_exists("transposh_widget")) { transposh_widget(); }?>`
-
-= Plugin support: php speedy (http://aciddrop.com/php-speedy/) =
-
-Users of php speedy will have to deactivate it, add “transposh.js” in the ignore list, click on “Test configuration” then reactivate it.
-
-= Plugin support: Google-Sitemaps-XML =
-
-Currently the plugin is able to add the multilingual urls to the sitemap, and you need to add the following line at the sitemap-core.php, add-url function (line 1509 at version 3.2.2)
-
-`do_action('sm_addurl', $page);`
-
-As of version 4 beta 3 this is included by default, for earlier versions you can get the patched file from our trac site.
-After a change of languages used, you are welcomed to trigger a new sitemap buildup (not needed in v4).
-
-= Plugin support: WP-Super-Cache =
-
-The support for wp-super-cache includes the invalidation of cached pages after a translation is made, which should reduce the issue with incorrect pages being displayed and
-redundant calls to the machine translation agent. After a change in the widget layout or the language list you are still expected to invalidate your cache.
-
-= I am getting weird errors =
-
-Please make sure you are using PHP5 and up, PHP4 is not supported
-
-= I am getting blank pages instead of translated pages =
-
-Increase the php memory limits or ask your provider to do so
-
-= I want my own css image with less flags =
-
-This is on our todo list
-
-= css flags have issues on IE6 for my users =
-
-First, there's always the ability to use another option for the plugin which is more compatible, such as the selection box. Second, you can
-change the .css from transparent background to your page background color. And last - we urge anyone using IE6 to upgrade...
-
-= How can I prevent certain text from being translated? =
-
-You can wrap the element with the "no_translate" class, or add a span similar to `<span class="no_translate">`
-
-= How to mark a post with a different than default language? =
-
-Using the wordpress editing, add a custom field called tp_language and insert the two letter code of the language used in that post, so if
-your blog is in English and you have a post in Spanish just add tp_language es as a custom field.
-
-= Can I make different images appear in different languages in my themes? =
-
-Yes, although a bit tricky - you can use the `$my_transposh_plugin->target_language` as part of the image descriptor, this will load different
-images based on the current language
+You can find them on our site [here](http://transposh.org/faq)
 
 == Screenshots ==
 
@@ -216,6 +111,12 @@ This version allows sorting of languages within the widget
  * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
 
 == Changelog ==
+= 2011/08/02 - 0.7.6 =
+ * Added some improvements to the simple html dom from a new upstream release
+ * Allow setting of a post/page language with a simple select box
+ * Warn about some conditions that we can't fix and a use should probably be aware of
+ * Allow collecting of anonymized statisics upon user consent
+ * Fixed some minor warning notices reported by users
 = 2011/06/22 - 0.7.5 =
  * Added support to 5 new indic languages - Bengali, Gujarati, Kannada, Tamil and Telugu, thanks to the support provided by Google translate
  * Added the option not to override the default locale with Transposh's default language
