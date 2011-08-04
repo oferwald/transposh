@@ -39,6 +39,10 @@ class transposh_database {
     private $translation_table;
     /** @var string translation log table name */
     private $translation_log_table;
+    /** @var boolean is memcached working */
+    private $memcache_working = false;
+    /** @var Memcache the memcached connection object */
+    private $memcache;
 
     /**
      * constructor of class, PHP4 compatible construction for backward compatibility
@@ -47,6 +51,14 @@ class transposh_database {
         $this->transposh = &$transposh;
         $this->translation_table = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
         $this->translation_log_table = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
+
+        if (class_exists('Memcache')) {
+            logger('I am using memcached!', 3);
+            $this->memcache_working = true;
+            $this->memcache = new Memcache;
+            @$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) or $this->memcache_working = false;
+            logger($this->memcache_working);
+        }
     }
 
     /**
@@ -59,7 +71,10 @@ class transposh_database {
         if (!TP_ENABLE_CACHE) return false;
         $cached = false;
         $key = $lang . '_' . $original;
-        if (function_exists('apc_fetch')) {
+        if ($this->memcache_working) {
+            $cached = $this->memcache->get($key);
+            logger('memcached', 5);
+        } elseif (function_exists('apc_fetch')) {
             $cached = apc_fetch($key, $rc);
             if ($rc === false) return false;
             logger('apc', 5);
@@ -93,7 +108,9 @@ class transposh_database {
         $key = $lang . '_' . $original;
         if ($translated !== null) $translated = implode('_', $translated);
         $rc = false;
-        if (function_exists('apc_store')) {
+        if ($this->memcache_working) {
+            $rc = $this->memcache->set($key, $translated); //, time() + $ttl);
+        } elseif (function_exists('apc_store')) {
             $rc = apc_store($key, $translated, $ttl);
         } elseif (function_exists('xcache_set')) {
             $rc = xcache_set($key, $translated, $ttl);
@@ -117,7 +134,9 @@ class transposh_database {
     function cache_delete($original, $lang) {
         if (!TP_ENABLE_CACHE) return;
         $key = $lang . '_' . $original;
-        if (function_exists('apc_delete')) {
+        if ($this->memcache_working) {
+            $this->memcache->delete($key);
+        } elseif (function_exists('apc_delete')) {
             apc_delete($key);
         } elseif (function_exists('xcache_unset')) {
             xcache_unset($key);
@@ -131,7 +150,9 @@ class transposh_database {
      */
     function cache_clean() {
         if (!TP_ENABLE_CACHE) return;
-        if (function_exists('apc_clear_cache')) {
+        if ($this->memcache_working) {
+            $this->memcache->flush();
+        } elseif (function_exists('apc_clear_cache')) {
             apc_clear_cache('user');
         } elseif (function_exists('xcache_unset_by_prefix')) {
             xcache_unset_by_prefix();
