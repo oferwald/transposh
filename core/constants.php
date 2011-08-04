@@ -20,7 +20,10 @@ define('EDIT_PARAM', 'edit');
 //Enable in memory cache usage, APC, xcache
 define('TP_ENABLE_CACHE', TRUE);
 //What is the cache items TTL
-define('TP_CACHE_TTL', 3600);
+define('TP_CACHE_TTL', 3600*24);
+//Constants for memcached
+define('TP_MEMCACHED_SRV', '127.0.0.1');
+define('TP_MEMCACHED_PORT', 11211);
 
 //Class marking a section not be translated.
 define('NO_TRANSLATE_CLASS', 'no_translate');
