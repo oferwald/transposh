@@ -309,6 +309,7 @@ class transposh_utils {
     public static function get_original_url($href, $home_url, $target_language, $fetch_translation_func) {
         $href = substr($href, strlen($home_url));
         $url = stripslashes(urldecode($href));
+        $params = ($pos = strpos($url, '?')) ? substr($url, $pos) : '';
         $url = (($pos = strpos($url, '?')) ? substr($url, 0, $pos) : $url);
         $url2 = '';
         $parts = explode('/', $url);
@@ -333,6 +334,7 @@ class transposh_utils {
                     $url2 .= '/' . strtolower(str_replace(' ', '-', $original_text));
             else $url2 .= '/' . $part;
         }
+        if ($url2 =='') $url2 = '/';
         // TODO: Consider sanitize_title_with_dashes
         // TODO : need to handle params....
         //logger(substr($url,strlen($url)-1));
@@ -341,7 +343,7 @@ class transposh_utils {
         //logger ("$href $url $url2");
         //$href = $this->home_url.$url2;
         if (substr($href, strlen($href) - 1) == '/') $url2.='/';
-        return $home_url . $url2;
+        return $home_url . $url2.$params;
     }
 
     /**
