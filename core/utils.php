@@ -58,7 +58,7 @@ class transposh_utils {
         $gluebackhome = false;
         //cleanup lang identifier in permalinks
         //remove the language from the url permalink (if in start of path, and is a defined language)
-        $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");
+        $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
         logger("home: $home_path " . $parsedurl['path'], 5);
         if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
             logger("homein!: $home_path", 5);
@@ -66,7 +66,7 @@ class transposh_utils {
             $gluebackhome = true;
         }
 
-        if (strlen($parsedurl['path']) > 2) {
+        if (@strlen($parsedurl['path']) > 2) {
             $secondslashpos = strpos($parsedurl['path'], "/", 1);
             if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
@@ -99,10 +99,10 @@ class transposh_utils {
 
         $newurl = str_replace('&#038;', '&', $url);
         $newurl = html_entity_decode($newurl, ENT_NOQUOTES);
-        $parsedurl = parse_url($newurl);
+        $parsedurl = @parse_url($newurl);
 
         // if we are dealing with some other url, we won't touch it!
-        if (isset($parsedurl['host']) && !($parsedurl['host'] == parse_url($home_url, PHP_URL_HOST))) {
+        if (isset($parsedurl['host']) && !($parsedurl['host'] == @parse_url($home_url, PHP_URL_HOST))) {
             return $url;
         }
 
@@ -119,7 +119,7 @@ class transposh_utils {
 
         // remove the language from the url permalink (if in start of path, and is a defined language)
         $gluebackhome = false;
-        $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");
+        $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
         logger("home: $home_path " . $parsedurl['path'], 5);
         if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
             logger("homein!: $home_path", 5);
@@ -190,7 +190,7 @@ class transposh_utils {
         // option 2, language is in permalink
         // cleanup lang identifier in permalinks
         // remove the language from the url permalink (if in start of path, and is a defined language)
-        $home_path = rtrim(parse_url($home_url, PHP_URL_PATH), "/");
+        $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
 //    logger ("home: $home_path ".$parsedurl['path'],5);
         if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
 //        logger ("homein!: $home_path",5);
@@ -334,16 +334,17 @@ class transposh_utils {
                     $url2 .= '/' . strtolower(str_replace(' ', '-', $original_text));
             else $url2 .= '/' . $part;
         }
-        if ($url2 =='') $url2 = '/';
+        if ($url2 == '') $url2 = '/';
         // TODO: Consider sanitize_title_with_dashes
         // TODO : need to handle params....
         //logger(substr($url,strlen($url)-1));
         //if (substr($url,strlen($url)-1) == '/') $url2 .= '/';
         //$url2 = rtrim($url2,'/');
-        //logger ("$href $url $url2");
+        // logger("h $home_url hr $href ur $url ur2 $url2");
         //$href = $this->home_url.$url2;
         if (substr($href, strlen($href) - 1) == '/') $url2.='/';
-        return $home_url . $url2.$params;
+        $url2 = str_replace('//', '/', $url2);
+        return $home_url . $url2 . $params;
     }
 
     /**
