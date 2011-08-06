@@ -151,6 +151,9 @@ class transposh_plugin_widget {
     function create_widget_args($calc_url, $clean_page_url) {
         $widget_args = array();
         $page_url = '';
+        if (is_404()) {
+            $clean_page_url = transposh_utils::cleanup_url($this->transposh->home_url,$this->transposh->home_url,true);
+        }
         // loop on the languages
         foreach ($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
             list ($langname, $language, $flag) = explode(',', $langrecord);

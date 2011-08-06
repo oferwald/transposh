@@ -724,6 +724,7 @@ class transposh_plugin {
      * Implements - http://googlewebmastercentral.blogspot.com/2010/09/unifying-content-under-multilingual.html
      */
     function add_rel_alternate() {
+        if (is_404()) return;
         $widget_args = $this->widget->create_widget_args(true, $this->get_clean_url());
         logger($widget_args, 4);
         foreach ($widget_args as $lang) {
@@ -861,7 +862,7 @@ class transposh_plugin {
      */
     function pre_post_search($query) {
         logger('pre post', 4);
-        logger($query->query_vars);
+        logger($query->query_vars, 4);
         // we hide the search query var from further proccesing, because we do this later
         if ($query->query_vars['s']) {
             $this->search_s = $query->query_vars['s'];
