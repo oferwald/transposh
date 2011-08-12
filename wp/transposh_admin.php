@@ -231,7 +231,7 @@ class transposh_plugin_admin {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
-        if (!(class_exists('Memcache') && @$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT)) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
+        if (!(class_exists('Memcache') /*!!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT)*/) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
             $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
