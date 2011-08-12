@@ -53,12 +53,22 @@ class transposh_database {
         $this->translation_log_table = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
 
         if (class_exists('Memcache')) {
-            logger('I am using memcached!', 3);
+            logger('I am using pecl-Memcache!', 3);
             $this->memcache_working = true;
             $this->memcache = new Memcache;
             @$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) or $this->memcache_working = false;
-            logger($this->memcache_working);
         }
+        // I have space in keys issues...
+        /* elseif (class_exists('Memcached')) {
+          logger('I am using pecl-Memcached!', 3);
+          $this->memcache_working = true;
+          $this->memcache = new Memcached();
+          //if (!count($this->memcache->getServerList())) {
+          $this->memcache->addServer(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT);
+          // }
+          //@$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) or $this->memcache_working = false;
+          } */
+        logger($this->memcache_working);
     }
 
     /**
@@ -73,7 +83,7 @@ class transposh_database {
         $key = $lang . '_' . $original;
         if ($this->memcache_working) {
             $cached = $this->memcache->get($key);
-            logger('memcached', 5);
+            logger('memcached ' . $key . ' ' . $cached, 5);
         } elseif (function_exists('apc_fetch')) {
             $cached = apc_fetch($key, $rc);
             if ($rc === false) return false;
@@ -789,6 +799,33 @@ class transposh_database {
             logger($update, 3);
             $this->cache_delete($row->original, $row->lang);
         }
+
+        // clean duplication in the translation table (don't know how it ever happened...)
+        $dedup = 'SELECT * , count( * )' .
+                ' FROM ' . $this->translation_table .
+                ' GROUP BY `original` , `lang`' .
+                ' HAVING count( * ) >1';
+        $rows = $GLOBALS['wpdb']->get_results($dedup);
+        logger($dedup, 3);
+        foreach ($rows as $row) {
+            $row->original = $GLOBALS['wpdb']->escape($row->original);
+            $row->lang = $GLOBALS['wpdb']->escape($row->lang);
+            list($source, $tranlation) = $this->fetch_translation($row->original, $row->lang);
+            if ($source != NULL) {
+                $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}'";
+                $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
+                logger($update, 3);
+                $result = $GLOBALS['wpdb']->query($update);
+            }
+            $row->translated = $GLOBALS['wpdb']->escape($translation);
+            $row->source = $GLOBALS['wpdb']->escape($source);
+            $values = "('{$row->original}','{$row->lang}','{$row->translated}','$row->source')";
+            $update = "INSERT INTO " . $this->translation_table . " (original, lang, translated, source) VALUES $values";
+            logger($update, 3);
+            $result = $GLOBALS['wpdb']->query($update);
+            $this->cache_delete($row->original, $row->lang);
+        }
+
         // check for discrepencies (last translation in log does not equal current translation)
         // TODO
         /* SELECT *
