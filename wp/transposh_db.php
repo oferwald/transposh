@@ -810,19 +810,19 @@ class transposh_database {
         foreach ($rows as $row) {
             $row->original = $GLOBALS['wpdb']->escape($row->original);
             $row->lang = $GLOBALS['wpdb']->escape($row->lang);
-            list($source, $tranlation) = $this->fetch_translation($row->original, $row->lang);
+            list($source, $translation) = $this->fetch_translation($row->original, $row->lang);
             if ($source != NULL) {
-                $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}'";
+                $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}')";
                 $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
                 logger($update, 3);
                 $result = $GLOBALS['wpdb']->query($update);
+                $row->translated = $GLOBALS['wpdb']->escape($translation);
+                $row->source = $GLOBALS['wpdb']->escape($source);
+                $values = "('{$row->original}','{$row->lang}','{$row->translated}','$row->source')";
+                $update = "INSERT INTO " . $this->translation_table . " (original, lang, translated, source) VALUES $values";
+                logger($update, 3);
+                $result = $GLOBALS['wpdb']->query($update);
             }
-            $row->translated = $GLOBALS['wpdb']->escape($translation);
-            $row->source = $GLOBALS['wpdb']->escape($source);
-            $values = "('{$row->original}','{$row->lang}','{$row->translated}','$row->source')";
-            $update = "INSERT INTO " . $this->translation_table . " (original, lang, translated, source) VALUES $values";
-            logger($update, 3);
-            $result = $GLOBALS['wpdb']->query($update);
             $this->cache_delete($row->original, $row->lang);
         }
 
