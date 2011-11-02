@@ -34,8 +34,11 @@
 
     // transposh app_id for msn translate, now global
     t_jp.MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6';
+    if (t_jp.msn_key) {
+        t_jp.MSN_APPID = t_jp.msn_key;
+    }
     // set base uri for jQueryUI
-    t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/';
+    t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/';
 
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size

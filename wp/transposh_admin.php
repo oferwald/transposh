@@ -120,6 +120,8 @@ class transposh_plugin_admin {
         $this->transposh->options->set_transposh_gettext_integration($_POST[TRANSPOSH_GETTEXT_INTEGRATION]);
         $this->transposh->options->set_transposh_default_locale_override($_POST[TRANSPOSH_DEFAULT_LOCALE_OVERRIDE]);
         $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
+        $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
+        $this->transposh->options->set_google_key($_POST[GOOGLE_TRANSLATE_KEY]);
         $this->transposh->options->set_transposh_key($_POST[TRANSPOSH_KEY]);
 
         // handle change of schedule for backup to daily
@@ -231,7 +233,7 @@ class transposh_plugin_admin {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
-        if (!(class_exists('Memcache') /*!!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT)*/) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
+        if (!(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
             $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
@@ -495,6 +497,18 @@ class transposh_plugin_admin {
         echo '<h4>' . __('Enable automatic translation after posting', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo '<input type="checkbox" value="1" name="' . ENABLE_AUTO_POST_TRANSLATE . '" ' . $this->checked($this->transposh->options->get_enable_auto_post_translate()) . '/> ' .
         __('Do automatic translation immediately after a post has been published', TRANSPOSH_TEXT_DOMAIN);
+
+        /**
+         * Allow users to insert their own API keys
+         */
+        echo '<h4>' . __('MSN API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo __('API Key', TRANSPOSH_TEXT_DOMAIN).': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_msn_key() . '" id="'.MSN_TRANSLATE_KEY.'" name="'.MSN_TRANSLATE_KEY.'"/>';
+
+          /**
+         * Allow users to insert their own API keys
+         */
+        echo '<h4>' . __('Google API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo __('API Key', TRANSPOSH_TEXT_DOMAIN).': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_google_key() . '" id="'.GOOGLE_TRANSLATE_KEY.'" name="'.GOOGLE_TRANSLATE_KEY.'"/>';
 
         /*
          * Choose default translator... TODO (explain better in wiki)
