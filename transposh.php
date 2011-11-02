@@ -684,16 +684,24 @@ class transposh_plugin {
             'post_url' => $this->post_url,
             'plugin_url' => $this->transposh_plugin_url,
             'lang' => $this->target_language,
-            //TODO - orig language?
             'olang' => $this->options->get_default_language(),
             // those two options show if the script can support said engines
             'prefix' => SPAN_PREFIX,
             'preferred' => $this->options->get_preferred_translator()
         );
-        if (in_array($this->target_language, transposh_consts::$bing_languages))
+
+        if (in_array($this->target_language, transposh_consts::$bing_languages)) {
                 $script_params['msn'] = 1;
-        if (in_array($this->target_language, transposh_consts::$google_languages))
+                if ($this->options->get_msn_key()) {
+                    $script_params['msn_key'] = $this->options->get_msn_key();
+                }
+        }
+        if (in_array($this->target_language, transposh_consts::$google_languages)) {
                 $script_params['google'] = 1;
+                if ($this->options->get_google_key()) {
+                    $script_params['google_key'] = $this->options->get_google_key();
+                }
+        }
         if (in_array($this->target_language, transposh_consts::$apertium_languages))
                 $script_params['apertium'] = 1;
         if (function_exists('curl_init') && in_array($this->target_language, transposh_consts::$google_proxied_languages))

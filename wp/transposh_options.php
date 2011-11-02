@@ -23,7 +23,9 @@ define('OLD_WIDGET_IN_LIST', 'widget_in_list');
 //Option to enable/disable msn translation
 define('OLD_ENABLE_MSN_TRANSLATE', 'enable_msntranslate');
 //Option to store the msn API key
-define('OLD_MSN_TRANSLATE_KEY', 'msn_key');
+define('MSN_TRANSLATE_KEY', 'msn_key');
+//Option to store the msn API key
+define('GOOGLE_TRANSLATE_KEY', 'google_key');
 
 //defines are used to avoid typos
 //Option defining whether anonymous translation is allowed.
@@ -114,6 +116,8 @@ class transposh_plugin_options {
         $this->set_default_option_value(WIDGET_ALLOW_SET_DEFLANG);
         $this->set_default_option_value(WIDGET_REMOVE_LOGO_FOR_AD);
         $this->set_default_option_value(WIDGET_THEME, 'ui-lightness');
+        $this->set_default_option_value(MSN_TRANSLATE_KEY);
+        $this->set_default_option_value(GOOGLE_TRANSLATE_KEY);
         $this->set_default_option_value(TRANSPOSH_KEY);
         $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE);
         $this->set_default_option_value(TRANSPOSH_ADMIN_HIDE_WARNINGS);
@@ -141,7 +145,6 @@ class transposh_plugin_options {
             unset($this->options[OLD_WIDGET_CSS_FLAGS]);
             unset($this->options[OLD_WIDGET_IN_LIST]);
             unset($this->options[OLD_WIDGET_STYLE]);
-            unset($this->options[OLD_MSN_TRANSLATE_KEY]);
             unset($this->options[OLD_ENABLE_MSN_TRANSLATE]);
             logger($this->options);
             update_option(TRANSPOSH_OPTIONS, $this->options);
@@ -228,6 +231,14 @@ class transposh_plugin_options {
     function get_enable_auto_translate() {
         // default is true
         return $this->options[ENABLE_AUTO_TRANSLATE];
+    }
+
+    function get_msn_key() {
+        return $this->options[MSN_TRANSLATE_KEY];
+    }
+
+    function get_google_key() {
+        return $this->options[GOOGLE_TRANSLATE_KEY];
     }
 
     function get_enable_auto_post_translate() {
@@ -374,6 +385,14 @@ class transposh_plugin_options {
     function set_enable_auto_translate($val) {
         $val = ($val) ? 1 : 0;
         $this->set_value($val, $this->options[ENABLE_AUTO_TRANSLATE]);
+    }
+
+      function set_msn_key($val) {
+        $this->set_value($val, $this->options[MSN_TRANSLATE_KEY]);
+    }
+
+          function set_google_key($val) {
+        $this->set_value($val, $this->options[GOOGLE_TRANSLATE_KEY]);
     }
 
     function set_enable_auto_post_translate($val) {
