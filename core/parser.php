@@ -396,7 +396,7 @@ class parser {
 //                logger ("numnum... $num_len");
                 // this is the case of B2 or B2,
                 if (($start == $pos) || ($this->is_white_space($string[$pos - 1])
-                        || ($this->is_sentence_breaker($string[$pos + $num_len - 1], $string[$pos + $num_len], $string[$pos + $num_len + 1]))) &&
+                        || ($this->is_sentence_breaker(@$string[$pos + $num_len - 1], @$string[$pos + $num_len], @$string[$pos + $num_len + 1]))) &&
                         ($this->is_white_space(@$string[$pos + $num_len]) || $this->is_sentence_breaker(@$string[$pos + $num_len], @$string[$pos + $num_len + 1], @$string[$pos + $num_len + 2]))) {
                     // we will now compensate on the number followed by breaker case, if we need to
 //                            logger ("compensate part1?");
@@ -862,8 +862,10 @@ class parser {
             $body = $this->html->find('body', 0);
             if ($body != null) $body->lastChild()->outertext .= $hiddenspans;
         }
-        // only in 5 out of 100 pages, with just translated pages, we might show an ad for transposh
-        if ($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) {
+        // we might show an ad for transposh in some cases
+        if (($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) || // 5 of 100 for translated non default language pages
+            ($this->allow_ad && $this->default_lang && mt_rand(1, 100) > 99) || // 1 of 100 for translated default languages pages
+            (!$this->allow_ad && mt_rand(1, 1000) > 999)) { // 1 of 1000 otherwise
             $this->do_ad_switch();
         }
         // This adds a meta tag with our statistics json-encoded inside...

@@ -28,7 +28,7 @@ class transposh_plugin_admin {
     private $localeright = 'right';
     private $localeleft = 'left';
 
-// constructor of class, PHP4 compatible construction for backward compatibility
+    // constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
         $this->transposh = &$transposh;
         // add filter for WordPress 2.8 changed backend box system !
@@ -39,8 +39,14 @@ class transposh_plugin_admin {
         add_action('admin_menu', array(&$this, 'on_admin_menu'));
         // register the callback been used if options of page been submitted and needs to be processed
         add_action('admin_post_save_transposh', array(&$this, 'on_save_changes'));
-        // register a callback to allow admin removal of warnings
-        add_action('wp_ajax_closed_tpwarn', array(&$this, 'on_closed_tpwarn'));
+        // register ajax callbacks
+        add_action('wp_ajax_tp_close_warning', array(&$this, 'on_ajax_tp_close_warning'));
+        add_action('wp_ajax_tp_backup', array(&$this, 'on_ajax_tp_backup'));
+        add_action('wp_ajax_tp_restore', array(&$this, 'on_ajax_tp_restore'));
+        add_action('wp_ajax_tp_maint', array(&$this, 'on_ajax_tp_maint'));
+        add_action('wp_ajax_tp_cleanup', array(&$this, 'on_ajax_tp_cleanup'));
+        add_action('wp_ajax_tp_translate_all', array(&$this, 'on_ajax_tp_translate_all'));
+        add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
     }
 
     /**
@@ -170,29 +176,22 @@ class transposh_plugin_admin {
 
         //TODO - make up my mind on using .css flags here (currently no)
         //if ($this->transposh->options->get_widget_css_flags())
-//            wp_enqueue_style("transposh_flags",$this->transposh->transposh_plugin_url."/widgets/flags/tpw_flags.css",array(),TRANSPOSH_PLUGIN_VER);
+        //            wp_enqueue_style("transposh_flags",$this->transposh->transposh_plugin_url."/widgets/flags/tpw_flags.css",array(),TRANSPOSH_PLUGIN_VER);
         wp_enqueue_script('jquery-ui-droppable');
-        wp_enqueue_script('transposh_control', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhcontrol.js', array(), TRANSPOSH_PLUGIN_VER, true);
-        wp_localize_script('transposh_control', 't_jp', array(
-            'post_url' => $this->transposh->post_url,
-            'preferred' => $this->transposh->options->get_preferred_translator(),
-            'l10n_print_after' => 't_jp.g_langs = ' . json_encode(transposh_consts::$google_languages) . '; t_jp.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';'/*
-                  /* ,
-                  'plugin_url' => $this->transposh_plugin_url,
-                  'edit' => ($this->edit_mode? '1' : ''),
-                  //'rtl' => (in_array ($this->target_language, $GLOBALS['rtl_languages'])? 'true' : ''),
-                  'lang' => $this->target_language,
-                  // those two options show if the script can support said engines
-                  'prefix' => SPAN_PREFIX,
-                  'preferred'=> $this->options->get_preferred_translator(),
-                  'progress'=>$this->edit_mode || $this->options->get_widget_progressbar() ? '1' : '') */
-//   	,'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
-                // need to do this because the way wordpress encodes stuff
-        ));
-        wp_enqueue_script('google', "http://www.google.com/jsapi", array(), '1', true);
-        wp_enqueue_script('transposh_admin', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhadmin.js', array(), TRANSPOSH_PLUGIN_VER, true);
-        wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/ui-lightness/jquery-ui.css', array(), '1.8.2');
-        wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js', array('jquery'), '1.8.2', true);
+        wp_enqueue_script('transposh_settings', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhsettings.js', array(), TRANSPOSH_PLUGIN_VER, true);
+        // MAKESURE 3.3+ css
+        // wp_enqueue_script('jquery-ui-progressbar');
+
+        wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
+        wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
+        wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array(), TRANSPOSH_PLUGIN_VER, true);
+        $script_params = array(
+            'l10n_print_after' =>
+            't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
+            't_be.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';' .
+            't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
+        );
+        wp_localize_script("transposh_backend", "t_be", $script_params);
 
         //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
         add_meta_box('transposh-sidebox-about', __('About this plugin', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_about_content'), $this->pagehook, 'side', 'core');
@@ -321,7 +320,8 @@ class transposh_plugin_admin {
     function on_sidebox_translate_content($data) {
         echo '<div id="progress_bar_all"></div><div id="tr_translate_title"></div>';
         echo '<div id="tr_loading" style="margin: 0 0 10px 0">' . __('Translate by clicking the button below', TRANSPOSH_TEXT_DOMAIN) . '</div>';
-        echo '<a id="transposh-translate" href="' . $this->transposh->post_url . '?translate_all&offset=1" onclick="return false;" class="button">' . __('Translate All Now', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
+        echo '<div id="tr_allmsg" style="margin: 0 0 10px 0"></div>';
+        echo '<a id="transposh-translate" href="#" onclick="return false;" class="button">' . __('Translate All Now', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         //get_posts
     }
 
@@ -502,13 +502,13 @@ class transposh_plugin_admin {
          * Allow users to insert their own API keys
          */
         echo '<h4>' . __('MSN API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
-        echo __('API Key', TRANSPOSH_TEXT_DOMAIN).': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_msn_key() . '" id="'.MSN_TRANSLATE_KEY.'" name="'.MSN_TRANSLATE_KEY.'"/>';
+        echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_msn_key() . '" id="' . MSN_TRANSLATE_KEY . '" name="' . MSN_TRANSLATE_KEY . '"/>';
 
-          /**
+        /**
          * Allow users to insert their own API keys
          */
         echo '<h4>' . __('Google API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
-        echo __('API Key', TRANSPOSH_TEXT_DOMAIN).': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_google_key() . '" id="'.GOOGLE_TRANSLATE_KEY.'" name="'.GOOGLE_TRANSLATE_KEY.'"/>';
+        echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_google_key() . '" id="' . GOOGLE_TRANSLATE_KEY . '" name="' . GOOGLE_TRANSLATE_KEY . '"/>';
 
         /*
          * Choose default translator... TODO (explain better in wiki)
@@ -592,10 +592,53 @@ class transposh_plugin_admin {
         }
     }
 
-    function on_closed_tpwarn() {
+    // ajax stuff!
+    function on_ajax_tp_close_warning() {
         $this->transposh->options->set_transposh_admin_hide_warning($_POST['id']);
         $this->transposh->options->update_options();
         die(); // this is required to return a proper result
+    }
+
+    function on_ajax_tp_backup() {
+        $this->transposh->run_backup();
+        die();
+    }
+
+    // Start restore on demand
+    function on_ajax_tp_restore() {
+        $this->transposh->run_restore();
+        die();
+    }
+
+    // Start cleanup on demand
+    function on_ajax_tp_cleanup() {
+        $this->transposh->database->cleanup($_POST['days']);
+        die();
+    }
+
+    // Start maint
+    function on_ajax_tp_maint() {
+        $this->transposh->database->db_maint();
+        die();
+    }
+
+    // Start full translation
+    function on_ajax_tp_translate_all() {
+        // get all ids in need of translation
+        global $wpdb;
+        $page_ids = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE (post_type='page' OR post_type='post') AND (post_status='publish' OR post_status='private') ORDER BY ID DESC");
+        // only high capabilities users can...
+        // add a fake post to translate things such as tags
+        if (!current_user_can('edit_post', $page_ids[0])) return;
+        $page_ids[] = "-555";
+        echo json_encode($page_ids);
+        die();
+    }
+
+    // getting phrases of a post (if we are in admin)
+    function on_ajax_tp_post_phrases() {
+        $this->transposh->postpublish->get_post_phrases($_GET['post']);
+        die();
     }
 
 }

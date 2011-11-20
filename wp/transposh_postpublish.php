@@ -22,6 +22,7 @@ class transposh_postpublish {
 
     /** @var transposh_plugin Container class */
     private $transposh;
+
     /** @var boolean Did we just edited/saved? */
     private $just_published = false;
 
@@ -52,16 +53,22 @@ class transposh_postpublish {
         add_meta_box('transposh_setlanguage', __('Set page language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), 'page', 'advanced', 'core');
         if (!isset($_GET['post'])) return;
         if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
-            $this->just_published = true; // this is later used in the meta boxes
-            wp_enqueue_script("transposhadmin", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhadmin.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
-            wp_localize_script("transposhadmin", "t_jp", array(
-                'post_url' => $this->transposh->post_url,
+            $this->just_published = true; // this is later used in the meta boxes //XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            wp_enqueue_script("transposh_backend", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
+            $script_params = array(
                 'post' => $_GET['post'],
-                'preferred' => $this->transposh->options->get_preferred_translator(),
-                'l10n_print_after' => 't_jp.g_langs = ' . json_encode(transposh_consts::$google_languages) . '; t_jp.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';'
-            ));
-            wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/ui-lightness/jquery-ui.css', array(), '1.8.14');
-            wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js', array('jquery'), '1.8.14', true);
+                'l10n_print_after' =>
+                't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
+                't_be.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';' .
+                't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
+            );
+            wp_localize_script("transposh_backend", "t_be", $script_params);
+            // MAKESURE 3.3
+//        wp_enqueue_script('jquery-ui-progressbar');
+
+            wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
+            wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
+
             delete_post_meta($_GET['post'], 'transposh_can_translate'); // as we have used the meta - it can go now, another option would have been to put this in the getphrases
         }
     }
@@ -85,7 +92,6 @@ class transposh_postpublish {
      */
     function get_post_phrases($postID) {
         // Some security, to avoid others from seeing private posts
-        if (!current_user_can('edit_post', $postID)) return;
         // fake post for tags
         if ($postID == -555) {
             $phrases = $this->get_tags();
@@ -93,6 +99,8 @@ class transposh_postpublish {
         }
         // a normal post
         else {
+            if (!current_user_can('edit_post', $postID)) return;
+            global $post; // thid is needed because some of the functions below expect it...
             $post = get_post($postID);
             // Display filters
             $title = apply_filters('the_title', $post->post_title);
@@ -126,13 +134,20 @@ class transposh_postpublish {
                 }
             }
         }
+        // We provide the post title here
+        $json['posttitle'] = $title;
+        // and all languages we might want to target
+        $json['langs'] = array();
+
         foreach ($phrases as $key) {
             foreach (explode(',', $this->transposh->options->get_editable_langs()) as $lang) {
                 // if this isn't the default language or we specifically allow default language translation, we will seek this out...
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->get_enable_default_translate()) {
                     // There is no point in returning phrases, languages pairs that cannot be translated
-                    if (in_array($lang, transposh_consts::$bing_languages) || in_array($lang, transposh_consts::$google_languages)) {
+                    if (in_array($lang, transposh_consts::$bing_languages) ||
+                            in_array($lang, transposh_consts::$google_languages) ||
+                            in_array($lang, transposh_consts::$apertium_languages)) {
                         list($source, $translation) = $this->transposh->database->fetch_translation($key, $lang);
                         if (!$translation) {
                             // p stands for phrases, l stands for languages, t is token
@@ -140,6 +155,9 @@ class transposh_postpublish {
                                 $json['p'][$key]['l'] = array();
                             }
                             array_push($json['p'][$key]['l'], $lang);
+                            if (!in_array($lang, $json['langs'])) {
+                                array_push($json['langs'], $lang);
+                            }
                         }
                     }
                 }
@@ -151,9 +169,6 @@ class transposh_postpublish {
             }
         }
 
-        // add the title
-        //        if ($json['length'])
-        $json['posttitle'] = $title;
 
         // the header helps with debugging
         header("Content-type: text/javascript");

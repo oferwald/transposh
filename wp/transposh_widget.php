@@ -222,7 +222,7 @@ class transposh_plugin_widget {
             // this is the set default language line
             if ($this->transposh->options->get_widget_allow_set_default_language()) {
                 If ((isset($_COOKIE['TR_LNG']) && $_COOKIE['TR_LNG'] != $this->transposh->target_language) || (!isset($_COOKIE['TR_LNG']) && !$this->transposh->options->is_default_language($this->transposh->target_language))) {
-                    echo '<a id="' . SPAN_PREFIX . 'setdeflang" onClick="return false;" href="' . $this->transposh->post_url . '?tr_cookie_bck">' . __('Set as default language', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
+                    echo '<a id="' . SPAN_PREFIX . 'setdeflang" onClick="return false;" href="' . admin_url('admin-ajax.php') . '?action=tp_cookie_bck">' . __('Set as default language', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
                 }
             }
             // add the edit checkbox only for translators for languages marked as editable

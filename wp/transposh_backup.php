@@ -46,7 +46,7 @@ class transposh_backup {
             echo '500 - ' . $result->get_error_message();
             return;
         }
-        if ($result['headers']['fail']) {
+        if (isset($result['headers']['fail'])) {
             echo '500 - ' . $result['headers']['fail'];
             return;
         }
@@ -56,7 +56,7 @@ class transposh_backup {
             //echo $this->transposh->options->get_transposh_key();
             $this->transposh->options->update_options();
         }
-        if ($result['headers']['lastitem']) {
+        if (isset($result['headers']['lastitem'])) {
             $rowstosend = $this->transposh->database->get_all_human_translation_history($result['headers']['lastitem'], 500);
             while ($rowstosend) {
                 $item = 0;
@@ -81,7 +81,7 @@ class transposh_backup {
                     echo "500 - " . $result->get_error_message();
                     return;
                 }
-                if ($result['headers']['fail']) {
+                if (isset($result['headers']['fail'])) {
                     echo "500 - " . $result['headers']['fail'];
                     return;
                 }
