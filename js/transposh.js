@@ -1,4 +1,4 @@
-/*  Copyright © 2009-2010 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2011 Transposh Team (website : http://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -15,11 +15,11 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window */
+/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window, _mstConfig */
 (function ($) { // closure
     var
     // this is the size of strings to queue, we don't want too much there
-    BATCH_SIZE = 128,
+    BATCH_SIZE = 512,
     // number of phrases that might be translated
     possibly_translateable,
     // ids of progress bars
@@ -29,14 +29,10 @@
     // source - 0 is human, 1 is google translate, 2 is msn translate, 3 is apertium - higher reserved for future engines
     source = 1,
     //Ajax translation
-    done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
+    done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
+    loadingmsn = 0
     ;
 
-    // transposh app_id for msn translate, now global
-    t_jp.MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6';
-    if (t_jp.msn_key) {
-        t_jp.MSN_APPID = t_jp.msn_key;
-    }
     // set base uri for jQueryUI
     t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/';
 
@@ -90,7 +86,7 @@
             var data = {
                 ln0: t_jp.lang, // implicit
                 sr0: source, // implicit auto translate... 1 if google, 2 if msn
-                translation_posted: "2",
+                action: 'tp_translation',
                 items: tokens.length // we can do this here because all tokens will be different
             }, i;
             for (i = 0; i < tokens.length; i += 1) {
@@ -103,7 +99,7 @@
             }
             $.ajax({
                 type: "POST",
-                url: t_jp.post_url,
+                url: t_jp.ajaxurl,
                 data: data,
                 success: function () {
                     // Success now only updates the save progress bar (green)
@@ -119,9 +115,8 @@
 
 
     // function that creates the progress bar html
-    // TODO: change the id
     function create_progress_bar() {
-        // progress bar is for alteast 5 items
+        // progress bar is for at least 5 items
         $("#" + t_jp_prefix + "credit").css({
             'overflow': 'auto'
         }).append('<div style="float: left;width: 90%;height: 10px" id="' + progressbar_id + '"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="' + progressbar_posted_id + '"/>');
@@ -144,88 +139,120 @@
         make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
     }
 
-    function do_mass_google_translate(batchtrans, usedefault, callback) {
-        var q = '',ol = '';
-        $(batchtrans).each(function (i) {
-            q += '&q=' + encodeURIComponent(batchtrans[i]);
-        });
-        if (usedefault) ol = t_jp.olang;
+    // mass google translation - using proxy
+    function do_mass_google_translate(batchtrans, callback, lang) {
+        /*var sl = '';
+        if (usedefault) {
+            sl = t_jp.olang;
+        }*/
         $.ajax({
-            url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-            '?v=1.0' + q + '&langpair=' + ol + '%7C' + t_jp.lang,
-            dataType: "jsonp",
-            // can use (and test)
-            // data: {v: '1.0', langpair: ol+'|'+t_jp.lang,q: batchtrans}
-            // traditional: true
+            url: t_jp.ajaxurl,
+            dataType: "json",
+            data: {
+                action: 'tp_gp',
+                tl: lang,
+                // sl: sl,
+                q: batchtrans
+            },
             success: callback
         });
     }
+    t_jp.dgpt = do_mass_google_translate;
 
-    function do_mass_google_invoker(tokens, trans, usedefault) {
-        do_mass_google_translate(trans, usedefault, function (result) {
-            // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
-            if (result.responseStatus >= 200 && result.responseStatus < 300) {
-                // single items get handled differently
-                if (result.responseData.translatedText !== undefined) {
-                    auto_translate_success(tokens[0], result.responseData.translatedText);
-                } else {
-                    $(result.responseData).each(function (i) {
-                        if (this.responseStatus === 200) {
-                            auto_translate_success(tokens[i], this.responseData.translatedText);
-                        }
-                    });
-                }
-            // we will rerun with a source language if we failed (only once)
-            } else if (result.responseStatus >= 400 && !usedefault) {
-                do_mass_google_invoker(tokens, trans, true);
+    function do_mass_google_invoker(tokens, trans) {
+        do_mass_google_translate(trans, function (result) {
+            $(result.results).each(function (i) {
+                auto_translate_success(tokens[i], this);
+            });
+        }, t_jp.lang);
+    }
+
+    // mass google translation using an api key
+    function do_mass_google_api_translate(batchtrans, callback, lang) {
+        $.ajax({
+            url: 'https://www.googleapis.com/language/translate/v2',
+            dataType: "jsonp",
+            data: {
+                key: t_jp.google_key,
+                q: batchtrans,
+                target: lang,
+                source: t_jp.olang
+            },
+            traditional: true,
+            success: callback
+        });
+    }
+    t_jp.dgt = do_mass_google_api_translate;
+       
+    function do_mass_google_api_invoker(tokens, trans) {
+        do_mass_google_api_translate(trans, function (result) {
+            // if there was an error we will try the other invoker
+            if (typeof result.error !== 'undefined') {
+                do_mass_google_invoker(tokens, trans);
+            } else {
+                $(result.data.translations).each(function (i) {
+                    auto_translate_success(tokens[i], this.translatedText);
+                });
             }
-        });
+        }, t_jp.lang);
+    }
+    
+    // mass bing translation
+    function do_mass_ms_translate(batchtrans, callback, lang) {
+        if(t_jp.msn_key) {
+            var q = "[";
+            $(batchtrans).each(function (i) {
+                q += '"' + encodeURIComponent(batchtrans[i]) + '",';
+            });
+            q = q.slice(0, -1) + ']';
+            $.ajax({
+                url: 'http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.msn_key + '&to=' + lang + '&texts=' + q,
+                dataType: "jsonp",
+                jsonp: "oncomplete",
+                success: callback
+            });
+        } else {
+            if (loadingmsn === 1) {
+                setTimeout(function() {
+                    do_mass_ms_translate(batchtrans, callback, lang);
+                }, 500);
+            } else {
+                loadingmsn = 1;
+                $.getScript('http://www.microsofttranslator.com/ajax/v2/toolkit.ashx?loc=en&toolbar=none', function() {
+                    t_jp.msn_key = _mstConfig.appId;
+                    do_mass_ms_translate(batchtrans, callback, lang);
+                });
+            }       
+        }            
     }
 
-    function do_mass_ms_translate(batchtrans, callback) {
-        var q = "[";
-        $(batchtrans).each(function (i) {
-            q += '"' + encodeURIComponent(batchtrans[i]) + '",';
-        });
-        q = q.slice(0, -1) + ']';
-        $.ajax({
-            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + '&texts=' + q,
-            dataType: "jsonp",
-            jsonp: "oncomplete",
-            success: callback
-        });
-    }
-
+    t_jp.dmt = do_mass_ms_translate;
+    
     function do_mass_ms_invoker(tokens, trans) {
         source = 2;
         do_mass_ms_translate(trans, function (result) {
             $(result).each(function (i) {
                 auto_translate_success(tokens[i], this.TranslatedText);
             });
-        });
-    }
-
-    function do_tgp_invoke (token, trans) {
-        $.getJSON(t_jp.post_url+'?tgp='+trans+'&tgl='+t_jp.lang, function(result) {
-            if (result.sentences !== undefined && result.sentences[0].trans) {
-                auto_translate_success(token, result.sentences[0].trans);
-            }
-        });
+        }, t_jp.binglang);
     }
 
     // mass apertium translation
-    function do_mass_apertium_translate(batchtrans, callback) {
-        var q = '';
-        $(batchtrans).each(function (i) {
-            q += '&q=' + encodeURIComponent(batchtrans[i]);
-        });
+    function do_mass_apertium_translate(batchtrans, callback, lang) {
         $.ajax({
-            url: 'http://api.apertium.org/json/translate' +
-            '?' + q + '&langpair=' + t_jp.olang + '%7C' + t_jp.lang + '&markUnknown=no',
+            url: 'http://api.apertium.org/json/translate',
+            data: {
+                q: batchtrans,
+                langpair: t_jp.olang + '|' + lang,
+                markUnknown: 'no'
+            },
             dataType: "jsonp",
+            traditional: true,
             success: callback
         });
     }
+
+    t_jp.dat = do_mass_apertium_translate;
 
     function do_mass_apertium_invoker(tokens, trans) {
         source = 3;
@@ -243,7 +270,16 @@
                     });
                 }
             }
-        });
+        }, t_jp.lang);
+    }
+
+    // helper function for lazy running
+    function lazyrun(func) {
+        if (typeof $.xLazyLoader === 'function') {
+            func();
+        } else {
+            $.getScript(t_jp.plugin_url + '/js/lazy.js', func);
+        }        
     }
 
     // invokes the correct mass translatot based on the prefered one...
@@ -252,12 +288,10 @@
             do_mass_ms_invoker(batchtokens, batchtrans);
         } else if (t_jp.apertium && (t_jp.olang === 'en' || t_jp.olang === 'es')) {
             do_mass_apertium_invoker(batchtokens, batchtrans);
-        } else if (t_jp.tgp) {
-            if (batchtrans[0]) {
-                do_tgp_invoke(batchtokens[0], batchtrans[0]);
-            }
+        } else if (t_jp.google_key) {
+            do_mass_google_api_invoker(batchtokens, batchtrans);
         } else {
-            do_mass_google_invoker(batchtokens, batchtrans, false);
+            do_mass_google_invoker(batchtokens, batchtrans);
         }
     }
 
@@ -266,11 +300,7 @@
         // auto_translated_previously...
         var auto_translated_phrases = [], batchlength = 0, batchtrans = [], batchtokens = [];
 
-        if (t_jp.tgp) {
-            BATCH_SIZE = 0;
-        } // Transposh Google Proxy can't batch..
-
-        $("." + t_jp_prefix + '[data-source=""]').each(function (i) {
+        $("." + t_jp_prefix + '[data-source=""]').each(function () {
             var token = $(this).attr('data-token'),
             // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
             to_trans = $(this).attr('data-orig');
@@ -293,7 +323,7 @@
         // this invokation is for the remaining items
         do_mass_invoke(batchtokens, batchtrans);
     }
-
+    
     $(document).ready(
         function () {
             // set a global binglang (if needed)
@@ -309,7 +339,13 @@
             // this is the set_default_language function
             // attach a function to the set_default_language link if its there
             $('#' + t_jp_prefix + 'setdeflang').click(function () {
-                $.get(t_jp.post_url + "?tr_cookie=" + Math.random());
+                $.ajax({
+                    url: t_jp.ajaxurl,
+                    data: {
+                        action: 'tp_cookie'
+                    },
+                    cache: false
+                } );              
                 $(this).hide("slow");
                 return false;
             });
@@ -325,7 +361,7 @@
             // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
             // we'll translate if there's any candidate...?
             if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-            (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium || t_jp.tgp)) {
+            (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 if (t_jp.progress) {
                     var loaduiandtranslate = function () {
@@ -338,11 +374,7 @@
                             }
                         });
                     };
-                    if (typeof $.xLazyLoader === 'function') {
-                        loaduiandtranslate();
-                    } else {
-                        $.getScript(t_jp.plugin_url + '/js/lazy.js', loaduiandtranslate);
-                    }
+                    lazyrun(loaduiandtranslate);
                 } else {
                     do_auto_translate();
                 }

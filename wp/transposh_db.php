@@ -68,7 +68,7 @@ class transposh_database {
           // }
           //@$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) or $this->memcache_working = false;
           } */
-        logger($this->memcache_working);
+        logger($this->memcache_working); // TODO!! make sure it does something
     }
 
     /**
@@ -603,6 +603,8 @@ class transposh_database {
      * @return array List of rows
      */
     function get_all_human_translation_history($date ="null", $limit = "") {
+        $limitterm = '';
+        $dateterm = '';
         if ($date != "null")
                 $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
         if ($limit) $limitterm = "LIMIT $limit";

@@ -141,65 +141,57 @@
     function ajax_translate_human(token, translation) {
         // push translations
         // This is a change - as we fix the pages before we got actual confirmation (worked well for auto-translation)
-        fix_page_human(token, translation, 0);
-        var data = {
-            ln0: t_jp.lang,
-            sr0: 0, // implicit human
-            translation_posted: "2",
-            items: 1,
-            tk0: token,
-            tr0: translation
-        };
-
+        fix_page_human(token, translation, 0);       
         $.ajax({
             type: "POST",
-            url: t_jp.post_url,
-            data: data,
-            // In the past we used this to make progress bar status, not really needed, but keeping for future reference
-            // success: function () {},
+            url: t_jp.ajaxurl, // FIX!
+            data: {
+                action: 'tp_translation',
+                ln0: t_jp.lang,
+                sr0: 0, // implicit human
+                items: 1,
+                tk0: token,
+                tr0: translation
+            },
             // TODO: This probably needs a revision!
             error: function (req) {
-                alert("Error !!! failed to translate.\n\nServer's message: " + req.statusText);
+                alert("Problem saving translation, contact support.\n\nServer's message: " + req.statusText);
             }
-        });
-    }
-
-    // perform google translate of single phrase via jsonp
-    function google_trans(to_trans, callback) {
-        $.ajax({
-            url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-            '?v=1.0&q=' + encodeURIComponent(to_trans) + '&langpair=%7C' + t_jp.lang,
-            dataType: "jsonp",
-            success: callback
         });
     }
 
     // fetch translation from google translate...
     function getgt()
     {
-        google_trans($(idprefix + "original").val(), function (result) {
-            if (result.responseStatus === 200) {
-                $(idprefix + "translation").val($("<div>" + $.trim(result.responseData.translatedText) + "</div>").text())
+        if (!t_jp.google_key) {
+            $.ajax({
+                url: t_jp.ajaxurl,
+                dataType: "json",
+                data: {
+                    action: 'tp_gsp',
+                    tl: t_jp.lang,
+                    sl: $(idprefix + "original").data('srclang'),
+                    q: $(idprefix + "original").val()
+                },
+                success: function (result) {
+                    console.log(result);
+                    $(idprefix + "translation").val($("<div>" + $.trim(result.result) + "</div>").text())
+                    .keyup();
+                }
+            });
+        } else {
+            t_jp.dgt($(idprefix + "original").val(), function (result) {
+                $(idprefix + "translation").val($("<div>" + $.trim(result.data.translations[0].translatedText) + "</div>").text())
                 .keyup();
-            }
-        });
-    }
-
-    // perform ms translate of single phrase via jsonp
-    function ms_trans(to_trans, callback) {
-        $.ajax({
-            url: 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + "&text=" + encodeURIComponent(to_trans),
-            dataType: "jsonp",
-            jsonp: "oncomplete",
-            success: callback
-        });
+            });
+        }
     }
 
     // fetch translation from bing translate...
     function getbt()
     {
-        ms_trans($(idprefix + "original").val(), function (result) {
-            $(idprefix + "translation").val($("<div>" + $.trim(result) + "</div>").text())
+        t_jp.dmt([$(idprefix + "original").val()], function (result) {
+            $(idprefix + "translation").val($("<div>" + $.trim(result[0].TranslatedText) + "</div>").text())
             .keyup();
         });
     }
@@ -311,9 +303,10 @@
             fix_dialog_header_rtl(dialog);
         }        
         $.ajax({
-            url: t_jp.post_url,
+            url: t_jp.ajaxurl, 
             data: {
-                tr_token_hist: $(idprefix + segment_id).attr('data-token'),
+                action: 'tp_history',
+                token: $(idprefix + segment_id).attr('data-token'),
                 lang: t_jp.lang
             },
             dataType: "json",
@@ -374,11 +367,11 @@
                 }).click(function() {
                     var row = $(this).parents('tr');
                     $.ajax({
-                        url: t_jp.post_url,
+                        url: t_jp.ajaxurl,
                         data: {
-                            tr_token_hist: $(idprefix + segment_id).attr('data-token'),
+                            action: 'tp_history',
+                            token: $(idprefix + segment_id).attr('data-token'),
                             timestamp: $(this).parents('tr').children(":last").text(),
-                            action: 'delete',
                             lang: t_jp.lang
                         },
                         dataType: "json",
@@ -509,9 +502,10 @@
                     js: [t_jp.plugin_url + '/js/jquery.ui.menu.js'],
                     success: function () {
                         $.ajax({
-                            url: t_jp.post_url,
+                            url: t_jp.ajaxurl,
                             data: {
-                                tr_token_alt: $(idprefix + segment_id).attr('data-token')
+                                action: 'tp_trans_alts',
+                                token: $(idprefix + segment_id).attr('data-token')
                             },
                             dataType: "json",
                             cache: false,
@@ -729,12 +723,6 @@
         // rtl fix for buttonsets, dialog
         if ($("html").attr("dir") === 'rtl') {
             fix_dialog_header_rtl(dialog);
-            var uicorner = 'ui-corner-';
-            // to remove with jqueryui-1.8.14
-//            $(idprefix + 'utlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
-//            $(idprefix + 'utlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
-//            $(idprefix + 'ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
-//            $(idprefix + 'ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
         }
 
         // we don't need no focus, we don't need element control

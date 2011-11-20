@@ -129,7 +129,10 @@ jQuery(function() {
         jQuery("#transposh-backup").unbind('click').click(function(){
             return false
         }).text("Backup In Progress");
-        jQuery.get(t_jp.post_url + "?backup",function(data) {
+        jQuery.post(ajaxurl, {
+            action: 'tp_backup'
+        },
+        function(data) {
             var color = 'red';
             if (data[0] == '2') color = 'green';
             jQuery('#backup_result').html(data).css('color',color);
@@ -149,7 +152,11 @@ jQuery(function() {
         button.unbind('click').click(function(){
             return false
         }).text("Cleanup in progress");
-        jQuery.get(t_jp.post_url + "?nonce="+button.attr('nonce')+"&days="+days+"&cleanup",function(data) {
+        jQuery.post(ajaxurl, {
+            action: 'tp_cleanup',
+            days: days
+        },
+        function(data) {
             button.unbind('click').click(function() {
                 cleanautoclick(days,button);
                 return false;
@@ -173,7 +180,10 @@ jQuery(function() {
         button.unbind('click').click(function(){
             return false
         }).text("Maintenance in progress");
-        jQuery.get(t_jp.post_url + "?nonce="+button.attr('nonce')+"&maint",function(data) {
+        jQuery.post(ajaxurl, {
+            action: 'tp_maint'
+        },
+        function(data) {
             button.unbind('click').click(function() {
                 maintclick(button);
                 return false;
@@ -200,36 +210,46 @@ jQuery(function() {
         jQuery.ajaxSetup({
             cache: false
         });
-        jQuery.getJSON(t_jp.post_url,{
-            translate_all:"y"
-        }, function (data) {
-            dotimer = function(a) {
-                clearTimeout(timer2);
-                //console.log(a);
-                //console.log(jQuery("#tr_loading").data("done"));
-                if (jQuery("#tr_loading").data("done") || jQuery("#tr_loading").data("attempt")>4) {
-                    jQuery("#progress_bar_all").progressbar('value' , (a+1)/data.length*100);
-                    jQuery("#tr_loading").data("attempt",0);
-                    translate_post(data[a]);
+        jQuery.ajax({
+            url: ajaxurl,
+            dataType: 'json',
+            data: {
+                action: "tp_translate_all"
+            },
+            cache: false,
+            success: function (data) {
+                dotimer = function(a) {
+                    jQuery("#tr_allmsg").text('');
+                    clearTimeout(timer2);
+                    //console.log(a);
                     //console.log(jQuery("#tr_loading").data("done"));
-                    //console.log("done translate" + a);
-                    if (data[a] && !stop_translate_var) {
-                        //console.log("trigger translation of " +a);
+                    if (jQuery("#tr_loading").data("done") || jQuery("#tr_loading").data("attempt")>4) {
+                        jQuery("#progress_bar_all").progressbar('value' , (a+1)/data.length*100);
+                        jQuery("#tr_loading").data("attempt",0);
+                        translate_post(data[a]);
+                        //console.log(jQuery("#tr_loading").data("done"));
+                        //console.log("done translate" + a);
+                        // we call the next translation here...
+                        if (typeof data[a+1] !== 'undefined' && !stop_translate_var) {
+                            //console.log("trigger translation of " +a);
+                            timer2 = setTimeout(function() {
+                                dotimer(a+1)
+                            },5000);
+                            jQuery("#tr_allmsg").text('Waiting 5 seconds...');
+                        }
+                    } else {
+                        //console.log("waiting for translation to finish 60 seconds");
+                        jQuery("#tr_loading").data("attempt",jQuery("#tr_loading").data("attempt")+1);
                         timer2 = setTimeout(function() {
-                            dotimer(a+1)
-                        },1000);
+                            dotimer(a)
+                        },15000);
+                        jQuery("#tr_allmsg").text('Translation incomplete - Waiting 15 seconds - attempt ' + jQuery("#tr_loading").data("attempt") + '/5');
                     }
-                } else {
-                    //console.log("waiting for translation to finish 60 seconds");
-                    jQuery("#tr_loading").data("attempt",jQuery("#tr_loading").data("attempt")+1);
-                    timer2 = setTimeout(function() {
-                        dotimer(a)
-                    },60000);
                 }
+                timer2 = setTimeout(function() {
+                    dotimer(0)
+                },0);
             }
-            timer2 = setTimeout(function() {
-                dotimer(0)
-            },0);
         });
         jQuery("#transposh-translate").text("Stop translate")
         jQuery("#transposh-translate").unbind('click').click(stop_translate);
@@ -249,9 +269,9 @@ jQuery(function() {
     jQuery(".warning-close").click(function() {
         jQuery(this).parent().hide();
         jQuery.post(ajaxurl, {
-            action: 'closed_tpwarn',
+            action: 'tp_close_warning',
             id: jQuery(this).parent().attr('id')
-         });
+        });
     })
 
 });

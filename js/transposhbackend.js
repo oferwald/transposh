@@ -15,7 +15,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window */
+/*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_be, window */
 
 var timer;
 var items = 0;
@@ -23,10 +23,9 @@ var translations = [];
 var tokens = [];
 var langs = [];
 var sources = [];
-var BATCH_SIZE = 128;
+var BATCH_SIZE = 512;
 var pair_count = 0;
 var curr_pair = 0;
-t_jp.MSN_APPID = 'FACA8E2DF8DCCECE0DC311C6E57DA98EFEFA9BC6';
 
 // move the progress bar a bit
 function make_progress(translation, lang) {
@@ -53,7 +52,7 @@ function ajax_translate_me(token, translation, lang, source) {
     sources.push(source);
     timer = setTimeout(function () {
         var data = {
-            translation_posted: "2",
+            action: 'tp_translation',
             items: items
         }, i;
         // this is the "smart" stuff, only coding changed info
@@ -73,7 +72,7 @@ function ajax_translate_me(token, translation, lang, source) {
         }
         jQuery.ajax({
             type: "POST",
-            url: t_jp.post_url,
+            url: t_jp.ajaxurl, // FIX ALL!
             data: data,
             success: function () {
             },
@@ -90,7 +89,7 @@ function ajax_translate_me(token, translation, lang, source) {
 }
 
 // this is the mass translate for MS
-function do_mass_ms_translate(batchtrans, callback) {
+/*function do_mass_ms_translate(batchtrans, callback) {
     var q = "[";
     jQuery(batchtrans).each(function (i) {
         q += '"' + encodeURIComponent(batchtrans[i]) + '",';
@@ -102,56 +101,73 @@ function do_mass_ms_translate(batchtrans, callback) {
         jsonp: "oncomplete",
         success: callback
     });
-}
+}*/
 
 // and the invoker
 function do_mass_ms_invoker(tokens, trans, lang) {
-    t_jp.binglang = lang;
+    var binglang = lang;
     // fix this in ms mass...
-    if (t_jp.binglang === 'zh') {
-        t_jp.binglang = 'zh-chs';
-    } else if (t_jp.binglang === 'zh-tw') {
-        t_jp.binglang = 'zh-cht';
+    if (binglang === 'zh') {
+        binglang = 'zh-chs';
+    } else if (binglang === 'zh-tw') {
+        binglang = 'zh-cht';
     }
-    do_mass_ms_translate(trans, function (result) {
+    t_jp.dmt(trans, function (result) {
         jQuery(result).each(function (i) {
             ajax_translate_me(tokens[i], this.TranslatedText, lang, 2); // notice the source
         });
-    });
+    }, binglang);
 }
 
-// this is a mass translate of one string to many langs
-function do_mass_google_translate_l(tran, langs,  callback) {
-    var langpairs = '', key;
-    //$(langs).each(function (i) {
-    for (key in langs) {
-        langpairs += '&langpair=%7C' + langs[key];
-    }
-
-    jQuery.ajax({
-        url: 'http://ajax.googleapis.com/ajax/services/language/translate' +
-        '?v=1.0&q=' + encodeURIComponent(tran) + langpairs,
-        dataType: "jsonp",
-        success: callback
-    });
-}
-
-// the invoker
-function do_mass_google_invoker_l(token, to_tran, langs) {
-    do_mass_google_translate_l(to_tran, langs, function (result) {
-        if (result.responseStatus === 200) {
+function do_mass_apertium_invoker(tokens, trans, lang) {
+    t_jp.dat(trans, function (result) {
+        // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
+        if (result.responseStatus >= 200 && result.responseStatus < 300) {
             // single items get handled differently
             if (result.responseData.translatedText !== undefined) {
-                ajax_translate_me(token, result.responseData.translatedText, langs[0], 1); // notice the source...
+                ajax_translate_me(tokens[0], result.responseData.translatedText);
             } else {
                 jQuery(result.responseData).each(function (i) {
                     if (this.responseStatus === 200) {
-                        ajax_translate_me(token, this.responseData.translatedText, langs[i], 1);
+                        ajax_translate_me(tokens[i], this.responseData.translatedText, lang, 3);
                     }
                 });
             }
         }
-    });
+    }, lang);
+}
+
+function do_mass_google_invoker(tokens, trans, lang) {
+    t_jp.dgpt(trans, function (result) {
+        jQuery(result.results).each(function (i) {
+            ajax_translate_me(tokens[i], this, lang, 1);
+        });
+    }, lang);
+}
+
+function do_mass_google_api_invoker(tokens, trans, lang) {
+    t_jp.dgt(trans, function (result) {
+        // if there was an error we will try the other invoker
+        if (typeof result.error !== 'undefined') {
+            do_mass_google_invoker(tokens, trans, lang);
+        } else {
+            jQuery(result.data.translations).each(function (i) {
+                ajax_translate_me(tokens[i], this.translatedText, lang, 1);
+            });
+        }
+    }, lang);
+}
+
+function do_invoker(batchtokens, batchtrans, currlang) {
+    if (t_be.m_langs.indexOf(currlang) !== -1 && t_jp.preferred === '2') {
+        do_mass_ms_invoker(batchtokens, batchtrans, currlang);
+    } else if (t_be.a_langs.indexOf(currlang) !== -1 && (t_jp.olang === 'en' || t_jp.olang === 'es')) {
+        do_mass_apertium_invoker(batchtokens, batchtrans, currlang);
+    } else if (t_jp.google_key) {
+        do_mass_google_api_invoker(batchtokens, batchtrans, currlang);
+    } else {
+        do_mass_google_invoker(batchtokens, batchtrans, currlang);
+    }
 }
 
 // the main translate function
@@ -166,34 +182,40 @@ function translate_post(postid) {
     to_trans;
 
     jQuery("#tr_loading").data("done", false);
-    // get the post
-    jQuery.getJSON(t_jp.post_url + "?tr_phrases_post=y&post=" + postid + "&random=" + Math.random(), function (json) { // need to add random to avoid getting cached!
-        // if we got no results than seems like we have nothing to translate
-        jQuery("#tr_translate_title").html("Translating post: " + json.posttitle);
-        if (json.length === undefined) {
-            jQuery("#tr_loading").html('Nothing left to translate');
-            jQuery("#tr_loading").data("done", true);
-            return;
-        }
-        // calculate # of pairs
-        pair_count = 0;
-        curr_pair = 0;
-        for (name in json.p) {
-            pair_count += json.p[name].l.length;
-        }
+    // get the post // FIX
+    jQuery.ajax({
+        url: ajaxurl,
+        dataType: 'json',
+        data: {
+            action: "tp_post_phrases",
+            post: postid
+        },
+        cache: false,
+        success: function (json) {
+            // if we got no results than seems like we have nothing to translate
+            jQuery("#tr_translate_title").html("Translating post: " + json.posttitle);
+            if (json.length === undefined) {
+                jQuery("#tr_loading").html('Nothing left to translate');
+                jQuery("#tr_loading").data("done", true);
+                return;
+            }
+            // calculate # of pairs
+            pair_count = 0;
+            curr_pair = 0;
+            for (name in json.p) {
+                pair_count += json.p[name].l.length;
+            }
 
-        // create progress bars
-        jQuery("#tr_loading").html('<br/>Translation: <span id="p"></span><div id="progress_bar"/>');
-        jQuery("#progress_bar").progressbar({
-            value: 0
-        });
+            // create progress bars
+            jQuery("#tr_loading").html('<br/>Translation: <span id="p"></span><div id="progress_bar"/>');
+            jQuery("#progress_bar").progressbar({
+                value: 0
+            });
 
-        // per language passing...
-        // this things happens when msn translate is default
-        if (t_jp.preferred === '2') {
-            // traverse on langs of msn
-            for (lang in t_jp.m_langs) {
-                currlang = t_jp.m_langs[lang];
+            // per language passing...
+            // this things happens when msn translate is default
+            for (var lang in json.langs) {
+                currlang = json.langs[lang];
                 strings = [];
                 tokens = [];
                 for (name in json.p) {
@@ -211,12 +233,11 @@ function translate_post(postid) {
                         }
                     }
                 }
-                // we had some matches - now we batchify
                 if (strings.length) {
                     for (str in strings) {
                         to_trans = strings[str];
                         if (batchlength + to_trans.length > BATCH_SIZE) {
-                            do_mass_ms_invoker(batchtokens, batchtrans, currlang);
+                            do_invoker(batchtokens, batchtrans, currlang);
                             batchlength = 0;
                             batchtrans = [];
                             batchtokens = [];
@@ -227,25 +248,18 @@ function translate_post(postid) {
                     }
 
                     // this invokation is for the remaining items
-                    do_mass_ms_invoker(batchtokens, batchtrans, currlang);
+                    do_invoker(batchtokens, batchtrans, currlang);
                 }
             }
+            
         }
-
-        // in the google thingy we just batch by string, much simpler, maybe we should
-        // also batch if we have the same language for all (far future TODO)
-        for (name in json.p) {
-            val = json.p[name];
-            do_mass_google_invoker_l(val.t, unescape(name), val.l);
-        }
-    // FIX??  ajax_translate_me(val.t,jQuery("<div>"+result.translation+"</div>").text(),lang);
     });
 }
 // TODO - just expose this one, not the entire set of items
 
 // If we have a single post, we can just go through with it
 jQuery(document).ready(function () {
-    if (t_jp.post) {
-        translate_post(t_jp.post);
+    if (t_be.post) {
+        translate_post(t_be.post);
     }
 });

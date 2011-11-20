@@ -60,7 +60,7 @@ class transposh_consts {
         'hr' => 'Croatian,Hrvatski,hr,',
         'cs' => 'Czech,Čeština,cz,cs_CZ',
         'da' => 'Danish,Dansk,dk,da_DK',
-        'nl' => 'Dutch,Nederlands,nl,',
+        'nl' => 'Dutch,Nederlands,nl,nl_NL',
         'eo' => 'Esperanto,Esperanto,esperanto,',
         'et' => 'Estonian,Eesti keel,ee,',
         'fi' => 'Finnish,Suomi,fi,',
@@ -115,9 +115,11 @@ class transposh_consts {
     // Google supported languages
     // (got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
     // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
+    // @updated 2011-Nov-04
     // $google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
-    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
-    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu');
+    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu');
+//    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
+//    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu');
     // Bing supported languages
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2010-Jun-30
@@ -136,6 +138,8 @@ define('TRANSLATOR', 'translator');
 
 //Define for transposh plugin version
 define('TRANSPOSH_PLUGIN_VER', '%VERSION%');
+
+define('JQUERYUI_VER', '1.8.16');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define('SPAN_PREFIX', 'tr_');
