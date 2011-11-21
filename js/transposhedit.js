@@ -82,6 +82,7 @@
     },
     prefix = t_jp.prefix,
     idprefix = "#" + prefix,
+    localeloaded = false,
     previcon = 'prev',
     nexticon = 'next',
     right = 'right',
@@ -153,8 +154,8 @@
                 tk0: token,
                 tr0: translation
             },
-            // TODO: This probably needs a revision!
             error: function (req) {
+                fix_page_human(token, '', 1); // Will turn things back, almost
                 alert("Problem saving translation, contact support.\n\nServer's message: " + req.statusText);
             }
         });
@@ -183,7 +184,7 @@
             t_jp.dgt($(idprefix + "original").val(), function (result) {
                 $(idprefix + "translation").val($("<div>" + $.trim(result.data.translations[0].translatedText) + "</div>").text())
                 .keyup();
-            });
+            }, t_jp.lang);
         }
     }
 
@@ -193,25 +194,16 @@
         t_jp.dmt([$(idprefix + "original").val()], function (result) {
             $(idprefix + "translation").val($("<div>" + $.trim(result[0].TranslatedText) + "</div>").text())
             .keyup();
-        });
-    }
-
-    // perform apertium translate of single phrase via jsonp
-    function apertium_trans(to_trans, callback) {
-        $.ajax({
-            url: 'http://api.apertium.org/json/translate?q=' + encodeURIComponent(to_trans) + '&langpair=en%7C' + t_jp.lang, // || &key=YOURAPIKEY&markUnknown=yes
-            dataType: "jsonp",
-            success: callback
-        });
+        }, t_jp.binglang);
     }
 
     // fetch translation from apertium translate...
     function getat()
     {
-        apertium_trans($(idprefix + "original").val(), function (result) {
+        t_jp.dat($(idprefix + "original").val(), function (result) {
             $(idprefix + "translation").val($("<div>" + $.trim(result.responseData.translatedText) + "</div>").text())
             .keyup();
-        });
+        }, t_jp.lang);
     }
 
     // switch position of text and close button in ui-dialog for rtl
@@ -752,6 +744,17 @@
         var translated_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1), img;
         $(this).after('<span id="' + prefix + 'img_' + translated_id + '" class="tr-icon" title="' + $(this).attr('data-orig') + '"></span>');
         img = $(idprefix + 'img_' + translated_id);
+        // internal function used to load locale in two needed cases (where we load jQueryui and not...)
+        var loadlocaleandrundialog = function() {
+                if (t_jp.locale && !localeloaded) {
+                    $.getScript(t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js', function () {
+                        localeloaded = true;
+                        translate_dialog(translated_id);
+                    });
+                } else {
+                    translate_dialog(translated_id);
+                }
+        }
         img.click(function () {
             //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict !!!!!!!!!!!
             if (typeof $.fn.tabs !== 'function' || typeof $.fn.buttonset !== 'function' || typeof $.fn.dialog !== 'function') {
@@ -762,32 +765,11 @@
                     $.xLazyLoader({
                         js: t_jp.jQueryUI + 'jquery-ui.min.js',
                         css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
-                        success: function () {
-                            // Load locale - todo - better...
-                            if (t_jp.locale) {
-                                $.xLazyLoader({
-                                    js: [t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js'],
-                                    success: function () {
-                                        translate_dialog(translated_id);
-                                    }
-                                });
-                            } else {
-                                translate_dialog(translated_id);
-                            }
-                        }
+                        success: loadlocaleandrundialog
                     });
                 });
             } else {
-                if (t_jp.locale) {
-                    $.xLazyLoader({
-                        js: [t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js'],
-                        success: function () {
-                            translate_dialog(translated_id);
-                        }
-                    });
-                } else {
-                    translate_dialog(translated_id);
-                }
+                loadlocaleandrundialog();
             }
             return false;
         }).css({
