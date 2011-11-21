@@ -1205,9 +1205,9 @@ class transposh_plugin {
                 return;
         $sl = 'auto';
         if (isset($_GET['sl'])) $sl = $_GET['sl'];
-        $q = '&q=' . urlencode($_GET['q']);
-        $url = 'http://translate.google.com/translate_a/t?client=a' . $q . '&tl=' . $tl . '&sl=' . $sl;
-        //var_dump($url);
+        $q = @urlencode($_GET['q']);
+        if (!$q) return; // avoid unneeded curling
+        $url = 'http://translate.google.com/translate_a/t?client=a&q=' . $q . '&tl=' . $tl . '&sl=' . $sl;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1312,7 +1312,7 @@ class transposh_plugin {
                 if (isset($jsonarr->results[$k]->sentences[0]->trans)) {
                     $jsonout->results[] = $jsonarr->results[$k]->sentences[0]->trans;
                 } else {
-                    $jsonout->results[] = $_GET['q' . $j];
+                    $jsonout->results[] = $_GET['q'][$j];
                 }
                 $k++;
             }
