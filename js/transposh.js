@@ -273,15 +273,6 @@
         }, t_jp.lang);
     }
 
-    // helper function for lazy running
-    function lazyrun(func) {
-        if (typeof $.xLazyLoader === 'function') {
-            func();
-        } else {
-            $.getScript(t_jp.plugin_url + '/js/lazy.js', func);
-        }        
-    }
-
     // invokes the correct mass translatot based on the prefered one...
     function do_mass_invoke(batchtokens, batchtrans) {
         if (t_jp.msn && t_jp.preferred === '2') {
@@ -324,6 +315,34 @@
         do_mass_invoke(batchtokens, batchtrans);
     }
     
+    // helper function for lazy running
+    function test_for_lazyrun(callback) {
+        if (typeof $.xLazyLoader === 'function') {
+            callback();
+        } else {
+            $.getScript(t_jp.plugin_url + '/js/lazy.js', callback);
+        }        
+    }
+    
+    t_jp.tfl = test_for_lazyrun;
+    
+    function test_for_jqueryui(callback) {
+        if (test_for_jqueryui.hit /* might be needed? - && typeof $.fn.dialog !== 'function' */) {
+            callback();
+        } else {
+            test_for_jqueryui.hit = true;
+            test_for_lazyrun(function() {
+                $.xLazyLoader({
+                    js: t_jp.jQueryUI + 'jquery-ui.min.js',
+                    css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
+                    success: callback
+                });
+            });
+        }
+    }
+
+    t_jp.tfju = test_for_jqueryui;
+
     $(document).ready(
         function () {
             // set a global binglang (if needed)
@@ -364,17 +383,10 @@
             (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium)) {
                 // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
                 if (t_jp.progress) {
-                    var loaduiandtranslate = function () {
-                        $.xLazyLoader({
-                            js: t_jp.jQueryUI + 'jquery-ui.min.js',
-                            css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
-                            success: function () {
-                                create_progress_bar();
-                                do_auto_translate();
-                            }
-                        });
-                    };
-                    lazyrun(loaduiandtranslate);
+                    test_for_jqueryui(function () {
+                        create_progress_bar();
+                        do_auto_translate();
+                    });
                 } else {
                     do_auto_translate();
                 }

@@ -490,51 +490,53 @@
                 $(idprefix + "langmenu").toggle();
             } else {
                 // We will show languages that have a human translation on the server
-                $.xLazyLoader({
-                    js: [t_jp.plugin_url + '/js/jquery.ui.menu.js'],
-                    success: function () {
-                        $.ajax({
-                            url: t_jp.ajaxurl,
-                            data: {
-                                action: 'tp_trans_alts',
-                                token: $(idprefix + segment_id).attr('data-token')
-                            },
-                            dataType: "json",
-                            cache: false,
-                            success: function(data) {
-                                var itemlang
-                                if (!(itemlang = $(idprefix + segment_id).attr('data-srclang'))) {
-                                    itemlang = t_jp.olang;
-                                }
-                                var liflag = '<li data-translated="' + $(idprefix + segment_id).attr('data-orig') + '"><a href="#">' + l[itemlang] + '</a></li>'
-                                $(data).each(function(index, item) {
-                                    if (item.lang !== t_jp.lang) {
-                                        liflag = liflag + '<li data-translated="' + item.translated + '"><a href="#">' + l[item.lang] + '</a></li>'
+                t_jp.tfl(function() {
+                    $.xLazyLoader({
+                        js: [t_jp.plugin_url + '/js/jquery.ui.menu.js'],
+                        success: function () {
+                            $.ajax({
+                                url: t_jp.ajaxurl,
+                                data: {
+                                    action: 'tp_trans_alts',
+                                    token: $(idprefix + segment_id).attr('data-token')
+                                },
+                                dataType: "json",
+                                cache: false,
+                                success: function(data) {
+                                    var itemlang
+                                    if (!(itemlang = $(idprefix + segment_id).attr('data-srclang'))) {
+                                        itemlang = t_jp.olang;
                                     }
-                                });
-                                $('<ul style="position: absolute; top: 0px" id="' + prefix + 'langmenu">' + liflag).appendTo(dialog);
-
-                                $(idprefix + "langmenu").menu({
-                                    select: function(event, ui) {
-                                        $(this).hide();
-                                        $(idprefix + "original").val(ui.item.attr('data-translated'));
-                                        $(idprefix + "orglang").text(ui.item.text()).addClass('ui-state-highlight');
-                                        if (l[itemlang] === ui.item.text()) {
-                                            $(idprefix + "orglang").removeClass('ui-state-highlight');
+                                    var liflag = '<li data-translated="' + $(idprefix + segment_id).attr('data-orig') + '"><a href="#">' + l[itemlang] + '</a></li>'
+                                    $(data).each(function(index, item) {
+                                        if (item.lang !== t_jp.lang) {
+                                            liflag = liflag + '<li data-translated="' + item.translated + '"><a href="#">' + l[item.lang] + '</a></li>'
                                         }
-                                    },
-                                    input: $(this)
-                                }).show().css({
-                                    top:0,
-                                    left:0
-                                }).position({
-                                    my: left + ' top',
-                                    at: left +' bottom',
-                                    of: $(idprefix + 'orglang')
-                                });
-                            }
-                        });
-                    }
+                                    });
+                                    $('<ul style="position: absolute; top: 0px" id="' + prefix + 'langmenu">' + liflag).appendTo(dialog);
+
+                                    $(idprefix + "langmenu").menu({
+                                        select: function(event, ui) {
+                                            $(this).hide();
+                                            $(idprefix + "original").val(ui.item.attr('data-translated'));
+                                            $(idprefix + "orglang").text(ui.item.text()).addClass('ui-state-highlight');
+                                            if (l[itemlang] === ui.item.text()) {
+                                                $(idprefix + "orglang").removeClass('ui-state-highlight');
+                                            }
+                                        },
+                                        input: $(this)
+                                    }).show().css({
+                                        top:0,
+                                        left:0
+                                    }).position({
+                                        my: left + ' top',
+                                        at: left +' bottom',
+                                        of: $(idprefix + 'orglang')
+                                    });
+                                }
+                            });
+                        }
+                    });
                 });
             }
             return false;
@@ -631,13 +633,15 @@
             },
             text: false
         }).click(function () {
-            $.xLazyLoader({
-                js: [t_jp.plugin_url + '/js/keyboard.js'],
-                css: [t_jp.plugin_url + '/css/keyboard.css'],
-                success: function () {
-                    VKI_attach($(idprefix + "translation").get(0));
-                    VKI_show($(idprefix + "translation").get(0));
-                }
+            t_jp.tfl(function() {
+                $.xLazyLoader({
+                    js: [t_jp.plugin_url + '/js/keyboard.js'],
+                    css: [t_jp.plugin_url + '/css/keyboard.css'],
+                    success: function () {
+                        VKI_attach($(idprefix + "translation").get(0));
+                        VKI_show($(idprefix + "translation").get(0));
+                    }
+                });
             });
         });
 
@@ -746,31 +750,20 @@
         img = $(idprefix + 'img_' + translated_id);
         // internal function used to load locale in two needed cases (where we load jQueryui and not...)
         var loadlocaleandrundialog = function() {
-                if (t_jp.locale && !localeloaded) {
-                    $.getScript(t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js', function () {
-                        localeloaded = true;
-                        translate_dialog(translated_id);
-                    });
-                } else {
+            if (t_jp.locale && !localeloaded) {
+                $.getScript(t_jp.plugin_url + '/js/l/'+t_jp.lang+'.js', function () {
+                    localeloaded = true;
                     translate_dialog(translated_id);
-                }
+                });
+            } else {
+                translate_dialog(translated_id);
+            }
         }
         img.click(function () {
             //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict !!!!!!!!!!!
-            if (typeof $.fn.tabs !== 'function' || typeof $.fn.buttonset !== 'function' || typeof $.fn.dialog !== 'function') {
-                $.ajaxSetup({
-                    cache: true
-                });
-                $.getScript(t_jp.plugin_url + '/js/lazy.js', function () {
-                    $.xLazyLoader({
-                        js: t_jp.jQueryUI + 'jquery-ui.min.js',
-                        css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
-                        success: loadlocaleandrundialog
-                    });
-                });
-            } else {
+            t_jp.tfju(function() {
                 loadlocaleandrundialog();
-            }
+            })
             return false;
         }).css({
             'border': '0px',
