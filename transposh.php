@@ -1205,7 +1205,7 @@ class transposh_plugin {
                 return;
         $sl = 'auto';
         if (isset($_GET['sl'])) $sl = $_GET['sl'];
-        $q = @urlencode($_GET['q']);
+        $q = urlencode(stripslashes($_GET['q']));
         if (!$q) return; // avoid unneeded curling
         $url = 'http://translate.google.com/translate_a/t?client=a&q=' . $q . '&tl=' . $tl . '&sl=' . $sl;
         $ch = curl_init();
@@ -1260,7 +1260,7 @@ class transposh_plugin {
         foreach ($_GET['q'] as $p) {
             list($source, $trans) = $this->database->fetch_translation($p, $tl);
             if (!$trans) {
-                $q .= '&q=' . urlencode($p);
+                $q .= '&q=' . urlencode(stripslashes($p));
             } else {
                 // holds cached results
                 $r[$i] = $trans;
@@ -1328,7 +1328,7 @@ class transposh_plugin {
             $k = 0;
             for ($j = 0; $j < $i; $j++) {
                 if (!isset($r[$j])) {
-                    $_POST["tk$k"] = transposh_utils::base64_url_encode($_GET['q'][$j]); // stupid, but should work
+                    $_POST["tk$k"] = transposh_utils::base64_url_encode(stripslashes($_GET['q'][$j])); // stupid, but should work
                     $_POST["tr$k"] = $jsonout->results[$j];
                     $k++;
                 }
