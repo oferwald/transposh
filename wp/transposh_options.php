@@ -22,6 +22,8 @@ define('OLD_WIDGET_CSS_FLAGS', 'widget_css_flags');
 define('OLD_WIDGET_IN_LIST', 'widget_in_list');
 //Option to enable/disable msn translation
 define('OLD_ENABLE_MSN_TRANSLATE', 'enable_msntranslate');
+//Option defining transposh widget file used @since 0.5.6
+define('OLD_WIDGET_FILE', 'widget_file'); //unset!!!
 //Option to store the msn API key
 define('MSN_TRANSLATE_KEY', 'msn_key');
 //Option to store the msn API key
@@ -60,8 +62,6 @@ define('ENABLE_FOOTER_SCRIPTS', 'enable_footer_scripts');
 define('ENABLE_DETECT_LANG_AND_REDIRECT', 'enable_detect_redirect');
 //Option defining the default language
 define('DEFAULT_LANG', 'default_language');
-//Option defining transposh widget file used @since 0.5.6
-define('WIDGET_FILE', 'widget_file');
 //Option allowing progress bar display
 define('WIDGET_PROGRESSBAR', 'widget_progressbar');
 //Allows user to set his default language per #63 @since 0.3.8
@@ -83,6 +83,7 @@ class transposh_plugin_options {
 
     /** @var array storing all our options */
     private $options = array();
+
     /** @var boolean set to true if any option was changed */
     private $changed = false;
 
@@ -180,15 +181,6 @@ class transposh_plugin_options {
 
     function get_widget_remove_logo() {
         return $this->options[WIDGET_REMOVE_LOGO_FOR_AD];
-    }
-
-    /**
-     * return file name of the widget used
-     * @since 0.5.6
-     * @return string
-     */
-    function get_widget_file() {
-        return $this->options[WIDGET_FILE];
     }
 
     /**
@@ -330,15 +322,6 @@ class transposh_plugin_options {
     }
 
     /**
-     * Set the widget file used
-     * @since 0.5.6
-     * @param string $val
-     */
-    function set_widget_file($val) {
-        $this->set_value($val, $this->options[WIDGET_FILE]);
-    }
-
-    /**
      * Set the widget theme
      * @since 0.7.0
      * @param string $val
@@ -387,11 +370,11 @@ class transposh_plugin_options {
         $this->set_value($val, $this->options[ENABLE_AUTO_TRANSLATE]);
     }
 
-      function set_msn_key($val) {
+    function set_msn_key($val) {
         $this->set_value($val, $this->options[MSN_TRANSLATE_KEY]);
     }
 
-          function set_google_key($val) {
+    function set_google_key($val) {
         $this->set_value($val, $this->options[GOOGLE_TRANSLATE_KEY]);
     }
 
