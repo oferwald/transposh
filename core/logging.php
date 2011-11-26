@@ -49,15 +49,17 @@ class logger {
      * @param mixed $msg
      * @param int $severity
      */
-    function do_log($msg, $severity=3) {
+    function do_log($msg, $severity=3, $do_backtrace = false, $nest = 0) {
         if ($severity <= $this->debug_level) {
             if ($this->show_caller) {
                 $trace = debug_backtrace();
-                if ($trace[2]['class']) {
-                    $log_prefix = str_pad("{$trace[2]['class']}::{$trace[2]['function']} {$trace[1]['line']}", 55, '_');
+                if ($do_backtrace)
+                    $this->firephp->log($trace[3]);
+                if (isset($trace[2+$nest]['class'])) {
+                    $log_prefix = str_pad("{$trace[2+$nest]['class']}::{$trace[2+$nest]['function']} {$trace[1+$nest]['line']}", 55+$nest, '_');
                 } else {
-                    $prefile = substr($trace[1]['file'], strrpos($trace[1]['file'], "/"));
-                    $log_prefix = str_pad("{$prefile}::{$trace[1]['function']} {$trace[1]['line']}", 55, '_');
+                    $prefile = substr($trace[1+$nest]['file'], strrpos($trace[1+$nest]['file'], "/"));
+                    $log_prefix = str_pad("{$prefile}::{$trace[1+$nest]['function']} {$trace[1+$nest]['line']}", 55+$nest, '_');
                 }
             }
             if (!is_array($msg) && !is_object($msg)) {
@@ -74,7 +76,7 @@ class logger {
                                 error_log(date(DATE_RFC822) . " $log_prefix: $key => $item\n", 3, TP_LOG_FILE);
                     } else {
                         error_log(date(DATE_RFC822) . " $log_prefix: subarray -> $key\n", 3, TP_LOG_FILE);
-                        $this->do_log($item, $severity);
+                        $this->do_log($item, $severity, false, $nest+1);
                     }
                 }
                 error_log(date(DATE_RFC822) . " $log_prefix: Array stop\n", 3, TP_LOG_FILE);
@@ -131,8 +133,8 @@ $GLOBALS['logger'] = logger::getInstance(true);
  * @param mixed $msg
  * @param int $severity
  */
-function logger($msg, $severity=3) {
-    $GLOBALS['logger']->do_log($msg, $severity);
+function logger($msg, $severity=3, $do_backtrace = false) {
+    $GLOBALS['logger']->do_log($msg, $severity, $do_backtrace);
 }
 
 /*
