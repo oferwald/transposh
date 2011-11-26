@@ -767,7 +767,7 @@ class transposh_plugin {
      */
     function add_rel_alternate() {
         if (is_404()) return;
-        $widget_args = $this->widget->create_widget_args(true, $this->get_clean_url());
+        $widget_args = $this->widget->create_widget_args($this->get_clean_url());
         logger($widget_args, 4);
         foreach ($widget_args as $lang) {
             if (!$lang['active']) {

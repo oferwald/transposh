@@ -357,7 +357,7 @@
 
             // this is the set_default_language function
             // attach a function to the set_default_language link if its there
-            $('#' + t_jp_prefix + 'setdeflang').click(function () {
+            $('.' + t_jp_prefix + 'setdeflang').click(function () {
                 $.ajax({
                     url: t_jp.ajaxurl,
                     data: {
@@ -365,7 +365,7 @@
                     },
                     cache: false
                 } );              
-                $(this).hide("slow");
+                $('.' + t_jp_prefix + 'setdeflang').hide("slow");
                 return false;
             });
 

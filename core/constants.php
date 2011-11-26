@@ -20,7 +20,7 @@ define('EDIT_PARAM', 'edit');
 //Enable in memory cache usage, APC, xcache
 define('TP_ENABLE_CACHE', TRUE);
 //What is the cache items TTL
-define('TP_CACHE_TTL', 3600*24);
+define('TP_CACHE_TTL', 3600 * 24);
 //Constants for memcached
 define('TP_MEMCACHED_SRV', '127.0.0.1');
 define('TP_MEMCACHED_PORT', 11211);
@@ -127,9 +127,12 @@ class transposh_consts {
     // Apertium supported languages
     // a bit tricky, but we'll see - starting with just esperanto
     public static $apertium_languages = array('eo');
-
     // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
+    // Array holding list of jQueryUI themes
+    public static $jqueryui_themes = array('base', 'black-tie', 'blitzer', 'cupertino', 'dark-hive', 'dot-luv', 'eggplant', 'excite-bike', 'flick',
+        'hot-sneaks', 'humanity', 'le-frog', 'mint-choc', 'overcast', 'pepper-grinder', 'redmond', 'smoothness', 'south-street',
+        'start', 'sunny', 'swanky-purse', 'trontastic', 'ui-darkness', 'ui-lightness', 'vader');
 
 }
 
@@ -139,6 +142,7 @@ define('TRANSLATOR', 'translator');
 //Define for transposh plugin version
 define('TRANSPOSH_PLUGIN_VER', '%VERSION%');
 
+//Current jQuery UI
 define('JQUERYUI_VER', '1.8.16');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier

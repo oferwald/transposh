@@ -33,15 +33,22 @@
  * This function does the actual HTML for the widget
  * @param array $args - http://trac.transposh.org/wiki/WidgetWritingGuide#functiontp_widgets_doargs
  */
-function tp_widget_do($args) {
-    echo '<span class="' . NO_TRANSLATE_CLASS . '">'; // wrapping in no_translate to avoid translation of this list
-    echo '<select name="lang" id="lang" onchange="Javascript:this.form.submit();">'; // this is a select box which posts on change
-    echo '<option value="none">[Language]</option>';
-    foreach ($args as $langrecord) {
-        $is_selected = $langrecord['active'] ? " selected=\"selected\"" : "";
-        echo "<option value=\"{$langrecord['isocode']}\"{$is_selected}>{$langrecord['langorig']}</option>";
+class tpw_default extends transposh_base_widget {
+
+    static function tp_widget_do($args) {
+        echo '<span class="' . NO_TRANSLATE_CLASS . '">'; // wrapping in no_translate to avoid translation of this list
+
+        echo '<select name="lang" id="lang" onchange="document.location.href=this.options[this.selectedIndex].value;">'; // this is a select box which posts on change
+        echo '<option value="none">[Language]</option>';
+        foreach ($args as $langrecord) {
+            $is_selected = $langrecord['active'] ? " selected=\"selected\"" : "";
+            echo "<option value=\"{$langrecord['url']}\"{$is_selected}>{$langrecord['langorig']}</option>";
+        }
+        echo "</select><br/>";
+
+        echo "</span>";
     }
-    echo "</select><br/>";
-    echo "</span>";
+
 }
+
 ?>
