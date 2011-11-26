@@ -202,7 +202,7 @@
         if(t_jp.msn_key) {
             var q = "[";
             $(batchtrans).each(function (i) {
-                q += '"' + encodeURIComponent(batchtrans[i]) + '",';
+                q += '"' + encodeURIComponent(batchtrans[i].replace(/[\\"]/g, '\\$&')) + '",';
             });
             q = q.slice(0, -1) + ']';
             $.ajax({
