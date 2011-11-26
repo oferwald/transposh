@@ -40,9 +40,6 @@ class tpw_image_dropdown extends transposh_base_widget {
         // we calculate the plugin path part, so we can link the images there
         $plugpath = parse_url($my_transposh_plugin->transposh_plugin_url, PHP_URL_PATH);
 
-        // we use this hidden field to later post the value
-        echo '<input type="hidden" name="lang" id="lang" value=""/>';
-
         echo '<dl id="tp_dropdown" class="dropdown">';
         echo '<dt><a href="#"><span>' . __('Select language') . '</span></a></dt><dd><ul class="' . NO_TRANSLATE_CLASS . '">';
         foreach ($args as $langrecord) {
