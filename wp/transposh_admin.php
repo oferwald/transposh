@@ -288,7 +288,6 @@ class transposh_plugin_admin {
         check_admin_referer(TR_NONCE);
 
         // process here your on $_POST validation and / or option saving
-        $this->transposh->widget->transposh_widget_post(FALSE);
         $this->update_admin_options();
 
         // lets redirect the post request into get request (you may add additional params at the url, if you need to show save results
