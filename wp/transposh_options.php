@@ -112,7 +112,6 @@ class transposh_plugin_options {
         $this->set_default_option_value(ENABLE_FOOTER_SCRIPTS);
         $this->set_default_option_value(ENABLE_DETECT_LANG_AND_REDIRECT);
         $this->set_default_option_value(DEFAULT_LANG);
-        $this->set_default_option_value(WIDGET_FILE);
         $this->set_default_option_value(WIDGET_PROGRESSBAR);
         $this->set_default_option_value(WIDGET_ALLOW_SET_DEFLANG);
         $this->set_default_option_value(WIDGET_REMOVE_LOGO_FOR_AD);
