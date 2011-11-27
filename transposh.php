@@ -708,7 +708,7 @@ class transposh_plugin {
      */
     function add_transposh_js() {
         //not in any translation mode - no need for any js.
-        if (!($this->edit_mode || $this->is_auto_translate_permitted())) return;
+        if (!($this->edit_mode || $this->is_auto_translate_permitted() || is_admin())) return; // TODO, check just for settings page admin and pages with our translate
 
         wp_enqueue_script('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposh.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
         // true -> 1, false -> nothing
