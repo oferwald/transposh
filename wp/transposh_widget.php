@@ -267,8 +267,8 @@ class transposh_plugin_widget extends WP_Widget {
                 }
             }
             // add the edit checkbox only for translators for languages marked as editable
-            $ref = transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $this->transposh->target_language, !$this->transposh->edit_mode);
             if ($this->transposh->is_editing_permitted()) {
+                $ref = transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($this->transposh->options->is_default_language($this->transposh->target_language) ? "" : $this->transposh->target_language), !$this->transposh->edit_mode);
                 echo '<input type="checkbox" name="' . EDIT_PARAM . '" value="1" ' .
                 ($this->transposh->edit_mode ? 'checked="checked" ' : '') .
                 ' onclick="document.location.href=\'' . $ref . '\';"/>&nbsp;Edit Translation';
