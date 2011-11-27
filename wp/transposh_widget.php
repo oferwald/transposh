@@ -163,8 +163,10 @@ class transposh_plugin_widget extends WP_Widget {
         // we than load the classes and perform the css queueing
         foreach ($activewidgets as $key => $v) {
             $class = $this->load_widget($key);
-            if (class_exists($class))
-                    $class::tp_widget_css($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            if (class_exists($class)) {
+                $tmpclass = new $class;
+                $tmpclass->tp_widget_css($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            }
         }
         logger('Added transposh_widget_css', 4);
     }
@@ -184,8 +186,10 @@ class transposh_plugin_widget extends WP_Widget {
         // we than load the classes and perform the css queueing
         foreach ($activewidgets as $key => $v) {
             $class = $this->load_widget($key);
-            if (class_exists($class))
-                    $class::tp_widget_js($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            if (class_exists($class)) {
+                $tmpclass = new $class;
+                $tmpclass->tp_widget_js($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            }
         }
         logger('Added transposh_widget_js', 4);
     }
@@ -244,7 +248,7 @@ class transposh_plugin_widget extends WP_Widget {
         // we load the class needed and get its base name for later
         $class = $this->load_widget($instance['widget_file']);
         if (!class_exists($class)) {
-            echo __('Transposh subwidget was not loaded correctly').": $class";
+            echo __('Transposh subwidget was not loaded correctly') . ": $class";
         }
 
         $clean_page = $this->transposh->get_clean_url();
@@ -264,8 +268,12 @@ class transposh_plugin_widget extends WP_Widget {
         }
 
         // actually run the external widget code
-        $class::tp_widget_do($widget_args);
-
+        //if (version_compare(PHP_VERSION, '5.3.0','gt')) { (for the future)
+        //   $class::tp_widget_do($widget_args);
+        //} else {
+        $tmpclass = new $class;
+        $tmpclass->tp_widget_do($widget_args);
+        //}
         //at least one language showing - add the edit box if applicable
         if (!empty($widget_args)) {
             // this is the set default language line
