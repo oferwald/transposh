@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 2.8
-Tested up to: 3.2.1
+Tested up to: 3.3
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 65 languages are automatically translated and can be manually corrected with ease.
@@ -19,7 +19,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 
 * Support for any language - including RTL/LTR layouts
 * Unique drag/drop interface for choosing viewable/translatable languages
-* Multiple selection for widget appearances - with pluggable widgets
+* Multiple options for widget appearances - with pluggable widgets and multiple instances
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Use either Google Translate,MS Translate or Apertium backends - 65 languages supported!
@@ -68,6 +68,9 @@ You can find them on our site [here](http://transposh.org/faq)
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.8.0 =
+The widgets can have multiple instances, you need to change the current instance
+If you want to use a google/msn API key, it is now possible
 = 0.7.0 =
 New edit interface, tons of other fixes
 = 0.6.6 =
@@ -109,8 +112,28 @@ This version allows sorting of languages within the widget
  * Persian translation by [Sushyant Zavarzadeh](http://zavarzadeh.org)
  * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
  * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
+ * Turkish translation by [Semih Yeşilyurt](http://kingdroid.net)
 
 == Changelog ==
+= 2011/11/28 - 0.8.0 =
+ * Attack of the killer "give us your money" APIs by both Google and Bing
+ * Improved Google Proxy to support working with all langugaes without key
+ * Added the ability to use your own API keys (take precedence over the proxy) (Thanks [Ryan Wood](spywarehelpcenter.com) for help with Google API key)
+ * Use temporary bing key if needed
+ * Added Catalan and Hindi support for Bing
+ * Improved translate all code and speed
+ * Improved widgets platform
+ * Allow multiple widget instances - each with different appearance
+ * Allow setting of widget title
+ * Widgets no longer post to change language, but use javascript directly
+ * Dropdown widget improved css
+ * Improved code reuse in javascript, better on-demand loading of required elements
+ * Support for Memcached
+ * Better 404 page handling (don't create new links to non-existing pages)
+ * Fix caching on rackspace cloudsites
+ * Many more minor fixes
+ * Turkish Translation by [Semih Yeşilyurt](http://kingdroid.net)
+ * Help us more (We will get ~1 promile of your adsense income, thanks!)
 = 2011/08/02 - 0.7.6 =
  * Added some improvements to the simple html dom from a new upstream release
  * Allow setting of a post/page language with a simple select box
