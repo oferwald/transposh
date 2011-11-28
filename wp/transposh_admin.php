@@ -556,7 +556,7 @@ class transposh_plugin_admin {
         /**
          * Insert the option to enable/disable statics collection
          * @since 0.7.6 */
-        $this->checkbox(TRANSPOSH_COLLECT_STATS, $this->transposh->options->get_transposh_collect_stats(), __('Allow collecting usage statistics', TRANSPOSH_TEXT_DOMAIN), __('This option enables collection of statistics by transposh that will be used to improve the product. ', TRANSPOSH_TEXT_DOMAIN));
+        $this->checkbox(TRANSPOSH_COLLECT_STATS, $this->transposh->options->get_transposh_collect_stats(), __('Allow collecting usage statistics', TRANSPOSH_TEXT_DOMAIN), __('This option enables collection of statistics by transposh that will be used to improve the product.', TRANSPOSH_TEXT_DOMAIN));
 
         /* WIP2
           echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */

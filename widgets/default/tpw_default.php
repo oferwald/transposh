@@ -39,7 +39,8 @@ class tpw_default extends transposh_base_widget {
         echo '<span class="' . NO_TRANSLATE_CLASS . '">'; // wrapping in no_translate to avoid translation of this list
 
         echo '<select name="lang" id="lang" onchange="document.location.href=this.options[this.selectedIndex].value;">'; // this is a select box which posts on change
-        echo '<option value="none">[Language]</option>';
+        /* TRANSLATORS: this is what appears in the select box in the default subwidget */
+        echo '<option value="none">[' . __('Language', TRANSPOSH_TEXT_DOMAIN) . ']</option>';
         foreach ($args as $langrecord) {
             $is_selected = $langrecord['active'] ? " selected=\"selected\"" : "";
             echo "<option value=\"{$langrecord['url']}\"{$is_selected}>{$langrecord['langorig']}</option>";
