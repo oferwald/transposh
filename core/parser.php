@@ -27,22 +27,31 @@ class parserstats {
 
     /** @var int Holds the total phrases the parser encountered */
     public $total_phrases;
+
     /** @var int Holds the number of phrases that had translation */
     public $translated_phrases;
+
     /** @var int Holds the number of phrases that had human translation */
     public $human_translated_phrases;
+
     /** @var int Holds the number of phrases that are hidden - yet still somewhat viewable (such as the title attribure) */
     public $hidden_phrases;
+
     /** @var int Holds the number of phrases that are hidden and translated */
     public $hidden_translated_phrases;
+
     /** @var int Holds the amounts of hidden spans created for translation */
     public $hidden_translateable_phrases;
+
     /** @var int Holds the number of phrases that are hidden and probably won't be viewed - such as meta keys */
     public $meta_phrases;
+
     /** @var int Holds the number of translated phrases that are hidden and probably won't be viewed - such as meta keys */
     public $meta_translated_phrases;
+
     /** @var float Holds the time translation took */
     public $time;
+
     /** @var int Holds the time translation started */
     private $start_time;
 
@@ -95,41 +104,55 @@ class parser {
     public $fetch_translate_func = null;
     public $prefetch_translate_func = null;
     public $split_url_func = null;
+
     /** @var int stores the number of the last used span_id */
     private $span_id = 0;
+
     /** @var simple_html_dom_node Contains the current node */
     private $currentnode;
+
     /** @var simple_html_dom Contains the document dom model */
     private $html;
     // the document
     public $dir_rtl;
+
     /** @var string Contains the iso of the target language */
     public $lang;
+
     /** @var boolean Contains the fact that this language is the default one (only parse other lanaguage spans) */
     public $default_lang = false;
+
     /** @var string Contains the iso of the source language - if a lang attribute is found, assumed to be en by default */
     public $srclang;
     private $inbody = false;
+
     /** @var hold fact that we are in select or other similar elements */
     private $inselect = false;
     public $is_edit_mode;
     public $is_auto_translate;
     public $feed_fix;
+
     /** @var boolean should we attempt to handle page as json */
     public $might_json = false;
     public $allow_ad = false;
     //first three are html, later 3 come from feeds xml (link is problematic...)
     protected $ignore_tags = array('script' => 1, 'style' => 1, 'code' => 1, 'wfw:commentrss' => 1, 'comments' => 1, 'guid' => 1);
+
     /** @var parserstats Contains parsing statistics */
     private $stats;
+
     /** @var boolean Are we inside a translated gettext */
     private $in_get_text = false;
+
     /** @var boolean Are we inside an inner text %s in gettext */
     private $in_get_text_inner = false;
+
     /** @var string Additional header information */
     public $added_header;
+
     /** @var array Contains reference to changable a tags */
     private $atags = array();
+
     /** @var array Contains reference to changable option values */
     private $otags = array();
     private $edit_span_created = false;
@@ -510,15 +533,17 @@ class parser {
         }
         // for iframes we will rewrite urls if we can
         elseif ($node->tag == 'iframe') {
-            $node->src = call_user_func_array($this->url_rewrite_func, array($node->src));
-            logger($node->src);
+            if ($this->url_rewrite_func) {
+                $node->src = call_user_func_array($this->url_rewrite_func, array($node->src));
+                logger($node->src);
+            }
         }
 
         // titles are also good places to translate, exist in a, img, abbr, acronym
         if ($node->title) $this->parsetext($node->title);
 
         // Meta content (keywords, description) are also good places to translate (but not in robots... or http-equiv)
-        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots') && ($node->name != 'viewport')&& ($node->{'http-equiv'} != 'Content-Type'))
+        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots') && ($node->name != 'viewport') && ($node->{'http-equiv'} != 'Content-Type'))
                 $this->parsetext($node->content);
 
         // recurse
@@ -864,8 +889,8 @@ class parser {
         }
         // we might show an ad for transposh in some cases
         if (($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) || // 5 of 100 for translated non default language pages
-            ($this->allow_ad && $this->default_lang && mt_rand(1, 100) > 99) || // 1 of 100 for translated default languages pages
-            (!$this->allow_ad && mt_rand(1, 1000) > 999)) { // 1 of 1000 otherwise
+                ($this->allow_ad && $this->default_lang && mt_rand(1, 100) > 99) || // 1 of 100 for translated default languages pages
+                (!$this->allow_ad && mt_rand(1, 1000) > 999)) { // 1 of 1000 otherwise
             $this->do_ad_switch();
         }
         // This adds a meta tag with our statistics json-encoded inside...
