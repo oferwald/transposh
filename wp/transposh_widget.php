@@ -111,12 +111,13 @@ class transposh_plugin_widget extends WP_Widget {
      */
     function form($instance) {
         // Defaults
-        $instance = wp_parse_args((array) $instance, array('title' => 'Translation'));
+        /* TRANSLATORS: this will be the default widget title */
+        $instance = wp_parse_args((array) $instance, array('title' => __('Translation', TRANSPOSH_TEXT_DOMAIN)));
 
         // Output the options - title first
         $title = htmlspecialchars($instance['title']);
 
-        echo '<p><label for="' . $this->get_field_name('title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('title') . '" type="text" value="' . $title . '" /></label></p>';
+        echo '<p><label for="' . $this->get_field_name('title') . '">' . __('Title:', TRANSPOSH_TEXT_DOMAIN) . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('title') . '" type="text" value="' . $title . '" /></label></p>';
 
         // Followed by subwisgets selection
         $widgets = $this->get_widgets();
@@ -248,7 +249,7 @@ class transposh_plugin_widget extends WP_Widget {
         // we load the class needed and get its base name for later
         $class = $this->load_widget($instance['widget_file']);
         if (!class_exists($class)) {
-            echo __('Transposh subwidget was not loaded correctly') . ": $class";
+            echo __('Transposh subwidget was not loaded correctly', TRANSPOSH_TEXT_DOMAIN) . ": $class";
         }
 
         $clean_page = $this->transposh->get_clean_url();
@@ -264,6 +265,7 @@ class transposh_plugin_widget extends WP_Widget {
         //echo $before_widget . $before_title . __('Translation', TRANSPOSH_TEXT_DOMAIN) . $after_title; - hmm? po/mo?
         echo $before_widget;
         if ($instance['title']) {
+            /* TRANSLATORS: no need to translate this string */
             echo $before_title . __($instance['title'], TRANSPOSH_TEXT_DOMAIN) . $after_title;
         }
 

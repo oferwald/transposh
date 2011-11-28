@@ -25,427 +25,412 @@ msgstr ""
 msgid "%s translated a phrase to %s with transposh:"
 msgstr "%sTransposh ile bir %s  ifade tercüme:"
 
-#: wp/transposh_admin.php:280
+#: wp/transposh_admin.php:286
 #@ transposh
 msgid "Problems?"
 msgstr "Problemler?"
 
-#: wp/transposh_widget.php:88
+#: wp/transposh_widget.php:82
 #@ transposh
 msgid "Transposh language selection widget"
 msgstr "Transposh bileşeni dili seçin"
 
-#: wp/transposh_widget.php:212
-#@ transposh
-msgid "Translation"
-msgstr "Tercüme"
-
-#: wp/transposh_admin.php:196
+#: wp/transposh_admin.php:202
 #@ transposh
 msgid "About this plugin"
 msgstr "Eklenti hakkında"
 
-#: wp/transposh_admin.php:197
-#@ transposh
-msgid "Widget settings"
-msgstr "Bileşen ayarları"
-
-#: wp/transposh_admin.php:198
+#: wp/transposh_admin.php:203
 #@ transposh
 msgid "Plugin news"
 msgstr "Eklenti haberleri"
 
-#: wp/transposh_admin.php:199
+#: wp/transposh_admin.php:204
 #@ transposh
 msgid "Plugin stats"
 msgstr "Eklenti istatistikleri"
 
-#: wp/transposh_admin.php:200
+#: wp/transposh_admin.php:205
 #@ transposh
 msgid "Translate all"
 msgstr "Hepsini tercüme et"
 
-#: wp/transposh_admin.php:201
+#: wp/transposh_admin.php:206
 #@ transposh
 msgid "Supported languages"
 msgstr "Desteklenen diller"
 
-#: wp/transposh_admin.php:202
+#: wp/transposh_admin.php:207
 #@ transposh
 msgid "Translation settings"
 msgstr "Tercüme ayarları"
 
-#: wp/transposh_admin.php:203
+#: wp/transposh_admin.php:208
 #@ transposh
 msgid "Automatic translation settings"
 msgstr "Otomatik tercüme ayarları"
 
-#: wp/transposh_admin.php:204
+#: wp/transposh_admin.php:210
 #@ transposh
 msgid "Generic settings"
 msgstr "Genel ayarlar"
 
-#: wp/transposh_admin.php:205
+#: wp/transposh_admin.php:211
 #@ transposh
 msgid "Database maintenance"
 msgstr "Veritabanı bakımı"
 
-#: wp/transposh_admin.php:220
+#: wp/transposh_admin.php:226
 #@ transposh
 msgid "Transposh community features"
 msgstr "Transposh topluluğu önerileir"
 
-#: wp/transposh_admin.php:157
-#: wp/transposh_admin.php:226
-#: wp/transposh_postpublish.php:49
+#: wp/transposh_admin.php:170
+#: wp/transposh_admin.php:232
 #: wp/transposh_postpublish.php:50
-#: wp/transposh_widget.php:88
-#: wp/transposh_widget.php:91
-#: wp/transposh_widget.php:255
+#: wp/transposh_postpublish.php:51
+#: wp/transposh_widget.php:84
+#: wp/transposh_widget.php:311
 #@ transposh
+#@ default
 msgid "Transposh"
 msgstr "Transposh"
 
-#: wp/transposh_admin.php:321
+#: wp/transposh_admin.php:322
 #@ transposh
 msgid "Translate by clicking the button below"
 msgstr "Butonun altındaki diller"
 
-#: wp/transposh_admin.php:322
+#: wp/transposh_admin.php:324
 #@ transposh
 msgid "Translate All Now"
 msgstr "Şimdi Hepsini Tercüme Et"
 
-#: wp/transposh_admin.php:297
+#: wp/transposh_admin.php:302
 #@ transposh
 msgid "Plugin Homepage"
 msgstr "Eklenti Ana Sayfası"
 
-#: wp/transposh_admin.php:298
+#: wp/transposh_admin.php:303
 #@ transposh
 msgid "Suggest a Feature"
 msgstr "Bir özellik önerin"
 
-#: wp/transposh_admin.php:300
+#: wp/transposh_admin.php:305
 #@ transposh
 msgid "Report a Bug"
 msgstr "Hata Bildir"
 
-#: wp/transposh_admin.php:377
+#: wp/transposh_admin.php:379
 #@ transposh
 msgid "Default Language (drag another language here to make it default)"
 msgstr "Varsayılan Dili Seçin (varsayılan dili seçmek için aşağıdan, buraya sürükleyin)"
 
-#: wp/transposh_admin.php:384
+#: wp/transposh_admin.php:386
 #@ transposh
 msgid "Available Languages (Click to toggle language state - Drag to sort in the widget)"
 msgstr "Kullanılabilir Diller (Etkinleştirmek için tıklayın - Bileşende sıralamak için sürükleyin)"
 
-#: wp/transposh_admin.php:394
+#: wp/transposh_admin.php:396
 #@ transposh
 msgid "Language supported by google translate"
 msgstr "Google translate tarafından desteklenen diller"
 
-#: wp/transposh_admin.php:396
+#: wp/transposh_admin.php:398
 #@ transposh
 msgid "Language supported by bing translate"
 msgstr "Bing translate tarafından desteklenen diller"
 
-#: wp/transposh_admin.php:400
+#: wp/transposh_admin.php:402
 #@ transposh
 msgid "Language is written from right to left"
 msgstr "Dil, sağdan sola doğru yazılır"
 
-#: wp/transposh_admin.php:405
+#: wp/transposh_admin.php:407
 #@ transposh
 msgid "Display options:"
 msgstr "Ekran seçenekleri:"
 
-#: wp/transposh_admin.php:406
+#: wp/transposh_admin.php:408
 #@ transposh
 msgid "Toggle names of languages between English and Original"
 msgstr "İngilizce ve Orjinal dile göre sırala"
 
-#: wp/transposh_admin.php:407
+#: wp/transposh_admin.php:409
 #@ transposh
 msgid "Make all languages active"
 msgstr "Tüm diller aktif olsun"
 
-#: wp/transposh_admin.php:408
+#: wp/transposh_admin.php:410
 #@ transposh
 msgid "Sort by language name"
 msgstr "Dil ismine göre sırala"
 
-#: wp/transposh_admin.php:409
+#: wp/transposh_admin.php:411
 #@ transposh
 msgid "Sort by lSO code"
 msgstr "ISO koduna göre sıralayın"
 
-#: wp/transposh_admin.php:410
+#: wp/transposh_admin.php:412
 #@ transposh
 msgid "Legend:"
 msgstr "Yetkiler"
 
-#: wp/transposh_admin.php:410
+#: wp/transposh_admin.php:412
 #@ transposh
 msgid "Green - active"
 msgstr "Yeşil - Aktif"
 
-#: wp/transposh_admin.php:410
+#: wp/transposh_admin.php:412
 #@ transposh
 msgid "Yellow - translateable (only translators will see this language)"
 msgstr "Yeşil - çevrilebilir (sadece çevirmenler bu dili görebilir)"
 
-#: wp/transposh_admin.php:410
+#: wp/transposh_admin.php:412
 #@ transposh
 msgid "blank - inactive"
 msgstr "boş - pasif"
 
-#: wp/transposh_admin.php:427
+#: wp/transposh_admin.php:434
 #@ transposh
 msgid "Who can translate ?"
 msgstr "Kimler tercüme yapabilir?"
 
-#: wp/transposh_admin.php:434
+#: wp/transposh_admin.php:441
 #@ transposh
 msgid "Anonymous"
 msgstr "Anonim"
 
-#: wp/transposh_admin.php:440
+#: wp/transposh_admin.php:447
 #@ transposh
 msgid "Enable default language translation"
 msgstr "Varsayılan dili çevirme etkin"
 
-#: wp/transposh_admin.php:442
+#: wp/transposh_admin.php:447
 #@ transposh
 msgid "Allow translation of default language - useful for sites with more than one major language"
 msgstr "Birden fazla ana dili olan siteler için yararlı - varsayılan dil çeviri izni"
 
-#: wp/transposh_admin.php:449
+#: wp/transposh_admin.php:454
 #@ transposh
 msgid "Enable search in translated languages"
 msgstr "Tercüme edilmiş sayfada arama yapılabilsin"
 
-#: wp/transposh_admin.php:460
+#: wp/transposh_admin.php:461
 #@ transposh
 msgid "Allow translation of permalinks and urls"
 msgstr "Kalıcı URL'lere izin verilsin"
 
-#: wp/transposh_admin.php:487
+#: wp/transposh_admin.php:484
 #@ transposh
 msgid "Enable automatic translation"
 msgstr "Otomatik tercüme aktif"
 
-#: wp/transposh_admin.php:489
+#: wp/transposh_admin.php:484
 #@ transposh
 msgid "Allow automatic translation of pages"
 msgstr "Sayfaları otomatik çevirmeye izin verilsin"
 
-#: wp/transposh_admin.php:495
+#: wp/transposh_admin.php:490
 #@ transposh
 msgid "Enable automatic translation after posting"
 msgstr "Sonraki yazıyı çevirme aktif olsun"
 
-#: wp/transposh_admin.php:497
+#: wp/transposh_admin.php:490
 #@ transposh
 msgid "Do automatic translation immediately after a post has been published"
 msgstr "Yazı yayınlandıktan hemen sonra otomatik olarak çeviri yapılsın"
 
-#: wp/transposh_admin.php:502
+#: wp/transposh_admin.php:507
 #@ transposh
 msgid "Select preferred auto translation engine"
 msgstr "Tercümeyi hangisi yapsın?"
 
-#: wp/transposh_admin.php:503
+#: wp/transposh_admin.php:508
 #@ transposh
 msgid "Translation engine:"
 msgstr "Arama Motoru:"
 
-#: wp/transposh_admin.php:505
+#: wp/transposh_admin.php:510
 #@ transposh
 msgid "Google"
 msgstr "Google"
 
-#: wp/transposh_admin.php:506
+#: wp/transposh_admin.php:511
 #@ transposh
 msgid "Bing"
 msgstr "Bing"
 
-#: wp/transposh_admin.php:516
+#: wp/transposh_admin.php:539
 #@ transposh
 msgid "Rewrite URLs"
 msgstr "Rewrite URL'ler"
 
-#: wp/transposh_admin.php:527
+#: wp/transposh_admin.php:547
 #@ transposh
 msgid "Add scripts to footer"
 msgstr "Footer'a script ekle"
 
-#: wp/transposh_admin.php:530
+#: wp/transposh_admin.php:548
 #@ transposh
 msgid "Push transposh scripts to footer of page instead of header, makes pages load faster. Requires that your theme should have proper footer support."
 msgstr "Başlığının yerine sayfa altbilgisi yerleştirin, sayfaların daha hızlı yüklenmesini sağlar. Temaya uygun altbilgi desteği olması gerekir."
 
-#: wp/transposh_admin.php:536
+#: wp/transposh_admin.php:553
 #@ transposh
 msgid "Auto detect language for users"
 msgstr "Kullanıcının dilini otomatik tespit et"
 
-#: wp/transposh_admin.php:539
+#: wp/transposh_admin.php:554
 #@ transposh
 msgid "This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. This will redirect the first page accessed in the session to the same page with the detected language."
 msgstr "Gönderilen ACCEPT_LANGUAGES komutuyla ziyaretçinin dilini otomatik olarak tespit edecektir. Bu oturumda aynı sayfaya eriştiğinde onu çevrilmiş sayfaya yönlendirecektir."
 
-#: wp/transposh_admin.php:556
+#: wp/transposh_admin.php:569
 #@ transposh
 msgid "Delete all automated translations"
 msgstr "Tüm otomatik çevirileri sil"
 
-#: wp/transposh_admin.php:557
+#: wp/transposh_admin.php:570
 #@ transposh
 msgid "Delete automated translations older than 14 days"
 msgstr "14 günden eski otomatik çevrilmiş sayfaları sil"
 
-#: wp/transposh_admin.php:562
+#: wp/transposh_admin.php:575
 #@ transposh
 msgid "Backup service for human translation"
 msgstr "İnsan tercümelerini yedekleme hizmeti"
 
-#: wp/transposh_admin.php:563
+#: wp/transposh_admin.php:576
 #@ transposh
 msgid "Enable daily backup"
 msgstr "Günlük yedeklemeyi etkinleştir"
 
-#: wp/transposh_admin.php:564
+#: wp/transposh_admin.php:577
 #@ transposh
 msgid "Enable live backup"
 msgstr "Canlı yedeklemeyi etkinleştir"
 
-#: wp/transposh_admin.php:565
+#: wp/transposh_admin.php:578
 #@ transposh
 msgid "Disable backup (Can be run manually by clicking the button below)"
 msgstr "Yedeklemeyi devre dışı bırak (şimdi yedekle düğmesine tıklayarak yedekleme yapabilirsiniz)"
 
-#: wp/transposh_admin.php:566
+#: wp/transposh_admin.php:579
 #@ transposh
 msgid "How to restore?"
 msgstr "Nasıl geri yüklenir?"
 
-#: wp/transposh_admin.php:568
+#: wp/transposh_admin.php:581
 #@ transposh
 msgid "Do Backup Now"
 msgstr "Şimdi yedekle"
 
-#: wp/transposh_admin.php:147
+#: wp/transposh_admin.php:160
 #@ transposh
 msgid "Transposh makes your blog translatable"
 msgstr "Transposh makes your blog translatable"
 
-#: wp/transposh_admin.php:148
+#: wp/transposh_admin.php:161
 #@ transposh
 msgid "Plugin homepage"
 msgstr "Eklenti Ana sayfası"
 
-#: wp/transposh_admin.php:149
+#: wp/transposh_admin.php:162
 #@ transposh
 msgid "Frequently asked questions"
 msgstr "Sıkça sorulan sorular"
 
-#: wp/transposh_admin.php:157
+#: wp/transposh_admin.php:170
 #@ transposh
 msgid "Transposh control center"
 msgstr "Transposh kontrol merkezi"
 
-#: wp/transposh_admin.php:458
+#: wp/transposh_admin.php:461
 #@ transposh
 msgid "Enable url translation"
 msgstr "URL tercümesini etkinleştirin"
 
-#: wp/transposh_admin.php:458
-#: wp/transposh_admin.php:467
+#: wp/transposh_admin.php:461
+#: wp/transposh_admin.php:468
 #@ transposh
 msgid "experimental"
 msgstr "deneysel"
 
-#: wp/transposh_admin.php:520
+#: wp/transposh_admin.php:541
 #@ transposh
 msgid "Rewrite URLs to be search engine friendly, e.g.  (http://transposh.org/<strong>en</strong>). Requires that permalinks will be enabled."
-msgstr "URL'leri yeniden yazmak için arama motoru dostu, örn. ( http://transposh.org/<strong>en</ strong> ). Kalıcı bağlantıların etkinleştirilmiş olması gerekir."
+msgstr "URL'leri yeniden yazmak için arama motoru dostu, örn. ( http://transposh.org/<strong>en</strong> ). Kalıcı bağlantıların etkinleştirilmiş olması gerekir."
 
-#: wp/transposh_db.php:671
+#: wp/transposh_db.php:673
 #@ transposh
 msgid "Database stats"
 msgstr "Veritabanı istatistikleri"
 
-#: wp/transposh_db.php:676
+#: wp/transposh_db.php:678
 #, php-format
 #@ transposh
 msgid "Total of <strong style=\"color:red\">%s</strong> translated phrases."
 msgstr "Toplam <strong style=\"color:red\">%s</strong>  cümle tercüme edildi."
 
-#: wp/transposh_db.php:683
+#: wp/transposh_db.php:685
 #, php-format
 #@ transposh
 msgid "<strong>%1s</strong> has <strong style=\"color:red\">%2s</strong> human translated phrases."
 msgstr "<strong>%1s</strong> has <strong style=\"color:red\">%2s</strong> insan cümle çevirisi vardır."
 
-#: wp/transposh_db.php:686
+#: wp/transposh_db.php:688
 #@ transposh
 msgid "Recent activity"
 msgstr "Son etkinlikler"
 
-#: wp/transposh_db.php:691
+#: wp/transposh_db.php:693
 #, php-format
 #@ transposh
 msgid "On <strong>%1s</strong><br/>user <strong>%2s</strong> translated<br/>\"<strong>%3s</strong>\"<br/>to <strong style=\"color:red\">%4s</strong><br/>\"<strong>%5s</strong>\""
 msgstr "On <strong>%1s</strong><br/>kullanıcı <strong>%2s</strong> tercüme<br/>\"<strong>%3s</strong>\"<br/>to <strong style=\"color:red\">%4s</strong><br/>\"<strong>%5s</strong>\""
 
-#: wp/transposh_widget.php:366
+#: wp/transposh_widget.php:125
 #@ transposh
 msgid "Style:"
 msgstr "Stil:"
 
-#: wp/transposh_widget.php:375
-#@ transposh
-msgid "Effects:"
-msgstr "Efekt:"
-
-#: wp/transposh_widget.php:377
+#: wp/transposh_admin.php:517
 #@ transposh
 msgid "Show progress bar when a client triggers automatic translation"
 msgstr "otomatik çeviri yapılırken ilerleme çubuğunu göster"
 
-#: wp/transposh_widget.php:377
+#: wp/transposh_admin.php:517
 #@ transposh
 msgid "Show progress bar"
 msgstr "İlerleme çubuğunu göster"
 
-#: wp/transposh_widget.php:379
+#: wp/transposh_admin.php:519
 #@ transposh
 msgid "Widget will allow setting this language as user default"
 msgstr "Bileşen kullanıcının varsayılan olarak bu dil ayarına izin verecek"
 
-#: wp/transposh_widget.php:379
+#: wp/transposh_admin.php:519
 #@ transposh
 msgid "Allow user to set current language as default"
 msgstr "Kullanıcının varsayılan olarak geçerli dilini ayarlamak için izin ver"
 
-#: wp/transposh_widget.php:381
+#: wp/transposh_admin.php:521
 #@ transposh
 msgid "Transposh logo will not appear on widget"
 msgstr "Transposh logosu bileşende görünmez"
 
-#: wp/transposh_widget.php:381
+#: wp/transposh_admin.php:521
 #@ transposh
 msgid "Remove transposh logo (see <a href=\"http://transposh.org/logoterms\">terms</a>)"
 msgstr "Transhposh logosunu sil  (bkz. <a href=\"http://transposh.org/logoterms\">şartlar</a>)"
 
-#: wp/transposh_admin.php:566
+#: wp/transposh_admin.php:579
 #@ transposh
 msgid "Service Key:"
 msgstr "Hizmet Key:"
 
-#: wp/transposh_widget.php:225
+#: wp/transposh_widget.php:284
 #@ transposh
 msgid "Set as default language"
 msgstr "Varsayılan dil olarak ayarlayın"
@@ -482,120 +467,176 @@ msgstr "Transposh Takımı"
 msgid "%VERSION%"
 msgstr "%VERSION%"
 
-#: transposh.php:856
+#: transposh.php:898
 #@ default
 msgid "Settings"
 msgstr "Ayarlar"
 
-#: wp/transposh_admin.php:256
+#: wp/transposh_admin.php:262
 #@ default
 msgid "Save Changes"
 msgstr "Değişiklikleri Kaydet"
 
-#: wp/transposh_admin.php:467
+#: wp/transposh_admin.php:468
 #@ transposh
 msgid "Enable gettext integration"
 msgstr "Gettext entegrasyonunu etkinleştirin"
 
-#: wp/transposh_admin.php:469
+#: wp/transposh_admin.php:468
 #@ transposh
 msgid "Enable integration of Transposh with existing gettext interface (.po/.mo files)"
 msgstr "Mevcut gettext arayüzü (.po / .mo dosyaları) ile Transposh entegrasyonu etkinleştirin"
 
-#: wp/transposh_admin.php:398
+#: wp/transposh_admin.php:400
 #@ transposh
 msgid "Language supported by apertium translate"
 msgstr "Apertium translate tarafından desteklenen dil"
 
-#: wp/transposh_admin.php:558
+#: wp/transposh_admin.php:571
 #@ transposh
 msgid "Attempt to fix errors caused by previous versions - please backup first"
 msgstr "Önceki sürümleri tarafından kaynaklanan hataların gidermek için çalıştır - Lütfen yedekleme yapın"
 
-#: wp/transposh_widget.php:258
+#: wp/transposh_widget.php:314
 #@ transposh
 msgid "translation plugin for wordpress"
 msgstr "wordpress için çeviri eklentisi"
 
-#: wp/transposh_widget.php:261
+#: wp/transposh_widget.php:317
 #@ transposh
 msgid "wordpress translation plugin"
 msgstr "WordPress çeviri eklentisi"
 
-#: wp/transposh_widget.php:264
+#: wp/transposh_widget.php:320
 #@ transposh
 msgid "translate your blog to 60+ languages"
 msgstr "Blogunuzu 60+ dile çevirin"
 
-#: wp/transposh_widget.php:267
+#: wp/transposh_widget.php:323
 #@ transposh
 msgid "website crowdsourcing translation plugin"
 msgstr "web sitesi crowdsourcing çeviri eklentisi"
 
-#: wp/transposh_widget.php:270
+#: wp/transposh_widget.php:326
 #@ transposh
 msgid "google translate and bing translate plugin for wordpress"
 msgstr "Wordpres için google translate ve bing translate eklentisi"
 
-#: wp/transposh_widget.php:384
+#: wp/transposh_admin.php:523
+#: wp/transposh_admin.php:524
 #@ transposh
 msgid "Edit interface (and progress bar) theme:"
 msgstr "İlerleme çubuğu arayüzünü düzenle"
 
-#: wp/transposh_admin.php:451
+#: wp/transposh_admin.php:454
 #@ transposh
 msgid "Allow search of translated languages (and the original language)"
 msgstr "Tercüme dilleri Bulmaya izin ver (ve orijinal dili)"
 
-#: wp/transposh_admin.php:476
+#: wp/transposh_admin.php:475
 #@ transposh
 msgid "Enable override for default locale"
 msgstr "Varsayılan yerel ayar için geçersiz kılmayı etkinleştirin"
 
-#: wp/transposh_admin.php:478
+#: wp/transposh_admin.php:475
 #@ transposh
 msgid "Enable overriding the default locale that is set in WP_LANG on default languages pages (such as untranslated pages and admin pages)"
 msgstr "(Çevrilmemiş sayfaları ve yönetici sayfaları gibi) varsayılan dillerin sayfaları WP_LANG varsayılan yerel geçersiz etkinleştirin"
 
-#: wp/transposh_admin.php:231
+#: wp/transposh_admin.php:237
 #, php-format
 #@ transposh
 msgid "Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it."
 msgstr "Boş sayfalar lütfen artırmayı düşünebilirsiniz yaşarsanız %s geçerli PHP bellek sınırı oldukça düşüktür."
 
-#: wp/transposh_admin.php:235
+#: wp/transposh_admin.php:241
 #@ transposh
 msgid "We were not able to find a supported in-memory caching engine, installing one can improve performance."
 msgstr "Biz kurulu bir performans artırıcı bulamadık, bir önbelleğe alma motoru bulamadık"
 
-#: wp/transposh_postpublish.php:51
+#: wp/transposh_postpublish.php:52
 #@ transposh
 msgid "Set post language"
 msgstr "Mesaj dili olarak ayarlayın"
 
-#: wp/transposh_postpublish.php:52
+#: wp/transposh_postpublish.php:53
 #@ transposh
 msgid "Set page language"
 msgstr "Sayfa dili olarak ayarlayın"
 
-#: wp/transposh_postpublish.php:183
+#: wp/transposh_postpublish.php:198
 #@ default
 msgid "Default"
 msgstr "Varsayılan"
 
-#: wp/transposh_admin.php:231
-#: wp/transposh_admin.php:235
+#: wp/transposh_admin.php:237
+#: wp/transposh_admin.php:241
 #@ transposh
 msgid "Check Transposh FAQs"
 msgstr "Transposh SSS kontrol edin"
 
-#: wp/transposh_admin.php:544
+#: wp/transposh_admin.php:559
 #@ transposh
 msgid "Allow collecting usage statistics"
 msgstr "Kullanım istatistikleri toplamaya izin ver"
 
-#: wp/transposh_admin.php:546
+#. TRANSLATORS: this is what appears in the select box in dropdown subwidget
+#: widgets/dropdown/tpw_image_dropdown.php:45
 #@ transposh
-msgid "This option enables collection of statistics by transposh that will be used to improve the product. "
-msgstr "Bu seçenek, ürün geliştirmek için kullanılacak tarafından Transposh istatistik toplamanmasını sağlar."
+msgid "Select language"
+msgstr ""
+
+#: wp/transposh_admin.php:209
+#@ transposh
+msgid "Frontend settings"
+msgstr ""
+
+#: wp/transposh_admin.php:495
+#@ transposh
+msgid "MSN API key"
+msgstr ""
+
+#: wp/transposh_admin.php:496
+#: wp/transposh_admin.php:502
+#@ transposh
+msgid "API Key"
+msgstr ""
+
+#: wp/transposh_admin.php:501
+#@ transposh
+msgid "Google API key"
+msgstr ""
+
+#: wp/transposh_widget.php:120
+#@ transposh
+msgid "Title:"
+msgstr ""
+
+#: wp/transposh_widget.php:252
+#@ transposh
+msgid "Transposh subwidget was not loaded correctly"
+msgstr ""
+
+#. TRANSLATORS: no need to translate this string
+#: wp/transposh_widget.php:269
+#@ transposh
+msgid "title"
+msgstr ""
+
+#. TRANSLATORS: this is what appears in the select box in the default subwidget
+#: widgets/default/tpw_default.php:43
+#@ transposh
+msgid "Language"
+msgstr ""
+
+#: wp/transposh_admin.php:559
+#@ transposh
+msgid "This option enables collection of statistics by transposh that will be used to improve the product."
+msgstr ""
+
+#. TRANSLATORS: this will be the default widget title
+#: wp/transposh_widget.php:115
+#@ transposh
+msgid "Translation"
+msgstr ""
 
