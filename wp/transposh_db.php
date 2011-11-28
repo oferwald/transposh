@@ -89,9 +89,9 @@ class transposh_database {
             if ($rc === false) return false;
             logger('apc', 5);
         } elseif (function_exists('xcache_get')) {
-            $rc = xcache_isset($key);
+            $rc = @xcache_isset($key);
             if ($rc === false) return false;
-            $cached = xcache_get($key);
+            $cached = @xcache_get($key);
             logger('xcache', 5);
         } elseif (function_exists('eaccelerator_get')) {
             $cached = eaccelerator_get($key);
@@ -123,7 +123,7 @@ class transposh_database {
         } elseif (function_exists('apc_store')) {
             $rc = apc_store($key, $translated, $ttl);
         } elseif (function_exists('xcache_set')) {
-            $rc = xcache_set($key, $translated, $ttl);
+            $rc = @xcache_set($key, $translated, $ttl);
         } elseif (function_exists('eaccelerator_put')) {
             $rc = eaccelerator_put($key, $translated, $ttl);
         }
@@ -149,7 +149,7 @@ class transposh_database {
         } elseif (function_exists('apc_delete')) {
             apc_delete($key);
         } elseif (function_exists('xcache_unset')) {
-            xcache_unset($key);
+            @xcache_unset($key);
         } elseif (function_exists('eaccelerator_rm')) {
             eaccelerator_rm($key);
         }
@@ -165,7 +165,7 @@ class transposh_database {
         } elseif (function_exists('apc_clear_cache')) {
             apc_clear_cache('user');
         } elseif (function_exists('xcache_unset_by_prefix')) {
-            xcache_unset_by_prefix();
+            @xcache_unset_by_prefix();
         }
         //TODO - clean on eaccelerator is not so clean...
     }
