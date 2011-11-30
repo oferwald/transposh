@@ -404,7 +404,7 @@ class transposh_plugin_widget extends WP_Widget {
  * @param array $args Not needed
  */
 function transposh_widget($args = array(), $instance= array('title' => 'Translation')) {
-    $GLOBALS['my_transposh_plugin']->widget->transposh_widget($args, $instance);
+    $GLOBALS['my_transposh_plugin']->widget->widget($args, $instance);
 }
 
 ?>
