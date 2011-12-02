@@ -27,10 +27,6 @@
  */
 class tpw_flags extends transposh_base_widget {
 
-    static function tp_widget_needs_post_url() {
-        return true;
-    }
-
     /**
      * Creates the list of flags
      * @global transposh_plugin $my_transposh_plugin
