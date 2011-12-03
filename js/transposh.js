@@ -332,6 +332,8 @@
         } else {
             test_for_jqueryui.hit = true;
             test_for_lazyrun(function() {
+                // This is needed when old jQueryUI is being loaded (default for wp3.2)
+                $.fn.propAttr = $.fn.prop || $.fn.attr;
                 $.xLazyLoader({
                     js: t_jp.jQueryUI + 'jquery-ui.min.js',
                     css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
