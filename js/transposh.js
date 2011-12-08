@@ -19,7 +19,7 @@
 (function ($) { // closure
     var
     // this is the size of strings to queue, we don't want too much there
-    BATCH_SIZE = 512,
+    BATCH_SIZE = 1024,
     // number of phrases that might be translated
     possibly_translateable,
     // ids of progress bars
@@ -300,13 +300,13 @@
             }
             if (auto_translated_phrases[to_trans] !== 1) {
                 auto_translated_phrases[to_trans] = 1;
-                if (batchlength + to_trans.length > BATCH_SIZE) {
+                if (batchlength + encodeURIComponent(to_trans).length > BATCH_SIZE) {
                     do_mass_invoke(batchtokens, batchtrans);
                     batchlength = 0;
                     batchtrans = [];
                     batchtokens = [];
                 }
-                batchlength += to_trans.length;
+                batchlength += encodeURIComponent(to_trans).length;
                 batchtokens.push(token);
                 batchtrans.push(to_trans);
             }
