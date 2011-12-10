@@ -320,6 +320,7 @@
         if (typeof $.xLazyLoader === 'function') {
             callback();
         } else {
+            t_jp.$ = $;
             $.getScript(t_jp.plugin_url + '/js/lazy.js', callback);
         }        
     }
@@ -345,8 +346,7 @@
 
     t_jp.tfju = test_for_jqueryui;
 
-    $(document).ready(
-        function () {
+    $(function () {
             // set a global binglang (if needed)
             if (t_jp.msn) {
                 t_jp.binglang = t_jp.lang;

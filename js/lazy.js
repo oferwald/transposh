@@ -240,4 +240,4 @@ function xLazyLoader ()
 
 };
 
-})(jQuery);
+})(t_jp.$);
