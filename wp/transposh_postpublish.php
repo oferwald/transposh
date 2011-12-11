@@ -54,7 +54,7 @@ class transposh_postpublish {
         if (!isset($_GET['post'])) return;
         if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
             $this->just_published = true; // this is later used in the meta boxes //XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            wp_enqueue_script("transposh_backend", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
+            wp_enqueue_script("transposh_backend", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
             $script_params = array(
                 'post' => $_GET['post'],
                 'l10n_print_after' =>
@@ -209,6 +209,7 @@ class transposh_postpublish {
      * @param int $postID
      */
     function on_edit($postID) {
+        // TODO - CHECK if (!isset($_POST['transposh_tp_language'])) return;
         add_post_meta($postID, 'transposh_can_translate', 'true', true);
         if ($_POST['transposh_tp_language'] == '') {
             delete_post_meta($postID, 'tp_language');
@@ -220,7 +221,7 @@ class transposh_postpublish {
                 $this->transposh->options->update_options();
             }
         }
-        logger($postID . ' ' . $_POST['transposh_tp_language']);
+        logger($postID . ' ' . $_POST['transposh_tp_language']); //??
     }
 
 }

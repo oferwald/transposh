@@ -39,6 +39,8 @@ class transposh_plugin_admin {
         add_action('admin_menu', array(&$this, 'on_admin_menu'));
         // register the callback been used if options of page been submitted and needs to be processed
         add_action('admin_post_save_transposh', array(&$this, 'on_save_changes'));
+        // allow language change for comments
+        add_filter('comment_row_actions', array(&$this, 'comment_row_actions'), 999, 2);
         // register ajax callbacks
         add_action('wp_ajax_tp_close_warning', array(&$this, 'on_ajax_tp_close_warning'));
         add_action('wp_ajax_tp_backup', array(&$this, 'on_ajax_tp_backup'));
@@ -47,6 +49,7 @@ class transposh_plugin_admin {
         add_action('wp_ajax_tp_cleanup', array(&$this, 'on_ajax_tp_cleanup'));
         add_action('wp_ajax_tp_translate_all', array(&$this, 'on_ajax_tp_translate_all'));
         add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
+        add_action('wp_ajax_tp_comment_lang', array(&$this, 'on_ajax_tp_comment_lang'));
     }
 
     /**
@@ -170,6 +173,11 @@ class transposh_plugin_admin {
         $this->pagehook = add_options_page(__('Transposh control center', TRANSPOSH_TEXT_DOMAIN), __('Transposh', TRANSPOSH_TEXT_DOMAIN), 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'));
         // register callback gets call prior your own page gets rendered
         add_action('load-' . $this->pagehook, array(&$this, 'on_load_page'));
+        add_action('load-edit-comments.php', array(&$this, 'on_load_comments_page'));
+    }
+
+    function on_load_comments_page() {
+        wp_enqueue_script('transposhcomments', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhcommentslang.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
     }
 
     // will be executed if wordpress core detects this page has to be rendered
@@ -183,13 +191,13 @@ class transposh_plugin_admin {
         //if ($this->transposh->options->get_widget_css_flags())
         //            wp_enqueue_style("transposh_flags",$this->transposh->transposh_plugin_url."/widgets/flags/tpw_flags.css",array(),TRANSPOSH_PLUGIN_VER);
         wp_enqueue_script('jquery-ui-droppable');
-        wp_enqueue_script('transposh_settings', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhsettings.js', array(), TRANSPOSH_PLUGIN_VER, true);
+        wp_enqueue_script('transposh_settings', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhsettings.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
         // MAKESURE 3.3+ css
         // wp_enqueue_script('jquery-ui-progressbar');
 
         wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
         wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
-        wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array(), TRANSPOSH_PLUGIN_VER, true);
+        wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
         $script_params = array(
             'l10n_print_after' =>
             't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
@@ -591,6 +599,17 @@ class transposh_plugin_admin {
         }
     }
 
+    function comment_row_actions($actions, $comment) {
+        $comment_lang = get_comment_meta($comment->comment_ID, 'tp_language', true);
+        if (!$comment_lang) {
+            $text = __('Unset', TRANSPOSH_TEXT_DOMAIN);
+        } else {
+            $text = transposh_consts::get_language_orig_name($comment_lang);
+        }
+        $actions['language'] = __('Language', TRANSPOSH_TEXT_DOMAIN) . "(<a data-cid=\"{$comment->comment_ID}\" data-lang=\"{$comment_lang}\" href=\"\" onclick=\"return false\">$text</a>)";
+        return $actions;
+    }
+
     // ajax stuff!
     function on_ajax_tp_close_warning() {
         $this->transposh->options->set_transposh_admin_hide_warning($_POST['id']);
@@ -637,6 +656,14 @@ class transposh_plugin_admin {
     // getting phrases of a post (if we are in admin)
     function on_ajax_tp_post_phrases() {
         $this->transposh->postpublish->get_post_phrases($_GET['post']);
+        die();
+    }
+
+    // Handle comments language change on the admin side
+    function on_ajax_tp_comment_lang() {
+        delete_comment_meta($_GET['cid'], 'tp_language');
+        if ($_GET['lang'])
+                add_comment_meta($_GET['cid'], 'tp_language', $_GET['lang'], true);
         die();
     }
 
