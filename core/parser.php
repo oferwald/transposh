@@ -301,6 +301,9 @@ class parser {
     function is_sentence_breaker($char, $nextchar, $nextnextchar) {
         if (($char == '.' || $char == '-') && ($this->is_white_space($nextchar)))
                 return 1;
+        //，
+        if (ord($char) == 239 && ord($nextchar) == 188 && ord($nextnextchar) == 140)
+                return 3;
         //∙
         if (ord($char) == 226 && ord($nextchar) == 136 && ord($nextnextchar) == 153)
                 return 3;
