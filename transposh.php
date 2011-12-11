@@ -710,8 +710,7 @@ class transposh_plugin {
         //not in any translation mode - no need for any js.
         if (!($this->edit_mode || $this->is_auto_translate_permitted() || is_admin()))
                 return; // TODO, check just for settings page admin and pages with our translate
-
-        wp_enqueue_script('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposh.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
+        wp_register_script('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposh.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
         // true -> 1, false -> nothing
         $script_params = array(
             'ajaxurl' => admin_url('admin-ajax.php'),
@@ -760,6 +759,10 @@ class transposh_plugin {
 
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
+        // only enqueue on real pages, other admin scripts that need this will register a dependency
+        if (($this->edit_mode || $this->is_auto_translate_permitted()) && !is_admin()) {
+            wp_enqueue_script('transposh');
+        }
         logger('Added transposh_js', 4);
     }
 

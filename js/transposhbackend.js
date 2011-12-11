@@ -260,7 +260,7 @@
     window.translate_post = translate_post;
 
     // If we have a single post, we can just go through with it
-    $(document).ready(function () {
+    $(function () {
         if (t_be.post) {
             translate_post(t_be.post);
         }

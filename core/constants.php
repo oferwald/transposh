@@ -110,6 +110,17 @@ class transposh_consts {
         'cy' => 'Welsh,Cymraeg,wales,',
         'yi' => 'Yiddish,ייִדיש,europeanunion,'
     );
+    
+    public static function get_language_name($lang) {
+       list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
+       return $langname;
+    }
+
+    public static function get_language_orig_name($lang) {
+       list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
+       return $langorigname;
+    }
+
     // Language which are read from right to left (rtl)
     public static $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
     // Google supported languages
