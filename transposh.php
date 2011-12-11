@@ -708,7 +708,8 @@ class transposh_plugin {
      */
     function add_transposh_js() {
         //not in any translation mode - no need for any js.
-        if (!($this->edit_mode || $this->is_auto_translate_permitted() || is_admin())) return; // TODO, check just for settings page admin and pages with our translate
+        if (!($this->edit_mode || $this->is_auto_translate_permitted() || is_admin()))
+                return; // TODO, check just for settings page admin and pages with our translate
 
         wp_enqueue_script('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposh.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
         // true -> 1, false -> nothing
@@ -1199,6 +1200,7 @@ class transposh_plugin {
         $i = 0;
         // we need curl for this proxy
         if (!function_exists('curl_init')) return;
+        transposh_utils::allow_cors();
         $tl = $_GET['tl'];
         // we want to avoid unneeded work or dos attacks on languages we don't support
         if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_editable_language($tl))
@@ -1246,6 +1248,7 @@ class transposh_plugin {
     function on_ajax_nopriv_tp_gp() {
         // we need curl for this proxy
         if (!function_exists('curl_init')) return;
+        transposh_utils::allow_cors();
         // target language
         $tl = $_GET['tl'];
         // we want to avoid unneeded work or dos attacks on languages we don't support
@@ -1342,6 +1345,7 @@ class transposh_plugin {
     // getting translation history
     function on_ajax_nopriv_tp_history() {
         // deleting
+        transposh_utils::allow_cors();
         if (isset($_GET['timestamp'])) {
             $this->database->del_translation_history($_GET['token'], $_GET['lang'], $_GET['timestamp']);
         }
@@ -1351,6 +1355,7 @@ class transposh_plugin {
 
     //  the case of posted translation
     function on_ajax_nopriv_tp_translation() {
+        transposh_utils::allow_cors();
         do_action('transposh_translation_posted');
         $this->database->update_translation();
         die();
@@ -1358,6 +1363,7 @@ class transposh_plugin {
 
     // getting translation alternates
     function on_ajax_nopriv_tp_trans_alts() {
+        transposh_utils::allow_cors();
         $this->database->get_translation_alt($_GET['token']);
         die();
     }
