@@ -395,8 +395,7 @@ class transposh_utils {
         //    qvalue         = ( "0" [ "." 0*3DIGIT ] )
         //            | ( "1" [ "." 0*3("0") ] )
         preg_match_all("/([[:alpha:]]{1,8})(-([[:alpha:]|-]{1,8}))?" .
-                "(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i",
-                $http_accept_language, $hits, PREG_SET_ORDER);
+                "(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i", $http_accept_language, $hits, PREG_SET_ORDER);
 
         // default language (in case of no hits) is the first in the array
         if ($default_lang == 'auto') $bestlang = $available_languages[0]; else
@@ -430,6 +429,13 @@ class transposh_utils {
 
     public static function is_bot() {
         return preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", $_SERVER['HTTP_USER_AGENT']);
+    }
+
+    public static function allow_cors() {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: X-Requested-With');
+        header('Access-Control-Max-Age: 86400');
     }
 
 }
