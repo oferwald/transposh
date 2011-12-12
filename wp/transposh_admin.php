@@ -604,7 +604,7 @@ class transposh_plugin_admin {
         if (!$comment_lang) {
             $text = __('Unset', TRANSPOSH_TEXT_DOMAIN);
         } else {
-            $text = transposh_consts::get_language_orig_name($comment_lang);
+            $text = transposh_consts::get_language_name($comment_lang)." - ".transposh_consts::get_language_orig_name($comment_lang);
         }
         $actions['language'] = __('Language', TRANSPOSH_TEXT_DOMAIN) . "(<a data-cid=\"{$comment->comment_ID}\" data-lang=\"{$comment_lang}\" href=\"\" onclick=\"return false\">$text</a>)";
         return $actions;
