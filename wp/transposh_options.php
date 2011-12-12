@@ -119,7 +119,7 @@ class transposh_plugin_options {
         $this->set_default_option_value(MSN_TRANSLATE_KEY);
         $this->set_default_option_value(GOOGLE_TRANSLATE_KEY);
         $this->set_default_option_value(TRANSPOSH_KEY);
-        $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE);
+        $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE, 2);
         $this->set_default_option_value(TRANSPOSH_ADMIN_HIDE_WARNINGS);
         $this->set_default_option_value(TRANSPOSH_COLLECT_STATS, 1);
         $this->migrate_old_config();
