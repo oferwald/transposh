@@ -1,8 +1,8 @@
 === Transposh - translation filter for wordpress ===
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
-Tags: translation, widget, filter, buddypress, bilingual, multilingual, transposh, translate, language, crowdsourcing, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
-Requires at least: 2.8
+Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
+Requires at least: 3.1
 Tested up to: 3.3
 Stable tag: %VERSION%
 
@@ -115,6 +115,18 @@ This version allows sorting of languages within the widget
  * Turkish translation by [Semih Yeşilyurt](http://kingdroid.net)
 
 == Changelog ==
+= 2011/12/12 - 0.8.1 =
+ * Allow setting comment lanaguage meta data from the admin interface
+ * Enable live human translations backup by default
+ * Lists of languages used in Javascript are fixed and more readable
+ * Improved loading for backend javascripts
+ * Support the ， symbol in parsing
+ * Reintroduce CORS support in our AJAX (Cross Origin Ajax)
+ * Try to make sure lazyloader loads in the correct context
+ * Fix calculation of batch translation size to avoid translations too large for Google
+ * Fix when two jQueryUI versions are included, mainly for wordpress 3.2.x
+ * Fixed widget to remove [Language] which was buggy as noted by Philip Trauring
+ * Fix broken sites for users using the widget function directly
 = 2011/11/28 - 0.8.0 =
  * Attack of the killer "give us your money" APIs by both Google and Bing
  * Improved Google Proxy to support working with all langugaes without key
@@ -134,6 +146,7 @@ This version allows sorting of languages within the widget
  * Many more minor fixes
  * Turkish Translation by [Semih Yeşilyurt](http://kingdroid.net)
  * Help us more (We will get ~1 promile of your adsense income, thanks!)
+ * Ajax is now performed through the wp-admin ajax interface
 = 2011/08/02 - 0.7.6 =
  * Added some improvements to the simple html dom from a new upstream release
  * Allow setting of a post/page language with a simple select box
