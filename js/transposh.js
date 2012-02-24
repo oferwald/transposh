@@ -354,6 +354,8 @@
                     t_jp.binglang = 'zh-chs';
                 } else if (t_jp.binglang === 'zh-tw') {
                     t_jp.binglang = 'zh-cht';
+                } else if (t_jp.binglang === 'mw') {
+                    t_jp.binglang = 'mww';
                 }
             }
 
