@@ -718,7 +718,8 @@
         // time to create the dialog
         $(dialog).dialog({
             resizable: false,
-            width: 500//,
+            width: 500,
+            zIndex: 99999//,
         });
 
         // rtl fix for buttonsets, dialog
