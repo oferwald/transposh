@@ -1,4 +1,4 @@
-=== Transposh - translation filter for wordpress ===
+=== Transposh WordPress Translation ===
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
@@ -6,7 +6,7 @@ Requires at least: 3.1
 Tested up to: 3.3
 Stable tag: %VERSION%
 
-Transposh adds best of breed translation support to wordpress, 65 languages are automatically translated and can be manually corrected with ease.
+Transposh adds best of breed translation support to wordpress, 66 languages are automatically translated and can be manually corrected with ease.
 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
@@ -115,6 +115,10 @@ This version allows sorting of languages within the widget
  * Turkish translation by [Semih Yeşilyurt](http://kingdroid.net)
 
 == Changelog ==
+= 2012/03/01 - 0.8.2 =
+ * Fix an error where MSN is the only engine available but is not the default engine
+ * Added support for Esparanto for Google and Hmong Daw for Bing
+ * Fix the z-index issue with Twenty-Twelve 
 = 2011/12/12 - 0.8.1 =
  * Allow setting comment lanaguage meta data from the admin interface
  * Enable live human translations backup by default
