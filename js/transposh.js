@@ -273,9 +273,9 @@
         }, t_jp.lang);
     }
 
-    // invokes the correct mass translatot based on the prefered one...
+    // invokes the correct mass translator based on the preferred one...
     function do_mass_invoke(batchtokens, batchtrans) {
-        if (t_jp.msn && t_jp.preferred === '2') {
+        if (t_jp.msn && (t_jp.preferred === '2' || t_jp.google === undefined)) {
             do_mass_ms_invoker(batchtokens, batchtrans);
         } else if (t_jp.apertium && (t_jp.olang === 'en' || t_jp.olang === 'es')) {
             do_mass_apertium_invoker(batchtokens, batchtrans);
