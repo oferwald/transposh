@@ -1191,6 +1191,14 @@ class transposh_plugin {
             $nt_class = ' class="' . NO_TRANSLATE_CLASS . '"';
         }
 
+        if (isset($atts['widget'])) {
+            ob_start();
+            $this->widget->widget(array('before_widget' => '', 'before_title' => '', 'after_widget' => '', 'after_title' => ''), array('title' => '', 'widget_file' => $atts['widget']));
+            $widgetcontent = ob_get_contents();
+            ob_end_clean();
+            return $widgetcontent;
+        }
+        
         if ($lang || $only_class || $nt_class) {
             return '<span ' . $only_class . $nt_class . $lang . '>' . do_shortcode($content) . '</span>';
         } else {
