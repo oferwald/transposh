@@ -278,16 +278,24 @@ class parser {
       &yacute;    &#253; 	ý 	ý 	latin small letter y with acute
       &thorn;     &#254; 	þ 	þ 	latin small letter thorn
       &yuml;      &#255; 	ÿ 	ÿ 	latin small letter y with diaeresis
+
+      Latin-1 extended
+      &OElig;     &#338;                        latin capital ligature OE
+      &oelig;     &#339;                        latin small ligature oe
+      &Scaron;    &#352;                        latin capital letter S with caron
+      &scaron;    &#353;                        latin small letter s with caron
+      &Yuml;      &#376;                        latin capital letter Y with diaeresis
      */
     function is_entity_letter($entity) {
         logger("checking ($entity) - " . htmlentities($entity), 4);
         $entnum = (int) substr($entity, 2);
-        if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 255)) {
+        if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 255)
+                || $entnum == 338 || $entnum == 339|| $entnum == 352|| $entnum == 353|| $entnum == 376) {
             return true;
         }
         $entities = '&Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;' .
                 '&Ntilde;&Ograve;&Oacute;&Ocirc;&Otilde;&Ouml;&Oslash;&Ugrave;&Uacute;&Ucirc;&Uuml;&Yacute;&THORN;&szlig;' .
-                '&oslash;&ugrave;&yuml;';
+                '&oslash;&ugrave;&yuml;&oelig;&scaron;';
         return (stripos($entities, $entity) !== FALSE);
     }
 
