@@ -708,7 +708,7 @@ class parser {
             }
             foreach (array('title', 'value') as $title) {
                 foreach ($this->html->find('[' . $title . ']') as $e) {
-                    foreach ($e->nodes as $ep) {
+                    if (isset($e->nodes)) foreach ($e->nodes as $ep) {
                         if ($ep->phrase) $originals[$ep->phrase] = true;
                     }
                 }
@@ -810,7 +810,7 @@ class parser {
                     $saved_outertext = $e->outertext;
                 }
                 logger("$title-original: $e->$title}", 4);
-                foreach ($e->nodes as $ep) {
+                if (isset($e->nodes)) foreach ($e->nodes as $ep) {
                     if ($ep->tag == 'phrase') {
                         list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                         // more stats
