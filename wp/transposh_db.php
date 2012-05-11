@@ -622,13 +622,13 @@ class transposh_database {
      * Setup the translation database.
      */
 
-    function setup_db() {
+    function setup_db($force = false) {
         logger("Enter");
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
         $installed_ver = get_option(TRANSPOSH_DB_VERSION);
 
-        if ($installed_ver != DB_VERSION) {
+        if ($installed_ver != DB_VERSION || $force) {
             logger("Attempting to create table {$this->translation_table}", 0);
             // notice - keep every field on a new line or dbdelta fails
             $GLOBALS['wpdb']->query("ALTER TABLE {$this->translation_table} DROP PRIMARY KEY");
@@ -756,6 +756,8 @@ class transposh_database {
     }
 
     function db_maint() {
+        // attempt to recreate tables
+        $this->setup_db(true);
         // clean duplicate log entries
         $dedup = 'SELECT * , count( * )' .
                 ' FROM ' . $this->translation_log_table .
