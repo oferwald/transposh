@@ -676,7 +676,7 @@ class parser {
             logger('fixing feed');
             foreach (array('link', 'wfw:commentrss', 'comments') as $tag) {
                 foreach ($this->html->find($tag) as $e) {
-                    $e->innertext = call_user_func_array($this->url_rewrite_func, array($e->innertext));
+                    $e->innertext = htmlspecialchars(call_user_func_array($this->url_rewrite_func, array($e->innertext)));
                     // no need to translate anything here
                     unset($e->nodes);
                 }
