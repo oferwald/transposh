@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.1
-Tested up to: 3.3
+Tested up to: 3.4
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 66 languages are automatically translated and can be manually corrected with ease.
@@ -22,7 +22,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Multiple options for widget appearances - with pluggable widgets and multiple instances
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
-* Use either Google Translate,MS Translate or Apertium backends - 65 languages supported!
+* Use either Google Translate,MS Translate or Apertium backends - 66 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -115,6 +115,12 @@ This version allows sorting of languages within the widget
  * Turkish translation by [Semih Yeşilyurt](http://kingdroid.net)
 
 == Changelog ==
+= 2012/05/28 - 0.8.3 =
+ * Fix break in feeds with params noticed by Marco Raaphorst 
+ * Maintanance button now attempts to create database tables 
+ * Attempt to reduce log warnings 
+ * Add support for &scaron; and other latin-1 extended chars 
+ * Support inserting widgets into post as shortcode 
 = 2012/03/01 - 0.8.2 =
  * Fix an error where MSN is the only engine available but is not the default engine
  * Added support for Esparanto for Google and Hmong Daw for Bing
