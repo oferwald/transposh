@@ -41,7 +41,7 @@ class transposh_base_widget {
         $basefile = substr($file, 0, -4);
         $widget_css = TRANSPOSH_DIR_WIDGETS . '/' . $basefile . ".css";
         if (file_exists($plugin_dir . $widget_css)) {
-            wp_enqueue_style($basefile, $plugin_url . '/' . $widget_css, '', TRANSPOSH_PLUGIN_VER);
+            wp_enqueue_style(str_replace('/','_', $basefile), $plugin_url . '/' . $widget_css, '', TRANSPOSH_PLUGIN_VER);
         }
     }
 
