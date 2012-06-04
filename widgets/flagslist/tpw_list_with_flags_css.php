@@ -28,7 +28,7 @@ class tpw_list_with_flags_css extends transposh_base_widget {
      * @global transposh_plugin $my_transposh_plugin
      */
     static function tp_widget_css($file, $dir, $url) {
-        wp_enqueue_style("flags/tpw_flags_css", "$url/widgets/flags/tpw_flags_css.css", array(), TRANSPOSH_PLUGIN_VER);
+        wp_enqueue_style("flags_tpw_flags_css", "$url/widgets/flags/tpw_flags_css.css", array(), TRANSPOSH_PLUGIN_VER);
     }
 
     /**
