@@ -230,7 +230,7 @@ class transposh_plugin_widget extends WP_Widget {
                     'langorig' => $language,
                     'flag' => $flag,
                     'isocode' => $code,
-                    'url' => $page_url,
+                    'url' => htmlentities($page_url), // fix that XSS
                     'active' => ($this->transposh->target_language == $code));
             }
         }
@@ -397,14 +397,6 @@ class transposh_plugin_widget extends WP_Widget {
         return $tp_widgets;
     }
 
-}
-
-/**
- * Function provided for old widget include code compatability
- * @param array $args Not needed
- */
-function transposh_widget($args = array(), $instance= array('title' => 'Translation')) {
-    $GLOBALS['my_transposh_plugin']->widget->widget($args, $instance);
 }
 
 ?>
