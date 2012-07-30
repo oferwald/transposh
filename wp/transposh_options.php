@@ -28,6 +28,10 @@ define('OLD_WIDGET_FILE', 'widget_file'); //unset!!!
 define('MSN_TRANSLATE_KEY', 'msn_key');
 //Option to store the msn API key
 define('GOOGLE_TRANSLATE_KEY', 'google_key');
+//Option to store the msn API key
+define('OHT_TRANSLATE_ID', 'oht_id');
+//Option to store the msn API key
+define('OHT_TRANSLATE_KEY', 'oht_key');
 
 //defines are used to avoid typos
 //Option defining whether anonymous translation is allowed.
@@ -118,6 +122,8 @@ class transposh_plugin_options {
         $this->set_default_option_value(WIDGET_THEME, 'ui-lightness');
         $this->set_default_option_value(MSN_TRANSLATE_KEY);
         $this->set_default_option_value(GOOGLE_TRANSLATE_KEY);
+        $this->set_default_option_value(OHT_TRANSLATE_ID);
+        $this->set_default_option_value(OHT_TRANSLATE_KEY);
         $this->set_default_option_value(TRANSPOSH_KEY);
         $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE, 2);
         $this->set_default_option_value(TRANSPOSH_ADMIN_HIDE_WARNINGS);
@@ -230,6 +236,14 @@ class transposh_plugin_options {
 
     function get_google_key() {
         return $this->options[GOOGLE_TRANSLATE_KEY];
+    }
+
+    function get_oht_id() {
+        return $this->options[OHT_TRANSLATE_ID];
+    }
+
+    function get_oht_key() {
+        return $this->options[OHT_TRANSLATE_KEY];
     }
 
     function get_enable_auto_post_translate() {
@@ -375,6 +389,14 @@ class transposh_plugin_options {
 
     function set_google_key($val) {
         $this->set_value($val, $this->options[GOOGLE_TRANSLATE_KEY]);
+    }
+
+    function set_oht_id($val) {
+        $this->set_value($val, $this->options[OHT_TRANSLATE_ID]);
+    }
+    
+    function set_oht_key($val) {
+        $this->set_value($val, $this->options[OHT_TRANSLATE_KEY]);
     }
 
     function set_enable_auto_post_translate($val) {

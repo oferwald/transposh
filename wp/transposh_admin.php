@@ -131,6 +131,8 @@ class transposh_plugin_admin {
         $this->transposh->options->set_preferred_translator($_POST[PREFERRED_TRANSLATOR]);
         $this->transposh->options->set_msn_key($_POST[MSN_TRANSLATE_KEY]);
         $this->transposh->options->set_google_key($_POST[GOOGLE_TRANSLATE_KEY]);
+        $this->transposh->options->set_oht_id($_POST[OHT_TRANSLATE_ID]);
+        $this->transposh->options->set_oht_key($_POST[OHT_TRANSLATE_KEY]);
         $this->transposh->options->set_transposh_key($_POST[TRANSPOSH_KEY]);
         // frontend stuff
         $this->transposh->options->set_widget_progressbar($_POST[WIDGET_PROGRESSBAR]);
@@ -214,6 +216,7 @@ class transposh_plugin_admin {
         add_meta_box('transposh-contentbox-languages', __('Supported languages', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_languages_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-translation', __('Translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-autotranslation', __('Automatic translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
+        add_meta_box('transposh-contentbox-protranslation', __('Professional translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_professional_translation_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-frontend', __('Frontend settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_frontend_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-general', __('Generic settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_generic_content'), $this->pagehook, 'normal', 'core');
         add_meta_box('transposh-contentbox-database', __('Database maintenance', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_database_content'), $this->pagehook, 'normal', 'core');
@@ -500,13 +503,13 @@ class transposh_plugin_admin {
         /**
          * Allow users to insert their own API keys
          */
-        echo '<h4>' . __('MSN API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"> ". __('MSN API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_msn_key() . '" id="' . MSN_TRANSLATE_KEY . '" name="' . MSN_TRANSLATE_KEY . '"/>';
 
         /**
          * Allow users to insert their own API keys
          */
-        echo '<h4>' . __('Google API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"> " . __('Google API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_google_key() . '" id="' . GOOGLE_TRANSLATE_KEY . '" name="' . GOOGLE_TRANSLATE_KEY . '"/>';
 
         /*
@@ -519,6 +522,20 @@ class transposh_plugin_admin {
         '<option value="2"' . ($this->transposh->options->get_preferred_translator() == 2 ? ' selected="selected"' : '') . '>' . __('Bing', TRANSPOSH_TEXT_DOMAIN) . '</option>' .
         '</select>' .
         '</label>';
+    }
+
+    function on_contentbox_professional_translation_content($data) {
+        /**
+         * Allow users to insert their own API keys
+         */
+        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> ". __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo __('Account ID', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_id() . '" id="' . OHT_TRANSLATE_ID . '" name="' . OHT_TRANSLATE_ID . '"/>';
+
+        /**
+         * Allow users to insert their own API keys
+         */
+        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> ". __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_key() . '" id="' . OHT_TRANSLATE_KEY . '" name="' . OHT_TRANSLATE_KEY . '"/>';
     }
 
     function on_contentbox_frontend_content($data) {
@@ -604,7 +621,7 @@ class transposh_plugin_admin {
         if (!$comment_lang) {
             $text = __('Unset', TRANSPOSH_TEXT_DOMAIN);
         } else {
-            $text = transposh_consts::get_language_name($comment_lang)." - ".transposh_consts::get_language_orig_name($comment_lang);
+            $text = transposh_consts::get_language_name($comment_lang) . " - " . transposh_consts::get_language_orig_name($comment_lang);
         }
         $actions['language'] = __('Language', TRANSPOSH_TEXT_DOMAIN) . "(<a data-cid=\"{$comment->comment_ID}\" data-lang=\"{$comment_lang}\" href=\"\" onclick=\"return false\">$text</a>)";
         return $actions;
