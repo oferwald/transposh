@@ -739,7 +739,6 @@ class transposh_plugin {
         }
         if (in_array($this->target_language, transposh_consts::$apertium_languages))
                 $script_params['apertium'] = 1;
-
         if ($this->options->get_widget_progressbar())
                 $script_params['progress'] = 1;
         if (!$this->options->get_enable_auto_translate())
@@ -1198,7 +1197,7 @@ class transposh_plugin {
             ob_end_clean();
             return $widgetcontent;
         }
-        
+
         if ($lang || $only_class || $nt_class) {
             return '<span ' . $only_class . $nt_class . $lang . '>' . do_shortcode($content) . '</span>';
         } else {
@@ -1400,4 +1399,23 @@ class transposh_plugin {
 }
 
 $my_transposh_plugin = new transposh_plugin();
+
+// some global functions for programmers
+
+/**
+ * Function provided for old widget include code compatability
+ * @param array $args Not needed
+ */
+function transposh_widget($args = array(), $instance = array('title' => 'Translation')) {
+    $my_transposh_plugin->widget->widget($args, $instance);
+}
+
+/**
+ * Function for getting the current language
+ * @return string
+ */
+function transposh_get_current_language() {
+    return $my_transposh_plugin->target_language;
+}
+
 ?>
