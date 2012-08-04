@@ -208,8 +208,8 @@ class parser {
      * @param string $entity - html entity to check
      * @return boolean true if not a breaker (apostrophy)
      */
-    function is_entity_breaker($entity) {
-        return!(stripos('&#8217;&apos;&quot;&#039;&#39;&rsquo;&lsquo;&rdquo;&ldquo;', $entity) !== FALSE);
+    function is_entity_breaker($entity) { // &#8216;&#8217;??
+        return !(stripos('&#8216;&#8217;&apos;&quot;&#039;&#39;&rsquo;&lsquo;&rdquo;&ldquo;', $entity) !== FALSE);
     }
 
     /**
@@ -290,7 +290,7 @@ class parser {
         logger("checking ($entity) - " . htmlentities($entity), 4);
         $entnum = (int) substr($entity, 2);
         if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 255)
-                || $entnum == 338 || $entnum == 339|| $entnum == 352|| $entnum == 353|| $entnum == 376) {
+                || $entnum == 338 || $entnum == 339 || $entnum == 352 || $entnum == 353 || $entnum == 376) {
             return true;
         }
         $entities = '&Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;' .
@@ -512,6 +512,8 @@ class parser {
             }
             if (isset($src_set_here) && $src_set_here)
                     $this->srclang = $prevsrclang;
+            if (isset($inselect_set_here) && $inselect_set_here)
+                    $this->inselect = false;
             return;
         }
 
@@ -709,8 +711,8 @@ class parser {
             foreach (array('title', 'value') as $title) {
                 foreach ($this->html->find('[' . $title . ']') as $e) {
                     if (isset($e->nodes)) foreach ($e->nodes as $ep) {
-                        if ($ep->phrase) $originals[$ep->phrase] = true;
-                    }
+                            if ($ep->phrase) $originals[$ep->phrase] = true;
+                        }
                 }
             }
             foreach ($this->html->find('[content]') as $e) {
@@ -793,7 +795,7 @@ class parser {
             }
 
             // this adds saved spans to the first not in select element which is in the body
-            if (!$ep->inselect && $savedspan && $ep->inbody) { // (TODO: might not be...?)
+            if ($e->nodes && !$ep->inselect && $savedspan && $ep->inbody) { // (TODO: might not be...?)
                 $e->outertext = $savedspan . $e->outertext;
                 $savedspan = '';
             }
@@ -811,38 +813,38 @@ class parser {
                 }
                 logger("$title-original: $e->$title}", 4);
                 if (isset($e->nodes)) foreach ($e->nodes as $ep) {
-                    if ($ep->tag == 'phrase') {
-                        list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
-                        // more stats
-                        $this->stats->total_phrases++;
-                        if ($ep->inbody) $this->stats->hidden_phrases++; else
-                                $this->stats->meta_phrases++;
-                        if ($translated_text) {
-                            $this->stats->translated_phrases++;
-                            if ($ep->inbody)
-                                    $this->stats->hidden_translated_phrases++; else
-                                    $this->stats->meta_translated_phrases++;
-                            if ($source == 0)
-                                    $this->stats->human_translated_phrases++;
-                        }
-                        if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
-                            // prevent duplicate translation (title = text)
-                            if (strpos($e->innertext, transposh_utils::base64_url_encode($ep->phrase)) === false) {
-                                //no need to translate span the same hidden phrase more than once
-                                if (!in_array($ep->phrase, $hidden_phrases)) {
-                                    $this->stats->hidden_translateable_phrases++;
-                                    $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
-                                    //    logger ($span);
-                                    $hidden_phrases[] = $ep->phrase;
+                        if ($ep->tag == 'phrase') {
+                            list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
+                            // more stats
+                            $this->stats->total_phrases++;
+                            if ($ep->inbody) $this->stats->hidden_phrases++; else
+                                    $this->stats->meta_phrases++;
+                            if ($translated_text) {
+                                $this->stats->translated_phrases++;
+                                if ($ep->inbody)
+                                        $this->stats->hidden_translated_phrases++; else
+                                        $this->stats->meta_translated_phrases++;
+                                if ($source == 0)
+                                        $this->stats->human_translated_phrases++;
+                            }
+                            if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
+                                // prevent duplicate translation (title = text)
+                                if (strpos($e->innertext, transposh_utils::base64_url_encode($ep->phrase)) === false) {
+                                    //no need to translate span the same hidden phrase more than once
+                                    if (!in_array($ep->phrase, $hidden_phrases)) {
+                                        $this->stats->hidden_translateable_phrases++;
+                                        $span .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
+                                        //    logger ($span);
+                                        $hidden_phrases[] = $ep->phrase;
+                                    }
                                 }
                             }
-                        }
-                        // if we need to replace, we store this
-                        if ($translated_text) {
-                            $replace[$translated_text] = $ep;
+                            // if we need to replace, we store this
+                            if ($translated_text) {
+                                $replace[$translated_text] = $ep;
+                            }
                         }
                     }
-                }
                 // and later replace
                 foreach (array_reverse($replace, true) as $replace => $epg) {
                     $e->title = substr_replace($e->title, $replace, $epg->start, $epg->len);
