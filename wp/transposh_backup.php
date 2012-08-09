@@ -57,20 +57,35 @@ class transposh_backup {
             $this->transposh->options->update_options();
         }
         if (isset($result['headers']['lastitem'])) {
-            $rowstosend = $this->transposh->database->get_all_human_translation_history($result['headers']['lastitem'], 500);
+            $rowstosend = $this->transposh->database->get_all_human_translation_history($result['headers']['lastitem'], 100);
             while ($rowstosend) {
                 $item = 0;
+                $lastorig = '';
+                $lastlang = '';
+                $lasttrans = '';
+                $lastby = '';
+                $lastts = '';
                 foreach ($rowstosend as $row) {
-                    if ($body['or' . ($item - 1)] != $row->original)
-                            $body['or' . $item] = $row->original;
-                    if ($body['ln' . ($item - 1)] != $row->lang)
-                            $body['ln' . $item] = $row->lang;
-                    if ($body['tr' . ($item - 1)] != $row->translated)
-                            $body['tr' . $item] = $row->translated;
-                    if ($body['tb' . ($item - 1)] != $row->translated_by)
-                            $body['tb' . $item] = $row->translated_by;
-                    if ($body['ts' . ($item - 1)] != $row->timestamp)
-                            $body['ts' . $item] = $row->timestamp;
+                    if ($lastorig != $row->original) {
+                        $body['or' . $item] = $row->original;
+                        $lastorig = $row->original;
+                    }
+                    if ($lastlang != $row->lang) {
+                        $body['ln' . $item] = $row->lang;
+                        $lastlang = $row->lang;
+                    }
+                    if ($lasttrans != $row->translated) {
+                        $body['tr' . $item] = $row->translated;
+                        $lasttrans = $row->translated;
+                    }
+                    if ($lastby != $row->translated_by) {
+                        $body['tb' . $item] = $row->translated_by;
+                        $lastby = $row->translated_by;
+                    }
+                    if ($lastts != $row->timestamp) {
+                        $body['ts' . $item] = $row->timestamp;
+                        $lastts = $row->timestamp;
+                    }
                     $item++;
                 }
                 $body['items'] = $item;
