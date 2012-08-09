@@ -65,6 +65,7 @@ class transposh_backup {
                 $lasttrans = '';
                 $lastby = '';
                 $lastts = '';
+                $body = array();
                 foreach ($rowstosend as $row) {
                     if ($lastorig != $row->original) {
                         $body['or' . $item] = $row->original;
@@ -100,7 +101,7 @@ class transposh_backup {
                     echo "500 - " . $result['headers']['fail'];
                     return;
                 }
-                $rowstosend = $this->transposh->database->get_all_human_translation_history($row->timestamp, 500);
+                $rowstosend = $this->transposh->database->get_all_human_translation_history($row->timestamp, 100);
             }
         }
         Echo '200 - backup in sync';
