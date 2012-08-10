@@ -141,11 +141,11 @@ class transposh_plugin_admin {
         $this->transposh->options->set_widget_theme($_POST[WIDGET_THEME]);
 
         // handle change of schedule for backup to daily
-        if ($_POST[TRANSPOSH_BACKUP_SCHEDULE] != $this->transposh->options->get_transposh_backup_schedule()) {
-            wp_clear_scheduled_hook('transposh_backup_event');
-            if ($_POST[TRANSPOSH_BACKUP_SCHEDULE] == 1)
-                    wp_schedule_event(time(), 'daily', 'transposh_backup_event');
-        }
+        //if ($_POST[TRANSPOSH_BACKUP_SCHEDULE] != $this->transposh->options->get_transposh_backup_schedule()) {
+        wp_clear_scheduled_hook('transposh_backup_event');
+        if ($_POST[TRANSPOSH_BACKUP_SCHEDULE] == 1 || $_POST[TRANSPOSH_BACKUP_SCHEDULE] == 2)
+                wp_schedule_event(time(), 'daily', 'transposh_backup_event');
+        //}
         $this->transposh->options->set_transposh_backup_schedule($_POST[TRANSPOSH_BACKUP_SCHEDULE]);
 
         $this->transposh->options->update_options();
@@ -503,13 +503,13 @@ class transposh_plugin_admin {
         /**
          * Allow users to insert their own API keys
          */
-        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"> ". __('MSN API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"> " . __('MSN API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_msn_key() . '" id="' . MSN_TRANSLATE_KEY . '" name="' . MSN_TRANSLATE_KEY . '"/>';
 
         /**
          * Allow users to insert their own API keys
          */
-        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"> " . __('Google API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"> " . __('Google API key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_google_key() . '" id="' . GOOGLE_TRANSLATE_KEY . '" name="' . GOOGLE_TRANSLATE_KEY . '"/>';
 
         /*
@@ -528,13 +528,13 @@ class transposh_plugin_admin {
         /**
          * Allow users to insert their own API keys
          */
-        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> ". __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('Account ID', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_id() . '" id="' . OHT_TRANSLATE_ID . '" name="' . OHT_TRANSLATE_ID . '"/>';
 
         /**
          * Allow users to insert their own API keys
          */
-        echo '<h4>' ."<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> ". __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
+        echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_key() . '" id="' . OHT_TRANSLATE_KEY . '" name="' . OHT_TRANSLATE_KEY . '"/>';
     }
 
