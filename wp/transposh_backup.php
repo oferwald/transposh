@@ -30,10 +30,17 @@ class transposh_backup {
         $this->transposh = &$transposh;
     }
 
-    function do_backup() {
+    function init_body() {
         $body = array();
         $body['home_url'] = $this->transposh->home_url;
         $body['key'] = $this->transposh->options->get_transposh_key();
+        $body['v'] = '2';
+        $body['tpv'] = '%VERSION%';
+        return $body;
+    }
+
+    function do_backup() {
+        $body = $this->init_body();
         //Check if there are thing to backup, before even accessing the service
         $rowstosend = $this->transposh->database->get_all_human_translation_history('null', 1);
         if (empty($rowstosend)) {
@@ -41,6 +48,7 @@ class transposh_backup {
             return;
         }
 
+        // this one is for getting the key
         $result = wp_remote_post(TRANSPOSH_BACKUP_SERVICE_URL, array('body' => $body));
         if (is_wp_error($result)) {
             echo '500 - ' . $result->get_error_message();
@@ -65,7 +73,7 @@ class transposh_backup {
                 $lasttrans = '';
                 $lastby = '';
                 $lastts = '';
-                $body = array();
+                $body = $this->init_body();
                 foreach ($rowstosend as $row) {
                     if ($lastorig != $row->original) {
                         $body['or' . $item] = $row->original;
@@ -104,7 +112,7 @@ class transposh_backup {
                 $rowstosend = $this->transposh->database->get_all_human_translation_history($row->timestamp, 100);
             }
         }
-        Echo '200 - backup in sync';
+        echo '200 - backup in sync';
     }
 
     function do_restore() {
