@@ -394,7 +394,7 @@ class transposh_plugin_options {
     function set_oht_id($val) {
         $this->set_value($val, $this->options[OHT_TRANSLATE_ID]);
     }
-    
+
     function set_oht_key($val) {
         $this->set_value($val, $this->options[OHT_TRANSLATE_KEY]);
     }

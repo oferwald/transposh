@@ -33,14 +33,19 @@ class transposh_database {
 
     /** @var transposh_plugin father class */
     private $transposh;
+
     /** @var array holds prefetched translations */
     private $translations;
+
     /** @var string translation table name */
     private $translation_table;
+
     /** @var string translation log table name */
     private $translation_log_table;
+
     /** @var boolean is memcached working */
     private $memcache_working = false;
+
     /** @var Memcache the memcached connection object */
     private $memcache;
 
@@ -296,7 +301,7 @@ class transposh_database {
      * TODO - return some info?
      * @global <type> $user_ID - TODO
      */
-    function update_translation() {
+    function update_translation($by = "") {
 
         $ref = getenv('HTTP_REFERER');
         $items = $_POST['items'];
@@ -321,7 +326,7 @@ class transposh_database {
                 }
             }
         }
-        if (!($all_editable &&
+        if (!$by && !($all_editable &&
                 ($this->transposh->is_translator() || ($source > 0 && $this->transposh->options->get_enable_auto_translate())))) {
             logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'], 1);
             header("HTTP/1.0 401 Unauthorized translation");
@@ -332,8 +337,12 @@ class transposh_database {
         header("Transposh: v-" . TRANSPOSH_PLUGIN_VER . " db_version-" . DB_VERSION);
 
         // translation log stuff
-        global $user_ID;
-        get_currentuserinfo();
+        if ($by) {
+            $user_ID = $by;
+        } else {
+            global $user_ID;
+            get_currentuserinfo();
+        }
 
         // log either the user ID or his IP
         if ('' == $user_ID) {
@@ -602,7 +611,7 @@ class transposh_database {
      * @param string $date - either null for all or a date to get terms after
      * @return array List of rows
      */
-    function get_all_human_translation_history($date ="null", $limit = "") {
+    function get_all_human_translation_history($date = "null", $limit = "") {
         $limitterm = '';
         $dateterm = '';
         if ($date != "null")

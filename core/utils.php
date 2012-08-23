@@ -159,7 +159,7 @@ class transposh_utils {
         // insert params to url
         if (isset($params) && $params) {
             $parsedurl['query'] = implode('&', $params);
-            logger("params: $params", 4);
+            logger($params, 4);
         }
 
         // more cleanups

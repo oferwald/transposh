@@ -409,6 +409,8 @@ class transposh_plugin_admin {
                     echo '<img width="16" height="16" alt="b" class="logoicon" title="' . esc_attr__('Language supported by bing translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
             if (in_array($langcode, transposh_consts::$apertium_languages))
                     echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by apertium translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/apertiumicon.png"/>';
+            if (in_array($langcode, transposh_consts::$oht_languages))
+                    echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by one hour translation', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/ohticon.png"/>';
             if (in_array($langcode, transposh_consts::$rtl_languages))
                     echo '<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
             echo '</li>';
@@ -525,9 +527,9 @@ class transposh_plugin_admin {
     }
 
     function on_contentbox_professional_translation_content($data) {
-        /**
-         * Allow users to insert their own API keys
-         */
+        echo __('One Hour Translation provides High quality, 24x7 Professional Human Translation to 60 languages and over 2000 language pairs. One Hour Translation is able to provide high-quality translations around the clock, any day, any time thanks to a community of over 10000 Professional Translators from over 100 different countries.');
+        echo '<br/>';
+        echo __('Once a translator starts working on the translation, a countdown timer shows when the translation is going to be ready. Translation of one, 200 words, page takes about an hour.');
         echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('Account ID', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_id() . '" id="' . OHT_TRANSLATE_ID . '" name="' . OHT_TRANSLATE_ID . '"/>';
 
@@ -536,6 +538,18 @@ class transposh_plugin_admin {
          */
         echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_key() . '" id="' . OHT_TRANSLATE_KEY . '" name="' . OHT_TRANSLATE_KEY . '"/>';
+
+        $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
+        if (!empty($oht) && wp_next_scheduled('transposh_oht_event')) {
+            $timeforevent = floor((max(array(wp_next_scheduled('transposh_oht_event') - time(), 0))) / 60);
+            if ((max(array(wp_next_scheduled('transposh_oht_event') - time(), 0)))) {
+                printf('<h4>' . __('%d Phrases currently queued for next job in ~%d minutes', TRANSPOSH_TEXT_DOMAIN) . '</h4>', sizeof($oht), $timeforevent);
+            }
+        }
+        $ohtp = get_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, array());
+        if (!empty($ohtp)) {
+            printf('<h4>' . __('%d projects have been submitted and waiting for completion', TRANSPOSH_TEXT_DOMAIN) . '</h4>', sizeof($ohtp));
+        }
     }
 
     function on_contentbox_frontend_content($data) {
