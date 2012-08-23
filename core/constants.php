@@ -111,15 +111,15 @@ class transposh_consts {
         'cy' => 'Welsh,Cymraeg,wales,',
         'yi' => 'Yiddish,ייִדיש,europeanunion,'
     );
-    
+
     public static function get_language_name($lang) {
-       list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
-       return $langname;
+        list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        return $langname;
     }
 
     public static function get_language_orig_name($lang) {
-       list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
-       return $langorigname;
+        list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        return $langorigname;
     }
 
     // Language which are read from right to left (rtl)
@@ -140,6 +140,18 @@ class transposh_consts {
     // Apertium supported languages
     // a bit tricky, but we'll see - starting with just esperanto
     public static $apertium_languages = array('eo');
+    // todo - more languages in OHT
+    //Bosnian	bs-ba
+    //Chinese Cantonese	zh-cn-yue -- check
+    //Chinese Mandarin-Simplified	zh-cn-cmn-s
+    //Chinese Mandarin-Traditional	zh-cn-cmn-t
+    //Dari	fa-af
+    //Kazakh	kk-kz
+    //Khmer	km-kh
+    //Lao	lo-la
+    //Pashto	ps
+    //Uzbek	uz-uz
+    public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id', 'it', 'jp', 'ko', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi');
     // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
     // Array holding list of jQueryUI themes
@@ -156,7 +168,7 @@ define('TRANSLATOR', 'translator');
 define('TRANSPOSH_PLUGIN_VER', '%VERSION%');
 
 //Current jQuery UI
-define('JQUERYUI_VER', '1.8.16');
+define('JQUERYUI_VER', '1.8.23');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define('SPAN_PREFIX', 'tr_');
@@ -169,6 +181,11 @@ define('TRANSPOSH_TEXT_DOMAIN', 'transposh');
 
 //0.3.5 - Storing all options in this config option
 define('TRANSPOSH_OPTIONS', 'transposh_options');
+
+//0.9.0 - Storing oht project
+define('TRANSPOSH_OPTIONS_OHT', 'transposh_options_oht');
+define('TRANSPOSH_OPTIONS_OHT_PROJECTS', 'transposh_options_oht_projects');
+define('TRANSPOSH_OHT_DELAY', 600);
 
 //0.5.6 new definitions
 //Defintions for directories used in the plugin

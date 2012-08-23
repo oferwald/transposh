@@ -18,7 +18,7 @@
 /*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_jl, window, VKI_attach, VKI_show, VKI_close */
 (function ($) { // closure
     // list of languages
- var l = {
+    var l = {
         'en': 'English - English',
         'af': 'Afrikaans - Afrikaans',
         'sq': 'Albanian - Shqip',
@@ -389,11 +389,52 @@
 
     }
     
-    // load data to translate dialog
-    function set_translate_dialog_values(segment_id) {
+    /*    function getBetweenSegments(segment_id) 
+    {
+        var firstSegment = prefix + segment_id;
+        var next_segment_id = prefix + (Number(segment_id) + 1);
+        //alert (firstSegment + " - " + next_segment_id);
+        //var secondSegment = $(idprefix + next_segment_id);
+        var seg = ""; // Collection of Elements
+        var seenMyself = false;
+        $(idprefix + segment_id).parent().contents().each(function(){
+            var siblingID  = $(this).attr("id"); // Get Sibling ID
+            //alert ("this = " + this + " " + siblingID);
+            // End on next segment
+            if (!seenMyself)
+            {
+                if (siblingID == firstSegment)
+                    seenMyself = true;
+                return true;
+            }
+            else if (siblingID == next_segment_id) {
+                return false;
+            }
+            
+            if ( this.nodeType == 3 || $.nodeName(this, "br") ) 
+            {
+                seg += this.textContent;
+                //alert("Sibling - " + this.textContent);
+            }
+            // Skip SPANs (probably the edit buttons
+            if ($(this).is("span"))
+            {
+                return true;
+            }
+            return true;
+            //collection.push($(this)); // Add Sibling to Collection
+        });
+        return seg; // Return Collection
+    }
+
+    function add_segment(segment_id)
+    {
+        var seg = getBetweenSegments(Number(segment_id)-1);
+        //alert ("seg = " + seg);
+        //return;
         // the field values
-        $(idprefix + "original").val($(idprefix + segment_id).attr('data-orig'));
-        $(idprefix + "translation").val($(idprefix + segment_id).html());
+        $(idprefix + "original").val($(idprefix + "original").val() + seg + $(idprefix + segment_id).attr('data-orig'));
+        $(idprefix + "translation").val($(idprefix + "translation").val() + seg + $(idprefix + segment_id).html());
 
         if ($(idprefix + segment_id).attr('data-trans')) {
             $(idprefix + "translation").val($(idprefix + segment_id).attr('data-trans'));
@@ -425,6 +466,47 @@
         // This line makes sure that the approval button is correct on creation
         // at the end of the chain, a keyup event will make sure everything is ok
         $(idprefix + "translation").keyup();
+    }
+  */  
+    // load data to translate dialog
+    function set_translate_dialog_values(segment_id) {
+        // the field values
+        $(idprefix + "original").val($(idprefix + segment_id).attr('data-orig'));
+        $(idprefix + "translation").val($(idprefix + segment_id).html());
+
+        if ($(idprefix + segment_id).attr('data-trans')) {
+            $(idprefix + "translation").val($(idprefix + segment_id).attr('data-trans'));
+        }
+        // init data vars
+        $(idprefix + "translation").data("origval", $(idprefix + "translation").val());
+
+        // need to set approve button to enabled by default
+        $(idprefix + 'approve').button("enable");
+
+        // make sure the next and prev buttons are in order
+        $(idprefix + 'prev').button("enable");
+        $(idprefix + 'next').button("enable");
+        if (!$(idprefix + (Number(segment_id) - 1)).length) {
+            $(idprefix + 'prev').button("disable");
+        }
+        if (!$(idprefix + (Number(segment_id) + 1)).length) {
+            $(idprefix + 'next').button("disable");
+        }
+
+        // oht should not be highlighted
+        $(idprefix + 'oht').removeClass('ui-state-highlight');
+
+        // set the original language part
+        var segmentlang = $(idprefix + segment_id).attr('data-srclang');
+        if (segmentlang === undefined ) {
+            segmentlang = t_jp.olang;
+        }
+        $(idprefix + "orglang").text(l[segmentlang]);
+        // old history is history
+        $(idprefix+'historydialog').remove();
+        // This line makes sure that the approval button is correct on creation
+        // at the end of the chain, a keyup event will make sure everything is ok
+        $(idprefix + "translation").keyup();
      
 
     }
@@ -432,17 +514,20 @@
     //Open translation dialog
     function translate_dialog(segment_id) {
         //only add button is bing support is defined for the language
-        var bingbutton = '', googlebutton = '', apertiumbutton = '', dialog = idprefix + "dialog";
+        var bingbutton = '', googlebutton = '', apertiumbutton = '', ohtbutton = '', dialog = idprefix + "dialog";
 
+        // Only add buttons if translation engine is supported in said language
         if (t_jp.msn) {
             bingbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'bing">'+__('bing suggest')+'</button>';
         }
-        // Only add button if google supports said language
         if (t_jp.google) {
             googlebutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'google">'+__('google suggest')+'</button>';
         }
         if (t_jp.apertium) {
             apertiumbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'apertium">'+__('apertium suggest')+'</button>';
+        }
+        if (t_jp.oht) {
+            ohtbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'oht">'+__('oht queue')+'</button>';
         }
 
         // this is our current way of cleaning up, might reconsider?
@@ -456,6 +541,7 @@
             '<span id="' + prefix + 'utlbar">' +
             '<button id="' + prefix + 'prev">'+__('previous translation')+'</button>' +
             '<button id="' + prefix + 'zoom">'+__('find on page')+'</button>' +
+            /*            '<button id="' + prefix + 'add">'+__('add next phrase')+'</button>' +*/
             '<button id="' + prefix + 'next">'+__('next translation')+'</button>' +
             '</span>' +
             '<label for="translation">' + __('Translate to') + '</label>' +
@@ -466,6 +552,7 @@
             googlebutton +
             bingbutton +
             apertiumbutton +
+            ohtbutton +
             '<button id="' + prefix + 'approve">'+__('approve translation')+'</button>' +
             '</span>' +
             '</div>' 
@@ -590,6 +677,18 @@
             segment_id = Number(segment_id) + 1;
             set_translate_dialog_values(segment_id);
         });
+        /*        // add button click
+        $(idprefix + 'add').click(function () {
+            // save data if changed
+            if ($(idprefix + 'translation').data("changed")) {
+                var translation = $(idprefix + 'translation').val(),
+                token = $(idprefix + segment_id).attr('data-token');
+                ajax_translate_human(token, translation);
+            }
+            // inc counterm reload fields
+            segment_id = Number(segment_id) + 1;
+            add_segment(segment_id);
+        });*/
 
         // zoom button click
         $(idprefix + 'zoom').click(function () {
@@ -682,7 +781,35 @@
             $('.' + prefix + 'suggest').button("enable");
             $(this).button("disable");
         });
-        
+
+        $(idprefix + 'oht').button({
+            icons: {
+                primary: "tr-icon-oht"
+            },
+            text: false
+        }).click(function () {
+            var b = $(this);
+            $.ajax({
+                url: t_jp.ajaxurl, 
+                data: {
+                    action: 'tp_oht',
+                    q: $(idprefix + "original").val(),
+                    token: $(idprefix + segment_id).attr('data-token'),
+                    orglang: $(idprefix + segment_id).attr('data-srclang'),
+                    lang: t_jp.lang
+                },
+                dataType: "json",
+                cache: false,
+                success: function (result) {
+                    if (result) {
+                        b.addClass('ui-state-highlight');
+                    } else {
+                        b.removeClass('ui-state-highlight');
+                    }
+                }
+            });
+        });
+
         // approval button
         $(idprefix + 'approve').button({
             icons: {

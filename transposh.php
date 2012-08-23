@@ -155,18 +155,23 @@ class transposh_plugin {
         add_action('wp_head', array(&$this, 'add_rel_alternate'));
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
+        add_action('transposh_oht_event', array(&$this, 'run_oht'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
         // our translation proxy
         add_action('wp_ajax_tp_gp', array(&$this, 'on_ajax_nopriv_tp_gp'));
         add_action('wp_ajax_nopriv_tp_gp', array(&$this, 'on_ajax_nopriv_tp_gp'));
         add_action('wp_ajax_tp_gsp', array(&$this, 'on_ajax_nopriv_tp_gsp'));
         add_action('wp_ajax_nopriv_tp_gsp', array(&$this, 'on_ajax_nopriv_tp_gsp'));
+        add_action('wp_ajax_tp_oht', array(&$this, 'on_ajax_nopriv_tp_oht'));
+        add_action('wp_ajax_nopriv_tp_oht', array(&$this, 'on_ajax_nopriv_tp_oht'));
         // ajax actions in editor
         // TODO - remove some for non translators
         add_action('wp_ajax_tp_history', array(&$this, 'on_ajax_nopriv_tp_history'));
         add_action('wp_ajax_nopriv_tp_history', array(&$this, 'on_ajax_nopriv_tp_history'));
         add_action('wp_ajax_tp_translation', array(&$this, 'on_ajax_nopriv_tp_translation'));
         add_action('wp_ajax_nopriv_tp_translation', array(&$this, 'on_ajax_nopriv_tp_translation'));
+        add_action('wp_ajax_tp_ohtcallback', array(&$this, 'on_ajax_nopriv_tp_ohtcallback'));
+        add_action('wp_ajax_nopriv_tp_ohtcallback', array(&$this, 'on_ajax_nopriv_tp_ohtcallback'));
         add_action('wp_ajax_tp_trans_alts', array(&$this, 'on_ajax_nopriv_tp_trans_alts'));
         add_action('wp_ajax_nopriv_tp_trans_alts', array(&$this, 'on_ajax_nopriv_tp_trans_alts'));
         add_action('wp_ajax_tp_cookie', array(&$this, 'on_ajax_nopriv_tp_cookie'));
@@ -739,6 +744,8 @@ class transposh_plugin {
         }
         if (in_array($this->target_language, transposh_consts::$apertium_languages))
                 $script_params['apertium'] = 1;
+        if ($this->options->get_oht_id() && $this->options->get_oht_key() && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options'))
+                $script_params['oht'] = 1;
         if ($this->options->get_widget_progressbar())
                 $script_params['progress'] = 1;
         if (!$this->options->get_enable_auto_translate())
@@ -1352,6 +1359,71 @@ class transposh_plugin {
         die();
     }
 
+    /**
+     * Queue for One Hour Translate
+     */
+    function on_ajax_nopriv_tp_oht() {
+        // Admin access only
+        if (!current_user_can('manage_options')) {
+            echo "only admin is allowed";
+            die();
+        }
+        $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
+        if (!isset($_GET['orglang']))
+                $_GET['orglang'] = $this->options->get_default_language();
+        $key = $_GET['token'] . '@' . $_GET['lang'] . '@' . $_GET['orglang'];
+        if (isset($oht[$key])) {
+            unset($oht[$key]);
+            logger('oht false');
+            echo json_encode(false);
+        } else {
+            $oht[$key] = array('q' => $_GET['q'], 'l' => $_GET['lang'], 'ol' => $_GET['orglang'], 't' => $_GET['token']);
+            logger('oht true');
+            echo json_encode(true);
+        }
+
+        update_option(TRANSPOSH_OPTIONS_OHT, $oht);
+
+        // we will make an oht send event in defined time
+        wp_clear_scheduled_hook('transposh_oht_event');
+        wp_schedule_single_event(time() + TRANSPOSH_OHT_DELAY, 'transposh_oht_event'); 
+
+        die();
+    }
+
+    /**
+     * OHT event running
+     */
+    function run_oht() {
+        logger("oht should run");
+        $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
+        logger($oht);
+        $ohtp = get_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, array());
+        $projectid = time();
+        //send less data
+        $ohtbody = array();
+        $pcount = 0;
+        foreach ($oht as $arr) {
+            $pcount++;
+            logger($arr);
+            $ohtbody[$arr['t']] = array('q' => $arr['q'], 'l' => $arr['l'], 'ol' => $arr['ol']);
+        }
+        $ohtbody['pid'] = $projectid;
+        $ohtbody['id'] = $this->options->get_oht_id();
+        $ohtbody['key'] = $this->options->get_oht_key();
+        $ohtbody['callback'] = admin_url('admin-ajax.php');
+        logger($ohtbody);
+        // now we send this, add to log that it was sent to oht.. we'll also add a timer to make sure it gets back to us
+        $ret = wp_remote_post('http://svc.transposh.org/oht.php', array('body' => $ohtbody));
+        if ($ret['response']['code'] == '200') {
+            delete_option(TRANSPOSH_OPTIONS_OHT);
+            $ohtp[$projectid] = $pcount;
+            update_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, $ohtp);
+        } else {
+            logger($ret);
+        }
+    }
+
     // getting translation history
     function on_ajax_nopriv_tp_history() {
         // deleting
@@ -1363,11 +1435,32 @@ class transposh_plugin {
         die();
     }
 
-    //  the case of posted translation
+    // the case of posted translation
     function on_ajax_nopriv_tp_translation() {
         transposh_utils::allow_cors();
         do_action('transposh_translation_posted');
         $this->database->update_translation();
+        die();
+    }
+
+    /**
+     * callback from one hour translation
+     */
+    function on_ajax_nopriv_tp_ohtcallback() {
+        $ohtp = get_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, array());
+        logger($ohtp);
+        if ($ohtp[$_POST['projectid']]) {
+            Logger($_POST['projectid'] . " was found and will be processed");
+            do_action('transposh_oht_callback');
+            logger($_POST);
+            $ohtp[$_POST['projectid']] -= $_POST['items'];
+            if ($ohtp[$_POST['projectid']] <= 0) {
+                unset($ohtp[$_POST['projectid']]);
+            }
+            logger($ohtp);
+            update_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, $ohtp);
+            $this->database->update_translation("OHT");
+        }
         die();
     }
 
@@ -1407,6 +1500,7 @@ $my_transposh_plugin = new transposh_plugin();
  * @param array $args Not needed
  */
 function transposh_widget($args = array(), $instance = array('title' => 'Translation')) {
+    global $my_transposh_plugin;
     $my_transposh_plugin->widget->widget($args, $instance);
 }
 
@@ -1415,6 +1509,7 @@ function transposh_widget($args = array(), $instance = array('title' => 'Transla
  * @return string
  */
 function transposh_get_current_language() {
+    global $my_transposh_plugin;
     return $my_transposh_plugin->target_language;
 }
 
