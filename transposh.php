@@ -1412,6 +1412,7 @@ class transposh_plugin {
         $ohtbody['id'] = $this->options->get_oht_id();
         $ohtbody['key'] = $this->options->get_oht_key();
         $ohtbody['callback'] = admin_url('admin-ajax.php');
+        $ohtbody['homeurl'] = $this->home_url;
         logger($ohtbody);
         // now we send this, add to log that it was sent to oht.. we'll also add a timer to make sure it gets back to us
         $ret = wp_remote_post('http://svc.transposh.org/oht.php', array('body' => $ohtbody));

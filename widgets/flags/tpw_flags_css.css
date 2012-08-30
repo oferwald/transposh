@@ -29,7 +29,7 @@
 
 /* define the .css sprites here */
 .trf {
-    background-image:url(flags66.png);
+    background-image:url(flags66b.png);
     height:11px;
     width:16px;
     background-repeat:no-repeat;
@@ -88,7 +88,7 @@
 .trf-sk {background-position: -1176px 0}
 .trf-si {background-position: -1200px 0}
 .trf-es {background-position: -1224px 0}
-.trf-ke {background-position: -1248px 0}
+.trf-tz {background-position: -1248px 0}
 .trf-se {background-position: -1272px 0}
 .trf-ph {background-position: -1296px 0}
 .trf-lk {background-position: -1320px 0}

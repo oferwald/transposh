@@ -527,7 +527,7 @@
             apertiumbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'apertium">'+__('apertium suggest')+'</button>';
         }
         if (t_jp.oht) {
-            ohtbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'oht">'+__('oht queue')+'</button>';
+            ohtbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'oht">'+__('One Hour Translate queue')+'</button>';
         }
 
         // this is our current way of cleaning up, might reconsider?
