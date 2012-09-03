@@ -528,7 +528,7 @@ msgstr "Isso ativa a auto-detecção do isioma usado pelo usuário definido no c
 msgid "%VERSION%"
 msgstr "%VERSION%"
 
-#. TRANSLATORS: this is what appears in the select box in dropdown subwidget
+#. TRANSLATORS: this is what appears in the select box in dropdown subwidget 
 #: widgets/dropdown/tpw_image_dropdown.php:45
 #@ transposh
 msgid "Select language"
@@ -618,7 +618,7 @@ msgstr "Título:"
 msgid "Transposh subwidget was not loaded correctly"
 msgstr "O subwidget do Transposh não foi carregado corretamente"
 
-#. TRANSLATORS: no need to translate this string
+#. TRANSLATORS: no need to translate this string 
 #: wp/transposh_widget.php:269
 #@ transposh
 msgid "title"
@@ -634,7 +634,7 @@ msgstr "Idioma"
 msgid "This option enables collection of statistics by transposh that will be used to improve the product."
 msgstr "Esta opção ativa a coleta de estatísticas pelo transposh para ajudar a melhorar o produto."
 
-#. TRANSLATORS: this will be the default widget title
+#. TRANSLATORS: this will be the default widget title 
 #: wp/transposh_widget.php:115
 #@ transposh
 msgid "Translation"
@@ -652,8 +652,8 @@ msgstr ""
 
 #: wp/transposh_admin.php:530
 #@ transposh
-msgid "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
-msgstr "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, é o maior serviço online de tradução profissional, com milhares de clientes empresariais, incluindo 57% das empresas da Fortune 500 e mais de 15000 tradutores em todo o mundo."
+msgid "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
+msgstr "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, é o maior serviço online de tradução profissional, com milhares de clientes empresariais, incluindo 57% das empresas da Fortune 500 e mais de 15000 tradutores em todo o mundo."
 
 #: wp/transposh_admin.php:532
 #@ transposh

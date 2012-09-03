@@ -527,9 +527,9 @@ class transposh_plugin_admin {
     }
 
     function on_contentbox_professional_translation_content($data) {
-        echo __('One Hour Translation provides High quality, 24x7 Professional Human Translation to 60 languages and over 2000 language pairs. One Hour Translation is able to provide high-quality translations around the clock, any day, any time thanks to a community of over 10000 Professional Translators from over 100 different countries.');
+        echo __('<a href="http://transposh.org/redir/oht">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide.', TRANSPOSH_TEXT_DOMAIN);
         echo '<br/>';
-        echo __('Once a translator starts working on the translation, a countdown timer shows when the translation is going to be ready. Translation of one, 200 words, page takes about an hour.');
+        echo __('One Hour Translation provides high-quality, fast professional translation to/from any language, and has specific domain expertise in SW localization, technical, business, and legal translations.', TRANSPOSH_TEXT_DOMAIN);
         echo '<h4>' . "<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
         echo __('Account ID', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" value="' . $this->transposh->options->get_oht_id() . '" id="' . OHT_TRANSLATE_ID . '" name="' . OHT_TRANSLATE_ID . '"/>';
 

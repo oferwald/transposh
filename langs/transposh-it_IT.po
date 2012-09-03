@@ -400,7 +400,7 @@ msgstr "Il <strong>%1s</strong><br/>l'utente <strong>%2s</strong> ha tradotto<br
 msgid "Transposh language selection widget"
 msgstr "Widget Selettore lingue di Transposh"
 
-#. TRANSLATORS: this will be the default widget title
+#. TRANSLATORS: this will be the default widget title 
 #: wp/transposh_widget.php:115
 #@ transposh
 msgid "Translation"
@@ -544,7 +544,7 @@ msgstr "Modifica l'interfaccia (e la barra) con il tema:"
 msgid "Language"
 msgstr ""
 
-#. TRANSLATORS: this is what appears in the select box in dropdown subwidget
+#. TRANSLATORS: this is what appears in the select box in dropdown subwidget 
 #: widgets/dropdown/tpw_image_dropdown.php:45
 #@ transposh
 msgid "Select language"
@@ -634,7 +634,7 @@ msgstr ""
 msgid "Transposh subwidget was not loaded correctly"
 msgstr ""
 
-#. TRANSLATORS: no need to translate this string
+#. TRANSLATORS: no need to translate this string 
 #: wp/transposh_widget.php:269
 #@ transposh
 msgid "title"
@@ -649,11 +649,6 @@ msgstr ""
 #@ transposh
 msgid "Language supported by one hour translation"
 msgstr ""
-
-#: wp/transposh_admin.php:530
-#@ transposh
-msgid "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
-msgstr "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, è il più grande servizio professionale online di traduzioni, con migliaia di clienti aziendali, incluso il 57% delle aziende presenti nella Fortune 500, e oltre 15000 traduttori da tutto il mondo."
 
 #: wp/transposh_admin.php:532
 #@ transposh
@@ -690,5 +685,10 @@ msgstr ""
 #: wp/transposh_admin.php:636
 #@ transposh
 msgid "Unset"
+msgstr ""
+
+#: wp/transposh_admin.php:530
+#@ transposh
+msgid "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
 msgstr ""
 
