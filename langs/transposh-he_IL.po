@@ -580,7 +580,7 @@ msgstr "בדוק את השאלות הנפוצות של טרנספוש"
 msgid "Allow collecting usage statistics"
 msgstr "אפשר איסוף סטטיסטיקות שימוש"
 
-#. TRANSLATORS: this is what appears in the select box in dropdown subwidget
+#. TRANSLATORS: this is what appears in the select box in dropdown subwidget 
 #: widgets/dropdown/tpw_image_dropdown.php:45
 #@ transposh
 msgid "Select language"
@@ -618,13 +618,13 @@ msgstr "כותרת:"
 msgid "Transposh subwidget was not loaded correctly"
 msgstr "ישומון משנה של טרנספוש לא נטען כראוי"
 
-#. TRANSLATORS: no need to translate this string
+#. TRANSLATORS: no need to translate this string 
 #: wp/transposh_widget.php:269
 #@ transposh
 msgid "title"
 msgstr ""
 
-#. TRANSLATORS: this will be the default widget title
+#. TRANSLATORS: this will be the default widget title 
 #: wp/transposh_widget.php:115
 #@ transposh
 msgid "Translation"
@@ -652,8 +652,8 @@ msgstr "שפה נתמכת על ידי one hour translation"
 
 #: wp/transposh_admin.php:530
 #@ transposh
-msgid "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
-msgstr "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, הינה שרות התרגום המקצועי הגדול ביותר באינטרנט , עם אלפי לקוחות עסקיים, כולל 57% מחברות Fortune 500, ומעל 15000 מתרגמים ברחבי העולם."
+msgid "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
+msgstr "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, הינה שרות התרגום המקצועי הגדול ביותר באינטרנט , עם אלפי לקוחות עסקיים, כולל 57% מחברות Fortune 500, ומעל 15000 מתרגמים ברחבי העולם."
 
 #: wp/transposh_admin.php:532
 #@ transposh

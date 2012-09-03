@@ -652,7 +652,7 @@ msgstr ""
 
 #: wp/transposh_admin.php:530
 #@ transposh
-msgid "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
+msgid "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
 msgstr ""
 
 #: wp/transposh_admin.php:532

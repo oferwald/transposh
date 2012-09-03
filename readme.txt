@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.1
-Tested up to: 3.4
+Tested up to: 3.4.1
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 66 languages are automatically translated and can be manually corrected with ease.
@@ -22,6 +22,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Multiple options for widget appearances - with pluggable widgets and multiple instances
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
+* Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
 * Use either Google Translate,MS Translate or Apertium backends - 66 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
@@ -113,8 +114,21 @@ This version allows sorting of languages within the widget
  * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
  * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
  * Turkish translation by [Semih Yeşilyurt](http://kingdroid.net)
+ * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 
 == Changelog ==
+= 2012/09/03 - 0.8.4 =
+ * Integration with [One Hour Translation professional](http://transposh.org/redir/oht) translation service
+ * Fixed flag of Swahili to Tanzania as noted by Ed Jordan
+ * Live backup now includes a daily backup
+ * Fixes to backup, seems there was a big problem with data compactation
+ * Fix for a parser bug when having translate in default language following a select element
+ * Fixed XSS reported by [Infern0_](​http://www.seqrity.pl)
+ * Added global function to return the current language "transposh_get_current_language()"
+ * Seems like Lybia has a new flag
+ * Fixed widget IDs containing / so that we'll pass w3c validation
+ * Updated jQueryUI to 1.8.23 to avoid conflict with jQuery 1.8 used by some themes
+ * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 = 2012/05/28 - 0.8.3 =
  * Fix break in feeds with params noticed by Marco Raaphorst 
  * Maintanance button now attempts to create database tables 

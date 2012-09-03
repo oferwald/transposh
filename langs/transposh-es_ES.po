@@ -528,7 +528,7 @@ msgstr "Esto permite la detección automática del idioma utilizado por el usuar
 msgid "%VERSION%"
 msgstr ""
 
-#. TRANSLATORS: this is what appears in the select box in dropdown subwidget
+#. TRANSLATORS: this is what appears in the select box in dropdown subwidget 
 #: widgets/dropdown/tpw_image_dropdown.php:45
 #@ transposh
 msgid "Select language"
@@ -618,7 +618,7 @@ msgstr ""
 msgid "Transposh subwidget was not loaded correctly"
 msgstr ""
 
-#. TRANSLATORS: no need to translate this string
+#. TRANSLATORS: no need to translate this string 
 #: wp/transposh_widget.php:269
 #@ transposh
 msgid "title"
@@ -634,7 +634,7 @@ msgstr ""
 msgid "This option enables collection of statistics by transposh that will be used to improve the product."
 msgstr ""
 
-#. TRANSLATORS: this will be the default widget title
+#. TRANSLATORS: this will be the default widget title 
 #: wp/transposh_widget.php:115
 #@ transposh
 msgid "Translation"
@@ -652,8 +652,8 @@ msgstr ""
 
 #: wp/transposh_admin.php:530
 #@ transposh
-msgid "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
-msgstr "<a href=\"http://www.OneHourTranslation.com\">One Hour Translation</a>, es el mayor servicio de traducción profesional de internet, con miles de clientes empresariales, incluyendo el 57 % de las empresas de Fortune 500, y más de 15.000 traductores de todo el mundo."
+msgid "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
+msgstr "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, es el mayor servicio de traducción profesional de internet, con miles de clientes empresariales, incluyendo el 57 % de las empresas de Fortune 500, y más de 15.000 traductores de todo el mundo."
 
 #: wp/transposh_admin.php:532
 #@ transposh
