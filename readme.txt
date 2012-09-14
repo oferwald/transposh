@@ -23,7 +23,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
-* Use either Google Translate,MS Translate or Apertium backends - 66 languages supported!
+* Use either Google Translate,MS Translate or Apertium backends - 67 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -117,6 +117,8 @@ This version allows sorting of languages within the widget
  * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 
 == Changelog ==
+= 2012/09/15 - 0.8.5 =
+ * Support for Lao (Thanks to Google Translate)
 = 2012/09/03 - 0.8.4 =
  * Integration with [One Hour Translation professional](http://transposh.org/redir/oht) translation service
  * Fixed flag of Swahili to Tanzania as noted by Ed Jordan
