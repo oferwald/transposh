@@ -2,7 +2,7 @@
 
 (function ($) { // closure
 
-    $(document).ready(function() {
+    $(function() {
         $(".dropdown dt a").click(function() {
             $(".dropdown dd ul").toggle();
             return false;
