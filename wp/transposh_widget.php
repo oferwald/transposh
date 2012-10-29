@@ -263,7 +263,7 @@ class transposh_plugin_widget extends WP_Widget {
 
         // widget default title
         //echo $before_widget . $before_title . __('Translation', TRANSPOSH_TEXT_DOMAIN) . $after_title; - hmm? po/mo?
-        echo $before_widget;
+        if (isset($before_widget)) echo $before_widget;
         if ($instance['title']) {
             /* TRANSLATORS: no need to translate this string */
             echo $before_title . __($instance['title'], TRANSPOSH_TEXT_DOMAIN) . $after_title;
@@ -339,7 +339,7 @@ class transposh_plugin_widget extends WP_Widget {
             $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
         }
         echo '</div>';
-        echo $after_widget;
+        if (isset($after_widget)) $after_widget;
         // increase the number of calls for unique IDs
         self::$draw_calls++;
     }
