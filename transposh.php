@@ -889,6 +889,13 @@ class transposh_plugin {
         }
         $use_params = !$this->enable_permalinks_rewrite;
 
+        // we don't really know, but we sometime rewrite urls when we are in the default language (canonicals?), so just clean them up
+        if ($this->target_language == $this->options->get_default_language()) 
+        {
+            $href = transposh_utils::cleanup_url($href, $this->home_url);
+            logger("cleaned up: $href", 4);
+            return $href;
+        }
         // some hackery needed for url translations
         // first cut home
         if ($this->options->get_enable_url_translate()) {
