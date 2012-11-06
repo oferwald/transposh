@@ -135,19 +135,7 @@ class transposh_plugin_options {
     // TODO: remove this function in a few versions (fix css, db version..., css flag
     private function migrate_old_config() {
         logger("in migration");
-        if (isset($this->options[OLD_WIDGET_STYLE])) {
-            if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
-                $this->set_widget_file('flags/tpw_flags.php');
-            }
-            if ($this->options[OLD_WIDGET_STYLE] == 1 && $this->options[OLD_WIDGET_CSS_FLAGS] == 1) {
-                $this->set_widget_file('flags/tpw_flags_css.php');
-            }
-            if ($this->options[OLD_WIDGET_STYLE] == 2 && $this->options[OLD_WIDGET_CSS_FLAGS] == 0) {
-                $this->set_widget_file('flagslist/tpw_list_with_flags.php');
-            }
-            if ($this->options[OLD_WIDGET_STYLE] == 2 && $this->options[OLD_WIDGET_CSS_FLAGS] == 1) {
-                $this->set_widget_file('flagslist/tpw_list_with_flags_css.php');
-            }
+        if (isset($this->options[OLD_WIDGET_STYLE])) {          
             unset($this->options[OLD_WIDGET_CSS_FLAGS]);
             unset($this->options[OLD_WIDGET_IN_LIST]);
             unset($this->options[OLD_WIDGET_STYLE]);
@@ -476,7 +464,7 @@ class transposh_plugin_options {
      */
     function is_editable_language($language) {
         if ($this->is_default_language($language)) return true;
-        return (strpos($this->get_editable_langs(), $language) !== false);
+        return (strpos($this->get_editable_langs().',', $language.',') !== false);
     }
 
     /**
@@ -485,7 +473,7 @@ class transposh_plugin_options {
      */
     function is_viewable_language($language) {
         if ($this->is_default_language($language)) return true;
-        return (strpos($this->get_viewable_langs(), $language) !== false);
+        return (strpos($this->get_viewable_langs().',', $language.',') !== false);
     }
 
 }
