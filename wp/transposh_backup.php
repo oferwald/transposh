@@ -33,7 +33,7 @@ class transposh_backup {
     function init_body() {
         $body = array();
         $body['home_url'] = $this->transposh->home_url;
-        $body['key'] = $this->transposh->options->get_transposh_key();
+        $body['key'] = $this->transposh->options->transposh_key;
         $body['v'] = '2';
         $body['tpv'] = '%VERSION%';
         return $body;
@@ -58,10 +58,9 @@ class transposh_backup {
             echo '500 - ' . $result['headers']['fail'];
             return;
         }
-        if ($this->transposh->options->get_transposh_key() == "") {
-            $this->transposh->options->set_transposh_key($result['headers']['transposh-key']);
+        if ($this->transposh->options->transposh_key == "") {
+            $this->transposh->options->transposh_key = $result['headers']['transposh-key'];
             // TODO: deliever new gottenkey to client side?
-            //echo $this->transposh->options->get_transposh_key();
             $this->transposh->options->update_options();
         }
         if (isset($result['headers']['lastitem'])) {
@@ -118,7 +117,7 @@ class transposh_backup {
     function do_restore() {
         $body['to'] = time(); //TODO: fix this to get from DB
         $body['home_url'] = $this->transposh->home_url;
-        $body['key'] = $this->transposh->options->get_transposh_key();
+        $body['key'] = $this->transposh->options->transposh_key;
         $result = wp_remote_get(TRANSPOSH_RESTORE_SERVICE_URL . "?to={$body['to']}&key={$body['key']}&home_url={$body['home_url']}"); // gotta be a better way...
         $lines = split("[\n|\r]", $result['body']);
         foreach ($lines as $line) {

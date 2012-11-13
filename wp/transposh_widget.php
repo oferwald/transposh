@@ -218,7 +218,7 @@ class transposh_plugin_widget extends WP_Widget {
                     ($this->transposh->options->is_editable_language($code) && $this->transposh->is_translator()) ||
                     ($this->transposh->options->is_default_language($code))) {
                 // now we alway do this... maybe cache this to APC/Memcache
-                if ($this->transposh->options->get_enable_url_translate() && !$this->transposh->options->is_default_language($code)) {
+                if ($this->transposh->options->enable_url_translate && !$this->transposh->options->is_default_language($code)) {
                     $page_url = transposh_utils::translate_url($clean_page_url, '', $code, array(&$this->transposh->database, 'fetch_translation'));
                 } else {
                     $page_url = $clean_page_url;

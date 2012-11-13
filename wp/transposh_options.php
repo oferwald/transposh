@@ -11,78 +11,136 @@
  * Date: %DATE%
  */
 
-// OLD Options - To be removed
-// removed real old options support, no migration from 0.3.9 anymore
-// @since 0.5.6
-//Option defining transposh widget appearance
-define('OLD_WIDGET_STYLE', 'widget_style');
-//Use CSS sprites for flags if available
-define('OLD_WIDGET_CSS_FLAGS', 'widget_css_flags');
-//Wrap widget elements in an unordered list per #63 @since 0.3.7
-define('OLD_WIDGET_IN_LIST', 'widget_in_list');
-//Option to enable/disable msn translation
-define('OLD_ENABLE_MSN_TRANSLATE', 'enable_msntranslate');
-//Option defining transposh widget file used @since 0.5.6
-define('OLD_WIDGET_FILE', 'widget_file'); //unset!!!
-//Option to store the msn API key
-define('MSN_TRANSLATE_KEY', 'msn_key');
-//Option to store the msn API key
-define('GOOGLE_TRANSLATE_KEY', 'google_key');
-//Option to store the msn API key
-define('OHT_TRANSLATE_ID', 'oht_id');
-//Option to store the msn API key
-define('OHT_TRANSLATE_KEY', 'oht_key');
+// This magic value will cause the option to be set from post
+define('TP_FROM_POST', 'tp_post_1x');
+// types of options
+define('TP_OPT_BOOLEAN', 0);
+define('TP_OPT_STRING', 1);
+define('TP_OPT_OTHER', 2);
 
-//defines are used to avoid typos
-//Option defining whether anonymous translation is allowed.
-define('ANONYMOUS_TRANSLATION', 'allow_anonymous_translation');
-//Option defining the list of currentlly viewable languages
-define('VIEWABLE_LANGS', 'viewable_languages');
-//Option defining the list of currentlly editable languages
-define('EDITABLE_LANGS', 'editable_languages');
-//Option defining the ordered list of languages @since 0.3.9
-define('SORTED_LANGS', 'sorted_languages');
-//Option to enable/disable auto translation
-define('ENABLE_AUTO_TRANSLATE', 'enable_autotranslate');
-//Option to enable/disable auto translation
-define('ENABLE_AUTO_POST_TRANSLATE', 'enable_autoposttranslate');
-//Option to store translator preference @since 0.4.2
-define('PREFERRED_TRANSLATOR', 'preferred_translator');
-//Option to enable/disable default language translation
-define('ENABLE_DEFAULT_TRANSLATE', 'enable_default_translate');
-//Option to enable/disable default language translation @since 0.3.6
-define('ENABLE_SEARCH_TRANSLATE', 'enable_search_translate');
-//Option to enable/disable url translation @since 0.5.3
-define('ENABLE_URL_TRANSLATE', 'enable_url_translate');
-//Make the gettext interface optional (@since 0.6.4)
-define('TRANSPOSH_GETTEXT_INTEGRATION', 'transposh_gettext_integration');
-//Allow override for default locale (@since 0.7.5)
-define('TRANSPOSH_DEFAULT_LOCALE_OVERRIDE', 'transposh_locale_override');
-//Option to enable/disable rewrite of permalinks
-define('ENABLE_PERMALINKS', 'enable_permalinks');
-//Option to enable/disable footer scripts (2.8 and up)
-define('ENABLE_FOOTER_SCRIPTS', 'enable_footer_scripts');
-//Option to enable detect and redirect language @since 0.3.8
-define('ENABLE_DETECT_LANG_AND_REDIRECT', 'enable_detect_redirect');
-//Option defining the default language
-define('DEFAULT_LANG', 'default_language');
-//Option allowing progress bar display
-define('WIDGET_PROGRESSBAR', 'widget_progressbar');
-//Allows user to set his default language per #63 @since 0.3.8
-define('WIDGET_ALLOW_SET_DEFLANG', 'widget_allow_set_deflang');
-//Allows removing of transposh logo in exchange for an ad @since 0.6.0
-define('WIDGET_REMOVE_LOGO_FOR_AD', 'widget_remove_logo');
-//Allows theming of the progressbar and edit window @since 0.7.0
-define('WIDGET_THEME', 'widget_theme');
-//Stores the site key to transposh services (backup @since 0.5.0)
-define('TRANSPOSH_KEY', 'transposh_key');
-//Stores the site key to transposh services (backup @since 0.5.0)
-define('TRANSPOSH_BACKUP_SCHEDULE', 'transposh_backup_schedule');
-//Stores hidden warnings (@since 0.7.6)
-define('TRANSPOSH_ADMIN_HIDE_WARNINGS', 'transposh_admin_hide_warnings');
-//Should I allow collecting of anonymous stats (@since 0.7.6)
-define('TRANSPOSH_COLLECT_STATS', 'transposh_admin_hide_warnings');
+/**
+ * @property string $desc Description
+ */
+class transposh_option {
 
+    private $name;
+    private $value;
+    private $type;
+
+    public function __construct($name, $value = '', $type = '') {
+        $this->name = $name;
+        $this->value = $value;
+        $this->type = $type;
+    }
+
+    function __toString() {
+        return (string) $this->value;
+    }
+
+    function set_value($value) {
+        $this->value = $value;
+    }
+
+    function from_post() {
+        $this->value = $_POST[$this->name];
+    }
+
+    function get_name() {
+        return $this->name;
+    }
+
+    function get_value() {
+        return $this->value;
+    }
+
+    function get_type() {
+        return $this->type;
+    }
+
+    function post_value_id_name() {
+        return 'value="' . $this->value . '" id="' . $this->name . '" name="' . $this->name . '"';
+    }
+
+}
+
+/**
+ * Used properties for code completion - we'll try to keep them in same order as admin screens
+ * 
+ * Language tab
+ * @property string           $default_language      Option defining the default language
+ * @property transposh_option $default_language_o 
+ * @property string           $viewable_languages    Option defining the list of currently viewable languages
+ * @property transposh_option $viewable_languages_o 
+ * @property string           $editable_languages    Option defining the list of currently editable languages
+ * @property transposh_option $editable_languages_o 
+ * @property string           $sorted_languages      Option defining the ordered list of languages @since 0.3.9
+ * @property transposh_option $sorted_languages_o 
+ * 
+ * Settings
+ * 
+ * @property boolean          $allow_anonymous_translation   Option defining whether anonymous translation is allowed
+ * @property transposh_option $allow_anonymous_translation_o
+ * @property boolean          $enable_default_translate      Option to enable/disable default language translation
+ * @property transposh_option $enable_default_translate_o
+ * @property boolean          $enable_search_translate       Option to enable/disable default language translation @since 0.3.6
+ * @property transposh_option $enable_search_translate_o
+ * @property boolean          $transposh_gettext_integration Make the gettext interface optional (@since 0.6.4)
+ * @property transposh_option $transposh_gettext_integration_o
+ * @property boolean          $transposh_locale_override     Allow override for default locale (@since 0.7.5)
+ * @property transposh_option $transposh_locale_override_o
+ * 
+ * @property boolean          $enable_permalinks             Option to enable/disable rewrite of permalinks
+ * @property transposh_option $enable_permalinks_o
+ * @property boolean          $enable_footer_scripts         Option to enable/disable footer scripts (2.8 and up)
+ * @property transposh_option $enable_footer_scripts_o
+ * @property boolean          $enable_detect_redirect        Option to enable detect and redirect language @since 0.3.8
+ * @property transposh_option $enable_detect_redirect_o
+ * @property boolean          $transposh_collect_stats       Should I allow collecting of anonymous stats (@since 0.7.6)
+ * @property transposh_option $transposh_collect_stats_o
+ * 
+ * @property int              $transposh_backup_schedule     Stores the schedule for the backup service, 0-none, 1-daily, 2-live (backup @since 0.5.0)
+ * @property transposh_option $transposh_backup_schedule_o  
+ * @property string           $transposh_key                 Stores the site key to transposh services (backup @since 0.5.0)
+ * @property transposh_option $transposh_key_o
+ * 
+ * Engines
+ * 
+ * @property boolean          $enable_autotranslate          Option to enable/disable auto translation
+ * @property transposh_option $enable_autotranslate_o
+ * @property boolean          $enable_autoposttranslate      Option to enable/disable auto translation of posts
+ * @property transposh_option $enable_autoposttranslate_o
+ * @property string           $msn_key                       Option to store the msn API key
+ * @property transposh_option $msn_key_o
+ * @property string           $google_key                    Option to store the msn Google key
+ * @property transposh_option $google_key_o
+ * @property int              $preferred_translator          Option to store translator preference @since 0.4.2
+ * @property transposh_option $preferred_translator_o
+ * @property string           $oht_id                        Option to store the oht ID
+ * @property transposh_option $oht_id_o
+ * @property string           $oht_key                       Option to store the oht key;
+ * @property transposh_option $oht_key_o
+ * 
+ * Widget
+ * 
+ * @property boolean          $widget_progressbar            Option allowing progress bar display
+ * @property transposh_option $widget_progressbar_o
+ * @property boolean          $widget_allow_set_deflang      Allows user to set his default language per #63 @since 0.3.8
+ * @property transposh_option $widget_allow_set_deflang_o
+ * @property boolean          $widget_remove_logo            Allows removing of transposh logo in exchange for an ad @since 0.6.0
+ * @property transposh_option $widget_remove_logo_o
+ * @property string           $widget_theme                  Allows theming of the progressbar and edit window @since 0.7.0
+ * @property transposh_option $widget_theme_o
+ * 
+ * Advanced
+ * 
+ * @property boolean          $enable_url_translate          Option to enable/disable url translation @since 0.5.3
+ * @property transposh_option $enable_url_translate_o
+ * 
+ * Hidden
+ * 
+ * @property transposh_option $transposh_admin_hide_warnings Stores hidden warnings (@since 0.7.6)
+ * 
+ */
 class transposh_plugin_options {
 
     /** @var array storing all our options */
@@ -90,71 +148,102 @@ class transposh_plugin_options {
 
     /** @var boolean set to true if any option was changed */
     private $changed = false;
+    private $vars = array();
 
     function set_default_option_value($option, $value = '') {
         if (!isset($this->options[$option])) $this->options[$option] = $value;
     }
 
-    function transposh_plugin_options() {
-        logger("creating options");
-        // load them here
-        $this->options = get_option(TRANSPOSH_OPTIONS);
-        $this->set_default_option_value(ANONYMOUS_TRANSLATION, 1);
-        $this->set_default_option_value(ENABLE_SEARCH_TRANSLATE, 1);
-        $this->set_default_option_value(ENABLE_AUTO_TRANSLATE, 1);
-        $this->set_default_option_value(PREFERRED_TRANSLATOR, 1);
-        $this->set_default_option_value(TRANSPOSH_GETTEXT_INTEGRATION, 1);
-        $this->set_default_option_value(TRANSPOSH_DEFAULT_LOCALE_OVERRIDE, 1);
-        $this->set_default_option_value(VIEWABLE_LANGS);
-        $this->set_default_option_value(EDITABLE_LANGS);
-        //$this->set_default_option_value(SORTED_LANGS);
-        $this->set_default_option_value(ENABLE_AUTO_POST_TRANSLATE);
-        $this->set_default_option_value(ENABLE_DEFAULT_TRANSLATE);
-        $this->set_default_option_value(ENABLE_SEARCH_TRANSLATE);
-        $this->set_default_option_value(ENABLE_URL_TRANSLATE);
-        $this->set_default_option_value(ENABLE_PERMALINKS);
-        $this->set_default_option_value(ENABLE_FOOTER_SCRIPTS);
-        $this->set_default_option_value(ENABLE_DETECT_LANG_AND_REDIRECT);
-        $this->set_default_option_value(DEFAULT_LANG);
-        $this->set_default_option_value(WIDGET_PROGRESSBAR);
-        $this->set_default_option_value(WIDGET_ALLOW_SET_DEFLANG);
-        $this->set_default_option_value(WIDGET_REMOVE_LOGO_FOR_AD);
-        $this->set_default_option_value(WIDGET_THEME, 'ui-lightness');
-        $this->set_default_option_value(MSN_TRANSLATE_KEY);
-        $this->set_default_option_value(GOOGLE_TRANSLATE_KEY);
-        $this->set_default_option_value(OHT_TRANSLATE_ID);
-        $this->set_default_option_value(OHT_TRANSLATE_KEY);
-        $this->set_default_option_value(TRANSPOSH_KEY);
-        $this->set_default_option_value(TRANSPOSH_BACKUP_SCHEDULE, 2);
-        $this->set_default_option_value(TRANSPOSH_ADMIN_HIDE_WARNINGS);
-        $this->set_default_option_value(TRANSPOSH_COLLECT_STATS, 1);
-        $this->migrate_old_config();
-        logger($this->options, 4);
+    // private $vars array() = (1,2,3);
+
+    function register_option($name, $type, $default_value = '') {
+        if (!isset($this->options[$name]))
+                $this->options[$name] = $default_value;
+        logger($name . ' ' . $this->options[$name]);
+        $this->vars[$name] = new transposh_option($name, $this->options[$name], $type);
     }
 
-    // TODO: remove this function in a few versions (fix css, db version..., css flag
-    private function migrate_old_config() {
-        logger("in migration");
-        if (isset($this->options[OLD_WIDGET_STYLE])) {          
-            unset($this->options[OLD_WIDGET_CSS_FLAGS]);
-            unset($this->options[OLD_WIDGET_IN_LIST]);
-            unset($this->options[OLD_WIDGET_STYLE]);
-            unset($this->options[OLD_ENABLE_MSN_TRANSLATE]);
-            logger($this->options);
-            update_option(TRANSPOSH_OPTIONS, $this->options);
+    function __get($name) {
+        if (substr($name, -2) === "_o")
+                return $this->vars[substr($name, 0, -2)];
+//        logger($this->vars[$name]->get_value());
+        return $this->vars[$name]->get_value();
+    }
+
+    function __set($name, $value) {
+        if ($value == TP_FROM_POST) {
+            $value = $_POST[$name];
+        }
+
+        if (TP_OPT_BOOLEAN == $this->vars[$name]->get_type()) {
+            $value = ($value) ? 1 : 0;
+        }
+
+        if ($this->vars[$name]->get_value() != $value) {
+            logger("option '$name' value set: $value");
+            $this->vars[$name]->set_value($value);
+            $this->changed = true;
         }
     }
 
-    function get_anonymous_translation() {
-        return $this->options[ANONYMOUS_TRANSLATION];
-    }
+    function __construct() {
 
-    function get_viewable_langs() {
-        return $this->options[VIEWABLE_LANGS];
-    }
 
-    function get_editable_langs() {
-        return $this->options[EDITABLE_LANGS];
+        logger("creating options");
+        // load them here
+        $this->options = get_option(TRANSPOSH_OPTIONS);
+//        logger($this->options);
+
+        $this->register_option('default_language', TP_OPT_STRING); // default?
+        $this->register_option('viewable_languages', TP_OPT_STRING);
+        $this->register_option('editable_languages', TP_OPT_STRING);
+        $this->register_option('sorted_languages', TP_OPT_STRING);
+
+        $this->register_option('allow_anonymous_translation', TP_OPT_BOOLEAN, 1);
+        $this->register_option('enable_default_translate', TP_OPT_BOOLEAN, 0);
+        $this->register_option('enable_search_translate', TP_OPT_BOOLEAN, 1);
+        $this->register_option('transposh_gettext_integration', TP_OPT_BOOLEAN, 1);
+        $this->register_option('transposh_locale_override', TP_OPT_BOOLEAN, 1);
+
+        $this->register_option('enable_permalinks', TP_OPT_BOOLEAN, 0);
+        $this->register_option('enable_footer_scripts', TP_OPT_BOOLEAN, 0);
+        $this->register_option('enable_detect_redirect', TP_OPT_BOOLEAN, 0);
+        $this->register_option('transposh_collect_stats', TP_OPT_BOOLEAN, 1);
+
+        $this->register_option('transposh_backup_schedule', TP_OPT_OTHER, 2);
+        $this->register_option('transposh_key', TP_OPT_STRING);
+
+        $this->register_option('enable_autotranslate', TP_OPT_BOOLEAN, 1);
+        $this->register_option('enable_autoposttranslate', TP_OPT_BOOLEAN, 1);
+        $this->register_option('msn_key', TP_OPT_STRING);
+        $this->register_option('google_key', TP_OPT_STRING);
+        $this->register_option('preferred_translator', TP_OPT_OTHER, 1); // 1 is Google, 2 is MSN
+        $this->register_option('oht_id', TP_OPT_STRING);
+        $this->register_option('oht_key', TP_OPT_STRING);
+
+
+        $this->register_option('widget_progressbar', TP_OPT_BOOLEAN);
+        $this->register_option('widget_allow_set_deflang', TP_OPT_BOOLEAN);
+        $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN);
+        $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
+
+        $this->register_option('enable_url_translate', TP_OPT_BOOLEAN);
+
+        $this->register_option('transposh_admin_hide_warnings', TP_OPT_OTHER);
+
+
+        // Fix default language if needed, only done once now, and since this was being done constantly, we gain
+        //logger($this->default_language->get_value());
+
+        if (!isset(transposh_consts::$languages[$this->default_language])) {
+            if (defined('WPLANG') && isset(transposh_consts::$languages[WPLANG])) {
+                $this->default_language = WPLANG;
+            } else {
+                $this->default_language = "en";
+            }
+        }
+
+        logger($this->options, 4);
     }
 
     /**
@@ -163,278 +252,19 @@ class transposh_plugin_options {
      * @return array sorted list of languages, pointing to names and flags
      */
     function get_sorted_langs() {
-        if (isset($this->options[SORTED_LANGS]))
-                return array_merge(array_flip(explode(",", $this->options[SORTED_LANGS])), transposh_consts::$languages);
+        if (isset($this->sorted_languages))
+                return array_merge(array_flip(explode(",", $this->sorted_languages)), transposh_consts::$languages);
         return transposh_consts::$languages;
     }
 
-    function get_widget_progressbar() {
-        return $this->options[WIDGET_PROGRESSBAR];
-    }
-
-    function get_widget_remove_logo() {
-        return $this->options[WIDGET_REMOVE_LOGO_FOR_AD];
-    }
-
-    /**
-     * return theme
-     * @since 0.7.0
-     * @return string 
-     */
-    function get_widget_theme() {
-        return $this->options[WIDGET_THEME];
-    }
-
-    function get_widget_allow_set_default_language() {
-        return $this->options[WIDGET_ALLOW_SET_DEFLANG];
-    }
-
-    function get_enable_permalinks() {
-        return $this->options[ENABLE_PERMALINKS];
-    }
-
-    function get_enable_footer_scripts() {
-        return $this->options[ENABLE_FOOTER_SCRIPTS];
-    }
-
-    function get_enable_detect_language() {
-        return $this->options[ENABLE_DETECT_LANG_AND_REDIRECT];
-    }
-
-    function get_enable_default_translate() {
-        return $this->options[ENABLE_DEFAULT_TRANSLATE];
-    }
-
-    function get_enable_search_translate() {
-        return $this->options[ENABLE_SEARCH_TRANSLATE];
-    }
-
-    function get_enable_url_translate() {
-        return $this->options[ENABLE_URL_TRANSLATE];
-    }
-
-    function get_enable_auto_translate() {
-        // default is true
-        return $this->options[ENABLE_AUTO_TRANSLATE];
-    }
-
-    function get_msn_key() {
-        return $this->options[MSN_TRANSLATE_KEY];
-    }
-
-    function get_google_key() {
-        return $this->options[GOOGLE_TRANSLATE_KEY];
-    }
-
-    function get_oht_id() {
-        return $this->options[OHT_TRANSLATE_ID];
-    }
-
-    function get_oht_key() {
-        return $this->options[OHT_TRANSLATE_KEY];
-    }
-
-    function get_enable_auto_post_translate() {
-        return $this->options[ENABLE_AUTO_POST_TRANSLATE];
-    }
-
-    function get_preferred_translator() {
-        // default is google(1) (2 is msn)
-        return $this->options[PREFERRED_TRANSLATOR];
-    }
-
-    /**
-     * Gets the default language setting, i.e. the source language which normally should not be translated.
-     * @return string Default language
-     */
-    function get_default_language() {
-        $default = $this->options[DEFAULT_LANG];
-        if (!isset(transposh_consts::$languages[$default])) {
-            if (defined('WPLANG') && isset(transposh_consts::$languages[WPLANG])) {
-                $default = WPLANG;
-            } else {
-                $default = "en";
-            }
-        }
-        return $default;
-    }
-
-    function get_transposh_key() {
-        return $this->options[TRANSPOSH_KEY];
-    }
-
-    function get_transposh_backup_schedule() {
-        return $this->options[TRANSPOSH_BACKUP_SCHEDULE];
-    }
-
-    function get_transposh_gettext_integration() {
-        return $this->options[TRANSPOSH_GETTEXT_INTEGRATION];
-    }
-
-    function get_transposh_default_locale_override() {
-        return $this->options[TRANSPOSH_DEFAULT_LOCALE_OVERRIDE];
-    }
-
     function get_transposh_admin_hide_warning($id) {
-        return strpos($this->options[TRANSPOSH_ADMIN_HIDE_WARNINGS], $id . ',') !== false;
-    }
-
-    function get_transposh_collect_stats() {
-        return $this->options[TRANSPOSH_COLLECT_STATS];
-    }
-
-    /**
-     * Sets a value at the options array
-     * @param mixed $val
-     * @param pointer $option Points to the option in the options array
-     */
-    private function set_value($val, &$option) {
-        if ($val !== $option) {
-            $option = $val;
-            $this->changed = true;
-        }
-    }
-
-    function set_anonymous_translation($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ANONYMOUS_TRANSLATION]);
-    }
-
-    function set_viewable_langs($val) {
-        $this->set_value($val, $this->options[VIEWABLE_LANGS]);
-    }
-
-    function set_editable_langs($val) {
-        $this->set_value($val, $this->options[EDITABLE_LANGS]);
-    }
-
-    function set_sorted_langs($val) {
-        $this->set_value($val, $this->options[SORTED_LANGS]);
-    }
-
-    function set_widget_progressbar($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_PROGRESSBAR]);
-    }
-
-    function set_widget_remove_logo($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_REMOVE_LOGO_FOR_AD]);
-    }
-
-    /**
-     * Set the widget theme
-     * @since 0.7.0
-     * @param string $val
-     */
-    function set_widget_theme($val) {
-        $this->set_value($val, $this->options[WIDGET_THEME]);
-    }
-
-    function set_widget_allow_set_default_language($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[WIDGET_ALLOW_SET_DEFLANG]);
-    }
-
-    function set_enable_permalinks($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_PERMALINKS]);
-    }
-
-    function set_enable_detect_language($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_DETECT_LANG_AND_REDIRECT]);
-    }
-
-    function set_enable_footer_scripts($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_FOOTER_SCRIPTS]);
-    }
-
-    function set_enable_default_translate($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_DEFAULT_TRANSLATE]);
-    }
-
-    function set_enable_search_translate($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_SEARCH_TRANSLATE]);
-    }
-
-    function set_enable_url_translate($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_URL_TRANSLATE]);
-    }
-
-    function set_enable_auto_translate($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_AUTO_TRANSLATE]);
-    }
-
-    function set_msn_key($val) {
-        $this->set_value($val, $this->options[MSN_TRANSLATE_KEY]);
-    }
-
-    function set_google_key($val) {
-        $this->set_value($val, $this->options[GOOGLE_TRANSLATE_KEY]);
-    }
-
-    function set_oht_id($val) {
-        $this->set_value($val, $this->options[OHT_TRANSLATE_ID]);
-    }
-
-    function set_oht_key($val) {
-        $this->set_value($val, $this->options[OHT_TRANSLATE_KEY]);
-    }
-
-    function set_enable_auto_post_translate($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[ENABLE_AUTO_POST_TRANSLATE]);
-    }
-
-    function set_preferred_translator($val) {
-        $this->set_value($val, $this->options[PREFERRED_TRANSLATOR]);
-    }
-
-    /**
-     * Sets the default language setting, i.e. the source language which
-     * should not be translated.
-     * @param string $val Language set as default
-     */
-    function set_default_language($val) {
-        if (!transposh_consts::$languages[$val]) {
-            $val = "en";
-        }
-        $this->set_value($val, $this->options[DEFAULT_LANG]);
-    }
-
-    function set_transposh_key($val) {
-        $this->set_value($val, $this->options[TRANSPOSH_KEY]);
-    }
-
-    function set_transposh_backup_schedule($val) {
-        $this->set_value($val, $this->options[TRANSPOSH_BACKUP_SCHEDULE]);
-    }
-
-    function set_transposh_gettext_integration($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[TRANSPOSH_GETTEXT_INTEGRATION]);
-    }
-
-    function set_transposh_default_locale_override($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[TRANSPOSH_DEFAULT_LOCALE_OVERRIDE]);
+        return strpos($this->transposh_admin_hide_warnings, $id . ',') !== false;
     }
 
     function set_transposh_admin_hide_warning($id) {
         if (!$this->get_transposh_admin_hide_warning($id)) {
-            $this->set_value($this->options[TRANSPOSH_ADMIN_HIDE_WARNINGS] . $id . ',', $this->options[TRANSPOSH_ADMIN_HIDE_WARNINGS]);
+            $this->transposh_admin_hide_warnings = $this->transposh_admin_hide_warnings . $id . ',';
         }
-    }
-
-    function set_transposh_collect_stats($val) {
-        $val = ($val) ? 1 : 0;
-        $this->set_value($val, $this->options[TRANSPOSH_COLLECT_STATS]);
     }
 
     /**
@@ -442,11 +272,14 @@ class transposh_plugin_options {
      */
     function update_options() {
         if ($this->changed) {
+            foreach ($this->vars as $name => $var) {
+                $this->options[$name] = $var->get_value();
+            }
             update_option(TRANSPOSH_OPTIONS, $this->options);
+            $this->changed = false;
         } else {
             logger("no changes and no updates done");
         }
-        $this->changed = false;
     }
 
     /**
@@ -454,8 +287,8 @@ class transposh_plugin_options {
      * @param string $language
      * @return boolean Is this the default language?
      */
-    function is_default_language($language) {
-        return ($this->get_default_language() == $language || '' == $language);
+    function is_default_language($language) { // XXXX
+        return ($this->default_language == $language || '' == $language);
     }
 
     /**
@@ -464,7 +297,7 @@ class transposh_plugin_options {
      */
     function is_editable_language($language) {
         if ($this->is_default_language($language)) return true;
-        return (strpos($this->get_editable_langs().',', $language.',') !== false);
+        return (strpos($this->editable_languages . ',', $language . ',') !== false);
     }
 
     /**
@@ -473,7 +306,7 @@ class transposh_plugin_options {
      */
     function is_viewable_language($language) {
         if ($this->is_default_language($language)) return true;
-        return (strpos($this->get_viewable_langs().',', $language.',') !== false);
+        return (strpos($this->viewable_languages . ',', $language . ',') !== false);
     }
 
 }
