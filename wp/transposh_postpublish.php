@@ -34,7 +34,7 @@ class transposh_postpublish {
     function transposh_postpublish(&$transposh) {
         $this->transposh = &$transposh;
         // we'll only do something if so configured to do
-        if ($this->transposh->options->get_enable_auto_post_translate()) {
+        if ($this->transposh->options->enable_autoposttranslate) {
             add_action('edit_post', array(&$this, 'on_edit'));
             // add_action('publish_post',array(&$this, 'on_publish'));
             add_action('admin_menu', array(&$this, 'on_admin_menu'));
@@ -123,7 +123,7 @@ class transposh_postpublish {
             logger($phrases, 4);
 
             // Add phrases from permalink
-            if ($this->transposh->options->get_enable_url_translate()) {
+            if ($this->transposh->options->enable_url_translate) {
                 $permalink = get_permalink($postID);
                 $permalink = substr($permalink, strlen($this->transposh->home_url) + 1);
                 $parts = explode('/', $permalink);
@@ -140,10 +140,10 @@ class transposh_postpublish {
         $json['langs'] = array();
 
         foreach ($phrases as $key) {
-            foreach (explode(',', $this->transposh->options->get_editable_langs()) as $lang) {
+            foreach (explode(',', $this->transposh->options->editable_languages) as $lang) {
                 // if this isn't the default language or we specifically allow default language translation, we will seek this out...
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
-                if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->get_enable_default_translate()) {
+                if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->enable_default_translate) {
                     // There is no point in returning phrases, languages pairs that cannot be translated
                     if (in_array($lang, transposh_consts::$bing_languages) ||
                             in_array($lang, transposh_consts::$google_languages) ||
@@ -216,8 +216,8 @@ class transposh_postpublish {
         } else {
             update_post_meta($postID, 'tp_language', $_POST['transposh_tp_language']);
             // if a language is set for a post, default language translate must be enabled, so we enable it
-            if (!$this->transposh->options->get_enable_default_translate()) {
-                $this->transposh->options->set_enable_default_translate(true);
+            if (!$this->transposh->options->enable_default_translate) {
+                $this->transposh->options->enable_default_translate = true;
                 $this->transposh->options->update_options();
             }
         }

@@ -42,7 +42,7 @@ class transposh_3rdparty {
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
 
         // google analyticator
-        if ($this->transposh->options->get_transposh_collect_stats()) {
+        if ($this->transposh->options->transposh_collect_stats) {
             add_action('google_analyticator_extra_js_after', array(&$this, 'add_analyticator_tracking'));
         }
     }
@@ -101,7 +101,7 @@ class transposh_3rdparty {
         $lang = transposh_utils::get_language_from_url($uri, $this->transposh->home_url);
         //TODO - check using get_clean_url
         $uri = transposh_utils::cleanup_url($uri, $this->transposh->home_url);
-        if ($this->transposh->options->get_enable_url_translate()) {
+        if ($this->transposh->options->enable_url_translate) {
             $uri = transposh_utils::get_original_url($uri, '', $lang, array($this->transposh->database, 'fetch_original'));
         }
         return $uri;
@@ -185,12 +185,17 @@ class transposh_3rdparty {
         // we reduce the priorty by 0.2, but not below zero
         $sm_page->SetProprity(max($sm_page->GetPriority() - 0.2, 0));
 
-        $viewable_langs = explode(',', $this->transposh->options->get_viewable_langs());
+        /* <xhtml:link 
+          rel="alternate"
+          hreflang="de"
+          href="http://www.example.com/de" /> */
+
+        $viewable_langs = explode(',', $this->transposh->options->viewable_languages());
         $orig_url = $sm_page->GetUrl();
         foreach ($viewable_langs as $lang) {
             if (!$this->transposh->options->is_default_language($lang)) {
                 $newloc = $orig_url;
-                if ($this->transposh->options->get_enable_url_translate()) {
+                if ($this->transposh->options->enable_url_translate) {
                     $newloc = transposh_utils::translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
                 }
                 $newloc = transposh_utils::rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);

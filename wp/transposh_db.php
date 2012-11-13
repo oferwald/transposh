@@ -327,7 +327,7 @@ class transposh_database {
             }
         }
         if (!$by && !($all_editable &&
-                ($this->transposh->is_translator() || ($source > 0 && $this->transposh->options->get_enable_auto_translate())))) {
+                ($this->transposh->is_translator() || ($source > 0 && $this->transposh->options->enable_autotranslate)))) {
             logger("Unauthorized translation attempt " . $_SERVER['REMOTE_ADDR'], 1);
             header("HTTP/1.0 401 Unauthorized translation");
             exit;
@@ -447,7 +447,7 @@ class transposh_database {
 
         // TODO: move this to an action
         // Should we backup now?
-        if ($backup_immidiate_possible && $this->transposh->options->get_transposh_backup_schedule() == 2) {
+        if ($backup_immidiate_possible && $this->transposh->options->transposh_backup_schedule == 2) {
             $this->transposh->run_backup();
         }
         // this is a termination for the ajax sequence
