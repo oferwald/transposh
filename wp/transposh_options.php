@@ -135,6 +135,12 @@ class transposh_option {
  * 
  * @property boolean          $enable_url_translate          Option to enable/disable url translation @since 0.5.3
  * @property transposh_option $enable_url_translate_o
+ * @property boolean          $parser_dont_break_puncts      Option to allow punctuations such as , . ( not to break @since 0.9.0
+ * @property transposh_option $$parser_dont_break_puncts_o
+ * @property boolean          $parser_dont_break_numbers     Option to allow numbers not to break @since 0.9.0
+ * @property transposh_option $$parser_dont_break_numbers_o
+ * @property boolean          $parser_dont_break_entities    Option to allow html entities not to break @since 0.9.0
+ * @property transposh_option $$parser_dont_break_entities_o
  * 
  * Hidden
  * 
@@ -222,12 +228,15 @@ class transposh_plugin_options {
         $this->register_option('oht_key', TP_OPT_STRING);
 
 
-        $this->register_option('widget_progressbar', TP_OPT_BOOLEAN);
-        $this->register_option('widget_allow_set_deflang', TP_OPT_BOOLEAN);
-        $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN);
+        $this->register_option('widget_progressbar', TP_OPT_BOOLEAN, 0);
+        $this->register_option('widget_allow_set_deflang', TP_OPT_BOOLEAN, 0);
+        $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN, 0);
         $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
 
-        $this->register_option('enable_url_translate', TP_OPT_BOOLEAN);
+        $this->register_option('enable_url_translate', TP_OPT_BOOLEAN, 0);
+        $this->register_option('parser_dont_break_puncts', TP_OPT_BOOLEAN, 0);
+        $this->register_option('parser_dont_break_numbers', TP_OPT_BOOLEAN, 0);
+        $this->register_option('parser_dont_break_entities', TP_OPT_BOOLEAN, 0);
 
         $this->register_option('transposh_admin_hide_warnings', TP_OPT_OTHER);
 

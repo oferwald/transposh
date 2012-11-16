@@ -356,6 +356,7 @@ class transposh_plugin {
                 $parse->is_edit_mode = false;
                 $parse->feed_fix = true;
             }
+            $parse->change_parsing_rules(!$this->options->parser_dont_break_puncts, !$this->options->parser_dont_break_numbers, !$this->options->parser_dont_break_entities);
             $buffer = $parse->fix_html($buffer);
 
             $end_time = microtime(TRUE);
@@ -873,7 +874,6 @@ class transposh_plugin {
      * @return boolean Modified href
      */
     function rewrite_url($href) {
-        $use_params = FALSE;
         logger("got: $href", 5);
         // fix what might be messed up -- TODO
         $href = str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $href);
