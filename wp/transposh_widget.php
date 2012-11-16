@@ -279,7 +279,7 @@ class transposh_plugin_widget extends WP_Widget {
         //at least one language showing - add the edit box if applicable
         if (!empty($widget_args)) {
             // this is the set default language line
-            if ($this->transposh->options->get_widget_allow_set_default_language()) {
+            if ($this->transposh->options->widget_allow_set_deflang) {
                 If ((isset($_COOKIE['TR_LNG']) && $_COOKIE['TR_LNG'] != $this->transposh->target_language) || (!isset($_COOKIE['TR_LNG']) && !$this->transposh->options->is_default_language($this->transposh->target_language))) {
                     echo '<a id="' . SPAN_PREFIX . 'setdeflang' . self::$draw_calls . '" class="' . SPAN_PREFIX . 'setdeflang' . '" onClick="return false;" href="' . admin_url('admin-ajax.php') . '?action=tp_cookie_bck">' . __('Set as default language', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
                 }
@@ -307,7 +307,7 @@ class transposh_plugin_widget extends WP_Widget {
         // last - you can now remove the logo in exchange to a few percentage of ad and affiliate revenues on your pages, isn't that better?
         $plugpath = parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
 
-        if (!$this->transposh->options->get_widget_remove_logo()) {
+        if (!$this->transposh->options->widget_remove_logo) {
             $tagline = esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . ' - ';
             switch (ord(md5($_SERVER['REQUEST_URI'])) % 5) {
                 case 0:
@@ -334,7 +334,7 @@ class transposh_plugin_widget extends WP_Widget {
         }
 
         echo '<div id="' . SPAN_PREFIX . 'credit' . self::$draw_calls . '">';
-        if (!$this->transposh->options->get_widget_remove_logo()) {
+        if (!$this->transposh->options->widget_remove_logo) {
             echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img height="16" width="16" src="' .
             $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
         }

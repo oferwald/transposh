@@ -16,9 +16,6 @@ require_once("constants.php");
 require_once("logging.php");
 require_once("utils.php");
 
-define('PUNCT_BREAKS', TRUE); // Will punctiations such as , . ( and such will break a phrase
-define('NUM_BREAKS', TRUE); // Will a number break a phrase
-define('ENT_BREAKS', TRUE); // Will an HTML entity break a phrase
 
 /**
  * parserstats class - holds parser statistics
@@ -99,7 +96,11 @@ class parserstats {
  */
 class parser {
 
-    // funnctions that need to be defined... //
+    private $punct_breaks = true;
+    private $num_breaks = true;
+    private $ent_breaks = true;
+
+    // functions that need to be defined... //
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
     public $prefetch_translate_func = null;
@@ -377,7 +378,7 @@ class parser {
 
         while ($pos < strlen($string)) {
             // Some HTML entities make us break, almost all but apostrophies
-            if (ENT_BREAKS && $len_of_entity = $this->is_html_entity($string, $pos)) {
+            if ($this->ent_breaks && $len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
                 if (($this->is_white_space(@$string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
                     logger("entity ($entity) breaks", 4);
@@ -418,7 +419,7 @@ class parser {
                 //$this->in_get_text_inner = !$this->in_get_text_inner;
             }
             // will break translation unit when there's a breaker ",.[]()..."
-            elseif (PUNCT_BREAKS && $senb_len = $this->is_sentence_breaker($string[$pos], @$string[$pos + 1], @$string[$pos + 2])) {
+            elseif ($this->punct_breaks && $senb_len = $this->is_sentence_breaker($string[$pos], @$string[$pos + 1], @$string[$pos + 2])) {
 //                logger ("sentence breaker...");
                 $this->tag_phrase($string, $start, $pos);
                 $pos += $senb_len;
@@ -426,7 +427,7 @@ class parser {
             }
             // Numbers also break, if they are followed by whitespace (or a sentence breaker) (don't break 42nd) // TODO: probably by breaking entities too...
             // also prefixed by whitespace?
-            elseif (NUM_BREAKS && $num_len = $this->is_number($string, $pos)) {
+            elseif ($this->num_breaks && $num_len = $this->is_number($string, $pos)) {
 //                logger ("numnum... $num_len");
                 // this is the case of B2 or B2,
                 if (($start == $pos) || ($this->is_white_space($string[$pos - 1])
@@ -627,6 +628,18 @@ class parser {
     }
 
     /**
+     * Allow changing of parsing rules, yeah, I caved
+     * @param type $puncts
+     * @param type $numbers
+     * @param type $entities
+     */
+    function change_parsing_rules($puncts, $numbers, $entities) {
+        $this->punct_breaks = $puncts;
+        $this->num_breaks = $numbers;
+        $this->ent_breaks = $entities;
+    }
+    
+    /**
      * Main function - actually translates a given HTML
      * @param string $string containing HTML
      * @return string Translated content is here
@@ -753,7 +766,7 @@ class parser {
         foreach ($this->atags as $e) {
             if ($e->href)
                     $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
-        }
+            }
         foreach ($this->otags as $e) {
             if ($e->value)
                     $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
