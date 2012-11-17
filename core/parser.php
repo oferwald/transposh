@@ -290,8 +290,8 @@ class parser {
     function is_entity_letter($entity) {
         logger("checking ($entity) - " . htmlentities($entity), 4);
         $entnum = (int) substr($entity, 2);
-        if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 255)
-                || $entnum == 338 || $entnum == 339 || $entnum == 352 || $entnum == 353 || $entnum == 376) {
+        // skip multiply and divide (215, 247) 
+        if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 696)) {
             return true;
         }
         $entities = '&Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;' .
