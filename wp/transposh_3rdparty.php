@@ -60,35 +60,35 @@ class transposh_3rdparty {
         $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace('/index.php', '/', str_replace('..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri']))));
         // get some supercache variables
         extract(wp_super_cache_init());
-        logger(wp_super_cache_init());
+        tp_logger(wp_super_cache_init());
         // this is hackery for logged in users, a cookie is added to the request somehow and gzip is not correctly set, so we forcefully fix this
         if (!$cache_file) {
             $GLOBALS['wp_cache_gzip_encoding'] = gzip_accepted();
             unset($_COOKIE[key($_COOKIE)]);
             extract(wp_super_cache_init());
-            logger(wp_super_cache_init());
+            tp_logger(wp_super_cache_init());
         }
 
         $dir = get_current_url_supercache_dir();
         // delete possible files that we can figure out, not deleting files for other cookies for example, but will do the trick in most cases
         $cache_fname = "{$dir}index.html";
-        logger("attempting delete of supercache: $cache_fname");
+        tp_logger("attempting delete of supercache: $cache_fname");
         @unlink($cache_fname);
         $cache_fname = "{$dir}index.html.gz";
-        logger("attempting delete of supercache: $cache_fname");
+        tp_logger("attempting delete of supercache: $cache_fname");
         @unlink($cache_fname);
-        logger("attempting delete of wp_cache: $cache_file");
+        tp_logger("attempting delete of wp_cache: $cache_file");
         @unlink($cache_file);
-        logger("attempting delete of wp_cache_meta: $meta_pathname");
+        tp_logger("attempting delete of wp_cache_meta: $meta_pathname");
         @unlink($meta_pathname);
 
         // go at edit pages too
         $GLOBALS['wp_cache_request_uri'] .="?edit=1";
         extract(wp_super_cache_init());
-        logger(wp_super_cache_init());
-        logger("attempting delete of edit_wp_cache: $cache_file");
+        tp_logger(wp_super_cache_init());
+        tp_logger("attempting delete of edit_wp_cache: $cache_file");
         @unlink($cache_file);
-        logger("attempting delete of edit_wp_cache_meta: $meta_pathname");
+        tp_logger("attempting delete of edit_wp_cache_meta: $meta_pathname");
         @unlink($meta_pathname);
     }
 
@@ -178,7 +178,7 @@ class transposh_3rdparty {
      * @param GoogleSitemapGeneratorPage $sm_page Object containing the page information
      */
     function add_sm_transposh_urls($sm_page) {
-        logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority());
+        tp_logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority(), 4);
         $sm_page = clone $sm_page;
         // we need the generator object (we know it must exist...)
         $generatorObject = &GoogleSitemapGenerator::GetInstance();

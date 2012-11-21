@@ -16,7 +16,8 @@ define('TP_FROM_POST', 'tp_post_1x');
 // types of options
 define('TP_OPT_BOOLEAN', 0);
 define('TP_OPT_STRING', 1);
-define('TP_OPT_OTHER', 2);
+define('TP_OPT_IP', 2);
+define('TP_OPT_OTHER', 3);
 
 /**
  * @property string $desc Description
@@ -136,11 +137,19 @@ class transposh_option {
  * @property boolean          $enable_url_translate          Option to enable/disable url translation @since 0.5.3
  * @property transposh_option $enable_url_translate_o
  * @property boolean          $parser_dont_break_puncts      Option to allow punctuations such as , . ( not to break @since 0.9.0
- * @property transposh_option $$parser_dont_break_puncts_o
+ * @property transposh_option $parser_dont_break_puncts_o
  * @property boolean          $parser_dont_break_numbers     Option to allow numbers not to break @since 0.9.0
- * @property transposh_option $$parser_dont_break_numbers_o
+ * @property transposh_option $parser_dont_break_numbers_o
  * @property boolean          $parser_dont_break_entities    Option to allow html entities not to break @since 0.9.0
- * @property transposh_option $$parser_dont_break_entities_o
+ * @property transposh_option $parser_dont_break_entities_o
+ * @property boolean          $debug_enable Option to enable debug
+ * @property transposh_option $debug_enable_o
+ * @property int              $debug_loglevel Option holding the level of logging
+ * @property transposh_option $debug_loglevel_o
+ * @property string           $debug_logfile Option holding a filename to store debugging into
+ * @property transposh_option $debug_logfile_o
+ * @property ip               $debug_remoteip Option that limits remote firePhp debug to a certain IP
+ * @property transposh_option $debug_remoteip_o
  * 
  * Hidden
  * 
@@ -165,14 +174,14 @@ class transposh_plugin_options {
     function register_option($name, $type, $default_value = '') {
         if (!isset($this->options[$name]))
                 $this->options[$name] = $default_value;
-        logger($name . ' ' . $this->options[$name]);
+        // can't log...     tp_logger($name . ' ' . $this->options[$name]);
         $this->vars[$name] = new transposh_option($name, $this->options[$name], $type);
     }
 
     function __get($name) {
         if (substr($name, -2) === "_o")
                 return $this->vars[substr($name, 0, -2)];
-//        logger($this->vars[$name]->get_value());
+        tp_logger($this->vars[$name]->get_value(), 5);
         return $this->vars[$name]->get_value();
     }
 
@@ -186,7 +195,7 @@ class transposh_plugin_options {
         }
 
         if ($this->vars[$name]->get_value() != $value) {
-            logger("option '$name' value set: $value");
+            tp_logger("option '$name' value set: $value");
             $this->vars[$name]->set_value($value);
             $this->changed = true;
         }
@@ -195,10 +204,10 @@ class transposh_plugin_options {
     function __construct() {
 
 
-        logger("creating options");
+        // can't      tp_logger("creating options");
         // load them here
         $this->options = get_option(TRANSPOSH_OPTIONS);
-//        logger($this->options);
+//        tp_logger($this->options);
 
         $this->register_option('default_language', TP_OPT_STRING); // default?
         $this->register_option('viewable_languages', TP_OPT_STRING);
@@ -237,12 +246,17 @@ class transposh_plugin_options {
         $this->register_option('parser_dont_break_puncts', TP_OPT_BOOLEAN, 0);
         $this->register_option('parser_dont_break_numbers', TP_OPT_BOOLEAN, 0);
         $this->register_option('parser_dont_break_entities', TP_OPT_BOOLEAN, 0);
+        $this->register_option('debug_enable', TP_OPT_BOOLEAN, 0);
+        $this->register_option('debug_loglevel', TP_OPT_OTHER, 3);
+        $this->register_option('debug_logfile', TP_OPT_STRING, '');
+        $this->register_option('debug_remoteip', TP_OPT_IP, '');
+
 
         $this->register_option('transposh_admin_hide_warnings', TP_OPT_OTHER);
 
 
         // Fix default language if needed, only done once now, and since this was being done constantly, we gain
-        //logger($this->default_language->get_value());
+        //tp_logger($this->default_language->get_value());
 
         if (!isset(transposh_consts::$languages[$this->default_language])) {
             if (defined('WPLANG') && isset(transposh_consts::$languages[WPLANG])) {
@@ -252,7 +266,7 @@ class transposh_plugin_options {
             }
         }
 
-        logger($this->options, 4);
+        // can't log...   tp_logger($this->options, 4);
     }
 
     /**
@@ -287,7 +301,7 @@ class transposh_plugin_options {
             update_option(TRANSPOSH_OPTIONS, $this->options);
             $this->changed = false;
         } else {
-            logger("no changes and no updates done");
+            tp_logger("no changes and no updates done", 3);
         }
     }
 
