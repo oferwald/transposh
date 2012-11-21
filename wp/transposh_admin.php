@@ -83,22 +83,22 @@ class transposh_plugin_admin {
      * Handle newly posted admin options.
      */
     function update_admin_options() {
-        logger('Enter', 1);
-        logger($_POST);
+        tp_logger('Enter', 1);
+        tp_logger($_POST);
 
         switch ($_POST['page']) {
             case 'tp_langs':
                 $viewable_langs = array();
                 $editable_langs = array();
 
-                logger($$_POST['anonymous']);
+                tp_logger($_POST['anonymous']);
                 // first set the default language
                 list ($langcode, $viewable, $translateable) = explode(",", $_POST['languages'][0]);
                 $this->transposh->options->default_language = $langcode;
                 unset($_POST['languages'][0]);
 
                 // update the list of supported/editable/sortable languages
-                logger($_POST['languages']);
+                tp_logger($_POST['languages']);
                 foreach ($_POST['languages'] as $code => $lang) {
                     list ($langcode, $viewable, $translateable) = explode(",", $lang);
                     $sorted_langs[$langcode] = $langcode;
@@ -173,6 +173,11 @@ class transposh_plugin_admin {
                 $this->transposh->options->parser_dont_break_puncts = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_numbers = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_entities = TP_FROM_POST;
+                $this->transposh->options->debug_enable = TP_FROM_POST;
+                $this->transposh->options->debug_loglevel = TP_FROM_POST;
+                $this->transposh->options->debug_logfile = TP_FROM_POST;
+                $this->transposh->options->debug_remoteip = TP_FROM_POST;
+
                 break;
         }
 
@@ -191,7 +196,7 @@ class transposh_plugin_admin {
 
       //add some help
       function on_contextual_help($filterVal, $screen) {
-      logger($screen);
+      tp_logger($screen);
       //if ($screen == 'settings_page_transposh') {
       $filterVal['settings_page_transposh'] = '<p>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
       '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
@@ -350,7 +355,7 @@ class transposh_plugin_admin {
 
     // will be executed if wordpress core detects this page has to be rendered
     /*    function on_load_page() {
-      logger('here');
+      tp_logger('here');
       //ensure, that the needed javascripts been loaded to allow drag/drop, expand/collapse and hide/show of boxes
       //TODO - make up my mind on using .css flags here (currently no)
       //if ($this->transposh->options->get_widget_css_flags())
@@ -615,17 +620,17 @@ class transposh_plugin_admin {
                 , __('Allow automatic translation of pages', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_autoposttranslate_o, __('Enable automatic translation after posting', TRANSPOSH_TEXT_DOMAIN)
                 , __('Do automatic translation immediately after a post has been published', TRANSPOSH_TEXT_DOMAIN));
-        $this->header("<img src=\"{$this->transposh->transposh_plugin_url}/img/bingicon.png\"> " . __('MSN API key', TRANSPOSH_TEXT_DOMAIN));
-        echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" ' . $this->transposh->options->msn_key_o->post_value_id_name() . '/>';
-        $this->header("<img src=\"{$this->transposh->transposh_plugin_url}/img/googleicon.png\"> " . __('Google API key', TRANSPOSH_TEXT_DOMAIN));
-        echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" ' . $this->transposh->options->google_key_o->post_value_id_name() . '/>';
-        $this->header(__('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN));
-        echo '<label for="' . $this->transposh->options->preferred_translator_o->get_name() . '">' . __('Translation engine:', TRANSPOSH_TEXT_DOMAIN) .
-        '<select name="' . $this->transposh->options->preferred_translator_o->get_name() . '">' .
-        '<option value="1"' . selected($this->transposh->options->preferred_translator, 1, false) . '>' . __('Google', TRANSPOSH_TEXT_DOMAIN) . '</option>' .
-        '<option value="2"' . selected($this->transposh->options->preferred_translator, 2, false) . '>' . __('Bing', TRANSPOSH_TEXT_DOMAIN) . '</option>' .
-        '</select>' .
-        '</label>';
+        $this->textinput($this->transposh->options->msn_key_o
+                , array('bingicon.png', __('MSN API key', TRANSPOSH_TEXT_DOMAIN))
+                , __('API Key', TRANSPOSH_TEXT_DOMAIN));
+        $this->textinput($this->transposh->options->google_key_o
+                , array('googleicon.png', __('Google API key', TRANSPOSH_TEXT_DOMAIN))
+                , __('API Key', TRANSPOSH_TEXT_DOMAIN));
+        $this->select($this->transposh->options->preferred_translator_o, __('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN)
+                , __('Translation engine:', TRANSPOSH_TEXT_DOMAIN), array(
+            1 => __('Google', TRANSPOSH_TEXT_DOMAIN),
+            2 => __('Bing', TRANSPOSH_TEXT_DOMAIN),
+        ));
         $this->sectionstop();
 
         $this->section(__('Professional Translation Settings', TRANSPOSH_TEXT_DOMAIN), __('<a href="http://transposh.org/redir/oht">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide.', TRANSPOSH_TEXT_DOMAIN) .
@@ -633,14 +638,13 @@ class transposh_plugin_admin {
                 __('One Hour Translation provides high-quality, fast professional translation to/from any language, and has specific domain expertise in SW localization, technical, business, and legal translations.', TRANSPOSH_TEXT_DOMAIN));
 
 
-        $this->header("<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN));
-        echo __('Account ID', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" ' . $this->transposh->options->oht_id_o->post_value_id_name() . '/>';
+        $this->textinput($this->transposh->options->oht_id_o
+                , array('ohticon.png', __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN))
+                , __('Account ID', TRANSPOSH_TEXT_DOMAIN));
 
-        /**
-         * Allow users to insert their own API keys
-         */
-        $this->header("<img src=\"{$this->transposh->transposh_plugin_url}/img/ohticon.png\"> " . __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN));
-        echo __('API Key', TRANSPOSH_TEXT_DOMAIN) . ': <input type="text" size="35" class="regular-text" ' . $this->transposh->options->oht_key_o->post_value_id_name() . '/>';
+        $this->textinput($this->transposh->options->oht_key_o
+                , array('ohticon.png', __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN))
+                , __('Account ID', TRANSPOSH_TEXT_DOMAIN));
 
         $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
         if (!empty($oht) && wp_next_scheduled('transposh_oht_event')) {
@@ -668,15 +672,7 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->widget_remove_logo_o, __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN)
                 , __('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN));
 
-        $this->header(__('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN));
-        echo '<label for="' . $this->transposh->options->widget_theme_o->get_name() . '">' . __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN) .
-        '<select id="transposh-style" name="' . $this->transposh->options->widget_theme_o->get_name() . '">';
-        foreach (transposh_consts::$jqueryui_themes as $theme) {
-            //  $selected = ($this->transposh->options->widget_theme == $theme) ? ' selected="selected"' : '';
-            echo '<option value="' . $theme . '" ' . selected($this->transposh->options->widget_theme, $theme, false) . '>' . $theme . '</option>';
-        }
-        echo '</select>' .
-        '</label>';
+        $this->select($this->transposh->options->widget_theme_o, __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
     }
 
     function tp_advanced() {
@@ -688,14 +684,28 @@ class transposh_plugin_admin {
          */
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
 
-        $this->section(__('Parser related settings',TRANSPOSH_TEXT_DOMAIN)
-                , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.',TRANSPOSH_TEXT_DOMAIN));
+        $this->section(__('Parser related settings', TRANSPOSH_TEXT_DOMAIN)
+                , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_puncts_o, __('Disable punctuations break', TRANSPOSH_TEXT_DOMAIN)
                 , __('The parser will not break text into phrases when encountering punctuations such as dots', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_numbers_o, __('Disable numbers break', TRANSPOSH_TEXT_DOMAIN)
                 , __('The parser will not break text into phrases when encountering numbers', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_entities_o, __('Disable html entities break', TRANSPOSH_TEXT_DOMAIN)
                 , __('The parser will not break text into phrases when encountering html entities', TRANSPOSH_TEXT_DOMAIN));
+        $this->sectionstop();
+        $this->section(__('Debug settings', TRANSPOSH_TEXT_DOMAIN)
+                , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.', TRANSPOSH_TEXT_DOMAIN));
+        $this->checkbox($this->transposh->options->debug_enable_o, __('Enable debugging', TRANSPOSH_TEXT_DOMAIN)
+                , __('Enable running of Transposh internal debug functions', TRANSPOSH_TEXT_DOMAIN));
+        $this->textinput($this->transposh->options->debug_logfile_o, '', __('Log file name', TRANSPOSH_TEXT_DOMAIN));
+        $this->select($this->transposh->options->debug_loglevel_o, __('Level of logging', TRANSPOSH_TEXT_DOMAIN), __('Level of logging', TRANSPOSH_TEXT_DOMAIN), array(
+            1 => __('Critical', TRANSPOSH_TEXT_DOMAIN),
+            2 => __('Important', TRANSPOSH_TEXT_DOMAIN),
+            3 => __('Warning', TRANSPOSH_TEXT_DOMAIN),
+            4 => __('Information', TRANSPOSH_TEXT_DOMAIN),
+            5 => __('Debug', TRANSPOSH_TEXT_DOMAIN),
+        ));
+        $this->textinput($this->transposh->options->debug_remoteip_o, '', sprintf(__('Remote debug IP (Your current IP is %s)', TRANSPOSH_TEXT_DOMAIN), $_SERVER['REMOTE_ADDR']));
         $this->sectionstop();
     }
 
@@ -824,15 +834,46 @@ class transposh_plugin_admin {
     }
 
     private function header($head) {
-        echo '<h3>' . $head . '</h3>';
+        if (!isset($head)) return;
+        if (is_array($head)) {
+            echo "<h3><img src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}</h3>";
+        } else {
+            echo '<h3>' . $head . '</h3>';
+        }
     }
 
     /**
+     * Display a checkbox for boolean value
      * @param transposh_option $tpo A transposh option boolean object
+     * @param string $head
+     * @param string $text
      */
     private function checkbox($tpo, $head, $text) {
         $this->header($head);
         echo '<input type="checkbox" value="1" name="' . $tpo->get_name() . '" ' . checked($tpo->get_value(), true, false) . '/> ' . $text;
+    }
+
+    /**
+     * Display a select
+     * @param transposh_option $tpo 
+     * @param string $label
+     * @param array $options
+     * @param boolean $use_key
+     */
+    private function select($tpo, $head, $label, $options, $use_key = true) {
+        $this->header($head);
+        echo '<label for="' . $tpo->get_name() . '">' . $label .
+        '<select name="' . $tpo->get_name() . '">';
+        foreach ($options as $key => $text) {
+            echo '<option value="' . ($use_key ? $key : $text) . '"' . selected($tpo->get_value(), ($use_key ? $key : $text), false) . '>' . $text . '</option>';
+        }
+        echo '</select>' .
+        '</label>';
+    }
+
+    private function textinput($tpo, $head, $label, $length = 35) {
+        $this->header($head);
+        echo $label . ': <input type="text" size="' . $length . '" class="regular-text" ' . $tpo->post_value_id_name() . '/>';
     }
 
     /** UTILITY FUNCTIONS  END * */
@@ -915,4 +956,5 @@ class transposh_plugin_admin {
     }
 
 }
+
 ?>

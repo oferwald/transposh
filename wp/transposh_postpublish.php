@@ -34,6 +34,7 @@ class transposh_postpublish {
     function transposh_postpublish(&$transposh) {
         $this->transposh = &$transposh;
         // we'll only do something if so configured to do
+        // wrong - fix this! :)
         if ($this->transposh->options->enable_autoposttranslate) {
             add_action('edit_post', array(&$this, 'on_edit'));
             // add_action('publish_post',array(&$this, 'on_publish'));
@@ -46,7 +47,7 @@ class transposh_postpublish {
      */
     function on_admin_menu() {
         //add our metaboxs to the post and publish pages
-        logger('adding metaboxes');
+        tp_logger('adding metaboxes');
         add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'post', 'side', 'core');
         add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'page', 'side', 'core');
         add_meta_box('transposh_setlanguage', __('Set post language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), 'post', 'advanced', 'core');
@@ -120,7 +121,7 @@ class transposh_postpublish {
 
             // Merge the two arrays for traversing
             $phrases = array_merge($phrases, $phrases2, $phrases3, $phrases4, $phrases5);
-            logger($phrases, 4);
+            tp_logger($phrases, 4);
 
             // Add phrases from permalink
             if ($this->transposh->options->enable_url_translate) {
@@ -221,7 +222,7 @@ class transposh_postpublish {
                 $this->transposh->options->update_options();
             }
         }
-        logger($postID . ' ' . $_POST['transposh_tp_language']); //??
+        tp_logger($postID . ' ' . $_POST['transposh_tp_language']); //??
     }
 
 }

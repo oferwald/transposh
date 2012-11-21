@@ -16,7 +16,6 @@ require_once("constants.php");
 require_once("logging.php");
 require_once("utils.php");
 
-
 /**
  * parserstats class - holds parser statistics
  */
@@ -99,7 +98,6 @@ class parser {
     private $punct_breaks = true;
     private $num_breaks = true;
     private $ent_breaks = true;
-
     // functions that need to be defined... //
     public $url_rewrite_func = null;
     public $fetch_translate_func = null;
@@ -288,7 +286,7 @@ class parser {
       &Yuml;      &#376;                        latin capital letter Y with diaeresis
      */
     function is_entity_letter($entity) {
-        logger("checking ($entity) - " . htmlentities($entity), 4);
+        tp_logger("checking ($entity) - " . htmlentities($entity), 4);
         $entnum = (int) substr($entity, 2);
         // skip multiply and divide (215, 247) 
         if (($entnum >= 192 && $entnum <= 214) || ($entnum >= 216 && $entnum <= 246) || ($entnum >= 248 && $entnum <= 696)) {
@@ -340,11 +338,11 @@ class parser {
 //        logger ("p:$phrase, s:$logstr, st:$start, en:$end, gt:{$this->in_get_text}, gti:{$this->in_get_text_inner}");
 //        logger ('');
         if ($this->in_get_text > $this->in_get_text_inner) {
-            logger('not tagging ' . $phrase . ' assumed gettext translated', 4);
+            tp_logger('not tagging ' . $phrase . ' assumed gettext translated', 4);
             return;
         }
         if ($phrase) {
-            logger($phrase, 4);
+            tp_logger('tagged phrase: ' . $phrase, 4);
             $node = new simple_html_dom_node($this->html);
             $node->tag = 'phrase';
             $node->parent = $this->currentnode;
@@ -381,7 +379,7 @@ class parser {
             if ($this->ent_breaks && $len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
                 if (($this->is_white_space(@$string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
-                    logger("entity ($entity) breaks", 4);
+                    tp_logger("entity ($entity) breaks", 4);
                     $this->tag_phrase($string, $start, $pos);
                     $start = $pos + $len_of_entity;
                 }
@@ -398,7 +396,7 @@ class parser {
             } elseif ($string[$pos] == TP_GTXT_BRK || $string[$pos] == TP_GTXT_BRK_CLOSER) {
 //                $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
 //                $closers = ($string[$pos] == TP_GTXT_BRK) ? '': 'closer';
-//                logger(" $closers TEXT breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text, 3);
+//                tp_logger(" $closers TEXT breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text, 3);
                 $this->tag_phrase($string, $start, $pos);
                 ($string[$pos] == TP_GTXT_BRK) ? $this->in_get_text += 1 : $this->in_get_text -= 1;
                 $pos++;
@@ -409,8 +407,8 @@ class parser {
             } elseif ($string[$pos] == TP_GTXT_IBRK || $string[$pos] == TP_GTXT_IBRK_CLOSER) {
 //                $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
 //                $closers = ($string[$pos] == TP_GTXT_IBRK) ? '': 'closer';
-//                logger("   $closers INNER text breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text_inner, 3);
-                //logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
+//                tp_logger("   $closers INNER text breaker $logstr start:$start pos:$pos gt:" . $this->in_get_text_inner, 3);
+                //tp_logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
                 $this->tag_phrase($string, $start, $pos);
                 if ($this->in_get_text)
                         ($string[$pos] == TP_GTXT_IBRK) ? $this->in_get_text_inner += 1 : $this->in_get_text_inner -=1;
@@ -549,7 +547,7 @@ class parser {
         elseif ($node->tag == 'iframe') {
             if ($this->url_rewrite_func) {
                 $node->src = call_user_func_array($this->url_rewrite_func, array($node->src));
-                logger($node->src);
+                tp_logger('iframe: ' . $node->src, 4);
             }
         }
 
@@ -638,7 +636,7 @@ class parser {
         $this->num_breaks = $numbers;
         $this->ent_breaks = $entities;
     }
-    
+
     /**
      * Main function - actually translates a given HTML
      * @param string $string containing HTML
@@ -652,7 +650,7 @@ class parser {
             if ($string[0] == '{') {
                 $jsoner = json_decode($string);
                 if ($jsoner != null) {
-                    logger("json detected", 4);
+                    tp_logger("json detected (buddypress?)", 4);
                     // currently we only handle contents (which buddypress heavily use)
                     if ($jsoner->contents) {
                         $jsoner->contents = $this->fix_html($jsoner->contents);
@@ -688,7 +686,7 @@ class parser {
         // fix feed
         if ($this->feed_fix) {
             // fix urls on feed
-            logger('fixing feed');
+            tp_logger('fixing rss feed', 3);
             foreach (array('link', 'wfw:commentrss', 'comments') as $tag) {
                 foreach ($this->html->find($tag) as $e) {
                     $e->innertext = htmlspecialchars(call_user_func_array($this->url_rewrite_func, array($e->innertext)));
@@ -723,7 +721,8 @@ class parser {
             }
             foreach (array('title', 'value') as $title) {
                 foreach ($this->html->find('[' . $title . ']') as $e) {
-                    if (isset($e->nodes)) foreach ($e->nodes as $ep) {
+                    if (isset($e->nodes))
+                            foreach ($e->nodes as $ep) {
                             if ($ep->phrase) $originals[$ep->phrase] = true;
                         }
                 }
@@ -766,7 +765,7 @@ class parser {
         foreach ($this->atags as $e) {
             if ($e->href)
                     $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
-            }
+        }
         foreach ($this->otags as $e) {
             if ($e->value)
                     $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
@@ -824,8 +823,9 @@ class parser {
                 if (isset($e->parent->_[HDOM_INFO_OUTER])) {
                     $saved_outertext = $e->outertext;
                 }
-                logger("$title-original: $e->$title}", 4);
-                if (isset($e->nodes)) foreach ($e->nodes as $ep) {
+                tp_logger("$title-original: $e->$title}", 4);
+                if (isset($e->nodes))
+                        foreach ($e->nodes as $ep) {
                         if ($ep->tag == 'phrase') {
                             list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                             // more stats
@@ -897,7 +897,7 @@ class parser {
                         $hiddenspans .= $this->create_edit_span($ep->phrase, $translated_text, $source, true, $ep->srclang);
                     }
                     if (!$translated_text && $this->is_auto_translate && !$this->is_edit_mode) {
-                        logger('untranslated meta for ' . $ep->phrase . ' ' . $this->lang);
+                        tp_logger('untranslated meta for ' . $ep->phrase . ' ' . $this->lang);
                         if ($this->is_edit_mode || $this->is_auto_translate) { // FIX
                         }
                     }
@@ -905,7 +905,7 @@ class parser {
             }
             if ($newtext) {
                 $e->content = $newtext . $right;
-                logger("content-phrase: $newtext", 4);
+                tp_logger("content-phrase: $newtext", 4);
             }
         }
 

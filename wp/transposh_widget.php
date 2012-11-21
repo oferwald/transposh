@@ -41,7 +41,7 @@ class transposh_base_widget {
         $basefile = substr($file, 0, -4);
         $widget_css = TRANSPOSH_DIR_WIDGETS . '/' . $basefile . ".css";
         if (file_exists($plugin_dir . $widget_css)) {
-            wp_enqueue_style(str_replace('/','_', $basefile), $plugin_url . '/' . $widget_css, '', TRANSPOSH_PLUGIN_VER);
+            wp_enqueue_style(str_replace('/', '_', $basefile), $plugin_url . '/' . $widget_css, '', TRANSPOSH_PLUGIN_VER);
         }
     }
 
@@ -98,8 +98,8 @@ class transposh_plugin_widget extends WP_Widget {
      */
     function update($new_instance, $old_instance) {
         $instance = $old_instance;
-        logger($instance);
-        logger($new_instance);
+        tp_logger($instance);
+        tp_logger($new_instance);
         $instance['title'] = strip_tags(stripslashes($new_instance['title']));
         $instance['widget_file'] = strip_tags(stripslashes($new_instance['widget_file']));
         return $instance;
@@ -125,7 +125,7 @@ class transposh_plugin_widget extends WP_Widget {
         echo '<p><label for="' . $this->get_field_name('widget_file') . '">' . __('Style:', TRANSPOSH_TEXT_DOMAIN) .
         '<select id="' . $this->get_field_id('widget_file') . '" name="' . $this->get_field_name('widget_file') . '">';
         foreach ($widgets as $file => $widget) {
-            logger($widget, 4);
+            tp_logger($widget, 4);
             $selected = ($instance['widget_file'] == $file) ? ' selected="selected"' : '';
             echo "<option value=\"$file\"$selected>{$widget['Name']}</option>";
         }
@@ -169,7 +169,7 @@ class transposh_plugin_widget extends WP_Widget {
                 $tmpclass->tp_widget_css($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
             }
         }
-        logger('Added transposh_widget_css', 4);
+        tp_logger('Added transposh_widget_css', 4);
     }
 
     /**
@@ -192,7 +192,7 @@ class transposh_plugin_widget extends WP_Widget {
                 $tmpclass->tp_widget_js($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
             }
         }
-        logger('Added transposh_widget_js', 4);
+        tp_logger('Added transposh_widget_js', 4);
     }
 
     /**
@@ -244,7 +244,7 @@ class transposh_plugin_widget extends WP_Widget {
     function widget($args, $instance) {
         // extract args given by wordpress
         extract($args);
-        logger($args, 4);
+        tp_logger($args, 4);
 
         // we load the class needed and get its base name for later
         $class = $this->load_widget($instance['widget_file']);
@@ -254,12 +254,12 @@ class transposh_plugin_widget extends WP_Widget {
 
         $clean_page = $this->transposh->get_clean_url();
 
-        logger("WIDGET: clean page url: $clean_page", 4);
+        tp_logger("WIDGET: clean page url: $clean_page", 4);
 
         $widget_args = $this->create_widget_args($clean_page);
         // at this point the widget args are ready
 
-        logger('Enter widget', 4);
+        tp_logger('Enter widget', 4);
 
         // widget default title
         //echo $before_widget . $before_title . __('Translation', TRANSPOSH_TEXT_DOMAIN) . $after_title; - hmm? po/mo?
