@@ -34,12 +34,10 @@ class transposh_postpublish {
     function transposh_postpublish(&$transposh) {
         $this->transposh = &$transposh;
         // we'll only do something if so configured to do
-        // wrong - fix this! :)
         if ($this->transposh->options->enable_autoposttranslate) {
             add_action('edit_post', array(&$this, 'on_edit'));
-            // add_action('publish_post',array(&$this, 'on_publish'));
-            add_action('admin_menu', array(&$this, 'on_admin_menu'));
         }
+        add_action('admin_menu', array(&$this, 'on_admin_menu'));
     }
 
     /**
@@ -47,11 +45,17 @@ class transposh_postpublish {
      */
     function on_admin_menu() {
         //add our metaboxs to the post and publish pages
-        tp_logger('adding metaboxes');
-        add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'post', 'side', 'core');
-        add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), 'page', 'side', 'core');
-        add_meta_box('transposh_setlanguage', __('Set post language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), 'post', 'advanced', 'core');
-        add_meta_box('transposh_setlanguage', __('Set page language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), 'page', 'advanced', 'core');
+        tp_logger('adding metaboxes for admin pages/post/custom', 4);
+        $post_types = get_post_types();
+        foreach ($post_types as $post_type) {
+            if (in_array($post_type, array('attachment', 'revision', 'nav_menu_item')))
+                    continue;
+            tp_logger($post_type, 5);
+            if ($this->transposh->options->enable_autoposttranslate) {
+                add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), $post_type, 'side', 'core');
+            }
+            add_meta_box('transposh_setlanguage', __('Set post language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), $post_type, 'advanced', 'core');
+        }
         if (!isset($_GET['post'])) return;
         if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
             $this->just_published = true; // this is later used in the meta boxes //XXXXXXXXXXXXXXXXXXXXXXXXXXXX
