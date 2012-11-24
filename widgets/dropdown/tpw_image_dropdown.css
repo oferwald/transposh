@@ -30,7 +30,7 @@
 /* Code adapted from: http://www.jankoatwarpspeed.com/post/2009/07/28/reinventing-drop-down-with-css-jquery.aspx */
 
 .dropdown, .dropdown dd, .dropdown dt, .dropdown ul { margin:0px; padding:0px; }
-.dropdown dd { position:relative; }
+.dropdown dd { position:relative; z-index:9999;}
 .dropdown a, .dropdown a:visited { color:#816c5b; text-decoration:none; outline:none;}
 .dropdown a:hover { color:#5d4617;}
 .dropdown dt a:hover, .dropdown dt a:focus { color:#5d4617; border: 1px solid #5d4617;}
