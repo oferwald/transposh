@@ -5,13 +5,12 @@
 #
 
 VERSION=$1;
-DEBUG=$2;
-ZIPME=$3;
-COPYTO=$4;
+ZIPME=$2;
+COPYTO=$3;
 
 if [ -z $VERSION ]; then
   echo "Must enter a version number !!!"
-  echo "Usage: $0 0.1.0 [[debug] [zip] [targetdir]]"
+  echo "Usage: $0 0.1.0 [[zip] [targetdir]]"
   exit
 fi
 
@@ -59,19 +58,20 @@ YEAR=`date +%Y`
 #
 #Add php files while removing logging operations
 #
-if [ "$DEBUG" != 'debug' ]; then
-  echo "Adding .php files (without logging)"
-  for file in `find . -maxdepth 4 -iname '*.php'`; do 
-    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
-    echo "added $file"
-  done;
-else
+#if [ "$DEBUG" != 'debug' ]; then
+#  echo "Adding .php files (without logging)"
+#  for file in `find . -maxdepth 4 -iname '*.php'`; do 
+#    sed "s/logger.*;//;s/require_once.*(\"core.logging.*//;s/require_once.*(\'logging.*//;s/require_once.*(\"logging.*//;s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
+#    echo "added $file"
+#  done;
+#else
   echo "Adding .php files (with logging)"
   for file in `find . -maxdepth 4 -iname '*.php'`; do 
-    cp $file $TRANSPOSH_DIR/$file
+    sed "s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
+#    cp $file $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
-fi
+#fi
 echo
 #
 #Add the index.html
@@ -88,17 +88,17 @@ echo "fixing version in readme.txt to $VERSION"
 #
 # Remove logging.php
 #
-if [ "$DEBUG" != 'debug' ]; then
-  rm $TRANSPOSH_DIR/core/logging.php
-  echo "removed logging.php"
-  rm $TRANSPOSH_DIR/core/FirePHP.class.php
-  echo "removed FirePHP.class.php"
-else
+#if [ "$DEBUG" != 'debug' ]; then
+#  rm $TRANSPOSH_DIR/core/logging.php
+#  echo "removed logging.php"
+#  rm $TRANSPOSH_DIR/core/FirePHP.class.php
+#  echo "removed FirePHP.class.php"
+#else
   rm $TRANSPOSH_DIR/screenshot*.png
   echo "removed screenshots"
-fi
+#fi
 
-if [ "$DEBUG" != 'debug' ]; then
+#if [ "$DEBUG" != 'debug' ]; then
   echo "Minify .js files"
   for file in `find ./js -maxdepth 3 -iname '*.js' ! -name keyboard.js ! -name lazy.js ! -name jquery.ui.menu.js`; do
     echo "minifying $file"
@@ -129,7 +129,7 @@ echo "/*
     echo "minifying $file"
     java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
   done;
-fi
+#fi
 
 # Remove .svn dirs
 find $TRANSPOSH_DIR -name "*.svn*" -exec rm -rf {} 2>/dev/null \;
@@ -149,7 +149,7 @@ if [ "$ZIPME" == 'zip' ]; then
 fi
 
 #
-#Copy to targer
+#Copy to target
 #
 
 if [ "$COPYTO" != '' ]; then
