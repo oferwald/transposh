@@ -130,10 +130,8 @@ class transposh_consts {
     // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
     // @updated 2011-Nov-04
     // @updated 2012-Feb-24 (eo)
-    // $google_languages = array('en', 'af', 'sq', 'ar', 'hy', 'az', 'eu', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'ka', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'ur', 'vi', 'cy', 'yi');
+    // @updated 2012-Sep-17 (la)
     public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo');
-//    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi');
-//    public static $google_proxied_languages = array('hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu');
     // Bing supported languages
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2012-Feb-14 (mww)
@@ -149,7 +147,6 @@ class transposh_consts {
     //Dari	fa-af
     //Kazakh	kk-kz
     //Khmer	km-kh
-    //Lao	lo-la
     //Pashto	ps
     //Uzbek	uz-uz
     public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id', 'it', 'jp', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi');
@@ -169,7 +166,7 @@ define('TRANSLATOR', 'translator');
 define('TRANSPOSH_PLUGIN_VER', '%VERSION%');
 
 //Current jQuery UI
-define('JQUERYUI_VER', '1.8.23');
+define('JQUERYUI_VER', '1.9.2');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define('SPAN_PREFIX', 'tr_');
@@ -183,7 +180,7 @@ define('TRANSPOSH_TEXT_DOMAIN', 'transposh');
 //0.3.5 - Storing all options in this config option
 define('TRANSPOSH_OPTIONS', 'transposh_options');
 
-//0.9.0 - Storing oht project
+//0.8.4 - Storing oht project
 define('TRANSPOSH_OPTIONS_OHT', 'transposh_options_oht');
 define('TRANSPOSH_OPTIONS_OHT_PROJECTS', 'transposh_options_oht_projects');
 define('TRANSPOSH_OHT_DELAY', 600);

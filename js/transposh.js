@@ -34,7 +34,7 @@
     ;
 
     // set base uri for jQueryUI
-    t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/';
+    t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/';
 
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
