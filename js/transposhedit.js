@@ -46,6 +46,7 @@
         'el': 'Greek - Ελληνικά',
         'gu': 'Gujarati - ગુજરાતી',
         'ht': 'Haitian - Kreyòl ayisyen',
+        'mw': 'Hmong Daw - Hmoob Daw',
         'he': 'Hebrew - עברית',
         'hi': 'Hindi - हिन्दी; हिंदी',
         'hu': 'Hungarian - Magyar',
@@ -56,6 +57,7 @@
         'ja': 'Japanese - 日本語',
         'kn': 'Kannada - ಕನ್ನಡ',
         'ko': 'Korean - 우리말',
+        'lo': 'Lao - ພາສາລາວ',
         'la': 'Latin - Latīna',
         'lv': 'Latvian - Latviešu valoda',
         'lt': 'Lithuanian - Lietuvių kalba',
@@ -91,12 +93,16 @@
     previcon = 'prev',
     nexticon = 'next',
     right = 'right',
-    left = 'left';
+    left = 'left',
+    rkey = 39,
+    lkey = 37;
 
     // fix rtl stuff
     if ($("html").attr("dir") === 'rtl') {
         right = 'left';
         left = 'right';
+        lkey = 39;
+        rkey = 37;
         previcon = 'next';
         nexticon = 'prev';
     }
@@ -865,6 +871,20 @@
             $(idprefix+'historydialog').remove();
         });
 
+        // we allow to goto next/prev with ctrl-key
+        $(dialog).keydown(function(event) {
+            if (event.ctrlKey) {
+                switch (event.keyCode) {
+                    case lkey:
+                        $(idprefix + 'prev').click();
+                        break;
+                    case rkey:
+                        $(idprefix + 'next').click();
+                        break;
+                }
+            }
+        })
+        
         // show confirmation dialog before closing
         $(dialog).bind('dialogbeforeclose', function (event, ui) {
             if ($(idprefix + "translation").data("changed")) {
