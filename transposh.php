@@ -1540,7 +1540,7 @@ function transposh_get_current_language() {
  */
 function tp_logger($msg, $severity = 3, $do_backtrace = false) {
     global $my_transposh_plugin;
-    if (isset($my_transposh_plugin) && !$my_transposh_plugin->options->debug_enable)
+    if (isset($my_transposh_plugin) && is_object($my_transposh_plugin) && !$my_transposh_plugin->options->debug_enable)
             return;
     $GLOBALS['tp_logger']->do_log($msg, $severity, $do_backtrace);
 }

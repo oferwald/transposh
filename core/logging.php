@@ -97,8 +97,11 @@ class tp_logger {
             } else {
                 if ($this->remoteip != $_SERVER['REMOTE_ADDR']) return;
                 if ((is_array($msg) || is_object($msg)) && $this->show_caller) {
-                    $this->firephp->log("$log_prefix:");
+                    $this->firephp->group("$log_prefix: object/array", array('Collapsed' => true,
+                        'Color' => '#FF00FF'));
+                    //$this->firephp->log("$log_prefix:");
                     $this->firephp->log($msg);
+                    $this->firephp->groupEnd();
                 } else {
                     if (is_array($msg) || is_object($msg)) {
                         $this->firephp->log($msg);
