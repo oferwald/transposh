@@ -33,12 +33,9 @@ class transposh_plugin_admin {
     // constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
         $this->transposh = &$transposh;
-        // add filter for WordPress 2.8 changed backend box system !
-        //add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
-        // add some help
-        //add_filter('contextual_help_list', array(&$this, 'on_contextual_help'), 100, 2);
+        // add our notices
+        add_action('admin_notices', array(&$this, 'notices'));
         // register callback for admin menu setup
-        //add_action('admin_menu', array(&$this, 'on_admin_menu'));
         add_action('admin_menu', array(&$this, 'admin_menu'));
         // register the callback been used if options of page been submitted and needs to be processed
         add_action('admin_post_save_transposh', array(&$this, 'on_save_changes'));
@@ -57,7 +54,7 @@ class transposh_plugin_admin {
         $this->pages = array(
             'tp_main' => array(__('Dashboard', TRANSPOSH_TEXT_DOMAIN)),
             'tp_langs' => array(__('Languages', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_settings' => array(__('Settings', TRANSPOSH_TEXT_DOMAIN), '<acronym title="Content Delivery Network">CDN</acronym>'),
+            'tp_settings' => array(__('Settings', TRANSPOSH_TEXT_DOMAIN)),
             'tp_engines' => array(__('Translation Engines', TRANSPOSH_TEXT_DOMAIN)),
             'tp_widget' => array(__('Widgets settings', TRANSPOSH_TEXT_DOMAIN)),
             'tp_advanced' => array(__('Advanced', TRANSPOSH_TEXT_DOMAIN)),
@@ -186,25 +183,15 @@ class transposh_plugin_admin {
         $this->transposh->options->update_options();
     }
 
-    /*    // for WordPress 2.8 we have to tell, that we support 2 columns !
-      function on_screen_layout_columns($columns, $screen) {
-      if ($screen == $this->pagehook) {
-      $columns[$this->pagehook] = 2;
-      }
-      return $columns;
-      }
-
-      //add some help
-      function on_contextual_help($filterVal, $screen) {
-      tp_logger($screen);
-      //if ($screen == 'settings_page_transposh') {
-      $filterVal['settings_page_transposh'] = '<p>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
-      '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
-      '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a>';
-      //}
-      return $filterVal;
-      }
-     */
+    //add some help
+    function on_contextual_help() {
+        $text = '<p>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
+                '<p>' . __('For further help and assistance, please look at the following resources:', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
+                '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
+                '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>'.
+                '<a href="http://trac.transposh.org/">' . __('Development website', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' ;
+        return $text;
+    }
 
     function admin_menu() {
         // First param is page title, second is menu title
@@ -226,15 +213,8 @@ class transposh_plugin_admin {
                 add_action('load-' . $submenu_page, array(&$this, 'load'));
                 add_action('admin_print_styles-' . $submenu_page, array(&$this, 'admin_print_styles'));
                 add_action('admin_print_scripts-' . $submenu_page, array(&$this, 'admin_print_scripts'));
-                //   echo $submenu_page;
             }
 
-            /**
-             */
-            /*            add_action('admin_notices', array(
-              &$this,
-              'admin_notices'
-              )); */
         }
         // DOC
         add_action('load-edit-comments.php', array(&$this, 'on_load_comments_page'));
@@ -263,14 +243,27 @@ class transposh_plugin_admin {
                 break;
             case 'tp_langs':
                 wp_enqueue_script('jquery-ui-droppable');
-                wp_enqueue_script('transposh_settings', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhsettings.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
-                // MAKESURE 3.3+ css
+                wp_enqueue_script('transposh_admin_languages', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/languages.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
+                wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
+                wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
+                break;
+            case 'tp_utils':
+                wp_enqueue_script('transposh_admin_utils', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/utils.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
+                // NOTE: When wordpress will have .css for the jQueryUI we'll be able to use the built-in jqueryui
                 // wp_enqueue_script('jquery-ui-progressbar');
 
                 wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
                 wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
-                break;
+                wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/backendtranslate.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
+                $script_params = array(
+                    'l10n_print_after' =>
+                    't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
+                    't_be.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';' .
+                    't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
+                );
+                wp_localize_script("transposh_backend", "t_be", $script_params);
         }
+        wp_enqueue_style('transposh_admin', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_CSS . '/admin.css'); ///, array('transposh'), TRANSPOSH_PLUGIN_VER, true)
     }
 
     function load() {
@@ -281,16 +274,16 @@ class transposh_plugin_admin {
             $this->localeleft = 'right';
             $this->localeright = 'left';
         }
-
+        
+        // the followings are integrations with the wordpress admin interface
         $screen = get_current_screen();
         $screen->add_help_tab(array(
-            'id' => 'additional-help-page-one', // This should be unique for the screen.
-            'title' => 'Your Tab Title',
-// retrieve the function output and set it as tab content
-            'content' => 'wptuts_options_page_contextual_help()'));
-        // $screen->add_option( 'layout_columns', array('max' => 2 ) );
-        add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
+            'id' => 'additional-transposh-help', // This should be unique for the screen.
+            'title' => __('Transposh Help', TRANSPOSH_TEXT_DOMAIN),
+            // retrieve the function output and set it as tab content
+            'content' => $this->on_contextual_help()));
         if ($_GET['page'] == 'tp_main') {
+            add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
             add_meta_box('transposh-sidebox-about', __('About this plugin', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_about_content'), '', 'side', 'core');
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
             add_meta_box('transposh-sidebox-stats', __('Plugin stats', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_stats_content'), '', 'column3', 'core');
@@ -304,8 +297,8 @@ class transposh_plugin_admin {
         echo '<input type="hidden" name="action" value="save_transposh"/>';
         echo '<input type="hidden" name="page" value="' . $_GET['page'] . '"/>';
         echo wp_nonce_field(TR_NONCE);
-        screen_icon('options-general');
-        //screen_icon();
+        screen_icon('transposh-logo');
+
         echo '<h2 class="nav-tab-wrapper">';
         foreach ($this->pages as $slug => $titles) {
             $active = ($slug === $_GET['page']) ? ' nav-tab-active' : '';
@@ -315,65 +308,26 @@ class transposh_plugin_admin {
         }
         echo '</h2>';
 
-
-        //switch ($_GET['page']) {
-        /* case 'tp_langs':
-          $this->tp_langs();
-          break;
-          case 'tp_auto':
-          $this->tp_auto();
-          break;
-          case 'tp_pro':
-          $this->tp_pro();
-          break; */
-//        }
+        // TODO: look at this...
         call_user_func(array(&$this, $_GET['page']));
-        /* echo 'loaded!?';
-          add_meta_box('transposh-contentbox-languages', __('Supported languages', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_languages_content'), 'toplevel_page_tp_main', 'normal', 'core');
-          do_meta_boxes('toplevel_page_tp_main', 'normal', ''); */
 
+        // Add submission for pages that can be modified
         if ($this->contains_settings) {
             echo '<p>';
-            echo'<input type="submit" value="' . esc_attr('Save Changes') . '" class="button-primary" name="Submit"/>';
+            echo'<input type="submit" value="' . esc_attr__('Save Changes', TRANSPOSH_TEXT_DOMAIN) . '" class="button-primary" name="Submit"/>';
             echo'</p>';
         }
 
         echo '</div>';
     }
 
-    // extend the admin menu
-    // function on_admin_menu() {
-    //add our own option page, you can also add it to different sections or use your own one
-//        $this->pagehook = add_options_page(__('Transposh control center', TRANSPOSH_TEXT_DOMAIN), __('Transposh', TRANSPOSH_TEXT_DOMAIN), 'manage_options', TRANSPOSH_ADMIN_PAGE_NAME, array(&$this, 'on_show_page'));
-    // register callback gets call prior your own page gets rendered
-//        add_action('load-' . $this->pagehook, array(&$this, 'on_load_page'));
-    // }
-
+    // not sure if this is the best place for this function, but heck
     function on_load_comments_page() {
-        wp_enqueue_script('transposhcomments', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhcommentslang.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
+        wp_enqueue_script('transposhcomments', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/commentslang.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
     }
 
     // will be executed if wordpress core detects this page has to be rendered
     /*    function on_load_page() {
-      tp_logger('here');
-      //ensure, that the needed javascripts been loaded to allow drag/drop, expand/collapse and hide/show of boxes
-      //TODO - make up my mind on using .css flags here (currently no)
-      //if ($this->transposh->options->get_widget_css_flags())
-      //            wp_enqueue_style("transposh_flags",$this->transposh->transposh_plugin_url."/widgets/flags/tpw_flags.css",array(),TRANSPOSH_PLUGIN_VER);
-      wp_enqueue_script('transposh_settings', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhsettings.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
-      // MAKESURE 3.3+ css
-      // wp_enqueue_script('jquery-ui-progressbar');
-
-      wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
-      wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
-      wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposhbackend.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
-      $script_params = array(
-      'l10n_print_after' =>
-      't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
-      't_be.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';' .
-      't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
-      );
-      wp_localize_script("transposh_backend", "t_be", $script_params);
 
       //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
       add_meta_box('transposh-sidebox-translate', __('Translate all', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_translate_content'), $this->pagehook, 'side', 'core');
@@ -390,23 +344,7 @@ class transposh_plugin_admin {
     function tp_main() {
 
 
-        //we need the global screen column value to beable to have a sidebar in WordPress 2.8
-        //global $screen_layout_columns;
-        //add a 3rd content box now for demonstration purpose, boxes added at start of page rendering can't be switched on/off,
-        //may be needed to ensure that a special box is always available
-        //define some data can be given to each metabox during rendering - not used now
-        //$data = array('My Data 1', 'My Data 2', 'Available Data 1');
-        //echo '<div id="transposh-general" class="wrap">';
-        //screen_icon('options-general');
-        //echo '<h2>' . __('Transposh', TRANSPOSH_TEXT_DOMAIN) . '</h2>' .
         // add some user warnings that leads to some FAQs
-        if ((int) ini_get('memory_limit') < 64) {
-            $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
-        }
-
-        if (!(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
-            $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
-        }
 
         echo '<div id="dashboard-widgets-wrap">';
 
@@ -414,53 +352,13 @@ class transposh_plugin_admin {
         require_once(ABSPATH . 'wp-admin/includes/dashboard.php');
 
         wp_enqueue_script('dashboard');
-//wp_enqueue_script( 'plugin-install' );
-//wp_enqueue_script( 'media-upload' );
         wp_admin_css('dashboard');
-//wp_admin_css( 'plugin-install' );
         add_thickbox();
-
-        add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
 
         wp_dashboard();
 
         echo '<div class="clear"></div>';
 
-//        wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false);
-//        wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false);
-//
-//        '<div id="poststuff" class="metabox-holder' . ((2 == $GLOBALS['screen_layout_columns']) ? ' has-right-sidebar' : '') . '">' .
-//        '<div id="side-info-column" class="inner-sidebar">';
-////        do_meta_boxes($this->pagehook, 'side', '');
-//
-//        echo '</div>' .
-////        do_meta_boxes($this->pagehook, 'side', '');
-//        '<div id="post-body" class="has-sidebar">' .
-//        '<div id="post-body-content" class="has-sidebar-content">	';
-//
-////        do_meta_boxes($this->pagehook, 'normal', '');
-//        /* Maybe add static content here later */
-//        //do_meta_boxes($this->pagehook, 'additional', $data);
-//
-//        echo '<p>' .
-//        '<input type="submit" value="' . __('Save Changes') . '" class="button-primary" name="Submit"/>' .
-//        '</p>' .
-//        '</div>' .
-//        '</div>' .
-//        '<br class="clear"/>' .
-//        '</div>' .
-//        '</form>' .
-//        '</div>' .
-//        '<script type="text/javascript">' . "\n" .
-//        '//<![CDATA[' . "\n" .
-//        'jQuery(document).ready( function($) {';
-//        // close postboxes that should be closed
-//        echo "$('.if-js-closed').removeClass('if-js-closed').addClass('closed');";
-//        // postboxes setup
-//        echo "postboxes.add_postbox_toggles('" . $this->pagehook . "');" .
-//        '});	' . "\n" .
-//        '//]]>' . "\n" .
-//        '</script>';
     }
 
     /**
@@ -470,48 +368,15 @@ class transposh_plugin_admin {
     function tp_langs() {
         $this->contains_settings = true;
         // we need some styles
-        echo '<style type="text/css">
-	#sortable { list-style-type: none; margin: 0; padding: 0; }
-	#sortable li, #default_lang li { margin: 3px 3px 3px 0; padding: 5px; float: ' . $this->localeleft . '; width: 190px; height: 14px;}
-	.languages {
-            -moz-border-radius: 6px;
-            -khtml-border-radius: 6px;
-            -webkit-border-radius: 6px;
-            border-radius: 6px;
-            border-style:solid;
-            border-width:1px;
-            line-height:1;
-         }
-	.highlight {
-            -moz-border-radius: 6px;
-            -khtml-border-radius: 6px;
-            -webkit-border-radius: 6px;
-            border-radius: 6px;
-            border-style:solid;
-            border-width:1px;
-            line-height:1;
-            background: #FFE45C;
-            width: 190px;
-            height: 14px;
-        }
-	.highlight_default {
-            background: #FFE45C;
-        }
-        .active {
-            background: #45FF51;
-        }
-        .translateable {
-            background: #FFFF51;
-        }
-        .hidden {
-        display: none;
-        }
+        global $wp_locale;
+        if ($wp_locale->text_direction == 'rtl') {
+            echo '<style type="text/css">
+	#sortable li, #default_lang li { float: right !important;}
         .logoicon {
-            float:' . $this->localeright . ';
-            margin-left:2px;
-            margin-top:-1px;
+            float:left !important;
         }
-	</style>';
+        </style>';
+        }
 
         // this is the default language location
         list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$this->transposh->options->default_language]);
@@ -527,6 +392,7 @@ class transposh_plugin_admin {
         $this->header(__('Available Languages (Click to toggle language state - Drag to sort in the widget)', TRANSPOSH_TEXT_DOMAIN));
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
+            tp_logger($langcode, 5);
             list ($langname, $langorigname, $flag) = explode(",", $langrecord);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_viewable_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "active" : "")
             . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:' . $this->localeleft . '">'
@@ -877,13 +743,24 @@ class transposh_plugin_admin {
     }
 
     /** UTILITY FUNCTIONS  END * */
-    function add_warning($id, $message) {
+    function notices() {
+        if ((int) ini_get('memory_limit') < 64) {
+            $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
+        }
+
+        if (!(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
+            $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>', 'updated');
+        }
+    }
+
+    function add_warning($id, $message, $level = 'error') {
         if (!$this->transposh->options->get_transposh_admin_hide_warning($id)) {
-            echo '<div id="' . $id . '" class="error">' .
-            '<span class="ui-icon ui-icon-alert" style="float: ' . $this->localeleft . '; margin-' . $this->localeright . ': .3em;"></span>' .
+            //$this->add_warning_script();
+            wp_enqueue_script('transposh_warningclose', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/warningclose.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
+            echo '<div class="' . $level . '"><p>&#9888;&nbsp;' .
             $message .
-            '<span class="warning-close ui-icon ui-icon-closethick" style="float:' . $this->localeright . '; margin-' . $this->localeleft . ': .3em;"></span>' .
-            '</div>';
+            '<a id="' . $id . '" href="#" class="warning-close" style="float:' . $this->localeright . '; margin-' . $this->localeleft . ': .3em;">Hide Notice</a>' .
+            '</p></div>';
         }
     }
 

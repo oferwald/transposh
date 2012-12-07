@@ -181,7 +181,7 @@ class transposh_plugin_options {
     function __get($name) {
         if (substr($name, -2) === "_o")
                 return $this->vars[substr($name, 0, -2)];
-        tp_logger($this->vars[$name]->get_value(), 5);
+        // can't!? tp_logger($this->vars[$name]->get_value(), 5);
         return $this->vars[$name]->get_value();
     }
 
@@ -275,8 +275,10 @@ class transposh_plugin_options {
      * @return array sorted list of languages, pointing to names and flags
      */
     function get_sorted_langs() {
-        if (isset($this->sorted_languages))
-                return array_merge(array_flip(explode(",", $this->sorted_languages)), transposh_consts::$languages);
+        if ($this->sorted_languages) {
+            tp_logger($this->sorted_languages, 5);
+            return array_merge(array_flip(explode(",", $this->sorted_languages)), transposh_consts::$languages);
+        }
         return transposh_consts::$languages;
     }
 
