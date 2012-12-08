@@ -197,7 +197,7 @@ class transposh_database {
             $where .= ( ($where) ? ' OR ' : '') . "original = '$original'";
         }
         // make sure $lang is reasonable, unless someone is messing with us, it will be ok
-        if (!($this->transposh->options->is_editable_language($lang))) return;
+        if (!($this->transposh->options->is_active_language($lang))) return;
 
         // If we have nothing, we will do nothing
         if (!$where) return;
@@ -238,8 +238,7 @@ class transposh_database {
             tp_logger("prefetch result for $original >>> {$this->translations[$original][0]} ({$this->translations[$original][1]})", 4);
         } else {
             // make sure $lang is reasonable, unless someone is messing with us, it will be ok
-            if (!($this->transposh->options->is_editable_language($lang)))
-                    return;
+            if (!($this->transposh->options->is_active_language($lang))) return;
             $query = "SELECT * FROM {$this->translation_table} WHERE original = '$original' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
 
@@ -323,7 +322,7 @@ class transposh_database {
         $all_editable = true;
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["ln$i"])) {
-                if (!$this->transposh->options->is_editable_language($_POST["ln$i"])) {
+                if (!$this->transposh->options->is_active_language($_POST["ln$i"])) {
                     $all_editable = false;
                     break;
                 }
@@ -477,7 +476,7 @@ class transposh_database {
 
         // Check permissions, first the lanugage must be on the edit list. Then either the user
         // is a translator or automatic translation if it is enabled.
-        if (!($this->transposh->options->is_editable_language($lang) && $this->transposh->is_translator())) {
+        if (!($this->transposh->options->is_active_language($lang) && $this->transposh->is_translator())) {
             tp_logger("Unauthorized history request " . $_SERVER['REMOTE_ADDR'], 1);
             header('HTTP/1.0 401 Unauthorized history');
             exit;

@@ -72,8 +72,6 @@ class transposh_option {
  * @property transposh_option $default_language_o 
  * @property string           $viewable_languages    Option defining the list of currently viewable languages
  * @property transposh_option $viewable_languages_o 
- * @property string           $editable_languages    Option defining the list of currently editable languages
- * @property transposh_option $editable_languages_o 
  * @property string           $sorted_languages      Option defining the ordered list of languages @since 0.3.9
  * @property transposh_option $sorted_languages_o 
  * 
@@ -211,7 +209,6 @@ class transposh_plugin_options {
 
         $this->register_option('default_language', TP_OPT_STRING); // default?
         $this->register_option('viewable_languages', TP_OPT_STRING);
-        $this->register_option('editable_languages', TP_OPT_STRING);
         $this->register_option('sorted_languages', TP_OPT_STRING);
 
         $this->register_option('allow_anonymous_translation', TP_OPT_BOOLEAN, 1);
@@ -317,19 +314,10 @@ class transposh_plugin_options {
     }
 
     /**
-     * Determine if the given language in on the list of editable languages
-     * @return boolean Is this language editable?
-     */
-    function is_editable_language($language) {
-        if ($this->is_default_language($language)) return true;
-        return (strpos($this->editable_languages . ',', $language . ',') !== false);
-    }
-
-    /**
-     * Determine if the given language in on the list of viewable languages
+     * Determine if the given language in on the list of active languages
      * @return boolean Is this language viewable?
      */
-    function is_viewable_language($language) {
+    function is_active_language($language) {
         if ($this->is_default_language($language)) return true;
         return (strpos($this->viewable_languages . ',', $language . ',') !== false);
     }
