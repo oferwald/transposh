@@ -86,32 +86,24 @@ class transposh_plugin_admin {
         switch ($_POST['page']) {
             case 'tp_langs':
                 $viewable_langs = array();
-                $editable_langs = array();
 
                 tp_logger($_POST['anonymous']);
                 // first set the default language
-                list ($langcode, $viewable, $translateable) = explode(",", $_POST['languages'][0]);
+                list ($langcode, ) = explode(",", $_POST['languages'][0]);
                 $this->transposh->options->default_language = $langcode;
                 unset($_POST['languages'][0]);
 
                 // update the list of supported/editable/sortable languages
                 tp_logger($_POST['languages']);
-                foreach ($_POST['languages'] as $code => $lang) {
-                    list ($langcode, $viewable, $translateable) = explode(",", $lang);
+                foreach ($_POST['languages'] as $lang) {
+                    list ($langcode, $viewable) = explode(",", $lang);
                     $sorted_langs[$langcode] = $langcode;
                     if ($viewable) {
                         $viewable_langs[$langcode] = $langcode;
-                        // force that every viewable lang is editable
-                        $editable_langs[$langcode] = $langcode;
-                    }
-
-                    if ($translateable) {
-                        $editable_langs[$langcode] = $langcode;
                     }
                 }
 
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
-                $this->transposh->options->editable_languages = implode(',', $editable_langs);
                 $this->transposh->options->sorted_languages = implode(',', $sorted_langs);
                 break;
             case "tp_settings":
@@ -188,8 +180,8 @@ class transposh_plugin_admin {
         $text = '<p>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
                 '<p>' . __('For further help and assistance, please look at the following resources:', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
                 '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
-                '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>'.
-                '<a href="http://trac.transposh.org/">' . __('Development website', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' ;
+                '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
+                '<a href="http://trac.transposh.org/">' . __('Development website', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         return $text;
     }
 
@@ -214,7 +206,6 @@ class transposh_plugin_admin {
                 add_action('admin_print_styles-' . $submenu_page, array(&$this, 'admin_print_styles'));
                 add_action('admin_print_scripts-' . $submenu_page, array(&$this, 'admin_print_scripts'));
             }
-
         }
         // DOC
         add_action('load-edit-comments.php', array(&$this, 'on_load_comments_page'));
@@ -274,7 +265,7 @@ class transposh_plugin_admin {
             $this->localeleft = 'right';
             $this->localeright = 'left';
         }
-        
+
         // the followings are integrations with the wordpress admin interface
         $screen = get_current_screen();
         $screen->add_help_tab(array(
@@ -358,7 +349,6 @@ class transposh_plugin_admin {
         wp_dashboard();
 
         echo '<div class="clear"></div>';
-
     }
 
     /**
@@ -394,11 +384,11 @@ class transposh_plugin_admin {
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             tp_logger($langcode, 5);
             list ($langname, $langorigname, $flag) = explode(",", $langrecord);
-            echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_viewable_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "active" : "")
-            . (!$this->transposh->options->is_viewable_language($langcode) && $this->transposh->options->is_editable_language($langcode) ? "translateable" : "") . '"><div style="float:' . $this->localeleft . '">'
+            echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_active_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "lng_active" : "")
+            . '"><div style="float:' . $this->localeleft . '">'
             . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, false /* $langorigname,$this->transposh->options->get_widget_css_flags() */)
             // DOC THIS BUGBUG fix!
-            . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_viewable_language($langcode) ? ",v" : ",") . ($this->transposh->options->is_editable_language($langcode) ? ",t" : ",") . '" />'
+            . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_active_language($langcode) ? ",v" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
             if (in_array($langcode, transposh_consts::$google_languages))
                     echo '<img width="16" height="16" alt="g" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
@@ -419,7 +409,6 @@ class transposh_plugin_admin {
         echo '<li><a href="#" id="selectall">' . __('Make all languages active', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="sortname">' . __('Sort by language name', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="sortiso">' . __('Sort by lSO code', TRANSPOSH_TEXT_DOMAIN) . '</a></li></ul>';
-        echo __('Legend:', TRANSPOSH_TEXT_DOMAIN) . ' ' . __('Green - active', TRANSPOSH_TEXT_DOMAIN) . ', <span id="yellowcolor"' . ($this->transposh->options->allow_anonymous_translation ? ' class ="hidden"' : '') . '>' . __('Yellow - translateable (only translators will see this language)', TRANSPOSH_TEXT_DOMAIN) . ', </span>' . __('blank - inactive', TRANSPOSH_TEXT_DOMAIN);
         echo '</div>';
     }
 

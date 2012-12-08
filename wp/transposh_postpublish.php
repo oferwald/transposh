@@ -145,7 +145,7 @@ class transposh_postpublish {
         $json['langs'] = array();
 
         foreach ($phrases as $key) {
-            foreach (explode(',', $this->transposh->options->editable_languages) as $lang) {
+            foreach (explode(',', $this->transposh->options->viewable_languages) as $lang) {
                 // if this isn't the default language or we specifically allow default language translation, we will seek this out...
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->enable_default_translate) {

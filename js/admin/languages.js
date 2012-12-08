@@ -17,17 +17,6 @@
 
 (function ($) { // closure
     $(function() {
-        // clicking anonymous will make translatables active
-        $("#tr_anon").click(function() {
-            if ($("#tr_anon").attr("checked")) {
-                $(".translateable").addClass("active").removeClass("translateable");
-                $("#sortable .active").each(function () {
-                    $("input",this).val($(this).attr("id")+",v,t");
-                })
-            }
-            $("#yellowcolor").toggleClass("hidden");
-        });
-
         // makes the languages sortable, with placeholder, also prevent unneeded change after sort
         $("#sortable").sortable({
             placeholder: "highlight",
@@ -49,9 +38,9 @@
 
         // enable all languages
         $("#selectall").click(function(){
-            $("#sortable .languages").addClass("active").removeClass("translateable");
-            $("#sortable .active").each(function () {
-                $("input",this).val($(this).attr("id")+",v,t");
+            $("#sortable .languages").addClass("lng_active");
+            $("#sortable .lng_active").each(function () {
+                $("input",this).val($(this).attr("id")+",v");
             })
             return false;
         });
@@ -59,24 +48,9 @@
         // two flows on double click, if anonymous -> active, inactive otherwise active, translatable, inactive
         clickfunction = function () {
             if ($(this).attr("id") == $("#default_list li").attr("id")) return;
-            if ($("#tr_anon").attr("checked")) {
-                $(this).toggleClass("active");
-            } else {
-                if ($(this).hasClass("active")) {
-                    $(this).removeClass("active");
-                    $(this).addClass("translateable")
-                }
-                else {
-                    if ($(this).hasClass("translateable")) {
-                        $(this).removeClass("translateable");
-                    }
-                    else {
-                        $(this).addClass("active")
-                    }
-                }
-            }
+            $(this).toggleClass("lng_active");
             // set new value
-            $("input",this).val($(this).attr("id")+($(this).hasClass("active") ? ",v":",")+($(this).hasClass("translateable") ? ",t":","));
+            $("input",this).val($(this).attr("id")+($(this).hasClass("lng_active") ? ",v":","));
         }
         $(".languages").dblclick(clickfunction).click(clickfunction);
 
@@ -86,9 +60,9 @@
             activeClass: "highlight_default",
             drop: function(ev, ui) {
                 $("#default_list").empty();
-                $(ui.draggable.clone().removeAttr("style").removeClass("active").removeClass("translateable")).appendTo("#default_list").show("slow");
+                $(ui.draggable.clone().removeAttr("style").removeClass("lng_active")).appendTo("#default_list").show("slow");
                 $("#default_list .logoicon").remove();
-                $("#sortable").find("#"+ui.draggable.attr("id")).addClass("active");
+                $("#sortable").find("#"+ui.draggable.attr("id")).addClass("lng_active");
             }
         });
         // sorting by iso

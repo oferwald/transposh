@@ -213,9 +213,8 @@ class transposh_plugin_widget extends WP_Widget {
         foreach ($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
             list ($langname, $language, $flag) = explode(',', $langrecord);
 
-            // Only send languages which are viewable or (editable and the user is a translator)
-            if ($this->transposh->options->is_viewable_language($code) ||
-                    ($this->transposh->options->is_editable_language($code) && $this->transposh->is_translator()) ||
+            // Only send languages which are active
+            if ($this->transposh->options->is_active_language($code) ||
                     ($this->transposh->options->is_default_language($code))) {
                 // now we alway do this... maybe cache this to APC/Memcache
                 if ($this->transposh->options->enable_url_translate && !$this->transposh->options->is_default_language($code)) {

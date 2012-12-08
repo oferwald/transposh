@@ -147,7 +147,7 @@ class transposh_plugin {
         if ($this->options->debug_enable)
                 tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
             
-        // TODO: get_class_methods to replace said mess, other way?
+// TODO: get_class_methods to replace said mess, other way?
         add_filter('plugin_action_links_' . preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), array(&$this, 'plugin_action_links'));
         add_filter('query_vars', array(&$this, 'parameter_queryvars'));
         add_filter('rewrite_rules_array', array(&$this, 'update_rewrite_rules'));
@@ -221,7 +221,7 @@ class transposh_plugin {
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
         // CHECK TODO!!!!!!!!!!!!
         $this->tgl = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
-        if (!$this->options->is_viewable_language($this->tgl) && !$this->options->is_editable_language($this->tgl)) {
+        if (!$this->options->is_active_language($this->tgl)) {
             $this->tgl = '';
         }
 
@@ -502,12 +502,6 @@ class transposh_plugin {
           tp_logger("requested language: {$this->target_language}"); */
         // TODO TOCHECK!!!!!!!!!!!!!!!!!!!!!!!!!!1
         $this->target_language = $this->tgl;
-        // avoid viewing of editable languages which are not viewable by non translators
-        if (!$this->options->is_viewable_language($this->target_language) &&
-                $this->options->is_editable_language($this->target_language) &&
-                !$this->is_translator()) {
-            $this->target_language = '';
-        }
         if (!$this->target_language)
                 $this->target_language = $this->options->default_language;
         tp_logger("requested language: {$this->target_language}", 3);
@@ -812,7 +806,7 @@ class transposh_plugin {
         if (!$this->options->enable_default_translate && $this->options->is_default_language($this->target_language))
                 return false;
 
-        return $this->options->is_editable_language($this->target_language);
+        return $this->options->is_active_language($this->target_language);
     }
 
     /**
@@ -830,7 +824,7 @@ class transposh_plugin {
         if (!$this->options->enable_default_translate && $this->options->is_default_language($this->target_language))
                 return false;
 
-        return $this->options->is_editable_language($this->target_language);
+        return $this->options->is_active_language($this->target_language);
     }
 
     /**
@@ -1165,7 +1159,7 @@ class transposh_plugin {
      */
     function transposh_locale_filter($locale) {
         $lang = transposh_utils::get_language_from_url($_SERVER['REQUEST_URI'], $this->home_url);
-        if (!$this->options->is_viewable_language($lang)) {
+        if (!$this->options->is_active_language($lang)) {
             $lang = '';
         }
         if (!$lang) {
@@ -1231,7 +1225,7 @@ class transposh_plugin {
         }
     }
 
-    // Proxyed google translate suggestions
+    // Proxied google translate suggestions
     function on_ajax_nopriv_tp_gsp() {
         $i = 0;
         // we need curl for this proxy
@@ -1239,7 +1233,7 @@ class transposh_plugin {
         transposh_utils::allow_cors();
         $tl = $_GET['tl'];
         // we want to avoid unneeded work or dos attacks on languages we don't support
-        if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_editable_language($tl))
+        if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl))
                 return;
         $sl = 'auto';
         if (isset($_GET['sl'])) $sl = $_GET['sl'];
@@ -1280,7 +1274,7 @@ class transposh_plugin {
         die();
     }
 
-    // Proxyed translation for google translate
+    // Proxied translation for google translate
     function on_ajax_nopriv_tp_gp() {
         // we need curl for this proxy
         if (!function_exists('curl_init')) return;
@@ -1288,7 +1282,7 @@ class transposh_plugin {
         // target language
         $tl = $_GET['tl'];
         // we want to avoid unneeded work or dos attacks on languages we don't support
-        if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_editable_language($tl))
+        if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl))
                 return;
         // source language
         $sl = 'auto';
