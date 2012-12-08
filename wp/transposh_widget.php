@@ -38,6 +38,7 @@ class transposh_base_widget {
      * @param string $plugin_url 
      */
     static function tp_widget_css($file, $plugin_dir, $plugin_url) {
+        tp_logger('looking for css:' . $file, 4);
         $basefile = substr($file, 0, -4);
         $widget_css = TRANSPOSH_DIR_WIDGETS . '/' . $basefile . ".css";
         if (file_exists($plugin_dir . $widget_css)) {
@@ -52,6 +53,7 @@ class transposh_base_widget {
      * @param string $plugin_url 
      */
     static function tp_widget_js($file, $plugin_dir, $plugin_url) {
+        tp_logger('looking for js:' . $file, 4);
         $basefile = substr($file, 0, -4);
         $widget_js = TRANSPOSH_DIR_WIDGETS . '/' . $basefile . ".js";
         if (file_exists($plugin_dir . $widget_js)) {
@@ -88,8 +90,10 @@ class transposh_plugin_widget extends WP_Widget {
         // We only need to add those actions once, makes life simpler
         if (is_active_widget(false, false, $this->id_base) && self::$first_init) {
             self::$first_init = false;
-            add_action('wp_print_styles', array(&$this, 'add_transposh_widget_css'));
-            add_action('wp_print_scripts', array(&$this, 'add_transposh_widget_js'));
+            if (!is_admin()) {
+                add_action('wp_print_styles', array(&$this, 'add_transposh_widget_css'));
+                add_action('wp_print_scripts', array(&$this, 'add_transposh_widget_js'));
+            }
         }
     }
 
@@ -138,6 +142,7 @@ class transposh_plugin_widget extends WP_Widget {
      * Loads the subwidget class code
      */
     function load_widget($file) {
+        tp_logger("widget loaded: $file", 4);
         $widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
         if ($file && file_exists($widget_src)) {
             include_once $widget_src;

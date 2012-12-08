@@ -1121,7 +1121,7 @@ class transposh_plugin {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->enable_default_translate)) {
             return $translation;
         }
-        tp_logger("($translation, $orig, $domain)", 4);
+        tp_logger("($translation, $orig, $domain)", 5);
         // HACK - TODO - FIX
         if (in_array($domain, transposh_consts::$ignored_po_domains))
                 return $translation;
