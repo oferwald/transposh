@@ -44,7 +44,7 @@ class tpw_image_dropdown extends transposh_base_widget {
         /* TRANSLATORS: this is what appears in the select box in dropdown subwidget */
         echo '<dt><a href="#"><span>' . __('Select language', TRANSPOSH_TEXT_DOMAIN) . '</span></a></dt><dd><ul class="' . NO_TRANSLATE_CLASS . '">';
         foreach ($args as $langrecord) {
-            $is_selected = $langrecord['active'] ? " selected=\"selected\"" : "";
+        // $is_selected = $langrecord['active'] ? " selected=\"selected\"" : "";
             echo '<li><a href="#"><img class="flag" src="' . "$plugpath/img/flags/{$langrecord['flag']}" . '.png" alt="' . $langrecord['langorig'] . '"/> ' . $langrecord['langorig'] . '<span class="value">' . $langrecord['url'] . '</span></a></li>';
         }
 
