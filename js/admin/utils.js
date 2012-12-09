@@ -10,6 +10,14 @@
             cache: false
         });
 
+        $("#transposh-reset-options").click(function() {
+            if (!confirm("Are you sure you want to do this?")) return false;
+            if (!confirm("Are you REALLY sure you want to do this, your configuration will be reset?")) return false;
+            $.post(ajaxurl, {
+                action: 'tp_reset'
+            });
+        });
+
         // backup button
         backupclick = function () {
             $("#transposh-backup").unbind('click').click(function(){
@@ -50,6 +58,7 @@
             });
             return false;
         };
+        
         $("#transposh-clean-auto").click(function() {
             cleanautoclick(0,$(this));
             return false;

@@ -187,12 +187,12 @@ class transposh_plugin_options {
         if ($value == TP_FROM_POST) {
             $value = $_POST[$name];
         }
-
+        
         if (TP_OPT_BOOLEAN == $this->vars[$name]->get_type()) {
             $value = ($value) ? 1 : 0;
         }
-
-        if ($this->vars[$name]->get_value() != $value) {
+        
+        if ($this->vars[$name]->get_value() !== $value) {
             tp_logger("option '$name' value set: $value");
             $this->vars[$name]->set_value($value);
             $this->changed = true;
@@ -302,6 +302,17 @@ class transposh_plugin_options {
         } else {
             tp_logger("no changes and no updates done", 3);
         }
+    }
+
+    /**
+     * Resets all options except keys
+     */
+    function reset_options() {
+        $this->options = array();
+        foreach (array('msn_key', 'google_key', 'oht_id', 'oht_key','transposh_key') as $key) {
+            $this->options[$key] = $this->vars[$key]->get_value();
+        }
+            update_option(TRANSPOSH_OPTIONS, $this->options);
     }
 
     /**

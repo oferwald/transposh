@@ -397,7 +397,7 @@ class transposh_plugin {
 
         // this is an ajax special case, currently crafted and tested on buddy press, lets hope this won't make hell break loose.
         // it basically sets language based on referred when accessing wp-load.php (which is the way bp does ajax)
-        tp_logger(substr($_SERVER['SCRIPT_FILENAME'], -11), 4);
+        tp_logger(substr($_SERVER['SCRIPT_FILENAME'], -11), 5);
         if (substr($_SERVER['SCRIPT_FILENAME'], -11) == 'wp-load.php') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
             $this->attempt_json = true;

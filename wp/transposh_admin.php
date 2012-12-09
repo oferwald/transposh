@@ -29,6 +29,7 @@ class transposh_plugin_admin {
     private $localeleft = 'left';
     private $pages = array();
     private $contains_settings = false;
+    private $page = '';
 
     // constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
@@ -43,6 +44,7 @@ class transposh_plugin_admin {
         add_filter('comment_row_actions', array(&$this, 'comment_row_actions'), 999, 2);
         // register ajax callbacks
         add_action('wp_ajax_tp_close_warning', array(&$this, 'on_ajax_tp_close_warning'));
+        add_action('wp_ajax_tp_reset', array(&$this, 'on_ajax_tp_reset'));
         add_action('wp_ajax_tp_backup', array(&$this, 'on_ajax_tp_backup'));
         add_action('wp_ajax_tp_restore', array(&$this, 'on_ajax_tp_restore'));
         add_action('wp_ajax_tp_maint', array(&$this, 'on_ajax_tp_maint'));
@@ -62,6 +64,7 @@ class transposh_plugin_admin {
             'tp_about' => array(__('About', TRANSPOSH_TEXT_DOMAIN)),
             'tp_support' => array(__('Support', TRANSPOSH_TEXT_DOMAIN)),
         );
+        if (isset($_GET['page']) && isset($this->pages[$_GET['page']])) $this->page = $_GET['page'];
     }
 
     /**
@@ -226,7 +229,7 @@ class transposh_plugin_admin {
      * @return void
      */
     function admin_print_scripts() {
-        switch ($_GET['page']) {
+        switch ($this->page) {
             case 'tp_main':
                 wp_enqueue_script('common');
                 wp_enqueue_script('wp-lists');
@@ -273,7 +276,7 @@ class transposh_plugin_admin {
             'title' => __('Transposh Help', TRANSPOSH_TEXT_DOMAIN),
             // retrieve the function output and set it as tab content
             'content' => $this->on_contextual_help()));
-        if ($_GET['page'] == 'tp_main') {
+        if ($this->page == 'tp_main') {
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
             add_meta_box('transposh-sidebox-about', __('About this plugin', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_about_content'), '', 'side', 'core');
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
@@ -286,21 +289,20 @@ class transposh_plugin_admin {
         echo '<div class="wrap">';
         echo '<form action="admin-post.php" method="post">';
         echo '<input type="hidden" name="action" value="save_transposh"/>';
-        echo '<input type="hidden" name="page" value="' . $_GET['page'] . '"/>';
+        echo '<input type="hidden" name="page" value="' . $this->page . '"/>';
         echo wp_nonce_field(TR_NONCE);
         screen_icon('transposh-logo');
 
         echo '<h2 class="nav-tab-wrapper">';
         foreach ($this->pages as $slug => $titles) {
-            $active = ($slug === $_GET['page']) ? ' nav-tab-active' : '';
+            $active = ($slug === $this->page) ? ' nav-tab-active' : '';
             echo '<a href="admin.php?page=' . $slug . '" class="nav-tab' . $active . '">';
             echo esc_html($titles[0]);
             echo '</a>';
         }
         echo '</h2>';
 
-        // TODO: look at this...
-        call_user_func(array(&$this, $_GET['page']));
+        if ($this->page) call_user_func(array(&$this, $this->page));
 
         // Add submission for pages that can be modified
         if ($this->contains_settings) {
@@ -572,6 +574,7 @@ class transposh_plugin_admin {
         /*
          * Insert buttons allowing removal of automated translations from database and maintenence
          */
+        echo '<div style="margin:10px 0"><a id="transposh-reset-options" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Reset configuration to default (saves keys)', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-maint" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Attempt to fix errors caused by previous versions - please backup first', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
@@ -737,7 +740,7 @@ class transposh_plugin_admin {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
-        if (!(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
+        if ($this->page && !(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
             $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>', 'updated');
         }
     }
@@ -745,7 +748,7 @@ class transposh_plugin_admin {
     function add_warning($id, $message, $level = 'error') {
         if (!$this->transposh->options->get_transposh_admin_hide_warning($id)) {
             //$this->add_warning_script();
-            wp_enqueue_script('transposh_warningclose', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/warningclose.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
+            wp_enqueue_script('transposh_warningclose', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/warningclose.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
             echo '<div class="' . $level . '"><p>&#9888;&nbsp;' .
             $message .
             '<a id="' . $id . '" href="#" class="warning-close" style="float:' . $this->localeright . '; margin-' . $this->localeleft . ': .3em;">Hide Notice</a>' .
@@ -769,6 +772,11 @@ class transposh_plugin_admin {
         $this->transposh->options->set_transposh_admin_hide_warning($_POST['id']);
         $this->transposh->options->update_options();
         die(); // this is required to return a proper result
+    }
+
+    function on_ajax_tp_reset() {
+        $this->transposh->options->reset_options();
+        die();
     }
 
     function on_ajax_tp_backup() {
