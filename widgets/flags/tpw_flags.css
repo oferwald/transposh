@@ -17,10 +17,11 @@
 }
 
 .transposh_flags a span, .transposh_flags a img {
-    border-color:transparent;
+    border:transparent;
     border-style:solid;
     border-width:1px 3px;
-    padding: 0;
+    box-shadow:0 0;
+    padding:0;
 }
 
 .transposh_flags a span:hover, .transposh_flags a img:hover {

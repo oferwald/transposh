@@ -340,7 +340,7 @@ class transposh_plugin_widget extends WP_Widget {
         echo '<div id="' . SPAN_PREFIX . 'credit' . self::$draw_calls . '">';
         if (!$this->transposh->options->widget_remove_logo) {
             echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img height="16" width="16" src="' .
-            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
+            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0px;box-shadow:0 0" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
         }
         echo '</div>';
         if (isset($after_widget)) $after_widget;
