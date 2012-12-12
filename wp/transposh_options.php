@@ -184,7 +184,7 @@ class transposh_plugin_options {
     }
 
     function __set($name, $value) {
-        if ($value == TP_FROM_POST) {
+        if ($value == TP_FROM_POST && isset($_POST[$name])) {
             $value = $_POST[$name];
         }
         
@@ -200,7 +200,6 @@ class transposh_plugin_options {
     }
 
     function __construct() {
-
 
         // can't      tp_logger("creating options");
         // load them here

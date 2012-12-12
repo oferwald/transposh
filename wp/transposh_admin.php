@@ -28,7 +28,6 @@ class transposh_plugin_admin {
     private $localeright = 'right';
     private $localeleft = 'left';
     private $pages = array();
-    private $contains_settings = false;
     private $page = '';
 
     // constructor of class, PHP4 compatible construction for backward compatibility
@@ -53,18 +52,20 @@ class transposh_plugin_admin {
         add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
         add_action('wp_ajax_tp_comment_lang', array(&$this, 'on_ajax_tp_comment_lang'));
 
+        // key is page name, first is description, second is side menu description, third is if this contains settings
         $this->pages = array(
             'tp_main' => array(__('Dashboard', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_langs' => array(__('Languages', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_settings' => array(__('Settings', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_engines' => array(__('Translation Engines', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_widget' => array(__('Widgets settings', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_advanced' => array(__('Advanced', TRANSPOSH_TEXT_DOMAIN)),
+            'tp_langs' => array(__('Languages', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_settings' => array(__('Settings', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_engines' => array(__('Translation Engines', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_widget' => array(__('Widgets settings', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_advanced' => array(__('Advanced', TRANSPOSH_TEXT_DOMAIN), '', true),
             'tp_utils' => array(__('Utilities', TRANSPOSH_TEXT_DOMAIN)),
             'tp_about' => array(__('About', TRANSPOSH_TEXT_DOMAIN)),
             'tp_support' => array(__('Support', TRANSPOSH_TEXT_DOMAIN)),
         );
-        if (isset($_GET['page']) && isset($this->pages[$_GET['page']])) $this->page = $_GET['page'];
+        if (isset($_GET['page']) && isset($this->pages[$_GET['page']]))
+                $this->page = $_GET['page'];
     }
 
     /**
@@ -113,7 +114,8 @@ class transposh_plugin_admin {
                 //update roles and capabilities
                 foreach ($GLOBALS['wp_roles']->get_names() as $role_name => $something) {
                     $role = $GLOBALS['wp_roles']->get_role($role_name);
-                    if ($_POST[$role_name] == "1") $role->add_cap(TRANSLATOR);
+                    if (isset($_POST[$role_name]) && $_POST[$role_name] == "1")
+                            $role->add_cap(TRANSLATOR);
                     else $role->remove_cap(TRANSLATOR);
                 }
 
@@ -127,7 +129,7 @@ class transposh_plugin_admin {
 
                 // We will need to refresh rewrite rules for the case someone enabled in wordpress first after transposh
                 // install and then went on to transposh and enabled, and this keeps us safe ;)
-                if ($this->transposh->options->enable_permalinks != $_POST[$this->transposh->options->enable_permalinks->get_name()]) {
+                if ($this->transposh->options->enable_permalinks != $_POST[$this->transposh->options->enable_permalinks_o->get_name()]) {
                     $this->transposh->options->enable_permalinks = TP_FROM_POST;
                     $GLOBALS['wp_rewrite']->flush_rules();
                 }
@@ -194,8 +196,8 @@ class transposh_plugin_admin {
 
         $submenu_pages = array();
         foreach ($this->pages as $slug => $titles) {
-            if (!isset($titles[1])) {
-                array_push($titles, $titles[0]);
+            if (!isset($titles[1]) || !$titles[1]) {
+                $titles[1] = $titles[0];
             }
             $submenu_pages[] = add_submenu_page('tp_main', $titles[0] . ' | Transposh', $titles[1], 'manage_options', $slug, array(&$this, 'options'));
         }
@@ -278,7 +280,6 @@ class transposh_plugin_admin {
             'content' => $this->on_contextual_help()));
         if ($this->page == 'tp_main') {
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
-            add_meta_box('transposh-sidebox-about', __('About this plugin', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_about_content'), '', 'side', 'core');
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
             add_meta_box('transposh-sidebox-stats', __('Plugin stats', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_stats_content'), '', 'column3', 'core');
             // add_meta_box('transposh-contentbox-community', __('Transposh community features', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_community_content'), '', 'normal', 'core');
@@ -287,10 +288,6 @@ class transposh_plugin_admin {
 
     function options() {
         echo '<div class="wrap">';
-        echo '<form action="admin-post.php" method="post">';
-        echo '<input type="hidden" name="action" value="save_transposh"/>';
-        echo '<input type="hidden" name="page" value="' . $this->page . '"/>';
-        echo wp_nonce_field(TR_NONCE);
         screen_icon('transposh-logo');
 
         echo '<h2 class="nav-tab-wrapper">';
@@ -302,13 +299,23 @@ class transposh_plugin_admin {
         }
         echo '</h2>';
 
+        // do we need a form?
+        if (isset($this->pages[$this->page][2]) && $this->pages[$this->page][2]) { //$this->contains_settings) {
+            echo '<form action="admin-post.php" method="post">';
+            echo '<input type="hidden" name="action" value="save_transposh"/>';
+            echo '<input type="hidden" name="page" value="' . $this->page . '"/>';
+            echo wp_nonce_field(TR_NONCE);
+        }
+
+        // the page content
         if ($this->page) call_user_func(array(&$this, $this->page));
 
         // Add submission for pages that can be modified
-        if ($this->contains_settings) {
+        if (isset($this->pages[$this->page][2]) && $this->pages[$this->page][2]) { //$this->contains_settings) {
             echo '<p>';
             echo'<input type="submit" value="' . esc_attr__('Save Changes', TRANSPOSH_TEXT_DOMAIN) . '" class="button-primary" name="Submit"/>';
             echo'</p>';
+            echo'</form>';
         }
 
         echo '</div>';
@@ -319,26 +326,8 @@ class transposh_plugin_admin {
         wp_enqueue_script('transposhcomments', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/commentslang.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
     }
 
-    // will be executed if wordpress core detects this page has to be rendered
-    /*    function on_load_page() {
-
-      //add several metaboxes now, all metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
-      add_meta_box('transposh-sidebox-translate', __('Translate all', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_translate_content'), $this->pagehook, 'side', 'core');
-      add_meta_box('transposh-contentbox-languages', __('Supported languages', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_languages_content'), $this->pagehook, 'normal', 'core');
-      add_meta_box('transposh-contentbox-translation', __('Translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_translation_content'), $this->pagehook, 'normal', 'core');
-      add_meta_box('transposh-contentbox-autotranslation', __('Automatic translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_auto_translation_content'), $this->pagehook, 'normal', 'core');
-      add_meta_box('transposh-contentbox-protranslation', __('Professional translation settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_professional_translation_content'), $this->pagehook, 'normal', 'core');
-      add_meta_box('transposh-contentbox-frontend', __('Frontend settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_frontend_content'), $this->pagehook, 'normal', 'core');
-      add_meta_box('transposh-contentbox-general', __('Generic settings', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_generic_content'), $this->pagehook, 'normal', 'core');
-      add_meta_box('transposh-contentbox-database', __('Database maintenance', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_database_content'), $this->pagehook, 'normal', 'core');
-      }
-     */
     //executed to show the plugins complete admin page
     function tp_main() {
-
-
-        // add some user warnings that leads to some FAQs
-
         echo '<div id="dashboard-widgets-wrap">';
 
         /** Load WordPress dashboard API */
@@ -358,7 +347,6 @@ class transposh_plugin_admin {
      * @param string $data
      */
     function tp_langs() {
-        $this->contains_settings = true;
         // we need some styles
         global $wp_locale;
         if ($wp_locale->text_direction == 'rtl') {
@@ -416,9 +404,7 @@ class transposh_plugin_admin {
 
     // Show normal settings
     function tp_settings() {
-        $this->contains_settings = true;
-
-        $this->section(__('Translation related settings', TRANSPOSH_TEXT_DOMAIN), '');
+        $this->section(__('Translation related settings', TRANSPOSH_TEXT_DOMAIN));
 
         /*
          * Insert permissions section in the admin page
@@ -443,7 +429,7 @@ class transposh_plugin_admin {
                 , __('Enable overriding the default locale that is set in WP_LANG on default languages pages (such as untranslated pages and admin pages)', TRANSPOSH_TEXT_DOMAIN));
         $this->sectionstop();
 
-        $this->section(__('General settings', TRANSPOSH_TEXT_DOMAIN), '');
+        $this->section(__('General settings', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_permalinks_o, __('Rewrite URLs', TRANSPOSH_TEXT_DOMAIN)
                 , __('Rewrite URLs to be search engine friendly, ' .
                         'e.g.  (http://transposh.org/<strong>en</strong>). ' .
@@ -461,7 +447,7 @@ class transposh_plugin_admin {
           echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */
         $this->sectionstop();
 
-        $this->section(__('Backup service settings', TRANSPOSH_TEXT_DOMAIN), '');
+        $this->section(__('Backup service settings', TRANSPOSH_TEXT_DOMAIN));
         echo '<input type="radio" value="1" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 1, false) . '/>' . __('Enable daily backup', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
         echo '<input type="radio" value="2" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 2, false) . '/>' . __('Enable live backup', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
         echo '<input type="radio" value="0" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 0, false) . '/>' . __('Disable backup (Can be run manually by clicking the button below)', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
@@ -470,9 +456,7 @@ class transposh_plugin_admin {
     }
 
     function tp_engines() {
-        $this->contains_settings = true;
-
-        $this->section(__('Automatic Translation Settings', TRANSPOSH_TEXT_DOMAIN), '');
+        $this->section(__('Automatic Translation Settings', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_autotranslate_o, __('Enable automatic translation', TRANSPOSH_TEXT_DOMAIN)
                 , __('Allow automatic translation of pages', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_autoposttranslate_o, __('Enable automatic translation after posting', TRANSPOSH_TEXT_DOMAIN)
@@ -518,8 +502,6 @@ class transposh_plugin_admin {
     }
 
     function tp_widget() {
-        $this->contains_settings = true;
-
         $this->checkbox($this->transposh->options->widget_progressbar_o, __('Show progress bar', TRANSPOSH_TEXT_DOMAIN)
                 , __('Show progress bar when a client triggers automatic translation', TRANSPOSH_TEXT_DOMAIN));
 
@@ -533,12 +515,6 @@ class transposh_plugin_admin {
     }
 
     function tp_advanced() {
-        $this->contains_settings = true;
-        /**
-         * Insert the option to enable translation of urls
-         * Disbaled by default.
-         * @since 0.5.3
-         */
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
 
         $this->section(__('Parser related settings', TRANSPOSH_TEXT_DOMAIN)
@@ -587,23 +563,87 @@ class transposh_plugin_admin {
     }
 
     function tp_about() {
-        /* wp_enqueue_style( 'wp-pointer' );
-          wp_enqueue_script( 'wp-pointer' );
 
-          $content  = '<h3>' . __( 'New Feature: Toolbar' ) . '</h3>';
-          $content .= '<p>' .  __( 'We&#8217;ve combined the admin bar and the old Dashboard header into one persistent toolbar. Hover over the toolbar items to see what&#8217;s new.' ) . '</p>';
+        $this->section(__('About Transposh', TRANSPOSH_TEXT_DOMAIN));
+        echo __('Transposh was started at 2008 and is dedicated to provide tools to ease website translation.', TRANSPOSH_TEXT_DOMAIN);
+        echo '<br/>';
+        echo __('Learn more about us in the following online presenses', TRANSPOSH_TEXT_DOMAIN);
+        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
+        echo '<li><a href="http://transposh.org">';
+        echo __('Our website', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="http://blog.transposh.com">';
+        echo __('Our blog', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="http://twitter.com/transposh">';
+        echo __('Our twitter account (feel free to follow!)', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="https://www.facebook.com/transposh">';
+        echo __('Our facebook page (feel free to like!)', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="https://plus.google.com/103680503574339351392/posts">';
+        echo __('Our google plus page (add us to your circles!)', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="http://www.youtube.com/user/transposh">';
+        echo __('Our youtube channel', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li></ul>';
 
-          if ( is_multisite() && is_super_admin() )
-          $content .= '<p>' . __( 'Network Admin is now located in the My Sites menu.' ) . '</p>';
 
-          $this->print_js( 'tp_toolbar', '#icon-options-general', array(
-          'content'  => $content,
-          'position' => array( 'edge' => 'top', 'align' => 'center' ),
-          ) ); */
+        $this->sectionstop();
     }
 
     function tp_support() {
-        
+        echo '<p>';
+        $this->section(__('Transposh support', TRANSPOSH_TEXT_DOMAIN),
+         __('Have you encountered any problem with our plugin and need our help?', TRANSPOSH_TEXT_DOMAIN) . '<br>'.
+         __('Do you need to ask us any question?', TRANSPOSH_TEXT_DOMAIN) . '<br>'.
+         __('You have two options:', TRANSPOSH_TEXT_DOMAIN) . '<br>');
+        $this->sectionstop();
+        $this->header(__('Our free support', TRANSPOSH_TEXT_DOMAIN));
+        echo '<div class="col-wrap">';
+        echo __('There are many channels to reach us and we do try to help as fast as we can', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo __('You can contact us through our contact form on our web site', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo __('Create a ticket for us if you have found any bugs', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo __('Reach us via different forums:', TRANSPOSH_TEXT_DOMAIN);
+        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';      
+        echo '<li><a href="http://wordpress.org/support/plugin/transposh-translation-filter-for-wordpress">';
+        echo __('Our support forum on wordpress.org', TRANSPOSH_TEXT_DOMAIN);
+        echo '<li><a href="http://trac.transposh.org">';
+        echo __('Our internal development site, with wiki and tickets', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="https://www.facebook.com/transposh">';
+        echo __('Our facebook page', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li><li><a href="https://plus.google.com/103680503574339351392/posts">';
+        echo __('Our google plus page', TRANSPOSH_TEXT_DOMAIN);
+        echo '</a></li></ul>';
+        echo __('Contact us directly via:', TRANSPOSH_TEXT_DOMAIN);
+        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
+        echo '<li><a href="http://transposh.org/contact-us/">' . __('Our contact form', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="http://transposh.org/redir/newfeature">' . __('Suggest a Feature', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="http://transposh.org/redir/newticket">' . __('Report a Bug', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '</ul>';
+
+        echo '</div>';
+        $this->header(__('Professional support option', TRANSPOSH_TEXT_DOMAIN));
+        echo '<div class="col-wrap">';
+        echo __('For the low low price of $99, we will take express action on your request. By express we mean that your issue will become our top priority, and will resolve ASAP', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo __('This includes helping with various bugs, basic theme/plugins conflicts, or just telling you where the ON button is', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo __('Full money back guarentee! If your problem remains unresolved or you are simply unhappy we will refund your paypal account as soon as you ask (as long as paypal allows it, don\'t come to us three years later!)', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo __('So hit the following button. Thanks!', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo '<br/>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="KCCE87P7B2MG8">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+  ';
+        echo '</div>';
+        $this->header(__('Donations', TRANSPOSH_TEXT_DOMAIN));
+        echo '<div class="col-wrap">';
+        echo __('If you just want to show that you care, this is the button for you. But please think twice before doing this. It will make us happier if you just do something nice for someone in your area, contribute to a local charity, and let us know that you did that :)', TRANSPOSH_TEXT_DOMAIN) . '<br>';
+        echo '<br/>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="4E52WJ8WDK79J">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>';
+        echo '</div>';
     }
 
     // executed if the post arrives initiated by pressing the submit button of form
@@ -624,52 +664,6 @@ class transposh_plugin_admin {
     // below you will find for each registered metabox the callback method, that produces the content inside the boxes
     // i did not describe each callback dedicated, what they do can be easily inspected and compare with the admin page displayed
 
-    function on_sidebox_about_content() {
-        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
-        echo '<li><a href="http://transposh.org/">' . __('Plugin Homepage', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
-        echo '<li><a href="http://transposh.org/redir/newfeature">' . __('Suggest a Feature', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
-        // support Forum
-        echo '<li><a href="http://transposh.org/redir/newticket">' . __('Report a Bug', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
-        // donate with PayPal
-        echo '</ul>';
-    }
-
-    /*    private static function print_js($pointer_id, $selector, $args) {
-      if (empty($pointer_id) || empty($selector) || empty($args) || empty($args['content']))
-      return;
-      ?>
-      <script type="text/javascript">
-      //<![CDATA[
-      (function($){
-      var options = <?php echo json_encode($args); ?>, setup;
-
-      if ( ! options )
-      return;
-
-      options = $.extend( options, {
-      close: function() {
-      $.post( ajaxurl, {
-      pointer: '<?php echo $pointer_id; ?>',
-      action: 'dismiss-wp-pointer'
-      });
-      }
-      });
-
-      setup = function() {
-      $('<?php echo $selector; ?>').pointer( options ).pointer('open');
-      };
-
-      if ( options.position && options.position.defer_loading )
-      $(window).bind( 'load.wp-pointers', setup );
-      else
-      $(document).ready( setup );
-
-      })( jQuery );
-      //]]>
-      </script>
-      <?php
-      } */
-
     function on_sidebox_news_content() {
         echo '<div style="margin:6px">';
         wp_widget_rss_output('http://feeds2.feedburner.com/transposh', array('items' => 5));
@@ -681,10 +675,10 @@ class transposh_plugin_admin {
     }
 
     /** UTILITY FUNCTIONS * */
-    private function section($head, $text) {
+    private function section($head, $text = '') {
         echo '<h2>' . $head . '</h2>';
         echo '<div class="col-wrap">';
-        if (isset($text)) echo '<p>' . $text . '</p>';
+        if ($text) echo '<p>' . $text . '</p>';
     }
 
     private function sectionstop() {
