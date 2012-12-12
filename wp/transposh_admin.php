@@ -688,7 +688,7 @@ class transposh_plugin_admin {
     private function header($head) {
         if (!isset($head)) return;
         if (is_array($head)) {
-            echo "<h3><img src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}</h3>";
+            echo "<h3><img width=\"16\" height=\"16\" src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}</h3>";
         } else {
             echo '<h3>' . $head . '</h3>';
         }

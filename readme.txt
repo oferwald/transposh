@@ -2,8 +2,8 @@
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
-Requires at least: 3.1
-Tested up to: 3.4.1
+Requires at least: 3.3
+Tested up to: 3.5
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 66 languages are automatically translated and can be manually corrected with ease.
@@ -117,6 +117,24 @@ This version allows sorting of languages within the widget
  * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 
 == Changelog ==
+= 2012/12/12 - 0.9.0 =
+ * Major rewrite for the administrative interface and settings, should simplify working with transposh
+ * Parsing rules can now be changed in the advanced tab, use with care
+ * Added the options to include debug and remote debug outputs
+ * A new language selection widget based on select2
+ * Added ctrl keys for quick navigation of prev/next blocks
+ * A new option that allows to reset the configuration file to the recommanded defaults
+ * Css fixes for twenty twelve theme
+ * Avoid loading the subwidgets in the admin pages
+ * Removed distinction between editable and viewable languages, now a language can only be active or disabled
+ * Updating jQueriUI to 1.9.2 (jQuery should now be 1.6+) 
+ * Fixes the z-index for the old style dropdown (patch by chemaz)
+ * Fixes the bug with the coupling of Chinese simple and traditional
+ * Fix bug preventing upgrade from very old versions
+ * Suppress notices when widgets are created directly with our function 
+ * Avoid rewriting urls in the default language, mainly effected canonicals
+ * Our script is needed when the widget allows setting of default language 
+ * Finally solved the problem with MSN translate and CR/LF 
 = 2012/09/15 - 0.8.5 =
  * Support for Lao (Thanks to Google Translate)
 = 2012/09/03 - 0.8.4 =
