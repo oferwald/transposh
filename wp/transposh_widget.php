@@ -343,7 +343,7 @@ class transposh_plugin_widget extends WP_Widget {
             $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0;box-shadow:0 0;border-radius:0" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
         }
         echo '</div>';
-        if (isset($after_widget)) $after_widget;
+        if (isset($after_widget)) echo $after_widget;
         // increase the number of calls for unique IDs
         self::$draw_calls++;
     }
