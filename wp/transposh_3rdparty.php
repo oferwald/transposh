@@ -190,7 +190,7 @@ class transposh_3rdparty {
           hreflang="de"
           href="http://www.example.com/de" /> */
 
-        $viewable_langs = explode(',', $this->transposh->options->viewable_languages());
+        $viewable_langs = explode(',', $this->transposh->options->viewable_languages);
         $orig_url = $sm_page->GetUrl();
         foreach ($viewable_langs as $lang) {
             if (!$this->transposh->options->is_default_language($lang)) {
