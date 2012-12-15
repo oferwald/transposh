@@ -51,21 +51,6 @@ class transposh_plugin_admin {
         add_action('wp_ajax_tp_translate_all', array(&$this, 'on_ajax_tp_translate_all'));
         add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
         add_action('wp_ajax_tp_comment_lang', array(&$this, 'on_ajax_tp_comment_lang'));
-
-        // key is page name, first is description, second is side menu description, third is if this contains settings
-        $this->pages = array(
-            'tp_main' => array(__('Dashboard', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_langs' => array(__('Languages', TRANSPOSH_TEXT_DOMAIN), '', true),
-            'tp_settings' => array(__('Settings', TRANSPOSH_TEXT_DOMAIN), '', true),
-            'tp_engines' => array(__('Translation Engines', TRANSPOSH_TEXT_DOMAIN), '', true),
-            'tp_widget' => array(__('Widgets settings', TRANSPOSH_TEXT_DOMAIN), '', true),
-            'tp_advanced' => array(__('Advanced', TRANSPOSH_TEXT_DOMAIN), '', true),
-            'tp_utils' => array(__('Utilities', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_about' => array(__('About', TRANSPOSH_TEXT_DOMAIN)),
-            'tp_support' => array(__('Support', TRANSPOSH_TEXT_DOMAIN)),
-        );
-        if (isset($_GET['page']) && isset($this->pages[$_GET['page']]))
-                $this->page = $_GET['page'];
     }
 
     /**
@@ -91,7 +76,6 @@ class transposh_plugin_admin {
             case 'tp_langs':
                 $viewable_langs = array();
 
-                tp_logger($_POST['anonymous']);
                 // first set the default language
                 list ($langcode, ) = explode(",", $_POST['languages'][0]);
                 $this->transposh->options->default_language = $langcode;
@@ -120,6 +104,7 @@ class transposh_plugin_admin {
                 }
 
                 // anonymous needs to be handled differently as it does not have a role
+                tp_logger($_POST['anonymous']);
                 $this->transposh->options->allow_anonymous_translation = $_POST['anonymous'];
 
                 $this->transposh->options->enable_default_translate = TP_FROM_POST;
@@ -191,15 +176,30 @@ class transposh_plugin_admin {
     }
 
     function admin_menu() {
+        // key is page name, first is description, second is side menu description, third is if this contains settings
+        $this->pages = array(
+            'tp_main' => array(__('Dashboard', TRANSPOSH_TEXT_DOMAIN)),
+            'tp_langs' => array(__('Languages', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_settings' => array(__('Settings', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_engines' => array(__('Translation Engines', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_widget' => array(__('Widgets settings', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_advanced' => array(__('Advanced', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_utils' => array(__('Utilities', TRANSPOSH_TEXT_DOMAIN)),
+            'tp_about' => array(__('About', TRANSPOSH_TEXT_DOMAIN)),
+            'tp_support' => array(__('Support', TRANSPOSH_TEXT_DOMAIN)),
+        );
+        if (isset($_GET['page']) && isset($this->pages[$_GET['page']]))
+                $this->page = $_GET['page'];
+
         // First param is page title, second is menu title
-        add_menu_page('Transposh', 'Transposh', 'manage_options', 'tp_main', '', $this->transposh->transposh_plugin_url . "/img/tplogo.png");
+        add_menu_page(__('Transposh', TRANSPOSH_TEXT_DOMAIN), __('Transposh', TRANSPOSH_TEXT_DOMAIN), 'manage_options', 'tp_main', '', $this->transposh->transposh_plugin_url . "/img/tplogo.png");
 
         $submenu_pages = array();
         foreach ($this->pages as $slug => $titles) {
             if (!isset($titles[1]) || !$titles[1]) {
                 $titles[1] = $titles[0];
             }
-            $submenu_pages[] = add_submenu_page('tp_main', $titles[0] . ' | Transposh', $titles[1], 'manage_options', $slug, array(&$this, 'options'));
+            $submenu_pages[] = add_submenu_page('tp_main', $titles[0] . ' | ' . __('Transposh', TRANSPOSH_TEXT_DOMAIN), $titles[1], 'manage_options', $slug, array(&$this, 'options'));
         }
 
         if (current_user_can('manage_options')) {
@@ -589,10 +589,10 @@ class transposh_plugin_admin {
 
     function tp_support() {
         echo '<p>';
-        $this->section(__('Transposh support', TRANSPOSH_TEXT_DOMAIN),
-         __('Have you encountered any problem with our plugin and need our help?', TRANSPOSH_TEXT_DOMAIN) . '<br>'.
-         __('Do you need to ask us any question?', TRANSPOSH_TEXT_DOMAIN) . '<br>'.
-         __('You have two options:', TRANSPOSH_TEXT_DOMAIN) . '<br>');
+        $this->section(__('Transposh support', TRANSPOSH_TEXT_DOMAIN)
+                , __('Have you encountered any problem with our plugin and need our help?', TRANSPOSH_TEXT_DOMAIN) . '<br>' .
+                __('Do you need to ask us any question?', TRANSPOSH_TEXT_DOMAIN) . '<br>' .
+                __('You have two options:', TRANSPOSH_TEXT_DOMAIN) . '<br>');
         $this->sectionstop();
         $this->header(__('Our free support', TRANSPOSH_TEXT_DOMAIN));
         echo '<div class="col-wrap">';
@@ -600,7 +600,7 @@ class transposh_plugin_admin {
         echo __('You can contact us through our contact form on our web site', TRANSPOSH_TEXT_DOMAIN) . '<br>';
         echo __('Create a ticket for us if you have found any bugs', TRANSPOSH_TEXT_DOMAIN) . '<br>';
         echo __('Reach us via different forums:', TRANSPOSH_TEXT_DOMAIN);
-        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';      
+        echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
         echo '<li><a href="http://wordpress.org/support/plugin/transposh-translation-filter-for-wordpress">';
         echo __('Our support forum on wordpress.org', TRANSPOSH_TEXT_DOMAIN);
         echo '<li><a href="http://trac.transposh.org">';
@@ -707,7 +707,7 @@ class transposh_plugin_admin {
 
     /**
      * Display a select
-     * @param transposh_option $tpo 
+     * @param transposh_option $tpo
      * @param string $label
      * @param array $options
      * @param boolean $use_key
@@ -745,7 +745,7 @@ class transposh_plugin_admin {
             wp_enqueue_script('transposh_warningclose', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/warningclose.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
             echo '<div class="' . $level . '"><p>&#9888;&nbsp;' .
             $message .
-            '<a id="' . $id . '" href="#" class="warning-close" style="float:' . $this->localeright . '; margin-' . $this->localeleft . ': .3em;">Hide Notice</a>' .
+            '<a id="' . $id . '" href="#" class="warning-close" style="float:' . $this->localeright . '; margin-' . $this->localeleft . ': .3em;">' . __('Hide Notice', TRANSPOSH_TEXT_DOMAIN) . '</a>' .
             '</p></div>';
         }
     }

@@ -109,7 +109,7 @@ This version allows sorting of languages within the widget
  * Russian translation by Romans Matusevics
  * Hebrew translation by [Amir](http://colnect.com/he)
  * Frontend Spanish translation by [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
- * Italian translation by Marco Rossi
+ * Italian translation by [MacItaly](http://profiles.wordpress.org/macitaly)
  * Persian translation by [Sushyant Zavarzadeh](http://zavarzadeh.org)
  * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
  * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
