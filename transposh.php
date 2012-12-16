@@ -3,7 +3,7 @@
 /*
   Plugin Name: Transposh Translation Filter
   Plugin URI: http://transposh.org/
-  Description: Translation filter for WordPress, After enabling please set languages at the <a href="options-general.php?page=transposh">the options page</a> Want to help? visit our development site at <a href="http://trac.transposh.org/">trac.transposh.org</a>.
+  Description: Translation filter for WordPress, After enabling please set languages at the <a href="admin.php?page=tp_main">the options page</a> Want to help? visit our development site at <a href="http://trac.transposh.org/">trac.transposh.org</a>.
   Author: Team Transposh
   Version: %VERSION%
   Author URI: http://transposh.org/
@@ -579,7 +579,7 @@ class transposh_plugin {
         // We are removing our query vars since they are no longer needed and also make issues when a user select a static page as his home
         unset($wp->query_vars[LANG_PARAM]);
         unset($wp->query_vars[EDIT_PARAM]);
-        tp_logger("edit mode: " . ($this->edit_mode) ? 'enabled' : 'disabled', 2);
+        tp_logger("edit mode: " . (($this->edit_mode) ? 'enabled' : 'disabled'), 2);
     }
 
     // TODO ? move to options?
@@ -918,7 +918,7 @@ class transposh_plugin {
      */
     function plugin_action_links($links) {
         tp_logger('in plugin action', 5);
-        return array_merge(array('<a href="' . admin_url('options-general.php?page=' . TRANSPOSH_ADMIN_PAGE_NAME) . '">' . __('Settings') . '</a>'), $links);
+        return array_merge(array('<a href="' . admin_url('admin.php?page=tp_main') . '">' . __('Settings') . '</a>'), $links);
     }
 
     /**

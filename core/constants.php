@@ -171,9 +171,6 @@ define('JQUERYUI_VER', '1.9.2');
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define('SPAN_PREFIX', 'tr_');
 
-//The name of our admin page
-define('TRANSPOSH_ADMIN_PAGE_NAME', 'transposh');
-
 //Our text domain
 define('TRANSPOSH_TEXT_DOMAIN', 'transposh');
 
