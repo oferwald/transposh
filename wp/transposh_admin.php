@@ -239,9 +239,8 @@ class transposh_plugin_admin {
                 break;
             case 'tp_langs':
                 wp_enqueue_script('jquery-ui-droppable');
+                wp_enqueue_script('jquery-ui-sortable');
                 wp_enqueue_script('transposh_admin_languages', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/languages.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
-                wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
-                wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
                 break;
             case 'tp_utils':
                 wp_enqueue_script('transposh_admin_utils', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/utils.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
