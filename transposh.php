@@ -1212,7 +1212,7 @@ class transposh_plugin {
 
         if (isset($atts['widget'])) {
             ob_start();
-            $this->widget->widget(array('before_widget' => '', 'before_title' => '', 'after_widget' => '', 'after_title' => ''), array('title' => '', 'widget_file' => $atts['widget']));
+            $this->widget->widget(array('before_widget' => '', 'before_title' => '', 'after_widget' => '', 'after_title' => ''), array('title' => '', 'widget_file' => $atts['widget']), true);
             $widgetcontent = ob_get_contents();
             ob_end_clean();
             return $widgetcontent;
