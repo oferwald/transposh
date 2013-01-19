@@ -146,7 +146,7 @@ class transposh_plugin {
         //Register some functions into wordpress
         if ($this->options->debug_enable)
                 tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
-            
+
 // TODO: get_class_methods to replace said mess, other way?
         add_filter('plugin_action_links_' . preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), array(&$this, 'plugin_action_links'));
         add_filter('query_vars', array(&$this, 'parameter_queryvars'));
@@ -1525,6 +1525,19 @@ function transposh_widget($args = array(), $instance = array('title' => 'Transla
 function transposh_get_current_language() {
     global $my_transposh_plugin;
     return $my_transposh_plugin->target_language;
+}
+
+/**
+ * Function for use in themes to allow different outputs
+ * @param string $default - the default text in the default language
+ * @param array $altarray - array including alternatives in the format ("es" => "hola")
+ */
+function transposh_echo($default, $altarray) {
+    if (isset($altarray[transposh_get_current_language()])) {
+        echo TP_GTXT_BRK . $altarray[transposh_get_current_language()] . TP_GTXT_BRK_CLOSER;
+    } else {
+        echo $default;
+    }
 }
 
 /**
