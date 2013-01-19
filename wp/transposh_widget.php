@@ -245,7 +245,7 @@ class transposh_plugin_widget extends WP_Widget {
      * Creates the widget html
      * @param array $args Contains such as $before_widget, $after_widget, $before_title, $after_title, etc
      */
-    function widget($args, $instance) {
+    function widget($args, $instance, $extcall = false) {
         // extract args given by wordpress
         extract($args);
         tp_logger($args, 4);
@@ -279,6 +279,15 @@ class transposh_plugin_widget extends WP_Widget {
         //} else {
         $tmpclass = new $class;
         $tmpclass->tp_widget_do($widget_args);
+        if ($extcall) {
+            $tmpclass->tp_widget_css($instance['widget_file'],$this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            $tmpclass->tp_widget_js($instance['widget_file'],$this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            // don't display edit and other things for shortcode embedding
+            if (isset($after_widget)) echo $after_widget;
+            // increase the number of calls for unique IDs
+            self::$draw_calls++;
+            return;
+        }
         //}
         //at least one language showing - add the edit box if applicable
         if (!empty($widget_args)) {

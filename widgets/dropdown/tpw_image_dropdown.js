@@ -4,22 +4,18 @@
 
     $(function() {
         $(".dropdown dt a").click(function() {
-            $(".dropdown dd ul").toggle();
+            $(this).parents(".dropdown").find("dd ul").toggle();
             return false;
         });
 
         $(".dropdown dd ul li a").click(function() {
             var text = $(this).html();
-            $(".dropdown dt a span").html(text);
-            $(".dropdown dd ul").hide();
+            $(this).parents(".dropdown").find("dt a span").html(text);
+            $(this).parents(".dropdown").find("dd ul").hide();
 
-            document.location.href=getSelectedValue("tp_dropdown");
+            document.location.href=$(this).parents(".dropdown").find("dt a span.value").html();
             return false;
         });
-
-        function getSelectedValue(id) {
-            return $("#" + id).find("dt a span.value").html();
-        }
 
         $(document).bind('click', function(e) {
             var $clicked = $(e.target);
