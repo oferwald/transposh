@@ -166,16 +166,6 @@ class transposh_plugin_admin {
         $this->transposh->options->update_options();
     }
 
-    //add some help
-    function on_contextual_help() {
-        $text = '<p>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
-                '<p>' . __('For further help and assistance, please look at the following resources:', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
-                '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
-                '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
-                '<a href="http://trac.transposh.org/">' . __('Development website', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
-        return $text;
-    }
-
     function admin_menu() {
         // key is page name, first is description, second is side menu description, third is if this contains settings
         $this->pages = array(
@@ -276,15 +266,31 @@ class transposh_plugin_admin {
         // the followings are integrations with the wordpress admin interface
         $screen = get_current_screen();
         $screen->add_help_tab(array(
-            'id' => 'additional-transposh-help', // This should be unique for the screen.
+            'id' => 'transposh-help', // This should be unique for the screen.
             'title' => __('Transposh Help', TRANSPOSH_TEXT_DOMAIN),
             // retrieve the function output and set it as tab content
-            'content' => $this->on_contextual_help()));
+            'content' => '<h3>' . __('Transposh makes your blog translatable', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
+            '<p>' . __('For further help and assistance, please look at the following resources:', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
+            '<a href="http://transposh.org/">' . __('Plugin homepage', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
+            '<a href="http://transposh.org/faq/">' . __('Frequently asked questions', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>' .
+            '<a href="http://trac.transposh.org/">' . __('Development website', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>'
+        ));
+        $screen->add_help_tab(array(
+            'id' => 'languages', // This should be unique for the screen.
+            'title' => __('Languages', TRANSPOSH_TEXT_DOMAIN),
+            // retrieve the function output and set it as tab content
+            'content' => '<h3>' . __('Language selection in Transposh', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
+            '<p>' . __('This tab allows you to select the languages your site will be translated into. The default language is the language most of your site is written in, and serve as the base for translation. It won\t be translated normally.', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
+            '<p>' . __('You may select the languages you want to appear in your site by clicking them (their background will turn green). You may also drag those around to set the order of the languages in the widget.', TRANSPOSH_TEXT_DOMAIN) . '</p>'
+        ));
         $screen->add_help_tab(array(
             'id' => 'keys', // This should be unique for the screen.
             'title' => __('Engine keys', TRANSPOSH_TEXT_DOMAIN),
             // retrieve the function output and set it as tab content
-            'content' => __('Will write something about keys...', TRANSPOSH_TEXT_DOMAIN)));
+            'content' => '<h3>' . __('Translation engines keys', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
+            '<p>' . __('Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site.', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
+            '<p>' . __('For One Hour Translation, after registering. The key will be reachable at:', TRANSPOSH_TEXT_DOMAIN) . '<a href="https://www.onehourtranslation.com/profile/apiKeys/">https://www.onehourtranslation.com/profile/apiKeys/</a>' . '</p>'
+        ));
         if ($this->page == 'tp_main') {
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
@@ -368,7 +374,7 @@ class transposh_plugin_admin {
         // this is the default language location
         list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$this->transposh->options->default_language]);
         echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">';
-        $this->header(__('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN));
+        $this->header(__('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN),'languages');
         echo '<ul id="default_list"><li id="' . $this->transposh->options->default_language . '" class="languages">'
         . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false/* $this->transposh->options->get_widget_css_flags() */)
         . '<input type="hidden" name="languages[]" value="' . $this->transposh->options->default_language . '" />'
@@ -473,7 +479,7 @@ class transposh_plugin_admin {
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->textinput($this->transposh->options->google_key_o
                 , array('googleicon.png', __('Google API key', TRANSPOSH_TEXT_DOMAIN))
-                , __('API Key', TRANSPOSH_TEXT_DOMAIN));
+                , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->select($this->transposh->options->preferred_translator_o, __('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN)
                 , __('Translation engine:', TRANSPOSH_TEXT_DOMAIN), array(
             1 => __('Google', TRANSPOSH_TEXT_DOMAIN),
@@ -488,11 +494,11 @@ class transposh_plugin_admin {
 
         $this->textinput($this->transposh->options->oht_id_o
                 , array('ohticon.png', __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN))
-                , __('Account ID', TRANSPOSH_TEXT_DOMAIN));
+                , __('Account ID', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
 
         $this->textinput($this->transposh->options->oht_key_o
                 , array('ohticon.png', __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN))
-                , __('Account ID', TRANSPOSH_TEXT_DOMAIN));
+                , __('Account ID', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
 
         $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
         if (!empty($oht) && wp_next_scheduled('transposh_oht_event')) {
@@ -592,14 +598,14 @@ class transposh_plugin_admin {
 
 
         $this->sectionstop();
-/*
-        require_once("pomo_upgrader.php");
+        /*
+          require_once("pomo_upgrader.php");
 
-        $upgrader = new POMO_Upgrader();
-        $upgrader->run(array('package' => 'http://svn.automattic.com/wordpress-i18n/he_IL/tags/3.5/messages/he_IL.mo',
-            'destination' => '/tmp/', //WP_PLUGIN_DIR . '/themes',
-            'clear_destination' => false, //Do not overwrite files.
-            'clear_working' => false));*/
+          $upgrader = new POMO_Upgrader();
+          $upgrader->run(array('package' => 'http://svn.automattic.com/wordpress-i18n/he_IL/tags/3.5/messages/he_IL.mo',
+          'destination' => '/tmp/', //WP_PLUGIN_DIR . '/themes',
+          'clear_destination' => false, //Do not overwrite files.
+          'clear_working' => false)); */
     }
 
     function tp_support() {
@@ -700,10 +706,10 @@ class transposh_plugin_admin {
         echo '</div>';
     }
 
-    private function header($head, $help='') {
+    private function header($head, $help = '') {
         if (!isset($head)) return;
         if ($help) {
-            $help = ' <a class="tp_help" href="#" rel="'.$help.'">[?]</a>';
+            $help = ' <a class="tp_help" href="#" rel="' . $help . '">[?]</a>';
         }
         if (is_array($head)) {
             echo "<h3><img width=\"16\" height=\"16\" src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}$help</h3>";
@@ -741,7 +747,7 @@ class transposh_plugin_admin {
         '</label>';
     }
 
-    private function textinput($tpo, $head, $label, $length = 35, $help='') {
+    private function textinput($tpo, $head, $label, $length = 35, $help = '') {
         $this->header($head, $help);
         echo $label . ': <input type="text" size="' . $length . '" class="regular-text" ' . $tpo->post_value_id_name() . '/>';
     }
