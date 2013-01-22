@@ -33,9 +33,6 @@
     loadingmsn = 0
     ;
 
-    // set base uri for jQueryUI
-    t_jp.jQueryUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/';
-
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
     function fix_page(token, translation) {
@@ -347,58 +344,58 @@
     t_jp.tfju = test_for_jqueryui;
 
     $(function () {
-            // set a global binglang (if needed)
-            if (t_jp.msn) {
-                t_jp.binglang = t_jp.lang;
-                if (t_jp.binglang === 'zh') {
-                    t_jp.binglang = 'zh-chs';
-                } else if (t_jp.binglang === 'zh-tw') {
-                    t_jp.binglang = 'zh-cht';
-                } else if (t_jp.binglang === 'mw') {
-                    t_jp.binglang = 'mww';
-                }
+        // set a global binglang (if needed)
+        if (t_jp.msn) {
+            t_jp.binglang = t_jp.lang;
+            if (t_jp.binglang === 'zh') {
+                t_jp.binglang = 'zh-chs';
+            } else if (t_jp.binglang === 'zh-tw') {
+                t_jp.binglang = 'zh-cht';
+            } else if (t_jp.binglang === 'mw') {
+                t_jp.binglang = 'mww';
             }
+        }
 
-            // this is the set_default_language function
-            // attach a function to the set_default_language link if its there
-            $('.' + t_jp_prefix + 'setdeflang').click(function () {
-                $.ajax({
-                    url: t_jp.ajaxurl,
-                    data: {
-                        action: 'tp_cookie'
-                    },
-                    cache: false
-                } );              
-                $('.' + t_jp_prefix + 'setdeflang').hide("slow");
-                return false;
-            });
-
-            // how many phrases are yet untranslated
-            possibly_translateable = $("." + t_jp_prefix + '[data-source=""]').size();
-
-            //now = new Date();
-            // we make sure script sub loaded are cached
-            $.ajaxSetup({
-                cache: true
-            });
-            // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
-            // we'll translate if there's any candidate...?
-            if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-            (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium)) {
-                // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
-                if (t_jp.progress) {
-                    test_for_jqueryui(function () {
-                        create_progress_bar();
-                        do_auto_translate();
-                    });
-                } else {
-                    do_auto_translate();
-                }
-            }
-
-            // this is the part when we have editor support
-            if (t_jp.edit) {
-                $.getScript(t_jp.plugin_url + '/js/transposhedit.js');
-            }
+        // this is the set_default_language function
+        // attach a function to the set_default_language link if its there
+        $('.' + t_jp_prefix + 'setdeflang').click(function () {
+            $.ajax({
+                url: t_jp.ajaxurl,
+                data: {
+                    action: 'tp_cookie'
+                },
+                cache: false
+            } );              
+            $('.' + t_jp_prefix + 'setdeflang').hide("slow");
+            return false;
         });
+
+        // how many phrases are yet untranslated
+        possibly_translateable = $("." + t_jp_prefix + '[data-source=""]').size();
+
+        //now = new Date();
+        // we make sure script sub loaded are cached
+        $.ajaxSetup({
+            cache: true
+        });
+        // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
+        // we'll translate if there's any candidate...?
+        if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
+        (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium)) {
+            // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
+            if (t_jp.progress) {
+                test_for_jqueryui(function () {
+                    create_progress_bar();
+                    do_auto_translate();
+                });
+            } else {
+                do_auto_translate();
+            }
+        }
+
+        // this is the part when we have editor support
+        if (t_jp.edit) {
+            $.getScript(t_jp.plugin_url + '/js/transposhedit.js');
+        }
+    });
 }(jQuery)); // end of closure

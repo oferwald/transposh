@@ -149,6 +149,7 @@ class transposh_plugin_admin {
                 break;
             case "tp_advanced":
                 $this->transposh->options->enable_url_translate = TP_FROM_POST;
+                $this->transposh->options->jqueryui_override = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_puncts = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_numbers = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_entities = TP_FROM_POST;
@@ -259,6 +260,7 @@ class transposh_plugin_admin {
                 );
                 wp_localize_script("transposh_backend", "t_be", $script_params);
         }
+        wp_enqueue_script('transposh_context_help', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/contexthelp.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
         wp_enqueue_style('transposh_admin', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_CSS . '/admin.css'); ///, array('transposh'), TRANSPOSH_PLUGIN_VER, true)
     }
 
@@ -278,6 +280,11 @@ class transposh_plugin_admin {
             'title' => __('Transposh Help', TRANSPOSH_TEXT_DOMAIN),
             // retrieve the function output and set it as tab content
             'content' => $this->on_contextual_help()));
+        $screen->add_help_tab(array(
+            'id' => 'keys', // This should be unique for the screen.
+            'title' => __('Engine keys', TRANSPOSH_TEXT_DOMAIN),
+            // retrieve the function output and set it as tab content
+            'content' => __('Will write something about keys...', TRANSPOSH_TEXT_DOMAIN)));
         if ($this->page == 'tp_main') {
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
@@ -463,7 +470,7 @@ class transposh_plugin_admin {
                 , __('Do automatic translation immediately after a post has been published', TRANSPOSH_TEXT_DOMAIN));
         $this->textinput($this->transposh->options->msn_key_o
                 , array('bingicon.png', __('MSN API key', TRANSPOSH_TEXT_DOMAIN))
-                , __('API Key', TRANSPOSH_TEXT_DOMAIN));
+                , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->textinput($this->transposh->options->google_key_o
                 , array('googleicon.png', __('Google API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN));
@@ -516,7 +523,7 @@ class transposh_plugin_admin {
 
     function tp_advanced() {
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
-
+        $this->textinput($this->transposh->options->jqueryui_override_o, __('Override jQueryUI version', TRANSPOSH_TEXT_DOMAIN), __('Version', TRANSPOSH_TEXT_DOMAIN));
         $this->section(__('Parser related settings', TRANSPOSH_TEXT_DOMAIN)
                 , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_puncts_o, __('Disable punctuations break', TRANSPOSH_TEXT_DOMAIN)
@@ -585,6 +592,14 @@ class transposh_plugin_admin {
 
 
         $this->sectionstop();
+/*
+        require_once("pomo_upgrader.php");
+
+        $upgrader = new POMO_Upgrader();
+        $upgrader->run(array('package' => 'http://svn.automattic.com/wordpress-i18n/he_IL/tags/3.5/messages/he_IL.mo',
+            'destination' => '/tmp/', //WP_PLUGIN_DIR . '/themes',
+            'clear_destination' => false, //Do not overwrite files.
+            'clear_working' => false));*/
     }
 
     function tp_support() {
@@ -685,12 +700,15 @@ class transposh_plugin_admin {
         echo '</div>';
     }
 
-    private function header($head) {
+    private function header($head, $help='') {
         if (!isset($head)) return;
+        if ($help) {
+            $help = ' <a class="tp_help" href="#" rel="'.$help.'">[?]</a>';
+        }
         if (is_array($head)) {
-            echo "<h3><img width=\"16\" height=\"16\" src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}</h3>";
+            echo "<h3><img width=\"16\" height=\"16\" src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}$help</h3>";
         } else {
-            echo '<h3>' . $head . '</h3>';
+            echo "<h3> $head $help</h3>";
         }
     }
 
@@ -723,8 +741,8 @@ class transposh_plugin_admin {
         '</label>';
     }
 
-    private function textinput($tpo, $head, $label, $length = 35) {
-        $this->header($head);
+    private function textinput($tpo, $head, $label, $length = 35, $help='') {
+        $this->header($head, $help);
         echo $label . ': <input type="text" size="' . $length . '" class="regular-text" ' . $tpo->post_value_id_name() . '/>';
     }
 
