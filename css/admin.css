@@ -28,15 +28,15 @@
     border-style:solid;
     border-width:1px;
     line-height:1;
-    background: #FFE45C;
+    background: #FFE45C !important;
     width: 190px;
     height: 14px;
 }
 .highlight_default {
-    background: #FFE45C;
+    background: #FFE45C !important;
 }
 .lng_active {
-    background: #45FF51;
+    background: #45FF51 !important;
 }
 .hidden {
     display: none;
