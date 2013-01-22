@@ -117,6 +117,14 @@ This version allows sorting of languages within the widget
  * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 
 == Changelog ==
+= 2013/01/23 - 0.9.1 =
+ * Added some help inside the Admin interface for very common questions (keys)
+ * Allow jQueryUI version to be overriden, resolving many conflicts
+ * A fix when some bad plugins insert .css in an inappropriate way
+ * Added the transposh_echo function - see developer site for documentation and usage
+ * Fixes for widgets easier inclusion with shortcodes, old dropbox fixes, ids removed see the [Widget Gallery](http://transposh.org/tutorial/widget-showcase/)
+ * Adding touch punch to admin, allowing language selection on touch devices
+ * Fixes for minor issues discovered since 0.9.0
 = 2012/12/12 - 0.9.0 =
  * Major rewrite for the administrative interface and settings, should simplify working with transposh
  * Parsing rules can now be changed in the advanced tab, use with care
