@@ -147,6 +147,7 @@ class transposh_plugin {
         if ($this->options->debug_enable)
                 tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
 
+            
 // TODO: get_class_methods to replace said mess, other way?
         add_filter('plugin_action_links_' . preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), array(&$this, 'plugin_action_links'));
         add_filter('query_vars', array(&$this, 'parameter_queryvars'));
@@ -768,6 +769,11 @@ class transposh_plugin {
         // set theme when it is needed
         if ($this->options->widget_progressbar || $this->edit_mode) {
             $script_params['theme'] = $this->options->widget_theme;
+            if ($this->options->jqueryui_override) {
+                $script_params['jQueryUI'] = 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $this->options->jqueryui_override . '/';
+            } else {
+                $script_params['jQueryUI'] = 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/';
+            }
         }
 
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
