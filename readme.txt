@@ -113,10 +113,12 @@ This version allows sorting of languages within the widget
  * Persian translation by [Sushyant Zavarzadeh](http://zavarzadeh.org)
  * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
  * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
- * Turkish translation by [Semih Yeşilyurt](http://kingdroid.net)
+ * Turkish translation by [Ömer Faruk Karabulut](http://yakalasam.com/) and [Semih Yeşilyurt](http://kingdroid.net)
  * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 
 == Changelog ==
+= pre 0.9.2 =
+ * Update for .po files, Turkish Translation by [Ömer Faruk Karabulut](http://yakalasam.com/)
 = 2013/01/23 - 0.9.1 =
  * Added some help inside the Admin interface for very common questions (keys)
  * Allow jQueryUI version to be overriden, resolving many conflicts
