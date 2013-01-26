@@ -1,6 +1,5 @@
 /* 
- * To add a language to the front end interface this file should be edited and be renamed to the two letter iso code of the language it is destined for
- * For each original phrase just write the translation between the '' following it
+ * Thanks: Ömer Faruk Karabulut (http://yakalasam.com/)
  */
 
 t_jp.l = {
