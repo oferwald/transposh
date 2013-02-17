@@ -33,10 +33,8 @@ class transposh_postpublish {
      */
     function transposh_postpublish(&$transposh) {
         $this->transposh = &$transposh;
-        // we'll only do something if so configured to do
-        if ($this->transposh->options->enable_autoposttranslate) {
-            add_action('edit_post', array(&$this, 'on_edit'));
-        }
+        // we need this anyway because of the change language selection
+        add_action('edit_post', array(&$this, 'on_edit'));
         add_action('admin_menu', array(&$this, 'on_admin_menu'));
     }
 
@@ -215,7 +213,9 @@ class transposh_postpublish {
      */
     function on_edit($postID) {
         // TODO - CHECK if (!isset($_POST['transposh_tp_language'])) return;
-        add_post_meta($postID, 'transposh_can_translate', 'true', true);
+        if ($this->transposh->options->enable_autoposttranslate) {
+            add_post_meta($postID, 'transposh_can_translate', 'true', true);
+        }
         if ($_POST['transposh_tp_language'] == '') {
             delete_post_meta($postID, 'tp_language');
         } else {
