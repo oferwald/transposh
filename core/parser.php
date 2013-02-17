@@ -294,7 +294,7 @@ class parser {
         }
         $entities = '&Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;' .
                 '&Ntilde;&Ograve;&Oacute;&Ocirc;&Otilde;&Ouml;&Oslash;&Ugrave;&Uacute;&Ucirc;&Uuml;&Yacute;&THORN;&szlig;' .
-                '&oslash;&ugrave;&yuml;&oelig;&scaron;';
+                '&oslash;&ugrave;&yuml;&oelig;&scaron;&nbsp;';
         return (stripos($entities, $entity) !== FALSE);
     }
 
@@ -335,8 +335,7 @@ class parser {
     function tag_phrase($string, $start, $end) {
         $phrase = trim(substr($string, $start, $end - $start));
 //        $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
-//        logger ("p:$phrase, s:$logstr, st:$start, en:$end, gt:{$this->in_get_text}, gti:{$this->in_get_text_inner}");
-//        logger ('');
+//        tp_logger ("p:$phrase, s:$logstr, st:$start, en:$end, gt:{$this->in_get_text}, gti:{$this->in_get_text_inner}");
         if ($this->in_get_text > $this->in_get_text_inner) {
             tp_logger('not tagging ' . $phrase . ' assumed gettext translated', 4);
             return;
@@ -661,17 +660,22 @@ class parser {
         }
 
         // create our dom
+        $string = str_replace(chr(0xC2) . chr(0xA0), ' ', $string); // annoying NBSPs?
         $this->html = str_get_html($string);
         // mark translateable elements
-        $this->html->find('html', 0)->lang = ''; // Document defined lang may be preset to correct lang, but should be ignored TODO: Better?
+        if ($this->html->find('html', 0))
+                $this->html->find('html', 0)->lang = ''; // Document defined lang may be preset to correct lang, but should be ignored TODO: Better?
         $this->translate_tagging($this->html->root);
 
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
-        if ($this->dir_rtl) $this->html->find('html', 0)->dir = 'rtl';
-        else $this->html->find('html', 0)->dir = 'ltr';
+        if ($this->html->find('html', 0)) {
+            if ($this->dir_rtl) $this->html->find('html', 0)->dir = 'rtl';
+            else $this->html->find('html', 0)->dir = 'ltr';
+        }
 
         if ($this->lang) {
-            $this->html->find('html', 0)->lang = $this->lang;
+            if ($this->html->find('html', 0))
+                    $this->html->find('html', 0)->lang = $this->lang;
             // add support for <meta name="language" content="<lang>">
             if ($this->html->find('meta[name=language]')) {
                 $this->html->find('meta[name=language]')->content = $this->lang;
