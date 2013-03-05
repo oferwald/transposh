@@ -427,8 +427,7 @@ class parser {
             elseif ($this->num_breaks && $num_len = $this->is_number($string, $pos)) {
 //                logger ("numnum... $num_len");
                 // this is the case of B2 or B2,
-                if (($start == $pos) || ($this->is_white_space($string[$pos - 1])
-                        || ($this->is_sentence_breaker(@$string[$pos + $num_len - 1], @$string[$pos + $num_len], @$string[$pos + $num_len + 1]))) &&
+                if (($start == $pos) || ($this->is_white_space($string[$pos - 1]) || ($this->is_sentence_breaker(@$string[$pos + $num_len - 1], @$string[$pos + $num_len], @$string[$pos + $num_len + 1]))) &&
                         ($this->is_white_space(@$string[$pos + $num_len]) || $this->is_sentence_breaker(@$string[$pos + $num_len], @$string[$pos + $num_len + 1], @$string[$pos + $num_len + 2]))) {
                     // we will now compensate on the number followed by breaker case, if we need to
 //                            logger ("compensate part1?");
@@ -802,12 +801,13 @@ class parser {
                 }
                 // store replacements
                 if ($translated_text) {
-                    $replace[$translated_text] = $ep;
+                    $replace[] = array($translated_text, $ep);
                 }
             }
             // do replacements in reverse
-            foreach (array_reverse($replace, true) as $replace => $epg) {
-                $e->outertext = substr_replace($e->outertext, $replace, $epg->start, $epg->len);
+            foreach (array_reverse($replace) as $epag) {
+                list($replacetext, $epg) = $epag;
+                $e->outertext = substr_replace($e->outertext, $replacetext, $epg->start, $epg->len);
             }
 
             // this adds saved spans to the first not in select element which is in the body
@@ -834,13 +834,13 @@ class parser {
                             list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                             // more stats
                             $this->stats->total_phrases++;
-                            if ($ep->inbody) $this->stats->hidden_phrases++; else
-                                    $this->stats->meta_phrases++;
+                            if ($ep->inbody) $this->stats->hidden_phrases++;
+                            else $this->stats->meta_phrases++;
                             if ($translated_text) {
                                 $this->stats->translated_phrases++;
                                 if ($ep->inbody)
-                                        $this->stats->hidden_translated_phrases++; else
-                                        $this->stats->meta_translated_phrases++;
+                                        $this->stats->hidden_translated_phrases++;
+                                else $this->stats->meta_translated_phrases++;
                                 if ($source == 0)
                                         $this->stats->human_translated_phrases++;
                             }
