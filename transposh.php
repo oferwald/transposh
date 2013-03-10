@@ -106,6 +106,9 @@ class transposh_plugin {
     /** @var boolean Is the wp_redirect being called by transposh? */
     private $transposh_redirect = false;
 
+    /** @var boolean Did we get to process but got an empty buffer with no language? (someone flushed us) */
+    private $tried_buffer = false;
+
     /**
      * class constructor
      */
@@ -159,7 +162,7 @@ class transposh_plugin {
         add_filter('comment_text', array(&$this, 'comment_text_wrap'), 9999); // this is a late filter...
         add_action('init', array(&$this, 'on_init'), 0); // really high priority
 //        add_action('admin_init', array(&$this, 'on_admin_init')); might use to mark where not to work?
-        add_action('parse_request', array(&$this, 'on_parse_request'));
+        add_action('parse_request', array(&$this, 'on_parse_request'),0); // should have high enough priority
         add_action('plugins_loaded', array(&$this, 'plugin_loaded'));
         add_action('shutdown', array(&$this, 'on_shutdown'));
         add_action('wp_print_styles', array(&$this, 'add_transposh_css'));
@@ -319,6 +322,10 @@ class transposh_plugin {
      * @return string Modified page buffer
      */
     function process_page(&$buffer) {
+/*        if (!$this->target_language) {
+		global $wp;
+		$this->on_parse_request($wp);
+	}*/
         tp_logger('processing page hit with language:' . $this->target_language, 1);
         $start_time = microtime(TRUE);
 
@@ -330,6 +337,10 @@ class transposh_plugin {
         // TODO: need to further investigate (will it be needed?)
         elseif ($this->target_language == '') {
             tp_logger("Skipping translation where target language is unset", 3);
+            if (!$buffer) {
+                tp_logger ("seems like we had a premature flushing");
+                $this->tried_buffer = true;
+            }
         }
         // Don't translate the default language unless specifically allowed to...
         elseif ($this->options->is_default_language($this->target_language) && !$this->options->enable_default_translate) {
@@ -507,6 +518,10 @@ class transposh_plugin {
                 $this->target_language = $this->options->default_language;
         tp_logger("requested language: {$this->target_language}", 3);
 
+        if ($this->tried_buffer) {
+            tp_logger("we will retrigger the output buffering");
+            ob_start(array(&$this, "process_page"));          
+        }
 
         // make themes that support rtl - go rtl http://wordpress.tv/2010/05/01/yoav-farhi-right-to-left-themes-sf10
         if (in_array($this->target_language, transposh_consts::$rtl_languages)) {
