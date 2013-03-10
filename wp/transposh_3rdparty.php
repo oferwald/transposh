@@ -45,6 +45,10 @@ class transposh_3rdparty {
         if ($this->transposh->options->transposh_collect_stats) {
             add_action('google_analyticator_extra_js_after', array(&$this, 'add_analyticator_tracking'));
         }
+
+        // woocommerce
+        add_filter('woocommerce_get_checkout_url', array(&$this, 'woo_uri_filter'));
+        add_filter('woocommerce_get_cart_url', array(&$this, 'woo_uri_filter'));
     }
 
     function add_analyticator_tracking() {
@@ -203,6 +207,12 @@ class transposh_3rdparty {
                 $generatorObject->AddElement($sm_page);
             }
         }
+    }
+
+    function woo_uri_filter($url) {
+        $lang = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url);
+        tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode));
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode);
     }
 
 }
