@@ -150,7 +150,7 @@ class transposh_plugin {
         if ($this->options->debug_enable)
                 tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
 
-            
+
 // TODO: get_class_methods to replace said mess, other way?
         add_filter('plugin_action_links_' . preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), array(&$this, 'plugin_action_links'));
         add_filter('query_vars', array(&$this, 'parameter_queryvars'));
@@ -162,7 +162,7 @@ class transposh_plugin {
         add_filter('comment_text', array(&$this, 'comment_text_wrap'), 9999); // this is a late filter...
         add_action('init', array(&$this, 'on_init'), 0); // really high priority
 //        add_action('admin_init', array(&$this, 'on_admin_init')); might use to mark where not to work?
-        add_action('parse_request', array(&$this, 'on_parse_request'),0); // should have high enough priority
+        add_action('parse_request', array(&$this, 'on_parse_request'), 0); // should have high enough priority
         add_action('plugins_loaded', array(&$this, 'plugin_loaded'));
         add_action('shutdown', array(&$this, 'on_shutdown'));
         add_action('wp_print_styles', array(&$this, 'add_transposh_css'));
@@ -322,10 +322,10 @@ class transposh_plugin {
      * @return string Modified page buffer
      */
     function process_page(&$buffer) {
-/*        if (!$this->target_language) {
-		global $wp;
-		$this->on_parse_request($wp);
-	}*/
+        /*        if (!$this->target_language) {
+          global $wp;
+          $this->on_parse_request($wp);
+          } */
         tp_logger('processing page hit with language:' . $this->target_language, 1);
         $start_time = microtime(TRUE);
 
@@ -338,7 +338,7 @@ class transposh_plugin {
         elseif ($this->target_language == '') {
             tp_logger("Skipping translation where target language is unset", 3);
             if (!$buffer) {
-                tp_logger ("seems like we had a premature flushing");
+                tp_logger("seems like we had a premature flushing");
                 $this->tried_buffer = true;
             }
         }
@@ -520,7 +520,7 @@ class transposh_plugin {
 
         if ($this->tried_buffer) {
             tp_logger("we will retrigger the output buffering");
-            ob_start(array(&$this, "process_page"));          
+            ob_start(array(&$this, "process_page"));
         }
 
         // make themes that support rtl - go rtl http://wordpress.tv/2010/05/01/yoav-farhi-right-to-left-themes-sf10
