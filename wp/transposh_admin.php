@@ -498,7 +498,7 @@ class transposh_plugin_admin {
 
         $this->textinput($this->transposh->options->oht_key_o
                 , array('ohticon.png', __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN))
-                , __('Account ID', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
+                , __('Secret Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
 
         $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
         if (!empty($oht) && wp_next_scheduled('transposh_oht_event')) {
