@@ -898,6 +898,7 @@
 
     // lets add the images
     $("." + prefix).each(function (i) {
+       	if (typeof $(this).attr('id') === 'undefined') return; // who let the dogs out?? (who killed my id)
         var translated_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1), img;
         $(this).after('<span id="' + prefix + 'img_' + translated_id + '" class="tr-icon" title="' + $(this).attr('data-orig') + '"></span>');
         img = $(idprefix + 'img_' + translated_id);
