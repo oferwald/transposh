@@ -149,6 +149,7 @@ class transposh_plugin_admin {
                 break;
             case "tp_advanced":
                 $this->transposh->options->enable_url_translate = TP_FROM_POST;
+                $this->transposh->options->dont_add_rel_alternate = TP_FROM_POST;
                 $this->transposh->options->jqueryui_override = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_puncts = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_numbers = TP_FROM_POST;
@@ -530,6 +531,7 @@ class transposh_plugin_admin {
     function tp_advanced() {
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
         $this->textinput($this->transposh->options->jqueryui_override_o, __('Override jQueryUI version', TRANSPOSH_TEXT_DOMAIN), __('Version', TRANSPOSH_TEXT_DOMAIN));
+        $this->checkbox($this->transposh->options->dont_add_rel_alternate_o, __('Disable adding rel=alternate to the html', TRANSPOSH_TEXT_DOMAIN) , __('Disable the feature that adds the alternate language list to your page html header', TRANSPOSH_TEXT_DOMAIN));
         $this->section(__('Parser related settings', TRANSPOSH_TEXT_DOMAIN)
                 , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_puncts_o, __('Disable punctuations break', TRANSPOSH_TEXT_DOMAIN)

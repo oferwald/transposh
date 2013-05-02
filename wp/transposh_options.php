@@ -136,6 +136,8 @@ class transposh_option {
  * @property transposh_option $enable_url_translate_o
  * @property string           $jqueryui_override             Option to override the jQueryUI version @since 0.9.1
  * @property transposh_option $jqueryui_override_o
+ * @property boolean          $dont_add_rel_alternate        Option to disable the rel=alternate adding to the page @since 0.9.2
+ * @property transposh_option $dont_add_rel_alternate_o
  * @property boolean          $parser_dont_break_puncts      Option to allow punctuations such as , . ( not to break @since 0.9.0
  * @property transposh_option $parser_dont_break_puncts_o
  * @property boolean          $parser_dont_break_numbers     Option to allow numbers not to break @since 0.9.0
@@ -246,6 +248,7 @@ class transposh_plugin_options {
 
         $this->register_option('enable_url_translate', TP_OPT_BOOLEAN, 0);
         $this->register_option('jqueryui_override', TP_OPT_STRING);
+        $this->register_option('dont_add_rel_alternate', TP_OPT_BOOLEAN, 0);
         $this->register_option('parser_dont_break_puncts', TP_OPT_BOOLEAN, 0);
         $this->register_option('parser_dont_break_numbers', TP_OPT_BOOLEAN, 0);
         $this->register_option('parser_dont_break_entities', TP_OPT_BOOLEAN, 0);
