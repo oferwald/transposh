@@ -14,7 +14,7 @@ if [ -z $VERSION ]; then
   exit
 fi
 
-TRANSPOSH_DIR=/tmp/transposh
+TRANSPOSH_DIR=/tmp/transposh-translation-filter-for-wordpress
 
 echo "Building package for WordPress plugin version: $VERSION";
  
@@ -94,8 +94,8 @@ echo "fixing version in readme.txt to $VERSION"
 #  rm $TRANSPOSH_DIR/core/FirePHP.class.php
 #  echo "removed FirePHP.class.php"
 #else
-  rm $TRANSPOSH_DIR/screenshot*.png
-  echo "removed screenshots"
+##  rm $TRANSPOSH_DIR/screenshot*.png
+##  echo "removed screenshots"
 #fi
 
 #if [ "$DEBUG" != 'debug' ]; then
@@ -141,7 +141,8 @@ echo "removed .svn dirs"
 if [ "$ZIPME" == 'zip' ]; then
   cd $TRANSPOSH_DIR
   cd ..
-  zip -rq "transposh.$VERSION.zip" transposh
+  zip -9rq "transposh.$VERSION.zip" transposh-translation-filter-for-wordpress
+  advzip -r4 "transposh.$VERSION.zip"
   cd - >/dev/null
 #  mv "$TRANSPOSH_DIR/transposh.$VERSION.zip" . 
   echo
