@@ -128,7 +128,7 @@ class transposh_3rdparty {
      * @param BP_Activity_Activity $activity
      * @return string modified content
      */
-    function bp_get_activity_content_body($content, $activity) {
+    function bp_get_activity_content_body($content, $activity = "") { //XXX
         $activity_lang = bp_activity_get_meta($activity->id, 'tp_language');
         if ($activity_lang) {
             $content = "<span lang =\"$activity_lang\">" . $content . "</span>";
