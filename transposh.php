@@ -79,6 +79,9 @@ class transposh_plugin {
     /** @var string The directory of the plugin */
     public $transposh_plugin_dir;
 
+    /** @var string Plugin main file and dir */
+    public $transposh_plugin_basename;
+
     /** @var boolean Enable rewriting of URLs */
     public $enable_permalinks_rewrite;
 
@@ -108,6 +111,9 @@ class transposh_plugin {
 
     /** @var boolean Did we get to process but got an empty buffer with no language? (someone flushed us) */
     private $tried_buffer = false;
+
+    /** @var boolean Do I need to check for updates by myself? After wordpress checked his */
+    private $do_update_check = false;
 
     /**
      * class constructor
@@ -146,13 +152,16 @@ class transposh_plugin {
         if ($this->options->debug_enable)
                 tp_logger('Transposh object created: ' . $_SERVER['REQUEST_URI'], 3);
 
+        $this->transposh_plugin_basename = plugin_basename(__FILE__);
         //Register some functions into wordpress
-        if ($this->options->debug_enable)
-                tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
+        if ($this->options->debug_enable) {
+            //tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
+           // tp_logger($this->get_plugin_name());
+            tp_logger(plugin_basename(__FILE__));
+        }
 
-
-// TODO: get_class_methods to replace said mess, other way?
-        add_filter('plugin_action_links_' . preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), array(&$this, 'plugin_action_links'));
+        // TODO: get_class_methods to replace said mess, other way?
+        add_filter('plugin_action_links_' . $this->transposh_plugin_basename, array(&$this, 'plugin_action_links'));
         add_filter('query_vars', array(&$this, 'parameter_queryvars'));
         add_filter('rewrite_rules_array', array(&$this, 'update_rewrite_rules'));
         if ($this->options->enable_url_translate) {
@@ -167,8 +176,9 @@ class transposh_plugin {
         add_action('shutdown', array(&$this, 'on_shutdown'));
         add_action('wp_print_styles', array(&$this, 'add_transposh_css'));
         add_action('wp_print_scripts', array(&$this, 'add_transposh_js'));
-        //TODO - on config
-        add_action('wp_head', array(&$this, 'add_rel_alternate'));
+        if (!$this->options->dont_add_rel_alternate) {
+            add_action('wp_head', array(&$this, 'add_rel_alternate'));
+        }
 //        add_action('wp_head', array(&$this,'add_transposh_async'));
         add_action('transposh_backup_event', array(&$this, 'run_backup'));
         add_action('transposh_oht_event', array(&$this, 'run_oht'));
@@ -214,6 +224,11 @@ class transposh_plugin {
             add_filter('ngettext_with_context', array(&$this, 'transposh_ngettext_filter'), 10, 4);
             add_filter('locale', array(&$this, 'transposh_locale_filter'));
         }
+
+        // internal update mechnism
+        add_filter('http_request_args', array(&$this, 'filter_wordpress_org_update'), 10, 2);
+        add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_for_plugin_update'));
+        add_filter('plugins_api', array(&$this, 'plugin_api_call'), 10, 3);
 
         // debug function for bad redirects
         add_filter('wp_redirect', array(&$this, 'on_wp_redirect'), 10, 2);
@@ -292,7 +307,7 @@ class transposh_plugin {
         return $this->clean_url;
     }
 
-//    function update() {
+//    function update() {file_location
 //        require_once('./admin-header.php');
 
     /* 	$nonce = 'upgrade-plugin_' . $plugin;
@@ -413,6 +428,12 @@ class transposh_plugin {
         if (substr($_SERVER['SCRIPT_FILENAME'], -11) == 'wp-load.php') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
             $this->attempt_json = true;
+        }
+
+        tp_logger($_SERVER['REQUEST_URI'], 5);
+        if (strpos($_SERVER['REQUEST_URI'], '/wpv-ajax-pagination/') === true) {
+            tp_logger('wpv pagination', 5);
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
         }
 
         // load translation files for transposh
@@ -631,7 +652,7 @@ class transposh_plugin {
 
         tp_logger("plugin_activate exit: " . dirname(__FILE__), 1);
         tp_logger("testing name:" . plugin_basename(__FILE__), 4);
-        tp_logger("testing name2:" . $this->get_plugin_name(), 4);
+       // tp_logger("testing name2:" . $this->get_plugin_name(), 4);
         //activate_plugin($plugin);
     }
 
@@ -659,7 +680,8 @@ class transposh_plugin {
 
         if (function_exists('deactivate_plugins')) {
             // FIXME :wtf?
-            deactivate_plugins(array(&$this, 'get_plugin_name'), "translate.php");
+            //deactivate_plugins(array(&$this, 'get_plugin_name'), "translate.php");
+         ////!!!   deactivate_plugins($this->transposh_plugin_basename, "translate.php");
             echo '<br> This plugin has been automatically deactivated.';
         }
 
@@ -706,7 +728,7 @@ class transposh_plugin {
      * TODO - check!!!
      * @return string
      */
-    function get_plugin_name() {
+   /* function get_plugin_name() {
         $file = __FILE__;
         $file = str_replace('\\', '/', $file); // sanitize for Win32 installs
         $file = preg_replace('|/+|', '/', $file); // remove any duplicate slash
@@ -714,7 +736,7 @@ class transposh_plugin {
         $file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
         tp_logger("Plugin path - $file", 4);
         return $file;
-    }
+    }*/
 
     /**
      * Add custom css, i.e. transposh.css
@@ -1252,7 +1274,7 @@ class transposh_plugin {
         // we need curl for this proxy
         if (!function_exists('curl_init')) return;
         transposh_utils::allow_cors();
-        $tl = $_GET['tl'];
+        $tl = $_GET['tl']; // CHECK GET (ajax change to post case..)
         // we want to avoid unneeded work or dos attacks on languages we don't support
         if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl))
                 return;
@@ -1524,6 +1546,94 @@ class transposh_plugin {
         die();
     }
 
+    // Catch the wordpress.org update post
+    function filter_wordpress_org_update($arr, $url) {
+        tp_logger($url,5);
+        /* if ($url == "http://api.wordpress.org/plugins/info/1.0/") {
+          tp_logger($arr);
+          } */
+        // hide from wordpress.org
+        if ($url == "http://api.wordpress.org/plugins/update-check/1.0/") {
+            $plugs = unserialize($arr['body']['plugins']);
+            tp_logger($plugs->plugins[$this->transposh_plugin_basename],4);
+            unset($plugs->plugins[$this->transposh_plugin_basename]);
+            $arr['body']['plugins'] = serialize($plugs);
+            tp_logger($arr);
+        }
+        // now we should query our own service
+        $this->do_update_check = true;
+        return $arr;
+    }
+
+    function check_for_plugin_update($checked_data) {
+        global $wp_version;
+        tp_logger('should we check for upgrades?',4);
+        if (!$this->do_update_check) return;
+        $this->do_update_check = false; // for next time
+        tp_logger('yes, we should',4);
+
+        $args = array(
+            'slug' => $this->transposh_plugin_basename,
+            'version' => '%VERSION%', //$checked_data->checked[$this->transposh_file_location],
+        );
+        $request_string = array(
+            'body' => array(
+                'action' => 'basic_check',
+                'request' => serialize($args),
+                'api-key' => md5(get_bloginfo('url'))
+            ),
+            'user-agent' => 'WordPress/' . $wp_version . '; ' . get_bloginfo('url')
+        );
+
+        // Start checking for an update
+        $raw_response = wp_remote_post(TRANSPOSH_UPDATE_SERVICE_URL, $request_string);
+
+        tp_logger($raw_response,5);
+
+        if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
+                $response = unserialize($raw_response['body']);
+
+        if (is_object($response) && !empty($response)) // Feed the update data into WP updater
+                $checked_data->response[$this->transposh_plugin_basename] = $response;
+
+        return $checked_data;
+    }
+
+    // Take over the Plugin info screen
+    function plugin_api_call($def, $action, $args) {
+        global $wp_version;
+
+        if (!isset($args->slug) || ($args->slug != $this->transposh_plugin_basename))
+                return false;
+
+        // Get the current version
+        $plugin_info = get_site_transient('update_plugins');
+        //$current_version = $plugin_info->checked[$plugin_slug . '/' . $plugin_slug . '.php'];
+        $args->version = '%VERSION';
+
+        $request_string = array(
+            'body' => array(
+                'action' => $action,
+                'request' => serialize($args),
+                'api-key' => md5(get_bloginfo('url'))
+            ),
+            'user-agent' => 'WordPress/' . $wp_version . '; ' . get_bloginfo('url')
+        );
+
+        $request = wp_remote_post(TRANSPOSH_UPDATE_SERVICE_URL, $request_string);
+
+        if (is_wp_error($request)) {
+            $res = new WP_Error('plugins_api_failed', __('An Unexpected HTTP Error occurred during the API request.</p> <p><a href="?" onclick="document.location.reload(); return false;">Try again</a>'), $request->get_error_message());
+        } else {
+            $res = unserialize($request['body']);
+
+            if ($res === false)
+                    $res = new WP_Error('plugins_api_failed', __('An unknown error occurred'), $request['body']);
+        }
+
+        return $res;
+    }
+
 }
 
 $my_transposh_plugin = new transposh_plugin();
@@ -1534,9 +1644,9 @@ $my_transposh_plugin = new transposh_plugin();
  * Function provided for old widget include code compatability
  * @param array $args Not needed
  */
-function transposh_widget($args = array(), $instance = array('title' => 'Translation')) {
+function transposh_widget($args = array(), $instance = array('title' => 'Translation'), $extcall = false) {
     global $my_transposh_plugin;
-    $my_transposh_plugin->widget->widget($args, $instance);
+    $my_transposh_plugin->widget->widget($args, $instance, $extcall); //TODO!!! 
 }
 
 /**
