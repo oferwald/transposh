@@ -142,7 +142,7 @@ if [ "$ZIPME" == 'zip' ]; then
   cd $TRANSPOSH_DIR
   cd ..
   zip -9rq "transposh.$VERSION.zip" transposh-translation-filter-for-wordpress
-  advzip -r4 "transposh.$VERSION.zip"
+  advzip -z4 "transposh.$VERSION.zip"
   cd - >/dev/null
 #  mv "$TRANSPOSH_DIR/transposh.$VERSION.zip" . 
   echo
