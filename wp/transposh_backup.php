@@ -15,10 +15,6 @@
  * Provide the backup service class
  */
 
-define('TRANSPOSH_BACKUP_SERVICE_URL', 'http://svc.transposh.org/backup');
-define('TRANSPOSH_RESTORE_SERVICE_URL', 'http://svc.transposh.org/restore');
-
-//define ("TRANSPOSH_BACKUP_SERVICE_URL" , "http://ofergen:8888/backup");
 //class that reperesent the admin page
 class transposh_backup {
 

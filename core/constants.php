@@ -36,6 +36,11 @@ define('TP_GTXT_IBRK', chr(2)); // Gettext inner breaker (around %s)
 define('TP_GTXT_BRK_CLOSER', chr(3)); // Gettext breaker closer
 define('TP_GTXT_IBRK_CLOSER', chr(4)); // Gettext inner breaker closer
 
+//External services
+define('TRANSPOSH_BACKUP_SERVICE_URL', 'http://svc.transposh.org/backup');
+define('TRANSPOSH_RESTORE_SERVICE_URL', 'http://svc.transposh.org/restore');
+define('TRANSPOSH_UPDATE_SERVICE_URL', 'http://svc.transposh.org/update-check');
+
 /**
  * Holds our arrays staticly to reduce chance of namespace collision
  */
