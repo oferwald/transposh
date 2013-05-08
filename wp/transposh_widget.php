@@ -280,8 +280,8 @@ class transposh_plugin_widget extends WP_Widget {
         $tmpclass = new $class;
         $tmpclass->tp_widget_do($widget_args);
         if ($extcall) {
-            $tmpclass->tp_widget_css($instance['widget_file'],$this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
-            $tmpclass->tp_widget_js($instance['widget_file'],$this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            $tmpclass->tp_widget_css($instance['widget_file'], $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+            $tmpclass->tp_widget_js($instance['widget_file'], $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
             // don't display edit and other things for shortcode embedding
             if (isset($after_widget)) echo $after_widget;
             // increase the number of calls for unique IDs
@@ -322,23 +322,7 @@ class transposh_plugin_widget extends WP_Widget {
 
         if (!$this->transposh->options->widget_remove_logo) {
             $tagline = esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . ' - ';
-            switch (ord(md5($_SERVER['REQUEST_URI'])) % 5) {
-                case 0:
-                    $tagline .= esc_attr__('translation plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
-                    break;
-                case 1:
-                    $tagline .= esc_attr__('wordpress translation plugin', TRANSPOSH_TEXT_DOMAIN);
-                    break;
-                case 2:
-                    $tagline .= esc_attr__('translate your blog to 60+ languages', TRANSPOSH_TEXT_DOMAIN);
-                    break;
-                case 3:
-                    $tagline .= esc_attr__('website crowdsourcing translation plugin', TRANSPOSH_TEXT_DOMAIN);
-                    break;
-                case 4:
-                    $tagline .= esc_attr__('google translate and bing translate plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
-                    break;
-            }
+            $tagline .= esc_attr__('translation plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
 
             $extralang = '';
             if ($this->transposh->target_language != 'en') {
