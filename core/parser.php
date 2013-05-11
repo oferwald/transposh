@@ -864,7 +864,7 @@ class parser {
                     }
                 // and later replace
                 foreach (array_reverse($replace, true) as $replace => $epg) {
-                    $e->title = substr_replace($e->title, $replace, $epg->start, $epg->len);
+                    $e->$title = substr_replace($e->$title, $replace, $epg->start, $epg->len);
                 }
 
                 $e->outertext .= $span;
