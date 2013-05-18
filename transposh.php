@@ -156,7 +156,7 @@ class transposh_plugin {
         //Register some functions into wordpress
         if ($this->options->debug_enable) {
             //tp_logger(preg_replace('|^' . preg_quote(WP_PLUGIN_DIR, '|') . '/|', '', __FILE__), 4); // includes transposh dir and php
-           // tp_logger($this->get_plugin_name());
+            // tp_logger($this->get_plugin_name());
             tp_logger(plugin_basename(__FILE__));
         }
 
@@ -652,7 +652,7 @@ class transposh_plugin {
 
         tp_logger("plugin_activate exit: " . dirname(__FILE__), 1);
         tp_logger("testing name:" . plugin_basename(__FILE__), 4);
-       // tp_logger("testing name2:" . $this->get_plugin_name(), 4);
+        // tp_logger("testing name2:" . $this->get_plugin_name(), 4);
         //activate_plugin($plugin);
     }
 
@@ -681,7 +681,7 @@ class transposh_plugin {
         if (function_exists('deactivate_plugins')) {
             // FIXME :wtf?
             //deactivate_plugins(array(&$this, 'get_plugin_name'), "translate.php");
-         ////!!!   deactivate_plugins($this->transposh_plugin_basename, "translate.php");
+            ////!!!   deactivate_plugins($this->transposh_plugin_basename, "translate.php");
             echo '<br> This plugin has been automatically deactivated.';
         }
 
@@ -728,14 +728,14 @@ class transposh_plugin {
      * TODO - check!!!
      * @return string
      */
-   /* function get_plugin_name() {
-        $file = __FILE__;
-        $file = str_replace('\\', '/', $file); // sanitize for Win32 installs
-        $file = preg_replace('|/+|', '/', $file); // remove any duplicate slash
-        //keep only the file name and its parent directory
-        $file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
-        tp_logger("Plugin path - $file", 4);
-        return $file;
+    /* function get_plugin_name() {
+      $file = __FILE__;
+      $file = str_replace('\\', '/', $file); // sanitize for Win32 installs
+      $file = preg_replace('|/+|', '/', $file); // remove any duplicate slash
+      //keep only the file name and its parent directory
+      $file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
+      tp_logger("Plugin path - $file", 4);
+      return $file;
     }*/
 
     /**
@@ -815,8 +815,8 @@ class transposh_plugin {
 
 //          'l10n_print_after' => 'try{convertEntities(inlineEditL10n);}catch(e){};'
         wp_localize_script('transposh', 't_jp', $script_params);
-        // only enqueue on real pages, other admin scripts that need this will register a dependency
-        if (($this->edit_mode || $this->is_auto_translate_permitted() || $this->options->widget_allow_set_deflang) && !is_admin()) {
+        // only enqueue on real pages, for real people, other admin scripts that need this will register a dependency
+        if (($this->edit_mode || $this->is_auto_translate_permitted() || $this->options->widget_allow_set_deflang) && !is_admin() && !transposh_utils::is_bot()) {
             wp_enqueue_script('transposh');
         }
         tp_logger('Added transposh_js', 4);
@@ -1548,29 +1548,29 @@ class transposh_plugin {
 
     // Catch the wordpress.org update post
     function filter_wordpress_org_update($arr, $url) {
-        tp_logger($url,5);
+        tp_logger($url, 5);
         /* if ($url == "http://api.wordpress.org/plugins/info/1.0/") {
           tp_logger($arr);
           } */
         // hide from wordpress.org
         if ($url == "http://api.wordpress.org/plugins/update-check/1.0/") {
             $plugs = unserialize($arr['body']['plugins']);
-            tp_logger($plugs->plugins[$this->transposh_plugin_basename],4);
+            tp_logger($plugs->plugins[$this->transposh_plugin_basename], 4);
             unset($plugs->plugins[$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = serialize($plugs);
             tp_logger($arr);
+            // now we should query our own service
+            $this->do_update_check = true;
         }
-        // now we should query our own service
-        $this->do_update_check = true;
         return $arr;
     }
 
     function check_for_plugin_update($checked_data) {
         global $wp_version;
-        tp_logger('should we check for upgrades?',4);
+        tp_logger('should we check for upgrades?', 4);
         if (!$this->do_update_check) return;
         $this->do_update_check = false; // for next time
-        tp_logger('yes, we should',4);
+        tp_logger('yes, we should', 4);
 
         $args = array(
             'slug' => $this->transposh_plugin_basename,
@@ -1588,7 +1588,7 @@ class transposh_plugin {
         // Start checking for an update
         $raw_response = wp_remote_post(TRANSPOSH_UPDATE_SERVICE_URL, $request_string);
 
-        tp_logger($raw_response,5);
+        tp_logger($raw_response, 5);
 
         if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
                 $response = unserialize($raw_response['body']);
