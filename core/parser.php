@@ -51,7 +51,7 @@ class parserstats {
     /** @var int Holds the time translation started */
     private $start_time;
 
-    /**
+/**
      * This function is when the object is initialized, which is a good time to start ticking.
      */
     function parserstats() {
@@ -99,10 +99,20 @@ class parser {
     private $num_breaks = true;
     private $ent_breaks = true;
     // functions that need to be defined... //
+    /** @var function */
     public $url_rewrite_func = null;
+
+    /** @var function */
     public $fetch_translate_func = null;
+
+    /** @var function */
     public $prefetch_translate_func = null;
+
+    /** @var function */
     public $split_url_func = null;
+
+    /** @var function */
+    public $fix_src_tag_func = null;
 
     /** @var int stores the number of the last used span_id */
     private $span_id = 0;
@@ -154,7 +164,10 @@ class parser {
 
     /** @var array Contains reference to changable option values */
     private $otags = array();
-    private $edit_span_created = false;
+    public $edit_span_created = false;
+
+    /** @var array store all values that may be prefetched */
+    private $prefetch_phrases = array();
 
     /**
      * Determine if the current position in buffer is a white space.
@@ -348,6 +361,7 @@ class parser {
             $this->currentnode->nodes[] = $node;
             $node->_[HDOM_INFO_OUTER] = '';
             $node->phrase = $phrase;
+            $this->prefetch_phrases[$phrase] = true;
             $node->start = $start;
             $node->len = strlen($phrase);
             if ($this->srclang) $node->srclang = $this->srclang;
@@ -433,7 +447,7 @@ class parser {
 //                            logger ("compensate part1?");
                     if (!(($start == $pos) || $this->is_white_space($string[$pos - 1]))) {
 //                            logger ("compensate part2?");
-                        if ($this->is_sentence_breaker($string[$pos + $num_len - 1], $string[$pos + $num_len], $string[$pos + $num_len + 1])) {
+                        if ($this->is_sentence_breaker($string[$pos + $num_len - 1], @$string[$pos + $num_len], @$string[$pos + $num_len + 1])) {
 //                            logger ("compensate 3?");
                             $num_len--; //this makes the added number shorter by one, and the pos will be at a sentence breaker next so we don't have to compensate
                         }
@@ -579,6 +593,7 @@ class parser {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
         $this->edit_span_created = true;
+        //$span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id ./* '" data-token="' . Transposh_utils::base64_url_encode($original_text) .*/ '" data-source="' . $source . '"';
         $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
         // if we have a source language
         if ($src_lang) {
@@ -661,10 +676,14 @@ class parser {
         // create our dom
         $string = str_replace(chr(0xC2) . chr(0xA0), ' ', $string); // annoying NBSPs?
         $this->html = str_get_html($string);
+        //$this->stats->do_timing();
+        //Log::info("Stats Build dom:" . $this->stats->time);
         // mark translateable elements
         if ($this->html->find('html', 0))
                 $this->html->find('html', 0)->lang = ''; // Document defined lang may be preset to correct lang, but should be ignored TODO: Better?
         $this->translate_tagging($this->html->root);
+        //$this->stats->do_timing();
+        //Log::info("Stats Done tagging:" . $this->stats->time);
 
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
         if ($this->html->find('html', 0)) {
@@ -677,7 +696,7 @@ class parser {
                     $this->html->find('html', 0)->lang = $this->lang;
             // add support for <meta name="language" content="<lang>">
             if ($this->html->find('meta[name=language]')) {
-                $this->html->find('meta[name=language]')->content = $this->lang;
+                @$this->html->find('meta[name=language]')->content = $this->lang;
             }
         }
 
@@ -715,40 +734,40 @@ class parser {
         }
 
         // try some prefetching... (//todo - maybe move directly to the phrase create)
-        $originals = array();
+//        $originals = array();
         if ($this->prefetch_translate_func != null) {
-            foreach ($this->html->find('text') as $e) {
-                foreach ($e->nodes as $ep) {
-                    if ($ep->phrase) $originals[$ep->phrase] = true;
-                }
-            }
-            foreach (array('title', 'value') as $title) {
-                foreach ($this->html->find('[' . $title . ']') as $e) {
-                    if (isset($e->nodes))
-                            foreach ($e->nodes as $ep) {
-                            if ($ep->phrase) $originals[$ep->phrase] = true;
-                        }
-                }
-            }
-            foreach ($this->html->find('[content]') as $e) {
-                foreach ($e->nodes as $ep) {
-                    if ($ep->phrase) $originals[$ep->phrase] = true;
-                }
-            }
+            /*          foreach ($this->html->find('text') as $e) {
+              foreach ($e->nodes as $ep) {
+              if ($ep->phrase) $originals[$ep->phrase] = true;
+              }
+              }
+              foreach (array('title', 'value') as $title) {
+              foreach ($this->html->find('[' . $title . ']') as $e) {
+              if (isset($e->nodes))
+              foreach ($e->nodes as $ep) {
+              if ($ep->phrase) $originals[$ep->phrase] = true;
+              }
+              }
+              }
+              foreach ($this->html->find('[content]') as $e) {
+              foreach ($e->nodes as $ep) {
+              if ($ep->phrase) $originals[$ep->phrase] = true;
+              }
+              } */
             // if we should split, we will split some urls for translation prefetching
             if ($this->split_url_func != null) {
                 foreach ($this->atags as $e) {
                     foreach (call_user_func_array($this->split_url_func, array($e->href)) as $part) {
-                        $originals[$part] = true;
+                        $this->prefetch_phrases[$part] = true;
                     }
                 }
                 foreach ($this->otags as $e) {
                     foreach (call_user_func_array($this->split_url_func, array($e->value)) as $part) {
-                        $originals[$part] = true;
+                        $this->prefetch_phrases[$part] = true;
                     }
                 }
             }
-            call_user_func_array($this->prefetch_translate_func, array($originals, $this->lang));
+            call_user_func_array($this->prefetch_translate_func, array($this->prefetch_phrases, $this->lang));
         }
 
         //fix urls more
@@ -764,6 +783,17 @@ class parser {
           $e->outertext .= $hrefspans;
           } */
 
+        // fix src for items
+        if ($this->fix_src_tag_func !== null) {
+            foreach ($this->html->find('[src]') as $e) {
+                $e->src = call_user_func_array($this->fix_src_tag_func, array($e->src));
+            }
+
+            foreach ($this->html->find('link') as $e) {
+                $e->href = call_user_func_array($this->fix_src_tag_func, array($e->href));
+            }
+        }
+        
         // fix urls...
         foreach ($this->atags as $e) {
             if ($e->href)
@@ -846,6 +876,7 @@ class parser {
                             }
                             if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
                                 // prevent duplicate translation (title = text)
+//                                if (strpos($e->innertext, $ep->phrase /*Transposh_utils::base64_url_encode($ep->phrase)*/) === false) {
                                 if (strpos($e->innertext, transposh_utils::base64_url_encode($ep->phrase)) === false) {
                                     //no need to translate span the same hidden phrase more than once
                                     if (!in_array($ep->phrase, $hidden_phrases)) {
@@ -924,7 +955,9 @@ class parser {
             $this->do_ad_switch();
         }
         // This adds a meta tag with our statistics json-encoded inside...
-        $this->stats->stop_timing();
+//      $this->stats->do_timing();
+//        Log::info("Stats Done:" . $this->stats->time);
+
         $head = $this->html->find('head', 0);
         if ($this->edit_span_created) {
             if ($head != null) {
