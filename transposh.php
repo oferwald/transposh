@@ -1228,7 +1228,7 @@ class transposh_plugin {
         $lang = '';
         $nt_class = '';
 
-        if (isset($atts['not_in'])) {
+        if (isset($atts['not_in']) && $this->target_language) {
             if (stripos($atts['not_in'], $this->target_language) !== false) {
                 return;
             }
