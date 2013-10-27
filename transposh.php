@@ -143,14 +143,14 @@ class transposh_plugin {
         $local_dir = preg_replace("/\\\\/", "/", dirname(__FILE__));
         // Get last directory name
         $local_dir = preg_replace("/.*\//", "", $local_dir);
-        $this->transposh_plugin_url = WP_PLUGIN_URL . '/' . $local_dir;
+        $this->transposh_plugin_url = preg_replace('#^https?://#', '//', WP_PLUGIN_URL . '/' . $local_dir);
         // TODO - test on more platforms - this failed in 2.7.1 so I am reverting for now...
         //$tr_plugin_url= plugins_url('', __FILE__);
 
         $this->transposh_plugin_dir = plugin_dir_path(__FILE__);
 
         if ($this->options->debug_enable)
-                tp_logger('Transposh object created: ' . $_SERVER['REQUEST_URI'], 3);
+            tp_logger('Transposh object created: ' . $_SERVER['REQUEST_URI'], 3);
 
         $this->transposh_plugin_basename = plugin_basename(__FILE__);
         //Register some functions into wordpress
@@ -257,9 +257,9 @@ class transposh_plugin {
      */
     function on_wp_redirect($location, $status) {
         // no point in mangling redirection if its our own or its the default language
-        if ($this->transposh_redirect) return $location;
-        if ($this->options->is_default_language($this->target_language))
-                return $location;
+        if ($this->transposh_redirect || $this->options->is_default_language($this->target_language)) {
+            return $location;
+        }
         tp_logger($status . ' ' . $location);
         // $trace = debug_backtrace();
         // tp_logger($trace);
@@ -288,7 +288,9 @@ class transposh_plugin {
     function on_redirect_canonical($red, $req) {
         tp_logger("$red .. $req", 4);
         // if the urls are actually the same, don't redirect (same - if it had our proper take care of)
-        if ($this->rewrite_url($red) == urldecode($req)) return false;
+        if ($this->rewrite_url($red) == urldecode($req)) {
+            return false;
+        }
         // if this is not the default language, we need to make sure it redirects to what we believe is the proper url
         if (!$this->options->is_default_language($this->target_language)) {
             $red = str_replace(array('%2F', '%3A', '%3B', '%3F', '%3D', '%26'), array('/', ':', ';', '?', '=', '&'), urlencode($this->rewrite_url($red)));
@@ -297,7 +299,9 @@ class transposh_plugin {
     }
 
     function get_clean_url() {
-        if (isset($this->clean_url)) return $this->clean_url;
+        if (isset($this->clean_url)) {
+            return $this->clean_url;
+        }
         //remove any language identifier and find the "clean" url, used for posting and calculating urls if needed
         $this->clean_url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url, true);
         // we need this if we are using url translations
@@ -430,6 +434,12 @@ class transposh_plugin {
             $this->attempt_json = true;
         }
 
+        //buddypress old activity
+        if (@$_POST['action'] == 'activity_get_older_updates') {
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->attempt_json = true;
+        }
+
         tp_logger($_SERVER['REQUEST_URI'], 5);
         if (strpos($_SERVER['REQUEST_URI'], '/wpv-ajax-pagination/') === true) {
             tp_logger('wpv pagination', 5);
@@ -526,7 +536,9 @@ class transposh_plugin {
         tp_logger($wp->query_vars);
 
         // fix for custom-permalink (and others that might be double parsing?)
-        if ($this->target_language) return;
+        if ($this->target_language) {
+            return;
+        }
 
         // first we get the target language
         /*        $this->target_language = (isset($wp->query_vars[LANG_PARAM])) ? $wp->query_vars[LANG_PARAM] : '';
@@ -535,8 +547,9 @@ class transposh_plugin {
           tp_logger("requested language: {$this->target_language}"); */
         // TODO TOCHECK!!!!!!!!!!!!!!!!!!!!!!!!!!1
         $this->target_language = $this->tgl;
-        if (!$this->target_language)
-                $this->target_language = $this->options->default_language;
+        if (!$this->target_language) {
+            $this->target_language = $this->options->default_language;
+        }
         tp_logger("requested language: {$this->target_language}", 3);
 
         if ($this->tried_buffer) {
@@ -557,7 +570,9 @@ class transposh_plugin {
                 !($this->is_special_page($_SERVER['REQUEST_URI']) || (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $this->home_url) !== false)) &&
                 !(transposh_utils::is_bot())) {
             // we are starting a session if needed
-            if (!session_id()) session_start();
+            if (!session_id()) {
+                session_start();
+            }
             // no redirections if we already redirected in this session or we suspect cyclic redirections
             if (!isset($_SESSION['TR_REDIRECTED']) && !(isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] == $_SERVER['REQUEST_URI'])) {
                 tp_logger('session redirection never happened (yet)', 2);
@@ -569,7 +584,7 @@ class transposh_plugin {
                         $url = transposh_utils::rewrite_url_lang_param($_SERVER["REQUEST_URI"], $this->home_url, $this->enable_permalinks_rewrite, $_COOKIE['TR_LNG'], $this->edit_mode);
                         if ($this->options->is_default_language($_COOKIE['TR_LNG']))
                         //TODO - fix wrt translation
-                                $url = transposh_utils::cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
+                            $url = transposh_utils::cleanup_url($_SERVER["REQUEST_URI"], $this->home_url);
                         tp_logger("redirected to $url because of cookie", 4);
                         $this->tp_redirect($url);
                         exit;
@@ -581,7 +596,7 @@ class transposh_plugin {
                         $url = transposh_utils::rewrite_url_lang_param($_SERVER['REQUEST_URI'], $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
                         if ($this->options->is_default_language($bestlang))
                         //TODO - fix wrt translation
-                                $url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
+                            $url = transposh_utils::cleanup_url($_SERVER['REQUEST_URI'], $this->home_url);
                         tp_logger("redirected to $url because of bestlang", 4);
                         $this->tp_redirect($url);
                         exit;
@@ -736,7 +751,7 @@ class transposh_plugin {
       $file = preg_replace('/.*\/([^\/]+\/[^\/]+)$/', '$1', $file);
       tp_logger("Plugin path - $file", 4);
       return $file;
-    }*/
+      } */
 
     /**
      * Add custom css, i.e. transposh.css
@@ -744,10 +759,12 @@ class transposh_plugin {
     function add_transposh_css() {
         //translation not allowed - no need for the transposh.css
         if (!$this->is_editing_permitted() && !$this->is_auto_translate_permitted())
-                return;
+            return;
         // actually - this is only needed when editing
-        if (!$this->edit_mode) return;
-
+        if (!$this->edit_mode) {
+            return;
+        }
+        
         //include the transposh.css
         wp_enqueue_style('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_CSS . '/transposh.css', array(), TRANSPOSH_PLUGIN_VER);
 
@@ -761,7 +778,7 @@ class transposh_plugin {
         //not in any translation mode - no need for any js.
         if (!($this->edit_mode || $this->is_auto_translate_permitted() || is_admin() || $this->options->widget_allow_set_deflang))
         // TODO: need to include if allowing of setting default language - but smaller!
-                return; // TODO, check just for settings page admin and pages with our translate
+            return; // TODO, check just for settings page admin and pages with our translate
         wp_register_script('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/transposh.js', array('jquery'), TRANSPOSH_PLUGIN_VER, $this->options->enable_footer_scripts);
         // true -> 1, false -> nothing
         $script_params = array(
@@ -786,15 +803,22 @@ class transposh_plugin {
             if ($this->options->google_key) {
                 $script_params['google_key'] = $this->options->google_key;
             }
-            if ($this->options->google_key || function_exists('curl_init'))
-                    $script_params['google'] = 1;
+            if ($this->options->google_key || function_exists('curl_init')) {
+                $script_params['google'] = 1;
+            }
         }
-        if (in_array($this->target_language, transposh_consts::$apertium_languages))
-                $script_params['apertium'] = 1;
-        if ($this->options->oht_id && $this->options->oht_key && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options'))
-                $script_params['oht'] = 1;
-        if ($this->options->widget_progressbar) $script_params['progress'] = 1;
-        if (!$this->options->enable_autotranslate) $script_params['noauto'] = 1;
+        if (in_array($this->target_language, transposh_consts::$apertium_languages)) {
+            $script_params['apertium'] = 1;
+        }
+        if ($this->options->oht_id && $this->options->oht_key && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options')) {
+            $script_params['oht'] = 1;
+        }
+        if ($this->options->widget_progressbar) {
+            $script_params['progress'] = 1;
+        }
+        if (!$this->options->enable_autotranslate) {
+            $script_params['noauto'] = 1;
+        }
 
         // load translations needed for edit interface
         if ($this->edit_mode) {
@@ -807,9 +831,9 @@ class transposh_plugin {
         if ($this->options->widget_progressbar || $this->edit_mode) {
             $script_params['theme'] = $this->options->widget_theme;
             if ($this->options->jqueryui_override) {
-                $script_params['jQueryUI'] = 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $this->options->jqueryui_override . '/';
+                $script_params['jQueryUI'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $this->options->jqueryui_override . '/';
             } else {
-                $script_params['jQueryUI'] = 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/';
+                $script_params['jQueryUI'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/';
             }
         }
 
@@ -826,7 +850,9 @@ class transposh_plugin {
      * Implements - http://googlewebmastercentral.blogspot.com/2010/09/unifying-content-under-multilingual.html
      */
     function add_rel_alternate() {
-        if (is_404()) return;
+        if (is_404()) {
+            return;
+        }
         $widget_args = $this->widget->create_widget_args($this->get_clean_url());
         tp_logger($widget_args, 4);
         foreach ($widget_args as $lang) {
@@ -844,10 +870,13 @@ class transposh_plugin {
     // TODO????
     function is_editing_permitted() {
         // editing is permitted for translators only
-        if (!$this->is_translator()) return false;
+        if (!$this->is_translator()) {
+            return false;
+        }
         // and only on the non-default lang (unless strictly specified)
-        if (!$this->options->enable_default_translate && $this->options->is_default_language($this->target_language))
-                return false;
+        if (!$this->options->enable_default_translate && $this->options->is_default_language($this->target_language)) {
+            return false;
+        }
 
         return $this->options->is_active_language($this->target_language);
     }
@@ -862,10 +891,13 @@ class transposh_plugin {
     function is_auto_translate_permitted() {
         tp_logger("checking auto translatability", 4);
 
-        if (!$this->options->enable_autotranslate) return false;
+        if (!$this->options->enable_autotranslate) {
+            return false;
+        }
         // auto translate is not enabled for default target language when enable default is disabled
-        if (!$this->options->enable_default_translate && $this->options->is_default_language($this->target_language))
-                return false;
+        if (!$this->options->enable_default_translate && $this->options->is_default_language($this->target_language)) {
+            return false;
+        }
 
         return $this->options->is_active_language($this->target_language);
     }
@@ -900,8 +932,9 @@ class transposh_plugin {
         $href = parse_url($href, PHP_URL_PATH);
         $parts = explode('/', $href);
         foreach ($parts as $part) {
-            if (!$part) continue;
-            if (is_numeric($part)) continue;
+            if (!$part || is_numeric($part)) {
+                continue;
+            }
             $ret[] = $part;
             if ($part != str_replace('-', ' ', $part)) {
                 $ret[] = str_replace('-', ' ', $part);
@@ -1018,12 +1051,12 @@ class transposh_plugin {
             }
             $term = $GLOBALS['wpdb']->escape($q['s']);
             if (empty($q['sentence']) && count($q['search_terms']) > 1 && $q['search_terms'][0] != $q['s'])
-                    $search .= " OR ({$GLOBALS['wpdb']->posts}.post_title LIKE '{$n}{$term}{$n}') OR ({$GLOBALS['wpdb']->posts}.post_content LIKE '{$n}{$term}{$n}')";
+                $search .= " OR ({$GLOBALS['wpdb']->posts}.post_title LIKE '{$n}{$term}{$n}') OR ({$GLOBALS['wpdb']->posts}.post_content LIKE '{$n}{$term}{$n}')";
 
             if (!empty($search)) {
                 $search = " AND ({$search}) ";
                 if (!is_user_logged_in())
-                        $search .= " AND ({$GLOBALS['wpdb']->posts}.post_password = '') ";
+                    $search .= " AND ({$GLOBALS['wpdb']->posts}.post_password = '') ";
             }
         }
         tp_logger($search, 3);
@@ -1055,7 +1088,7 @@ class transposh_plugin {
      */
     function add_comment_meta_settings($post_id) {
         if (transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url))
-                add_comment_meta($post_id, 'tp_language', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), true);
+            add_comment_meta($post_id, 'tp_language', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url), true);
     }
 
     /**
@@ -1096,7 +1129,9 @@ class transposh_plugin {
      * @return string wrapped text
      */
     function post_content_wrap($text) {
-        if (!isset($GLOBALS['id'])) return $text;
+        if (!isset($GLOBALS['id'])) {
+            return $text;
+        }
         $lang = get_post_meta($GLOBALS['id'], 'tp_language', true);
         if ($lang) {
             $text = "<span lang =\"$lang\">" . $text . "</span>";
@@ -1114,7 +1149,9 @@ class transposh_plugin {
      */
     function post_wrap($text, $id = 0) {
         $id = (is_object($id)) ? $id->ID : $id;
-        if (!$id) return $text;
+        if (!$id) {
+            return $text;
+        }
         $lang = get_post_meta($id, 'tp_language', true);
         if ($lang) {
             if (strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit') !== false) {
@@ -1167,7 +1204,7 @@ class transposh_plugin {
         tp_logger("($translation, $orig, $domain)", 5);
         // HACK - TODO - FIX
         if (in_array($domain, transposh_consts::$ignored_po_domains))
-                return $translation;
+            return $translation;
         if ($translation != $orig) {
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }
@@ -1184,10 +1221,10 @@ class transposh_plugin {
      */
     function transposh_ngettext_filter($translation, $single, $plural, $domain) {
         if ($this->is_special_page($_SERVER['REQUEST_URI']) || ($this->options->is_default_language($this->tgl) && !$this->options->enable_default_translate))
-                return $translation;
+            return $translation;
         tp_logger("($translation, $single, $plural, $domain)", 4);
         if (in_array($domain, transposh_consts::$ignored_po_domains))
-                return $translation;
+            return $translation;
         if ($translation != $single && $translation != $plural) {
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }
@@ -1272,16 +1309,22 @@ class transposh_plugin {
     function on_ajax_nopriv_tp_gsp() {
         $i = 0;
         // we need curl for this proxy
-        if (!function_exists('curl_init')) return;
+        if (!function_exists('curl_init')) {
+            return;
+        }
         transposh_utils::allow_cors();
         $tl = $_GET['tl']; // CHECK GET (ajax change to post case..)
         // we want to avoid unneeded work or dos attacks on languages we don't support
         if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl))
-                return;
+            return;
         $sl = 'auto';
-        if (isset($_GET['sl'])) $sl = $_GET['sl'];
+        if (isset($_GET['sl'])) {
+            $sl = $_GET['sl'];
+        }
         $q = urlencode(stripslashes($_GET['q']));
-        if (!$q) return; // avoid unneeded curling
+        if (!$q) {
+            return; // avoid unneeded curling
+        }
         $url = 'http://translate.google.com/translate_a/t?client=a&q=' . $q . '&tl=' . $tl . '&sl=' . $sl;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -1320,16 +1363,20 @@ class transposh_plugin {
     // Proxied translation for google translate
     function on_ajax_nopriv_tp_gp() {
         // we need curl for this proxy
-        if (!function_exists('curl_init')) return;
+        if (!function_exists('curl_init')) {
+            return;
+        }
         transposh_utils::allow_cors();
         // target language
         $tl = $_GET['tl'];
         // we want to avoid unneeded work or dos attacks on languages we don't support
         if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl))
-                return;
+            return;
         // source language
         $sl = 'auto';
-        if (isset($_GET['sl'])) $sl = $_GET['sl'];
+        if (isset($_GET['sl'])) {
+            $sl = $_GET['sl'];
+        }
         // item count
         $i = 0;
         $q = '';
@@ -1346,7 +1393,7 @@ class transposh_plugin {
         // we avoid curling we had all results prehand
         if ($q) {
             $url = 'http://translate.google.com/translate_a/t?client=a' . $q . '&tl=' . $tl . '&sl=' . $sl;
-            //var_dump($url);
+            tp_logger($url,5);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1358,24 +1405,34 @@ class transposh_plugin {
                 die();
             }
             curl_close($ch);
-            //echo $output;
+                tp_logger($output,5);
             $jsonarr = json_decode($output);
             if (!$jsonarr) {
-                echo 'Not JSON';
-                die();
+                tp_logger("google didn't return JSON, lets try to recover",4);
+                $newout = str_replace(',,', ',"",', $output);
+                $jsonarrt = json_decode($newout);
+                @$jsonarr->results = array();
+                foreach ($jsonarrt[0] as $result) {
+                    array_push($jsonarr->results, $result[0][0][0]);
+                }
+                // If there is still no JSON
+                if (!$jsonarr) {
+                    echo 'Not JSON';
+                    die();                    
+                }
+            } else {
+                if (!isset($jsonarr->results)) {
+                    $jsonarr2->results[] = $jsonarr;
+                    $jsonarr = $jsonarr2;
+                }
+                foreach ($jsonarr->results as $result) {
+                    unset($result->sentences[0]->orig);
+                    unset($result->sentences[0]->translit);
+                    unset($result->sentences[0]->src_translit);
+                    unset($result->src);
+                    unset($result->server_time);
+                }
             }
-            if (!isset($jsonarr->results)) {
-                $jsonarr2->results[] = $jsonarr;
-                $jsonarr = $jsonarr2;
-            }
-            foreach ($jsonarr->results as $result) {
-                unset($result->sentences[0]->orig);
-                unset($result->sentences[0]->translit);
-                unset($result->sentences[0]->src_translit);
-                unset($result->src);
-                unset($result->server_time);
-            }
-            //die();
         }
         header('Content-type: text/html; charset=utf-8');
 
@@ -1387,6 +1444,8 @@ class transposh_plugin {
             } else {
                 if (isset($jsonarr->results[$k]->sentences[0]->trans)) {
                     $jsonout->results[] = $jsonarr->results[$k]->sentences[0]->trans;
+                } elseif (isset($jsonarr->results[$k]) && $jsonarr->results[$k]) {
+                    $jsonout->results[] = $jsonarr->results[$k];
                 } else {
                     $jsonout->results[] = $_GET['q'][$j];
                 }
@@ -1426,7 +1485,7 @@ class transposh_plugin {
         }
         $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
         if (!isset($_GET['orglang']))
-                $_GET['orglang'] = $this->options->default_language;
+            $_GET['orglang'] = $this->options->default_language;
         $key = $_GET['token'] . '@' . $_GET['lang'] . '@' . $_GET['orglang'];
         if (isset($oht[$key])) {
             unset($oht[$key]);
@@ -1568,7 +1627,9 @@ class transposh_plugin {
     function check_for_plugin_update($checked_data) {
         global $wp_version;
         tp_logger('should we check for upgrades?', 4);
-        if (!$this->do_update_check) return;
+        if (!$this->do_update_check) {
+            return;
+        }
         $this->do_update_check = false; // for next time
         tp_logger('yes, we should', 4);
 
@@ -1591,10 +1652,10 @@ class transposh_plugin {
         tp_logger($raw_response, 5);
 
         if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
-                $response = unserialize($raw_response['body']);
+            $response = unserialize($raw_response['body']);
 
         if (is_object($response) && !empty($response)) // Feed the update data into WP updater
-                $checked_data->response[$this->transposh_plugin_basename] = $response;
+            $checked_data->response[$this->transposh_plugin_basename] = $response;
 
         return $checked_data;
     }
@@ -1604,7 +1665,7 @@ class transposh_plugin {
         global $wp_version;
 
         if (!isset($args->slug) || ($args->slug != $this->transposh_plugin_basename))
-                return false;
+            return false;
 
         // Get the current version
         $plugin_info = get_site_transient('update_plugins');
@@ -1628,7 +1689,7 @@ class transposh_plugin {
             $res = unserialize($request['body']);
 
             if ($res === false)
-                    $res = new WP_Error('plugins_api_failed', __('An unknown error occurred'), $request['body']);
+                $res = new WP_Error('plugins_api_failed', __('An unknown error occurred'), $request['body']);
         }
 
         return $res;
@@ -1678,8 +1739,9 @@ function transposh_echo($default, $altarray) {
  */
 function tp_logger($msg, $severity = 3, $do_backtrace = false) {
     global $my_transposh_plugin;
-    if (isset($my_transposh_plugin) && is_object($my_transposh_plugin) && !$my_transposh_plugin->options->debug_enable)
-            return;
+    if (isset($my_transposh_plugin) && is_object($my_transposh_plugin) && !$my_transposh_plugin->options->debug_enable) {
+        return;
+    }
     $GLOBALS['tp_logger']->do_log($msg, $severity, $do_backtrace);
 }
 
