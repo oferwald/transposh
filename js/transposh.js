@@ -145,6 +145,8 @@
         $.ajax({
             url: t_jp.ajaxurl,
             dataType: "json",
+            type: "GET",
+            // check each
             data: {
                 action: 'tp_gp',
                 tl: lang,
@@ -203,7 +205,7 @@
             });
             q = q.slice(0, -1) + ']';
             $.ajax({
-                url: 'http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.msn_key + '&to=' + lang + '&texts=' + q,
+                url: '//api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.msn_key + '&to=' + lang + '&texts=' + q,
                 dataType: "jsonp",
                 jsonp: "oncomplete",
                 success: callback
@@ -215,7 +217,7 @@
                 }, 500);
             } else {
                 loadingmsn = 1;
-                $.getScript('http://www.microsofttranslator.com/ajax/v2/toolkit.ashx?loc=en&toolbar=none', function() {
+                $.getScript('//www.microsofttranslator.com/ajax/v2/toolkit.ashx?loc=en&toolbar=none', function() {
                     t_jp.msn_key = _mstConfig.appId;
                     do_mass_ms_translate(batchtrans, callback, lang);
                 });
@@ -342,6 +344,7 @@
     }
 
     t_jp.tfju = test_for_jqueryui;
+    t_jp.dat = do_auto_translate;
 
     $(function () {
         // set a global binglang (if needed)
