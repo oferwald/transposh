@@ -208,7 +208,8 @@ class transposh_database {
         foreach ($rows as $row) {
             // we are making sure to use the escaped version, because that is what we'll ask about
             $ro = $GLOBALS['wpdb']->escape(html_entity_decode($row['original'], ENT_NOQUOTES, 'UTF-8'));
-            $this->translations[$ro] = array($row['source'], stripslashes($row['translated']));
+            //$this->translations[$ro] = array($row['source'], stripslashes($row['translated']));
+            $this->translations[$ro] = array($row['source'], str_replace('&amp;nbsp;','&nbsp;',stripslashes($row['translated'])));
         }
         tp_logger('prefetched: ' . count($this->translations), 5);
     }
