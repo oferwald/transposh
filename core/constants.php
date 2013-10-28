@@ -77,12 +77,14 @@ class transposh_consts {
         'el' => 'Greek,Ελληνικά,gr,',
         'gu' => 'Gujarati,ગુજરાતી,in,',
         'ht' => 'Haitian,Kreyòl ayisyen,ht,',
+        //'ha' =>Hausa       
         'hmn' => 'Hmong,Hmoob,la,',
         'mw' => 'Hmong Daw,Hmoob Daw,la,',
         'he' => 'Hebrew,עברית,il,he_IL',
         'hi' => 'Hindi,हिन्दी; हिंदी,in,hi_IN',
         'hu' => 'Hungarian,Magyar,hu,hu_HU',
         'is' => 'Icelandic,Íslenska,is,',
+        //'ig' => 'Igbo'
         'id' => 'Indonesian,Bahasa Indonesia,id,id_ID',
         'ga' => 'Irish,Gaeilge,ie,',
         'it' => 'Italian,Italiano,it,it_IT',
@@ -108,11 +110,12 @@ class transposh_consts {
         'sr' => 'Serbian,Cрпски језик,rs,sr_RS',
         'sk' => 'Slovak,Slovenčina,sk,sk_SK',
         'sl' => 'Slovene,Slovenščina,si,sl_SI', //slovenian
+        //'so' => 'Somali'
         'es' => 'Spanish,Español,es,es_ES',
         'sw' => 'Swahili,Kiswahili,tz,',
         'sv' => 'Swedish,Svenska,se,sv_SE',
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
-        'ta' => 'Tamil,தமிழ்,lk,ta_LK',
+        'ta' => 'Tamil,தமிழ்,lk,ta_LK', //THINK
         'te' => 'Telugu,తెలుగు,in,',
         'th' => 'Thai,ภาษาไทย,th,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
@@ -121,6 +124,8 @@ class transposh_consts {
         'vi' => 'Vietnamese,Tiếng Việt,vn,',
         'cy' => 'Welsh,Cymraeg,wales,',
         'yi' => 'Yiddish,ייִדיש,europeanunion,'
+        //'yo' => 'Yoruba'
+        //'zu' => 'Zulu'
     );
 
     public static function get_language_name($lang) {
@@ -160,7 +165,7 @@ class transposh_consts {
     //Kazakh	kk-kz
     //Pashto	ps
     //Uzbek	uz-uz
-    public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id', 'it', 'jp', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi', 'km', 'bs');
+    public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi', 'km', 'bs');
     // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
     // Array holding list of jQueryUI themes
