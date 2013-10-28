@@ -69,8 +69,8 @@ class transposh_postpublish {
             // MAKESURE 3.3
 //        wp_enqueue_script('jquery-ui-progressbar');
 
-            wp_enqueue_style('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
-            wp_enqueue_script('jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
+            wp_enqueue_style('jqueryui', '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
+            wp_enqueue_script('jqueryui', '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
 
             delete_post_meta($_GET['post'], 'transposh_can_translate'); // as we have used the meta - it can go now, another option would have been to put this in the getphrases
         }
@@ -212,7 +212,10 @@ class transposh_postpublish {
      * @param int $postID
      */
     function on_edit($postID) {
-        // TODO - CHECK if (!isset($_POST['transposh_tp_language'])) return;
+        // This should prevent the meta from being added when not needed
+        if (!isset($_POST['transposh_tp_language'])) {
+            return;
+        }
         if ($this->transposh->options->enable_autoposttranslate) {
             add_post_meta($postID, 'transposh_can_translate', 'true', true);
         }
