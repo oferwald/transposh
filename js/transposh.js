@@ -344,7 +344,7 @@
     }
 
     t_jp.tfju = test_for_jqueryui;
-    t_jp.dat = do_auto_translate;
+    t_jp.at = do_auto_translate;
 
     $(function () {
         // set a global binglang (if needed)
