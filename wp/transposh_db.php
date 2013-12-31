@@ -188,7 +188,7 @@ class transposh_database {
         tp_logger($originals, 4);
         $where = '';
         foreach ($originals as $original => $truth) {
-            $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+            $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
             $cached = $this->cache_fetch($original, $lang);
             // if $cached is not false, there is something in the cache, so no need to prefetch
             if ($cached !== false) {
@@ -207,7 +207,7 @@ class transposh_database {
         // we are saving in the array and not directly to cache, because cache might not exist...
         foreach ($rows as $row) {
             // we are making sure to use the escaped version, because that is what we'll ask about
-            $ro = $GLOBALS['wpdb']->escape(html_entity_decode($row['original'], ENT_NOQUOTES, 'UTF-8'));
+            $ro = esc_sql(html_entity_decode($row['original'], ENT_NOQUOTES, 'UTF-8'));
             //$this->translations[$ro] = array($row['source'], stripslashes($row['translated']));
             $this->translations[$ro] = array($row['source'], str_replace('&amp;nbsp;','&nbsp;',stripslashes($row['translated'])));
         }
@@ -226,7 +226,7 @@ class transposh_database {
         $translated = null;
         tp_logger("Fetching for: $original-$lang", 4);
         //The original is saved in db in its escaped form
-        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
         // first we look in the cache
         $cached = $this->cache_fetch($original, $lang);
         if ($cached !== false) {
@@ -268,7 +268,7 @@ class transposh_database {
         tp_logger("Enter: $translation", 4);
 
         // The translation is saved in db in its escaped form
-        $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
+        $translation = esc_sql(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
         // The translation might be cached (notice the additional postfix)
         list($rev, $cached) = $this->cache_fetch('R_' . $translation, $lang);
         if ($rev == 'r') {
@@ -367,12 +367,12 @@ class transposh_database {
                 $original = transposh_utils::base64_url_decode($_POST["tk$i"]);
                 // The original content is encoded as base64 before it is sent (i.e. token), after we
                 // decode it should just the same after it was parsed.
-                $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+                $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
             }
             if (isset($_POST["tr$i"])) {
                 $translation = $_POST["tr$i"];
                 // Decode & remove already escaped character to avoid double escaping
-                $translation = $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translation))));
+                $translation = esc_sql(htmlspecialchars(stripslashes(urldecode($translation))));
             }
             if (isset($_POST["ln$i"])) {
                 $lang = $_POST["ln$i"];
@@ -398,7 +398,7 @@ class transposh_database {
                     continue;
                     //return; // too harsh, we just need to get to the next in for
                 }
-                if ($translation == $GLOBALS['wpdb']->escape(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
+                if ($translation == esc_sql(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
                     tp_logger("Warning attempt to retranslate with same text: $original, $translation", 1);
                     continue;
                     //return; // too harsh, we just need to get to the next in for
@@ -486,7 +486,7 @@ class transposh_database {
 
         // The original content is encoded as base64 before it is sent (i.e. token), after we
         // decode it should just the same after it was parsed.
-        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
 
         // add our own custom header - so we will know that we got here
         header('Transposh: v-' . TRANSPOSH_PLUGIN_VER . ' db_version-' . DB_VERSION);
@@ -518,9 +518,9 @@ class transposh_database {
      */
     function del_translation_history($token, $lang, $timestamp) {
         $original = transposh_utils::base64_url_decode($token);
-        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-        $lang = $GLOBALS['wpdb']->escape($lang);
-        $timestamp = $GLOBALS['wpdb']->escape($timestamp);
+        $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $lang = esc_sql($lang);
+        $timestamp = esc_sql($timestamp);
         header('Transposh: v-' . TRANSPOSH_PLUGIN_VER . ' db_version-' . DB_VERSION);
         $query = "SELECT translated, translated_by, timestamp, source " .
                 "FROM {$this->translation_log_table} " .
@@ -551,7 +551,7 @@ class transposh_database {
             tp_logger($update, 3);
             $result = $GLOBALS['wpdb']->query($update);
             if (!empty($rows)) {
-                $translated = $GLOBALS['wpdb']->escape($rows[0]->translated);
+                $translated = esc_sql($rows[0]->translated);
                 $values = "('" . $original . "','" . $translated . "','" . $lang . "','" . $rows[0]->source . "')";
                 $update = "INSERT INTO " . $this->translation_table . " (original, translated, lang, source) VALUES $values";
                 tp_logger($update, 3);
@@ -592,7 +592,7 @@ class transposh_database {
         // The original content is encoded as base64 before it is sent (i.e. token), after we
         // decode it should just the same after it was parsed.
         // TODO - check if needed later
-        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
 
         // add our own custom header - so we will know that we got here
         // TODO - move to ajax file?
@@ -714,8 +714,8 @@ class transposh_database {
      */
     function get_orignal_phrases_for_search_term($term, $language) {
         $n = '%';
-        $term = $GLOBALS['wpdb']->escape(html_entity_decode($term, ENT_NOQUOTES, 'UTF-8'));
-        $language = $GLOBALS['wpdb']->escape($language);
+        $term = esc_sql(html_entity_decode($term, ENT_NOQUOTES, 'UTF-8'));
+        $language = esc_sql($language);
         $query = "SELECT original" .
                 " FROM `{$this->translation_table}`" .
                 " WHERE `lang` = '$language'" .
@@ -778,9 +778,9 @@ class transposh_database {
         $rows = $GLOBALS['wpdb']->get_results($dedup);
         tp_logger($dedup, 3);
         foreach ($rows as $row) {
-            $row->original = $GLOBALS['wpdb']->escape($row->original);
-            $row->translated = $GLOBALS['wpdb']->escape($row->translated);
-            $row->translated_by = $GLOBALS['wpdb']->escape($row->translated_by);
+            $row->original = esc_sql($row->original);
+            $row->translated = esc_sql($row->translated);
+            $row->translated_by = esc_sql($row->translated_by);
             $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}' AND translated='{$row->translated}'" .
                     " AND translated_by='{$row->translated_by}' AND timestamp='{$row->timestamp}' AND source='{$row->source}')";
             $update = "DELETE FROM " . $this->translation_log_table . " WHERE $delvalues";
@@ -805,9 +805,9 @@ class transposh_database {
         $rows = $GLOBALS['wpdb']->get_results($autojunk);
         tp_logger($autojunk, 3);
         foreach ($rows as $row) {
-            $row->original = $GLOBALS['wpdb']->escape($row->original);
-            $row->translated = $GLOBALS['wpdb']->escape($row->translated);
-            $row->translated_by = $GLOBALS['wpdb']->escape($row->translated_by);
+            $row->original = esc_sql($row->original);
+            $row->translated = esc_sql($row->translated);
+            $row->translated_by = esc_sql($row->translated_by);
             $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}' AND translated='{$row->translated}'" .
                     " AND translated_by='{$row->translated_by}' AND timestamp='{$row->timestamp}' AND source='{$row->source}')";
             $update = "DELETE FROM " . $this->translation_log_table . " WHERE $delvalues";
@@ -824,16 +824,16 @@ class transposh_database {
         $rows = $GLOBALS['wpdb']->get_results($dedup);
         tp_logger($dedup, 3);
         foreach ($rows as $row) {
-            $row->original = $GLOBALS['wpdb']->escape($row->original);
-            $row->lang = $GLOBALS['wpdb']->escape($row->lang);
+            $row->original = esc_sql($row->original);
+            $row->lang = esc_sql($row->lang);
             list($source, $translation) = $this->fetch_translation($row->original, $row->lang);
             if ($source != NULL) {
                 $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}')";
                 $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
                 tp_logger($update, 3);
                 $result = $GLOBALS['wpdb']->query($update);
-                $row->translated = $GLOBALS['wpdb']->escape($translation);
-                $row->source = $GLOBALS['wpdb']->escape($source);
+                $row->translated = esc_sql($translation);
+                $row->source = esc_sql($source);
                 $values = "('{$row->original}','{$row->lang}','{$row->translated}','$row->source')";
                 $update = "INSERT INTO " . $this->translation_table . " (original, lang, translated, source) VALUES $values";
                 tp_logger($update, 3);
@@ -872,9 +872,9 @@ class transposh_database {
           $rows = $GLOBALS['wpdb']->get_results($duptrans);
           tp_logger($duptrans, 3);
           foreach ($rows as $row) {
-          $row->original = $GLOBALS['wpdb']->escape($row->original);
+          $row->original = esc_sql($row->original);
           $delvalues = "(original ='{$row->original}' AND lang='{$row->lang}')";
-          $row->original = $GLOBALS['wpdb']->escape($row->original);
+          $row->original = esc_sql($row->original);
           $update = "DELETE FROM " . $this->translation_log_table . " WHERE $delvalues";
           tp_logger($update, 3);
           // $result = $GLOBALS['wpdb']->query($update);
@@ -889,8 +889,8 @@ class transposh_database {
         // if there is a newer auto translation, remove it
         // update it
         // TODO - change this part to use the update_translation function
-        $original = $GLOBALS['wpdb']->escape(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
-        $translation = $GLOBALS['wpdb']->escape(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
+        $original = esc_sql(html_entity_decode($original, ENT_NOQUOTES, 'UTF-8'));
+        $translation = esc_sql(html_entity_decode($translation, ENT_NOQUOTES, 'UTF-8'));
         $source = 0;
         // for now - just update it...
         $values .= "('" . $original . "','" . $translation . "','" . $lang . "','" . $source . "')";
