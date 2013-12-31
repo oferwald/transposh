@@ -77,14 +77,14 @@ class transposh_consts {
         'el' => 'Greek,Ελληνικά,gr,',
         'gu' => 'Gujarati,ગુજરાતી,in,',
         'ht' => 'Haitian,Kreyòl ayisyen,ht,',
-        //'ha' =>Hausa       
+        'ha' => 'Hausa,Harshen Hausa,ng,',
         'hmn' => 'Hmong,Hmoob,la,',
         'mw' => 'Hmong Daw,Hmoob Daw,la,',
         'he' => 'Hebrew,עברית,il,he_IL',
         'hi' => 'Hindi,हिन्दी; हिंदी,in,hi_IN',
         'hu' => 'Hungarian,Magyar,hu,hu_HU',
         'is' => 'Icelandic,Íslenska,is,',
-        //'ig' => 'Igbo'
+        'ig' => 'Igbo,Asụsụ Igbo,ng,',
         'id' => 'Indonesian,Bahasa Indonesia,id,id_ID',
         'ga' => 'Irish,Gaeilge,ie,',
         'it' => 'Italian,Italiano,it,it_IT',
@@ -100,17 +100,21 @@ class transposh_consts {
         'mk' => 'Macedonian,македонски јазик,mk,mk_MK',
         'ms' => 'Malay,Bahasa Melayu,my,ms_MY',
         'mt' => 'Maltese,Malti,mt,',
+        'mi' => 'Maori,Te Reo Māori,nz,',
         'mr' => 'Marathi,मराठी,in,',
+        'mn' => 'Mongolian,Монгол,mn,',
+        'ne' => 'Nepali,नेपाली,np,ne_NP',
         'no' => 'Norwegian,Norsk,no,nb_NO',
         'fa' => 'Persian,پارسی,ir,fa_IR',
         'pl' => 'Polish,Polski,pl,pl_PL',
         'pt' => 'Portuguese,Português,pt,pt_PT',
+        'pa' => 'Punjabi,ਪੰਜਾਬੀ,pk,pa_IN',
         'ro' => 'Romanian,Română,ro,ro_RO',
         'ru' => 'Russian,Русский,ru,ru_RU',
         'sr' => 'Serbian,Cрпски језик,rs,sr_RS',
         'sk' => 'Slovak,Slovenčina,sk,sk_SK',
         'sl' => 'Slovene,Slovenščina,si,sl_SI', //slovenian
-        //'so' => 'Somali'
+        'so' => 'Somali,Af-Soomaali,so,',
         'es' => 'Spanish,Español,es,es_ES',
         'sw' => 'Swahili,Kiswahili,tz,',
         'sv' => 'Swedish,Svenska,se,sv_SE',
@@ -123,9 +127,9 @@ class transposh_consts {
         'ur' => 'Urdu,اردو,pk,',
         'vi' => 'Vietnamese,Tiếng Việt,vn,',
         'cy' => 'Welsh,Cymraeg,wales,',
-        'yi' => 'Yiddish,ייִדיש,europeanunion,'
-        //'yo' => 'Yoruba'
-        //'zu' => 'Zulu'
+        'yi' => 'Yiddish,ייִדיש,europeanunion,',
+        'yo' => 'Yoruba,èdè Yorùbá,ng,',
+        'zu' => 'Zulu,isiZulu,za,'
     );
 
     public static function get_language_name($lang) {
@@ -148,7 +152,8 @@ class transposh_consts {
     // @updated 2012-Sep-17 (la)
     // @updated 2013-Apr-19 (km)
     // @updated 2013-May-09 (bs,ceb,hmn,jw,mr)
-    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr');
+    // @updated 2013-Dec-24 (ha,ig,mi,mn,ni,pa,so,yo,zu)
+    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu');
     // Bing supported languages
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2012-Feb-14 (mww)
@@ -413,9 +418,7 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # mn/
   # my_MM/
   # nb_NO/ ? good Question, popped into Norway
-  # ne_NP/
   # nn_NO/ ? same question
-  # pa_IN/
   # pt_BR/
   # ru_UA/
   # sd_PK/
