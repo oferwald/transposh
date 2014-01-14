@@ -1612,7 +1612,7 @@ class transposh_plugin {
           tp_logger($arr);
           } */
         // hide from wordpress.org
-        if ($url == "http://api.wordpress.org/plugins/update-check/1.0/") {
+        if (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
             $plugs = unserialize($arr['body']['plugins']);
             tp_logger($plugs->plugins[$this->transposh_plugin_basename], 4);
             unset($plugs->plugins[$this->transposh_plugin_basename]);
@@ -1628,7 +1628,7 @@ class transposh_plugin {
         global $wp_version;
         tp_logger('should we check for upgrades?', 4);
         if (!$this->do_update_check) {
-            return;
+            return $checked_data; // thanks wizzud (don't kill the transient)
         }
         $this->do_update_check = false; // for next time
         tp_logger('yes, we should', 4);
