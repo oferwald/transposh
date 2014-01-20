@@ -764,7 +764,7 @@ class transposh_plugin {
         if (!$this->edit_mode) {
             return;
         }
-        
+
         //include the transposh.css
         wp_enqueue_style('transposh', $this->transposh_plugin_url . '/' . TRANSPOSH_DIR_CSS . '/transposh.css', array(), TRANSPOSH_PLUGIN_VER);
 
@@ -1393,7 +1393,7 @@ class transposh_plugin {
         // we avoid curling we had all results prehand
         if ($q) {
             $url = 'http://translate.google.com/translate_a/t?client=a' . $q . '&tl=' . $tl . '&sl=' . $sl;
-            tp_logger($url,5);
+            tp_logger($url, 5);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1405,10 +1405,10 @@ class transposh_plugin {
                 die();
             }
             curl_close($ch);
-                tp_logger($output,5);
+            tp_logger($output, 5);
             $jsonarr = json_decode($output);
             if (!$jsonarr) {
-                tp_logger("google didn't return JSON, lets try to recover",4);
+                tp_logger("google didn't return JSON, lets try to recover", 4);
                 $newout = str_replace(',,', ',"",', $output);
                 $jsonarrt = json_decode($newout);
                 @$jsonarr->results = array();
@@ -1418,7 +1418,7 @@ class transposh_plugin {
                 // If there is still no JSON
                 if (!$jsonarr) {
                     echo 'Not JSON';
-                    die();                    
+                    die();
                 }
             } else {
                 if (!isset($jsonarr->results)) {
@@ -1612,13 +1612,19 @@ class transposh_plugin {
           tp_logger($arr);
           } */
         // hide from wordpress.org
-        if (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
+        if ($url == "http://api.wordpress.org/plugins/update-check/1.0/") {
             $plugs = unserialize($arr['body']['plugins']);
             tp_logger($plugs->plugins[$this->transposh_plugin_basename], 4);
             unset($plugs->plugins[$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = serialize($plugs);
             tp_logger($arr);
             // now we should query our own service
+            $this->do_update_check = true;
+        } elseif (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
+            $plugs = json_decode($arr['body']['plugins'],true);
+            unset($plugs['plugins'][$this->transposh_plugin_basename]);
+            $arr['body']['plugins'] = json_encode($plugs);
+            tp_logger($arr);            
             $this->do_update_check = true;
         }
         return $arr;
