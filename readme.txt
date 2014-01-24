@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.3
-Tested up to: 3.6
+Tested up to: 3.8.1
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 73 languages are automatically translated and can be manually corrected with ease.
@@ -23,7 +23,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
-* Use either Google Translate,MS Translate or Apertium backends - 73 languages supported!
+* Use either Google Translate,MS Translate or Apertium backends - 82 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -119,6 +119,19 @@ This version allows sorting of languages within the widget
  * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
 
 == Changelog ==
+= 2014/01/25 - 0.9.5 =
+ * Added new 8 Google languages
+ * retired deprecated $wpdb->escape
+ * Fixed transposh blocking upgrades with newer wordpress api
+= 2013/10/29 - 0.9.4 =
+ * Fixed update mechanism with Wordpress 3.7
+ * Fix for the builtin google translation proxy
+ * This version is HTTPS tolerant
+ * Allow to update to complete version from transposh.org
+= 2013/05/06 - 0.9.3 =
+ * Added Khmer
+ * Allow to remove the rel=alternate language marking
+ * Allow to update to complete version from transposh.org
 = 2013/03/11 - 0.9.2 =
  * Basic Woocommerce support 
  * Override the case when other plugins or themes cause the process_page to be called prematurely
