@@ -1,0 +1,995 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Transposh Translation Filter v%VERSION%\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/transposh-translation-filter-for-wordpress\n"
+"POT-Creation-Date: 2011-01-16 21:56:35+00:00\n"
+"PO-Revision-Date: 2014-02-17 14:44:18+0000\n"
+"Last-Translator: Borisa Djuraskovic <borisad@webhostinghub.com>\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: \n"
+"X-Poedit-Country: \n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: wp/transposh_db.php:685
+#@ transposh
+msgid "Database stats"
+msgstr "Statistika baze podataka"
+
+#: wp/transposh_db.php:690
+#, php-format
+#@ transposh
+msgid "Total of <strong style=\"color:red\">%s</strong> translated phrases."
+msgstr "Total<strong style=\"color:red\">%s</strong> prevedenih fraza."
+
+#: wp/transposh_db.php:697
+#, php-format
+#@ transposh
+msgid "<strong>%1s</strong> has <strong style=\"color:red\">%2s</strong> human translated phrases."
+msgstr "<strong>%1s</strong>ima<strong style=\"color:red\">%2s</strong>  ljudski prevedene fraze."
+
+#: wp/transposh_db.php:700
+#@ transposh
+msgid "Recent activity"
+msgstr "Trenutno aktivno"
+
+#: wp/transposh_db.php:705
+#, php-format
+#@ transposh
+msgid "On <strong>%1s</strong><br/>user <strong>%2s</strong> translated<br/>\"<strong>%3s</strong>\"<br/>to <strong style=\"color:red\">%4s</strong><br/>\"<strong>%5s</strong>\""
+msgstr "Sa<strong>%1s</strong><br/> korisnika<strong>%2s</strong> prevedeno<br/>\"<strong>%3s</strong>\"<br/> na<strong style=\"color:red\">%4s</strong><br/>\"<strong>%5s</strong>\""
+
+#: wp/transposh_3rdparty.php:163
+#, php-format
+#@ buddypress
+msgid "%s translated a phrase to %s with transposh:"
+msgstr "%s prevedena fraza na %s sa transposh:"
+
+#: wp/transposh_admin.php:187
+#: wp/transposh_admin.php:194
+#: wp/transposh_postpublish.php:53
+#: wp/transposh_widget.php:86
+#: wp/transposh_widget.php:324
+#@ transposh
+#@ default
+msgid "Transposh"
+msgstr "Transposh"
+
+#: wp/transposh_admin.php:273
+#@ transposh
+msgid "Transposh makes your blog translatable"
+msgstr "Transposh čini da vač blog bude prevodljiv"
+
+#: wp/transposh_admin.php:275
+#@ transposh
+msgid "Plugin homepage"
+msgstr "Početna stranica plugina "
+
+#: wp/transposh_admin.php:276
+#@ transposh
+msgid "Frequently asked questions"
+msgstr "FAQ"
+
+#: wp/transposh_admin.php:297
+#@ transposh
+msgid "Plugin news"
+msgstr "Novosti o plugin "
+
+#: wp/transposh_admin.php:298
+#@ transposh
+msgid "Plugin stats"
+msgstr "Plugin stats"
+
+#: wp/transposh_admin.php:330
+#@ transposh
+msgid "Save Changes"
+msgstr "Sačuvati promene"
+
+#: wp/transposh_admin.php:676
+#@ transposh
+msgid "Problems?"
+msgstr "Problemi?"
+
+#: wp/transposh_admin.php:639
+#@ transposh
+msgid "Suggest a Feature"
+msgstr "Predložite karakteristiku"
+
+#: wp/transposh_admin.php:640
+#@ transposh
+msgid "Report a Bug"
+msgstr "Prijaviti Bug"
+
+#: wp/transposh_admin.php:574
+#@ transposh
+msgid "Translate by clicking the button below"
+msgstr "Prevesti klikom na dugme ispod"
+
+#: wp/transposh_admin.php:576
+#@ transposh
+msgid "Translate All Now"
+msgstr "Prevesti sve sada"
+
+#: wp/transposh_admin.php:378
+#@ transposh
+msgid "Default Language (drag another language here to make it default)"
+msgstr "Default jezik (preneti drugi jezik ovde da bi bio default)"
+
+#: wp/transposh_admin.php:386
+#@ transposh
+msgid "Available Languages (Click to toggle language state - Drag to sort in the widget)"
+msgstr "Dostupni jezici(Klik na  toggledržave jezika - Prenesi da bi sortirali widget)"
+
+#: wp/transposh_admin.php:398
+#@ transposh
+msgid "Language supported by google translate"
+msgstr "Jezik podržan od strane google translate"
+
+#: wp/transposh_admin.php:400
+#@ transposh
+msgid "Language supported by bing translate"
+msgstr "Jezik podržan od strane bing translate"
+
+#: wp/transposh_admin.php:402
+#@ transposh
+msgid "Language supported by apertium translate"
+msgstr "Jezik podržan od strane apertium translate"
+
+#: wp/transposh_admin.php:406
+#@ transposh
+msgid "Language is written from right to left"
+msgstr "Jezik je pisan sa desna na levo"
+
+#: wp/transposh_admin.php:411
+#@ transposh
+msgid "Display options:"
+msgstr "Prikaži opcije:"
+
+#: wp/transposh_admin.php:412
+#@ transposh
+msgid "Toggle names of languages between English and Original"
+msgstr "Toggle imena jezika izmedju Engleskog i Originalnog"
+
+#: wp/transposh_admin.php:413
+#@ transposh
+msgid "Make all languages active"
+msgstr "Sve jezike učiniti aktivnim"
+
+#: wp/transposh_admin.php:414
+#@ transposh
+msgid "Sort by language name"
+msgstr "Sortirati po imenu jezika"
+
+#: wp/transposh_admin.php:415
+#@ transposh
+msgid "Sort by lSO code"
+msgstr "Sortirati po ISO kodu"
+
+#: wp/transposh_admin.php:426
+#@ transposh
+msgid "Who can translate ?"
+msgstr "Ko može prevesti?"
+
+#: wp/transposh_admin.php:433
+#@ transposh
+msgid "Anonymous"
+msgstr "Anonymous"
+
+#: wp/transposh_admin.php:435
+#@ transposh
+msgid "Enable default language translation"
+msgstr "Omogućiti default prevod jezika"
+
+#: wp/transposh_admin.php:436
+#@ transposh
+msgid "Allow translation of default language - useful for sites with more than one major language"
+msgstr "Dozvoli prevod default jezika - korisno za sajtove sa više od jednog glavnog jezika"
+
+#: wp/transposh_admin.php:437
+#@ transposh
+msgid "Enable search in translated languages"
+msgstr "Omogućiti pretragu u  prevedenim jezicima"
+
+#: wp/transposh_admin.php:532
+#@ transposh
+msgid "Enable url translation"
+msgstr "Omogućiti url prevod"
+
+#: wp/transposh_admin.php:532
+#@ transposh
+msgid "experimental"
+msgstr "eksperimentalno"
+
+#: wp/transposh_admin.php:532
+#@ transposh
+msgid "Allow translation of permalinks and urls"
+msgstr "Dozvoliti prevod permalinksova i urlova"
+
+#: wp/transposh_admin.php:439
+#@ transposh
+msgid "Enable gettext integration"
+msgstr "Omogućiti gettext integraciju"
+
+#: wp/transposh_admin.php:440
+#@ transposh
+msgid "Enable integration of Transposh with existing gettext interface (.po/.mo files)"
+msgstr "Omogućiti integraciju Transposh sa postojećim gettext interfejsom (.po/.mo fajlovi)"
+
+#: wp/transposh_admin.php:474
+#@ transposh
+msgid "Enable automatic translation"
+msgstr "Omogućiti automatski prevod"
+
+#: wp/transposh_admin.php:475
+#@ transposh
+msgid "Allow automatic translation of pages"
+msgstr "Dozvoli automatski prevod stranica"
+
+#: wp/transposh_admin.php:476
+#@ transposh
+msgid "Enable automatic translation after posting"
+msgstr "Omogući automatsko prevođenje posle postavljanja"
+
+#: wp/transposh_admin.php:477
+#@ transposh
+msgid "Do automatic translation immediately after a post has been published"
+msgstr "Automatsko prevođenje odmah nakon postavljanja  je objavljen"
+
+#: wp/transposh_admin.php:484
+#@ transposh
+msgid "Select preferred auto translation engine"
+msgstr "Izaberite željeni auto prevod motora"
+
+#: wp/transposh_admin.php:485
+#@ transposh
+msgid "Translation engine:"
+msgstr "Pretraživač prevoda:"
+
+#: wp/transposh_admin.php:486
+#@ transposh
+msgid "Google"
+msgstr "Google"
+
+#: wp/transposh_admin.php:487
+#@ transposh
+msgid "Bing"
+msgstr "Bing"
+
+#: wp/transposh_admin.php:447
+#@ transposh
+msgid "Rewrite URLs"
+msgstr "Rewrite URLs"
+
+#: wp/transposh_admin.php:451
+#@ transposh
+msgid "Add scripts to footer"
+msgstr "Dodati scriptove  footer-u"
+
+#: wp/transposh_admin.php:454
+#@ transposh
+msgid "Auto detect language for users"
+msgstr "Auto detektovati jezik za korisnike"
+
+#: wp/transposh_admin.php:569
+#@ transposh
+msgid "Delete all automated translations"
+msgstr "Obrisati sve automatske prevode"
+
+#: wp/transposh_admin.php:570
+#@ transposh
+msgid "Delete automated translations older than 14 days"
+msgstr "Obrisati automatske prevode starijue od 14 dana"
+
+#: wp/transposh_admin.php:571
+#@ transposh
+msgid "Attempt to fix errors caused by previous versions - please backup first"
+msgstr "Pokušaj da se poprave greške izazvane prethodnim verzijama - backup-ujte prvo"
+
+#: wp/transposh_admin.php:465
+#@ transposh
+msgid "Enable daily backup"
+msgstr "Omogući dnevni backup"
+
+#: wp/transposh_admin.php:466
+#@ transposh
+msgid "Enable live backup"
+msgstr "Omogući live backup"
+
+#: wp/transposh_admin.php:467
+#@ transposh
+msgid "Disable backup (Can be run manually by clicking the button below)"
+msgstr "Onemogući backup (Možete ručlno da pokrenete klikom na dugme ispod)"
+
+#: wp/transposh_admin.php:468
+#@ transposh
+msgid "Service Key:"
+msgstr "Glavni ključ:"
+
+#: wp/transposh_admin.php:468
+#@ transposh
+msgid "How to restore?"
+msgstr "Kako uraditi restore?"
+
+#: wp/transposh_admin.php:563
+#@ transposh
+msgid "Do Backup Now"
+msgstr "Uraditi Backup sada"
+
+#: wp/transposh_widget.php:84
+#@ transposh
+msgid "Transposh language selection widget"
+msgstr "Transposh izbor jezika widget"
+
+#: wp/transposh_widget.php:297
+#@ transposh
+msgid "Set as default language"
+msgstr "Podesiti kao default jezik"
+
+#: wp/transposh_widget.php:325
+#@ transposh
+msgid "translation plugin for wordpress"
+msgstr "prevod plugina za wordpress"
+
+#: wp/transposh_widget.php:129
+#@ transposh
+msgid "Style:"
+msgstr "Stil:"
+
+#: wp/transposh_admin.php:520
+#@ transposh
+msgid "Show progress bar when a client triggers automatic translation"
+msgstr "Prikazati  bar progresa kada klijent aktivira automatsko prevođenje"
+
+#: wp/transposh_admin.php:519
+#@ transposh
+msgid "Show progress bar"
+msgstr "Prikazati bar sa progresom"
+
+#: wp/transposh_admin.php:523
+#@ transposh
+msgid "Widget will allow setting this language as user default"
+msgstr "Widget će dozvoliti postavku ovog jezika kao default"
+
+#: wp/transposh_admin.php:522
+#@ transposh
+msgid "Allow user to set current language as default"
+msgstr "Dozvoliti korisniku da namesti trenutni jezik kao default"
+
+#: wp/transposh_admin.php:526
+#@ transposh
+msgid "Transposh logo will not appear on widget"
+msgstr "Transposh logo se neće pojaviti na widget-u"
+
+#: wp/transposh_admin.php:525
+#@ transposh
+msgid "Remove transposh logo (see <a href=\"http://transposh.org/logoterms\">terms</a>)"
+msgstr " Ukloniti transposh logo (pogledati<a href=\"http://transposh.org/logoterms\">terms</a>)"
+
+#: wp/transposh_admin.php:528
+#@ transposh
+msgid "Edit interface (and progress bar) theme:"
+msgstr "Edituj interfejs (i  bar sa progresom) tema:"
+
+#: transposh.php:997
+#: wp/transposh_admin.php:175
+#@ default
+#@ transposh
+msgid "Settings"
+msgstr "Postavke"
+
+#. translators: plugin header field 'Name'
+#: transposh.php:0
+#@ transposh
+msgid "Transposh Translation Filter"
+msgstr "Transposh Filter prevoda"
+
+#. translators: plugin header field 'PluginURI'
+#. translators: plugin header field 'AuthorURI'
+#: transposh.php:0
+#@ transposh
+msgid "http://transposh.org/"
+msgstr "http://transposh.org/"
+
+#. translators: plugin header field 'Author'
+#: transposh.php:0
+#@ transposh
+msgid "Team Transposh"
+msgstr "Team Transposh"
+
+#. translators: plugin header field 'Version'
+#: transposh.php:0
+#, php-format
+#@ transposh
+msgid "%VERSION%"
+msgstr "%VERSION%"
+
+#. TRANSLATORS: this is what appears in the select box in dropdown subwidget 
+#: widgets/dropdown/tpw_image_dropdown.php:45
+#@ transposh
+msgid "Select language"
+msgstr "Izaberite jezik"
+
+#: wp/transposh_admin.php:760
+#, php-format
+#@ transposh
+msgid "Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it."
+msgstr "Vaš trenutni PHP memorijski limit od %s je loš, ako želite prazne stranice razmisite o povećavanju. "
+
+#: wp/transposh_admin.php:760
+#: wp/transposh_admin.php:764
+#@ transposh
+msgid "Check Transposh FAQs"
+msgstr "Proverite Transposh FAQs"
+
+#: wp/transposh_admin.php:764
+#@ transposh
+msgid "We were not able to find a supported in-memory caching engine, installing one can improve performance."
+msgstr "Nismo bili u stanju da nadjemo podžanog in-memory caching pretraživača, instalirajući jedno možete poboljšati performanse .  "
+
+#: wp/transposh_admin.php:438
+#@ transposh
+msgid "Allow search of translated languages (and the original language)"
+msgstr "Dopusti pretragu prevedenih jezika ( i originalni jezik )"
+
+#: wp/transposh_admin.php:442
+#@ transposh
+msgid "Enable override for default locale"
+msgstr "Omogući prekidač za podrazumevani lokalni"
+
+#: wp/transposh_admin.php:443
+#@ transposh
+msgid "Enable overriding the default locale that is set in WP_LANG on default languages pages (such as untranslated pages and admin pages)"
+msgstr "Omogućite najvažniji podrazumevani lokalitet koji je postavljen u VP_LANG na defaultu jezik stranica (kao što su prevedene stranice i stranice admina )"
+
+#: wp/transposh_admin.php:479
+#@ transposh
+msgid "MSN API key"
+msgstr "MSN API key"
+
+#: wp/transposh_admin.php:480
+#: wp/transposh_admin.php:483
+#@ transposh
+msgid "API Key"
+msgstr "API Key"
+
+#: wp/transposh_admin.php:482
+#@ transposh
+msgid "Google API key"
+msgstr "Google API key"
+
+#: wp/transposh_admin.php:450
+#@ transposh
+msgid "Rewrite URLs to be search engine friendly, e.g.  (http://transposh.org/<strong>en</strong>). Requires that permalinks will be enabled."
+msgstr "Prepišite URL adrese da pretraživač  bude prijateljski , na primer . Zahteva se da će biti omogućen Permalinks "
+
+#: wp/transposh_admin.php:453
+#@ transposh
+msgid "Push transposh scripts to footer of page instead of header, makes pages load faster. Requires that your theme should have proper footer support."
+msgstr "Push Transposh skripte na podnožju stranice umesto glavne , čini brže učitavanje stranica . Zahteva da vaša tema treba da ima odgovarajuću podršku ."
+
+#: wp/transposh_admin.php:456
+#@ transposh
+msgid "This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. This will redirect the first page accessed in the session to the same page with the detected language."
+msgstr "Ovo omogućava automatsko otkrivanje jezika koristi od strane korisnika kao što je definisano u ACCEPT_LANGUAGES oni šalju . Ovo će preusmeriti prvu stranicu pristupiti na sednici na istoj strani sa detektovanim jezikom ."
+
+#: wp/transposh_admin.php:457
+#@ transposh
+msgid "Allow collecting usage statistics"
+msgstr "Dozvoli prikupljanje statistiku korišćenja"
+
+#: wp/transposh_postpublish.php:55
+#@ transposh
+msgid "Set post language"
+msgstr "Namesti jezik posta"
+
+#: wp/transposh_postpublish.php:201
+#@ default
+msgid "Default"
+msgstr "Default"
+
+#: wp/transposh_widget.php:124
+#@ transposh
+msgid "Title:"
+msgstr "Naslov:"
+
+#: wp/transposh_widget.php:256
+#@ transposh
+msgid "Transposh subwidget was not loaded correctly"
+msgstr "Transposh subwidget  nije ispravno učitan"
+
+#. TRANSLATORS: no need to translate this string 
+#: wp/transposh_widget.php:273
+#@ transposh
+msgid "title"
+msgstr "naslov"
+
+#: wp/transposh_admin.php:786
+#@ transposh
+msgid "Language"
+msgstr "Jezik"
+
+#: wp/transposh_admin.php:458
+#@ transposh
+msgid "This option enables collection of statistics by transposh that will be used to improve the product."
+msgstr "Ova opcija omogućava prikupljanje statistike od strane Transposh koja će se koristiti za poboljšanje proizvoda ."
+
+#. TRANSLATORS: this will be the default widget title 
+#: wp/transposh_widget.php:119
+#@ transposh
+msgid "Translation"
+msgstr "Prevod"
+
+#: wp/transposh_admin.php:404
+#@ transposh
+msgid "Language supported by one hour translation"
+msgstr "Jezik je podržan jednim satom prevoda(One Hour Translation)"
+
+#: wp/transposh_admin.php:491
+#@ transposh
+msgid "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide."
+msgstr "<a href=\"http://transposh.org/redir/oht\">One Hour Translation</a>,  je najveća profesionalna prevodilačka online služba,sa hiljadama poslovnih korisnika , uključujući i 57% od Fortune 500 kompanija , a preko 15000 prevodioca širom sveta ."
+
+#: wp/transposh_admin.php:493
+#@ transposh
+msgid "One Hour Translation provides high-quality, fast professional translation to/from any language, and has specific domain expertise in SW localization, technical, business, and legal translations."
+msgstr "One Hour Translation obezbeđuje kvalitetan , brz profesionalni prevod na / sa jednog jezika , i ima specifičnu stručnost domena u SV lokalizacije , tehničke , poslovne i pravne prevode "
+
+#: wp/transposh_admin.php:497
+#@ transposh
+msgid "One Hour Translation account ID"
+msgstr "One Hour Translation ID naloga"
+
+#: wp/transposh_admin.php:498
+#@ transposh
+msgid "Account ID"
+msgstr "ID naloga"
+
+#: wp/transposh_admin.php:501
+#@ transposh
+msgid "One Hour Translation secret key"
+msgstr "One Hour Translation tajni ključ"
+
+#: wp/transposh_admin.php:513
+#, php-format
+#@ transposh
+msgid "%d projects have been submitted and waiting for completion"
+msgstr "%d projekti su upućeni i čekali završetak"
+
+#: wp/transposh_admin.php:782
+#@ transposh
+msgid "Unset"
+msgstr "Unset"
+
+#: wp/transposh_admin.php:173
+#@ transposh
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: wp/transposh_admin.php:174
+#: wp/transposh_admin.php:281
+#@ transposh
+msgid "Languages"
+msgstr "Jezici"
+
+#: wp/transposh_admin.php:176
+#@ transposh
+msgid "Translation Engines"
+msgstr "Pretraživači sa prevodom"
+
+#: wp/transposh_admin.php:177
+#@ transposh
+msgid "Widgets settings"
+msgstr "Widget postavke"
+
+#: wp/transposh_admin.php:178
+#@ transposh
+msgid "Advanced"
+msgstr "Unapredjeno"
+
+#: wp/transposh_admin.php:179
+#@ transposh
+msgid "Utilities"
+msgstr "Usluge"
+
+#: wp/transposh_admin.php:180
+#@ transposh
+msgid "About"
+msgstr "O"
+
+#: wp/transposh_admin.php:181
+#@ transposh
+msgid "Support"
+msgstr "Podrška"
+
+#: wp/transposh_admin.php:274
+#@ transposh
+msgid "For further help and assistance, please look at the following resources:"
+msgstr "Za dalju pomoć i podršku , molimo vas da pogledate sledeće resurse :"
+
+#: wp/transposh_admin.php:277
+#@ transposh
+msgid "Development website"
+msgstr "Websajt za programiranje"
+
+#: wp/transposh_admin.php:271
+#@ transposh
+msgid "Transposh Help"
+msgstr "Transposh pomoć"
+
+#: wp/transposh_admin.php:421
+#@ transposh
+msgid "Translation related settings"
+msgstr "Postavke vezane za prevode"
+
+#: wp/transposh_admin.php:446
+#@ transposh
+msgid "General settings"
+msgstr "Opšta pitanja"
+
+#: wp/transposh_admin.php:464
+#@ transposh
+msgid "Backup service settings"
+msgstr "Postavke Backup usluge"
+
+#: wp/transposh_admin.php:473
+#@ transposh
+msgid "Automatic Translation Settings"
+msgstr "Postavke automatskog prevoda"
+
+#: wp/transposh_admin.php:491
+#@ transposh
+msgid "Professional Translation Settings"
+msgstr "Postavke profesionalnog prevoda"
+
+#: wp/transposh_admin.php:508
+#, php-format
+#@ transposh
+msgid "%d phrases currently queued for next job in ~%d minutes"
+msgstr "%d fraze trenutno tražene za sledeći posao~%d minuta"
+
+#: wp/transposh_admin.php:535
+#@ transposh
+msgid "Parser related settings"
+msgstr "Postavke vezane za parser"
+
+#: wp/transposh_admin.php:536
+#: wp/transposh_admin.php:545
+#@ transposh
+msgid "This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing."
+msgstr "Ovo je izuzetno opasno , suništiće vaše trenutne prevode , a može izazvati ozbiljne zastoje ,  nastavite samo ako zaista znate šta radite ."
+
+#: wp/transposh_admin.php:537
+#@ transposh
+msgid "Disable punctuations break"
+msgstr "Onemogući zagrade sa tačkama"
+
+#: wp/transposh_admin.php:538
+#@ transposh
+msgid "The parser will not break text into phrases when encountering punctuations such as dots"
+msgstr "Parser neće slomiti tekst na fraze kada nailazi na interpunkcije poput tačkica"
+
+#: wp/transposh_admin.php:539
+#@ transposh
+msgid "Disable numbers break"
+msgstr "Onemogući zagradu sa brojevima"
+
+#: wp/transposh_admin.php:540
+#@ transposh
+msgid "The parser will not break text into phrases when encountering numbers"
+msgstr "Parser neće slomiti tekst na fraze kada nailazi na brojeve"
+
+#: wp/transposh_admin.php:541
+#@ transposh
+msgid "Disable html entities break"
+msgstr "Onemogući html zagrade"
+
+#: wp/transposh_admin.php:542
+#@ transposh
+msgid "The parser will not break text into phrases when encountering html entities"
+msgstr "The parser will not break text into phrases when encountering html entities"
+
+#: wp/transposh_admin.php:544
+#@ transposh
+msgid "Debug settings"
+msgstr "Debug postavke"
+
+#: wp/transposh_admin.php:546
+#@ transposh
+msgid "Enable debugging"
+msgstr "Omogući debugovanje"
+
+#: wp/transposh_admin.php:547
+#@ transposh
+msgid "Enable running of Transposh internal debug functions"
+msgstr "Enable running of Transposh internal debug functions"
+
+#: wp/transposh_admin.php:548
+#@ transposh
+msgid "Log file name"
+msgstr "Log fajl ime"
+
+#: wp/transposh_admin.php:549
+#@ transposh
+msgid "Level of logging"
+msgstr "Nivo ulogovanja"
+
+#: wp/transposh_admin.php:550
+#@ transposh
+msgid "Critical"
+msgstr "Kritično"
+
+#: wp/transposh_admin.php:551
+#@ transposh
+msgid "Important"
+msgstr "Važno"
+
+#: wp/transposh_admin.php:552
+#@ transposh
+msgid "Warning"
+msgstr "Upozorenje"
+
+#: wp/transposh_admin.php:553
+#@ transposh
+msgid "Information"
+msgstr "Informacija"
+
+#: wp/transposh_admin.php:554
+#@ transposh
+msgid "Debug"
+msgstr "Debug"
+
+#: wp/transposh_admin.php:556
+#, php-format
+#@ transposh
+msgid "Remote debug IP (Your current IP is %s)"
+msgstr "debug IP (vaš trenutni IP is %s)"
+
+#: wp/transposh_admin.php:568
+#@ transposh
+msgid "Reset configuration to default (saves keys)"
+msgstr "Resetuj konfiguraciju na default (sačuvaće ključeve)"
+
+#: wp/transposh_admin.php:582
+#@ transposh
+msgid "About Transposh"
+msgstr "o Transposh"
+
+#: wp/transposh_admin.php:583
+#@ transposh
+msgid "Transposh was started at 2008 and is dedicated to provide tools to ease website translation."
+msgstr "Transposh je započeo u 2008 i posvećen je da obezbedi alate kako bi se olakšao web prevod"
+
+#: wp/transposh_admin.php:585
+#@ transposh
+msgid "Learn more about us in the following online presenses"
+msgstr "Saznajte više o nama u narednim onlajn presenses"
+
+#: wp/transposh_admin.php:588
+#@ transposh
+msgid "Our website"
+msgstr "Naš website"
+
+#: wp/transposh_admin.php:590
+#@ transposh
+msgid "Our blog"
+msgstr "Naš blog"
+
+#: wp/transposh_admin.php:592
+#@ transposh
+msgid "Our twitter account (feel free to follow!)"
+msgstr "Naš twitter account (zapratite!)"
+
+#: wp/transposh_admin.php:594
+#@ transposh
+msgid "Our facebook page (feel free to like!)"
+msgstr "Naš facebook stranica (lajkujte!)"
+
+#: wp/transposh_admin.php:596
+#@ transposh
+msgid "Our google plus page (add us to your circles!)"
+msgstr "Naš google plus stranica (dodajte nas u svoj krug!)"
+
+#: wp/transposh_admin.php:598
+#@ transposh
+msgid "Our youtube channel"
+msgstr "Naš youtube kanal"
+
+#: wp/transposh_admin.php:615
+#@ transposh
+msgid "Transposh support"
+msgstr "Transposh podrška"
+
+#: wp/transposh_admin.php:616
+#@ transposh
+msgid "Have you encountered any problem with our plugin and need our help?"
+msgstr "Da li ste naišli na bilo kakav problem sa našim plugin i treba našu pomoć ?"
+
+#: wp/transposh_admin.php:617
+#@ transposh
+msgid "Do you need to ask us any question?"
+msgstr "Da li želite da nam postavite bilo koje pitanje?"
+
+#: wp/transposh_admin.php:618
+#@ transposh
+msgid "You have two options:"
+msgstr "Imate dve opcije :"
+
+#: wp/transposh_admin.php:620
+#@ transposh
+msgid "Our free support"
+msgstr "Naša besplatna podrška"
+
+#: wp/transposh_admin.php:622
+#@ transposh
+msgid "There are many channels to reach us and we do try to help as fast as we can"
+msgstr "Postoji mnogo kanala preko kojih možete doći do nas i mi ćemo pokušamo da pomognemo što brže možemo"
+
+#: wp/transposh_admin.php:623
+#@ transposh
+msgid "You can contact us through our contact form on our web site"
+msgstr "Možete nas kontaktirati preko kontakt forme na našem sajtu"
+
+#: wp/transposh_admin.php:624
+#@ transposh
+msgid "Create a ticket for us if you have found any bugs"
+msgstr "Kreirajte kartu za nas, ako ste pronašli neki bug"
+
+#: wp/transposh_admin.php:625
+#@ transposh
+msgid "Reach us via different forums:"
+msgstr "Kontaktirajte nas via različitih foruma:"
+
+#: wp/transposh_admin.php:628
+#@ transposh
+msgid "Our support forum on wordpress.org"
+msgstr "Naš forum za podršku na wordpress.org"
+
+#: wp/transposh_admin.php:630
+#@ transposh
+msgid "Our internal development site, with wiki and tickets"
+msgstr "Naš unutrašnji razvojni sajt , sa wiki i kartama"
+
+#: wp/transposh_admin.php:632
+#@ transposh
+msgid "Our facebook page"
+msgstr "Naša facebook stranica"
+
+#: wp/transposh_admin.php:634
+#@ transposh
+msgid "Our google plus page"
+msgstr "Naša google plus stranica"
+
+#: wp/transposh_admin.php:636
+#@ transposh
+msgid "Contact us directly via:"
+msgstr "Kontaktirajte nas via:Contact us directly via:"
+
+#: wp/transposh_admin.php:638
+#@ transposh
+msgid "Our contact form"
+msgstr "Naša kontakt forma"
+
+#: wp/transposh_admin.php:644
+#@ transposh
+msgid "Professional support option"
+msgstr "Opcija profesionalne podrške"
+
+#: wp/transposh_admin.php:646
+#@ transposh
+msgid "For the low low price of $99, we will take express action on your request. By express we mean that your issue will become our top priority, and will resolve ASAP"
+msgstr "Za jako nisku cenu od $ 99 , mi ćemo izvršiti brzo akciju izričito na vaš zahtev . Pod brzim mislimo da će vaš problem postati naš prioritet , i da će rešiti brzo"
+
+#: wp/transposh_admin.php:647
+#@ transposh
+msgid "This includes helping with various bugs, basic theme/plugins conflicts, or just telling you where the ON button is"
+msgstr "Ovo uključuje pomoć sa raznim bugovima , osnovnim temama / plugins sukobima , ili samo da kaže gde je dugme ON "
+
+#: wp/transposh_admin.php:648
+#@ transposh
+msgid "Full money back guarentee! If your problem remains unresolved or you are simply unhappy we will refund your paypal account as soon as you ask (as long as paypal allows it, don't come to us three years later!)"
+msgstr "Zagarantovao vraćamo sav novac! Ako vaš problem ostane nerešen , ili ste jednostavno nesrećn refundiraćemo vaš paypal račun ( sve dok PayPal omogućava , ne dolaze nam tri godine kasnije ! )"
+
+#: wp/transposh_admin.php:649
+#@ transposh
+msgid "So hit the following button. Thanks!"
+msgstr "Klik na sledeće dugme! Hvala!"
+
+#: wp/transposh_admin.php:659
+#@ transposh
+msgid "Donations"
+msgstr "Donacije"
+
+#: wp/transposh_admin.php:661
+#@ transposh
+msgid "If you just want to show that you care, this is the button for you. But please think twice before doing this. It will make us happier if you just do something nice for someone in your area, contribute to a local charity, and let us know that you did that :)"
+msgstr "Ako samo želite da pokažete da vam je stalo , ovo je taster za vas . Ali, molim vas razmislite dva puta pre nego što se ovo uradite . To će nas učiniti srećnijim i ako samo uradite nešto lepo za nekoga iz vaše oblasti , doprinesete lokalnim dobrotvornim svrhama, i da nas obavestite da ste to uradili :)"
+
+#. translators: plugin header field 'Description'
+#: transposh.php:0
+#@ transposh
+msgid "Translation filter for WordPress, After enabling please set languages at the <a href=\"admin.php?page=tp_main\">the options page</a> Want to help? visit our development site at <a href=\"http://trac.transposh.org/\">trac.transposh.org</a>."
+msgstr "Prevod filtera za WordPress , nakon omogućavanja  molimo vas podesite jezike na stranici <a href=\"admin.php?page=tp_main\">opcije</a> Želite li da pomognete ? posetite naš sajt za razvoj<a href=\"http://trac.transposh.org/\">trac.transposh.org</a>."
+
+#: wp/transposh_admin.php:283
+#@ transposh
+msgid "Language selection in Transposh"
+msgstr "Izbor jezika u Transposh"
+
+#: wp/transposh_admin.php:284
+#@ transposh
+msgid "This tab allows you to select the languages your site will be translated into. The default language is the language most of your site is written in, and serve as the base for translation. It won\\t be translated normally."
+msgstr "Ovaj tab vam omogućava da izaberete jezike na koje će vaš sajt biti preveden . Podrazumevani jezik je jezik na kojem je većina vašeg sajta napisana  i služi kao osnova za prevod . On neće biti normalno preveden."
+
+#: wp/transposh_admin.php:285
+#@ transposh
+msgid "You may select the languages you want to appear in your site by clicking them (their background will turn green). You may also drag those around to set the order of the languages in the widget."
+msgstr "Možete da izaberete jezike koje želite da se pojave na vašem sajtu tako što ćete kliknuti na njih ( njihova pozadina će postati zelena ) . Takođe možete da ih prevučete preko da podesite redosled jezika u  widgetu."
+
+#: wp/transposh_admin.php:289
+#@ transposh
+msgid "Engine keys"
+msgstr "Ključevi pretraživača"
+
+#: wp/transposh_admin.php:291
+#@ transposh
+msgid "Translation engines keys"
+msgstr "Prevod ključeva pretraživača"
+
+#: wp/transposh_admin.php:292
+#@ transposh
+msgid "Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site."
+msgstr "Pod normalnim uslovima , na dan ovog izdanja , možete da ostavite ključna polja prazna, i različiti pretraživači će raditi , nema potrebe da platite ili da kreirate ključ . Međutim, ako iz nekog razloga aktuelne metode prestanu da rade imate mogućnost da kreirate ključ za svaku uslugu na odgovarajućem sajtu ."
+
+#: wp/transposh_admin.php:293
+#@ transposh
+msgid "For One Hour Translation, after registering. The key will be reachable at:"
+msgstr "Za jedan sat prevođenja , nakon registracije . Ključ će biti dostupan na "
+
+#: wp/transposh_admin.php:533
+#@ transposh
+msgid "Override jQueryUI version"
+msgstr "Prepisati preko  jQueryUI verzije"
+
+#: wp/transposh_admin.php:533
+#@ transposh
+msgid "Version"
+msgstr "Verzija"
+
+#: wp/transposh_admin.php:774
+#@ transposh
+msgid "Hide Notice"
+msgstr "Sakriti obaveštenje"
+
+#: transposh.php:1693
+#@ default
+msgid "An Unexpected HTTP Error occurred during the API request.</p> <p><a href=\"?\" onclick=\"document.location.reload(); return false;\">Try again</a>"
+msgstr ""
+
+#: transposh.php:1698
+#@ default
+msgid "An unknown error occurred"
+msgstr ""
+
+#: wp/transposh_admin.php:502
+#@ transposh
+msgid "Secret Key"
+msgstr ""
+
+#: wp/transposh_admin.php:534
+#@ transposh
+msgid "Disable adding rel=alternate to the html"
+msgstr ""
+
+#: wp/transposh_admin.php:534
+#@ transposh
+msgid "Disable the feature that adds the alternate language list to your page html header"
+msgstr ""
+
