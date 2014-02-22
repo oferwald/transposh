@@ -119,7 +119,7 @@ class transposh_consts {
         'sw' => 'Swahili,Kiswahili,tz,',
         'sv' => 'Swedish,Svenska,se,sv_SE',
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
-        'ta' => 'Tamil,தமிழ்,lk,ta_LK', //THINK
+        'ta' => 'Tamil,தமிழ்,in,ta_LK', // apparently more in India
         'te' => 'Telugu,తెలుగు,in,',
         'th' => 'Thai,ภาษาไทย,th,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
@@ -158,7 +158,8 @@ class transposh_consts {
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2012-Feb-14 (mww)
     // @updated 2013-Feb-21 (ms, ur)
-    public static $bing_languages = array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur');
+    // @updated 2014-Feb-21 (cy)
+    public static $bing_languages = array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy');
     // Apertium supported languages
     // a bit tricky, but we'll see - starting with just esperanto
     public static $apertium_languages = array('eo');
@@ -187,7 +188,7 @@ define('TRANSLATOR', 'translator');
 define('TRANSPOSH_PLUGIN_VER', '%VERSION%');
 
 //Current jQuery UI
-define('JQUERYUI_VER', '1.9.2');
+define('JQUERYUI_VER', '1.10.4');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define('SPAN_PREFIX', 'tr_');
