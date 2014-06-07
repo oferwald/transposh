@@ -27,7 +27,7 @@ class transposh_base_widget {
     /**
      * Function that performs the actual subwidget rendering
      */
-    static function tp_widget_do() {
+    static function tp_widget_do($args) {
         echo "you should override this function in your widget";
     }
 
