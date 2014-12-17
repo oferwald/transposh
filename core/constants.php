@@ -15,7 +15,7 @@
 define('LANG_PARAM', 'lang');
 
 //Edit mode indicator in URL. i.e. lang=en&edit=true
-define('EDIT_PARAM', 'edit');
+define('EDIT_PARAM', 'tpedit');
 
 //Enable in memory cache usage, APC, xcache
 define('TP_ENABLE_CACHE', TRUE);
@@ -61,6 +61,7 @@ class transposh_consts {
         'bg' => 'Bulgarian,Български,bg,bg_BG',
         'ca' => 'Catalan,Català,catalonia,',
         'ceb' => 'Cebuano,Binisaya,ph,',
+        'ny' => 'Chichewa,Chinyanja,mw',
         'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
         'zh-tw' => 'Chinese (Traditional),中文(漢字),tw,zh_TW',
         'hr' => 'Croatian,Hrvatski,hr,',
@@ -91,6 +92,7 @@ class transposh_consts {
         'ja' => 'Japanese,日本語,jp,',
         'jw' => 'Javanese,basa Jawa,id,jv_ID',
         'kn' => 'Kannada,ಕನ್ನಡ,in,',
+        'kk' => 'Kazakh,Қазақ тілі,kz',
         'km' => 'Khmer,ភាសាខ្មែរ,kh,',
         'ko' => 'Korean,한국어,kr,ko_KR',
         'lo' => 'Lao,ພາສາລາວ,la,',
@@ -98,11 +100,14 @@ class transposh_consts {
         'lv' => 'Latvian,Latviešu valoda,lv,',
         'lt' => 'Lithuanian,Lietuvių kalba,lt,',
         'mk' => 'Macedonian,македонски јазик,mk,mk_MK',
+        'mg' => 'Malagasy,Malagasy fiteny,mg',
         'ms' => 'Malay,Bahasa Melayu,my,ms_MY',
+        'ml' => 'Malayalam,മലയാളം,in',
         'mt' => 'Maltese,Malti,mt,',
         'mi' => 'Maori,Te Reo Māori,nz,',
         'mr' => 'Marathi,मराठी,in,',
         'mn' => 'Mongolian,Монгол,mn,',
+        'my' => 'Burmese,မြန်မာစာ,mm,my_MM', // PROBLEM - OLD flag
         'ne' => 'Nepali,नेपाली,np,ne_NP',
         'no' => 'Norwegian,Norsk,no,nb_NO',
         'fa' => 'Persian,پارسی,ir,fa_IR',
@@ -112,19 +117,24 @@ class transposh_consts {
         'ro' => 'Romanian,Română,ro,ro_RO',
         'ru' => 'Russian,Русский,ru,ru_RU',
         'sr' => 'Serbian,Cрпски језик,rs,sr_RS',
+        'st' => 'Sesotho,Sesotho,ls', // PROBLEM - OLD flag
+        'si' => 'Sinhala,සිංහල,lk,si_LK',
         'sk' => 'Slovak,Slovenčina,sk,sk_SK',
         'sl' => 'Slovene,Slovenščina,si,sl_SI', //slovenian
         'so' => 'Somali,Af-Soomaali,so,',
         'es' => 'Spanish,Español,es,es_ES',
+        'su' => 'Sundanese,Basa Sunda,id',
         'sw' => 'Swahili,Kiswahili,tz,',
         'sv' => 'Swedish,Svenska,se,sv_SE',
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
+        'tg' => 'Tajik,Тоҷикӣ,tj',
         'ta' => 'Tamil,தமிழ்,in,ta_LK', // apparently more in India
         'te' => 'Telugu,తెలుగు,in,',
         'th' => 'Thai,ภาษาไทย,th,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
         'uk' => 'Ukrainian,Українська,ua,',
         'ur' => 'Urdu,اردو,pk,',
+        'uz' => 'Uzbek,Oʻzbek tili,uz,uz_UZ',
         'vi' => 'Vietnamese,Tiếng Việt,vn,',
         'cy' => 'Welsh,Cymraeg,wales,',
         'yi' => 'Yiddish,ייִדיש,europeanunion,',
@@ -133,13 +143,26 @@ class transposh_consts {
     );
 
     public static function get_language_name($lang) {
-        list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        list ($langname) = explode(",", transposh_consts::$languages[$lang]);
         return $langname;
     }
 
     public static function get_language_orig_name($lang) {
-        list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        list (, $langorigname) = explode(",", transposh_consts::$languages[$lang]);
         return $langorigname;
+    }
+
+    public static function get_language_flag($lang) {
+        list (,, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        return $flag;
+    }
+
+    public static function get_language_locale($lang) {
+        list (,,, $locale) = explode(",", transposh_consts::$languages[$lang]);
+        if ($locale) {
+            return $locale;
+        }
+        return $lang;
     }
 
     // Language which are read from right to left (rtl)
@@ -153,13 +176,18 @@ class transposh_consts {
     // @updated 2013-Apr-19 (km)
     // @updated 2013-May-09 (bs,ceb,hmn,jw,mr)
     // @updated 2013-Dec-24 (ha,ig,mi,mn,ni,pa,so,yo,zu)
-    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi', 'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu');
+    // @updated 2014-Dec-15 (kk,mg,ml,my,ny,si,st,su,tg,uz)
+    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu',
+        'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi',
+        'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu',
+        'kk', 'mg', 'ml', 'my', 'ny', 'si', 'st', 'su', 'tg', 'uz');
     // Bing supported languages
     // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
     // @updated 2012-Feb-14 (mww)
     // @updated 2013-Feb-21 (ms, ur)
     // @updated 2014-Feb-21 (cy)
-    public static $bing_languages = array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv', 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy');
+    public static $bing_languages = array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
+        'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy');
     // Apertium supported languages
     // a bit tricky, but we'll see - starting with just esperanto
     public static $apertium_languages = array('eo');
@@ -171,7 +199,8 @@ class transposh_consts {
     //Kazakh	kk-kz
     //Pashto	ps
     //Uzbek	uz-uz
-    public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi', 'km', 'bs');
+    public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id',
+        'it', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi', 'km', 'bs');
     // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
     // Array holding list of jQueryUI themes
@@ -404,7 +433,6 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # ckb/ Kurdish
   # cpp/ ??
   # el/
-  # eo/ esperanto
   # es_CL/
   # es_PE/
   # es_VE/
@@ -416,18 +444,14 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # /
   # ky_KY/
   # ml_IN/
-  # mn/
-  # my_MM/
   # nb_NO/ ? good Question, popped into Norway
   # nn_NO/ ? same question
   # pt_BR/
   # ru_UA/
   # sd_PK/
-  # si_LK/
   # su_ID/
   # ta_IN/
   # ug_CN/
-  # uz_UZ/
   # zh_HK/
  */
 ?>
