@@ -40,6 +40,7 @@ class transposh_3rdparty {
         //bp_activity_permalink_redirect_url (can fit here if generic setting fails)
         // google xml sitemaps - with patch
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
+        add_filter('wpseo_sitemap_language', array(&$this, 'add_yoast_transposh_urls'));
 
         // google analyticator
         if ($this->transposh->options->transposh_collect_stats) {
@@ -117,9 +118,10 @@ class transposh_3rdparty {
      */
     function bp_activity_after_save($params) {
         // we don't need to modify our own activity stream
-        if ($params->type == 'new_translation') return;
+        if ($params->type == 'new_translation')
+            return;
         if (transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url))
-                bp_activity_update_meta($params->id, 'tp_language', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url));
+            bp_activity_update_meta($params->id, 'tp_language', transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url));
     }
 
     /**
@@ -147,15 +149,17 @@ class transposh_3rdparty {
         global $bp;
 
         // we must have buddypress...
-        if (!function_exists('bp_activity_add')) return false;
+        if (!function_exists('bp_activity_add'))
+            return false;
 
         // we only log translation for logged on users
-        if (!$bp->loggedin_user->id) return;
+        if (!$bp->loggedin_user->id)
+            return;
 
         /* Because blog, comment, and blog post code execution happens before anything else
           we may need to manually instantiate the activity component globals */
         if (!$bp->activity && function_exists('bp_activity_setup_globals'))
-                bp_activity_setup_globals();
+            bp_activity_setup_globals();
 
         // just got this from buddypress, changed action and content
         $values = array(
@@ -209,6 +213,59 @@ class transposh_3rdparty {
         }
     }
 
+    /**
+     * This function integrates with yoast sitemap generator, and adds for each viewable language, the rest of the languages url
+     * Also - priority is reduced by 0.2
+     * And this requires the following patch in class-sitemaps.php
+     * For future yoast versions, and reference, look for this function:
+      if ( ! in_array( $url['loc'], $stackedurls ) ) {
+        // Use this filter to adjust the entry before it gets added to the sitemap
+        $url = apply_filters( 'wpseo_sitemap_entry', $url, 'post', $p );
+        if ( is_array( $url ) && $url !== array() ) {
+          $output .= $this->sitemap_url( $url );
+          $stackedurls[] = $url['loc'];
+        }
+      }
+
+      And change to:
+
+      if ( ! in_array( $url['loc'], $stackedurls ) ) {
+        // Use this filter to adjust the entry before it gets added to the sitemap
+        $url = apply_filters( 'wpseo_sitemap_entry', $url, 'post', $p );
+        if ( is_array( $url ) && $url !== array() ) {
+          $output .= $this->sitemap_url( $url );
+          $stackedurls[] = $url['loc'];
+        }
+        $langurls = apply_filters( 'wpseo_sitemap_language',$url);
+        if ( is_array( $langurls )) {
+          foreach ($langurls as $langurl) {
+          $output .= $this->sitemap_url( $langurl );
+        }
+      }
+     * @param yoast_url array $yoast_url Object containing the page information
+     */
+    function add_yoast_transposh_urls($yoast_url) {
+        tp_logger("in sitemap add url: " . $yoast_url['loc'] . " " . $yoast_url['pri'], 2);
+        $urls = array();
+
+        $yoast_url['pri'] = max($yoast_url['pri'] - 0.2, 0);
+
+        $viewable_langs = explode(',', $this->transposh->options->viewable_languages);
+        $orig_url = $yoast_url['loc'];
+        foreach ($viewable_langs as $lang) {
+            if (!$this->transposh->options->is_default_language($lang)) {
+                $newloc = $orig_url;
+                if ($this->transposh->options->enable_url_translate) {
+                    $newloc = transposh_utils::translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
+                }
+                $newloc = transposh_utils::rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
+                $yoast_url['loc'] = $newloc;
+                $urls[] = $yoast_url;
+            }
+        }
+        return $urls;
+    }
+
     function woo_uri_filter($url) {
         $lang = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url);
         tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode));
@@ -216,5 +273,3 @@ class transposh_3rdparty {
     }
 
 }
-
-?>
