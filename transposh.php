@@ -332,6 +332,9 @@ class transposh_plugin {
         return ( stripos($url, '/wp-login.php') !== FALSE ||
                 stripos($url, '/wp-admin/') !== FALSE ||
                 stripos($url, '/wp-comments-post') !== FALSE ||
+                stripos($url, '/main-sitemap.xsl') !== FALSE || //YOAST?                
+                stripos($url, '.xsl') !== FALSE || //YOAST?                
+                stripos($url, '.xml') !== FALSE || //YOAST?                
                 stripos($url, '/xmlrpc.php') !== FALSE);
     }
 
@@ -1156,7 +1159,7 @@ class transposh_plugin {
         if ($lang) {
             if (strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit') !== false) {
                 tp_logger('iamhere?' . strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit'));
-                $plugpath = parse_url($this->transposh_plugin_url, PHP_URL_PATH);
+                $plugpath = @parse_url($this->transposh_plugin_url, PHP_URL_PATH);
                 list($langeng, $langorig, $langflag) = explode(',', transposh_consts::$languages[$lang]);
                 $text = transposh_utils::display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
             } else {
@@ -1354,7 +1357,7 @@ class transposh_plugin {
             unset($result->src);
             unset($result->server_time);
         }
-        $jsonout->result = $jsonarr->results[0]->sentences[0]->trans;
+        @$jsonout->result = $jsonarr->results[0]->sentences[0]->trans; //@ avoids the empty object warning
 
         echo json_encode($jsonout);
         die();
@@ -1621,10 +1624,10 @@ class transposh_plugin {
             // now we should query our own service
             $this->do_update_check = true;
         } elseif (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
-            $plugs = json_decode($arr['body']['plugins'],true);
+            $plugs = json_decode($arr['body']['plugins'], true);
             unset($plugs['plugins'][$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = json_encode($plugs);
-            tp_logger($arr);            
+            tp_logger($arr);
             $this->do_update_check = true;
         }
         return $arr;
@@ -1731,8 +1734,13 @@ function transposh_get_current_language() {
  * @param array $altarray - array including alternatives in the format ("es" => "hola")
  */
 function transposh_echo($default, $altarray) {
+    global $my_transposh_plugin;
     if (isset($altarray[transposh_get_current_language()])) {
-        echo TP_GTXT_BRK . $altarray[transposh_get_current_language()] . TP_GTXT_BRK_CLOSER;
+        if (transposh_get_current_language() != $my_transposh_plugin->options->default_language) {
+            echo TP_GTXT_BRK . $altarray[transposh_get_current_language()] . TP_GTXT_BRK_CLOSER;
+        } else {
+            echo $altarray[transposh_get_current_language()];
+        }
     } else {
         echo $default;
     }
