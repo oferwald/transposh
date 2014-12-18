@@ -318,7 +318,7 @@ class transposh_plugin_widget extends WP_Widget {
         // fifth - if you just delete the following line, it means that you have little respect to the whole copyright thing, which as far as we
         // understand means that by doing so - you are giving everybody else the right to do the same and use your work without any attribution
         // last - you can now remove the logo in exchange to a few percentage of ad and affiliate revenues on your pages, isn't that better?
-        $plugpath = parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
+        $plugpath = @parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
 
         if (!$this->transposh->options->widget_remove_logo) {
             $tagline = esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . ' - ';
