@@ -347,8 +347,9 @@ class parser {
      */
     function tag_phrase($string, $start, $end) {
         $phrase = trim(substr($string, $start, $end - $start));
+        $phrasefixed = trim(str_replace('&nbsp;', ' ',$phrase));
 //        $logstr = str_replace(array(chr(1),chr(2),chr(3),chr(4)), array('[1]','[2]','[3]','[4]'), $string);
-//        tp_logger ("p:$phrase, s:$logstr, st:$start, en:$end, gt:{$this->in_get_text}, gti:{$this->in_get_text_inner}");
+//        tp_logger ("p:$phrasefixed, s:$logstr, st:$start, en:$end, gt:{$this->in_get_text}, gti:{$this->in_get_text_inner}");
         if ($this->in_get_text > $this->in_get_text_inner) {
             tp_logger('not tagging ' . $phrase . ' assumed gettext translated', 4);
             return;
@@ -360,8 +361,8 @@ class parser {
             $node->parent = $this->currentnode;
             $this->currentnode->nodes[] = $node;
             $node->_[HDOM_INFO_OUTER] = '';
-            $node->phrase = $phrase;
-            $this->prefetch_phrases[$phrase] = true;
+            $node->phrase = $phrasefixed;
+            $this->prefetch_phrases[$phrasefixed] = true;
             $node->start = $start;
             $node->len = strlen($phrase);
             if ($this->srclang) $node->srclang = $this->srclang;
@@ -394,6 +395,11 @@ class parser {
                 if (($this->is_white_space(@$string[$pos + $len_of_entity]) || $this->is_entity_breaker($entity)) && !$this->is_entity_letter($entity)) {
                     tp_logger("entity ($entity) breaks", 4);
                     $this->tag_phrase($string, $start, $pos);
+                    $start = $pos + $len_of_entity;
+                }
+                // skip nbsp starting a phrase
+                tp_logger("entity ($entity)");
+                if ($entity === '&nbsp;' && $start === $pos) {
                     $start = $pos + $len_of_entity;
                 }
                 //skip past entity
