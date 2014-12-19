@@ -59,12 +59,12 @@ class transposh_database {
 
         if (class_exists('Memcache')) {
             if ($this->transposh->options->debug_enable)
-                    tp_logger('Trying pecl-Memcache!', 3);
+                tp_logger('Trying pecl-Memcache!', 3);
             $this->memcache_working = true;
             $this->memcache = new Memcache;
             @$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) or $this->memcache_working = false;
             if ($this->transposh->options->debug_enable && $this->memcache_working)
-                    tp_logger('Memcache seems working');
+                tp_logger('Memcache seems working');
         }
         // I have space in keys issues...
         /* elseif (class_exists('Memcached')) {
@@ -109,7 +109,7 @@ class transposh_database {
         }
         tp_logger("Cache fetched: $original => $cached", 4);
         if ($cached !== null && $cached !== false)
-                $cached = explode('_', $cached, 2);
+            $cached = explode('_', $cached, 2);
         return $cached;
     }
 
@@ -388,7 +388,8 @@ class transposh_database {
             }
             $alreadybatched[$original . '---' . $lang] = true;
             // should we backup? - yes on any human translation
-            if ($source == 0) $backup_immidiate_possible = true;
+            if ($source == 0)
+                $backup_immidiate_possible = true;
 
             //Here we check we are not redoing stuff
             list($old_source, $translated_text) = $this->fetch_translation($original, $lang);
@@ -618,7 +619,7 @@ class transposh_database {
         $limitterm = '';
         $dateterm = '';
         if ($date != "null")
-                $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
+            $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
         if ($limit) $limitterm = "LIMIT $limit";
         $query = "SELECT original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
                 "FROM {$this->translation_log_table} " .
@@ -687,14 +688,14 @@ class transposh_database {
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             if ($row->count)
-                    printf('<p>' . __('Total of <strong style="color:red">%s</strong> translated phrases.', TRANSPOSH_TEXT_DOMAIN) . '</p>', $row->count);
+                printf('<p>' . __('Total of <strong style="color:red">%s</strong> translated phrases.', TRANSPOSH_TEXT_DOMAIN) . '</p>', $row->count);
         }
 
         $query = "SELECT count(*) as count,lang FROM `{$this->translation_table}` WHERE source='0' GROUP BY `lang` ORDER BY `count` DESC LIMIT 3";
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             if ($row->count)
-                    printf('<p>' . __('<strong>%1s</strong> has <strong style="color:red">%2s</strong> human translated phrases.', TRANSPOSH_TEXT_DOMAIN) . '</p>', $row->lang, $row->count);
+                printf('<p>' . __('<strong>%1s</strong> has <strong style="color:red">%2s</strong> human translated phrases.', TRANSPOSH_TEXT_DOMAIN) . '</p>', $row->lang, $row->count);
         }
 
         echo '<h4>' . __('Recent activity', TRANSPOSH_TEXT_DOMAIN) . '</h4>';
@@ -753,15 +754,30 @@ class transposh_database {
      */
     function cleanup($days = 0) {
         $days = intval($days); // some security
-        $cleanup = 'DELETE ' . $this->translation_table . ' ,' . $this->translation_log_table .
-                ' FROM ' . $this->translation_table .
-                ' INNER JOIN ' . $this->translation_log_table .
-                ' ON ' . $this->translation_table . '.original = ' . $this->translation_log_table . '.original' .
-                ' AND ' . $this->translation_table . '.lang = ' . $this->translation_log_table . '.lang' .
-                ' WHERE ' . $this->translation_table . '.source > 0' .
-                " AND timestamp < SUBDATE(NOW(),$days)";
-        $result = $GLOBALS['wpdb']->query($cleanup);
-        tp_logger($cleanup, 4);
+        if ($days == 999) {
+            $cleanup = 'DELETE ' .
+                    ' FROM ' . $this->translation_table .
+                    ' WHERE original = translated' .
+                    ' AND source >0';
+            $result = $GLOBALS['wpdb']->query($cleanup);
+            tp_logger($cleanup, 4);
+            $cleanup = 'DELETE ' .
+                    ' FROM ' . $this->translation_log_table .
+                    ' WHERE original = translated' .
+                    ' AND source >0';
+            $result = $GLOBALS['wpdb']->query($cleanup);
+            tp_logger($cleanup, 4);
+        } else {
+            $cleanup = 'DELETE ' . $this->translation_table . ' ,' . $this->translation_log_table .
+                    ' FROM ' . $this->translation_table .
+                    ' INNER JOIN ' . $this->translation_log_table .
+                    ' ON ' . $this->translation_table . '.original = ' . $this->translation_log_table . '.original' .
+                    ' AND ' . $this->translation_table . '.lang = ' . $this->translation_log_table . '.lang' .
+                    ' WHERE ' . $this->translation_table . '.source > 0' .
+                    " AND timestamp < SUBDATE(NOW(),$days)";
+            $result = $GLOBALS['wpdb']->query($cleanup);
+            tp_logger($cleanup, 4);
+        }
         // clean up cache so that results will actually show
         $this->cache_clean();
         exit;
