@@ -233,6 +233,10 @@ define('TRANSPOSH_OPTIONS_OHT', 'transposh_options_oht');
 define('TRANSPOSH_OPTIONS_OHT_PROJECTS', 'transposh_options_oht_projects');
 define('TRANSPOSH_OHT_DELAY', 600);
 
+//0.9.6 - Making sure Google works
+define('TRANSPOSH_OPTIONS_GOOGLEPROXY', 'transposh_options_googleproxy');
+define('TRANSPOSH_GOOGLEPROXY_DELAY', 86400); // give it a day
+
 //0.5.6 new definitions
 //Defintions for directories used in the plugin
 define('TRANSPOSH_DIR_CSS', 'css');
