@@ -63,6 +63,11 @@
             return false;
         });
 
+        $("#transposh-clean-unimportant").click(function() {
+            cleanautoclick(999,$(this));
+            return false;
+        });
+
         maintclick = function (button) {
             if (!confirm("Are you sure you want to do this?")) return false;
             var prevtext = button.text();
@@ -85,6 +90,14 @@
             maintclick($(this));
             return false;
         });
+
+//  WIP      $("#transposh-fetch").click(function() {
+//            //maintclick($(this));
+//            $.post(ajaxurl, {
+//                action: 'tp_fetch'
+//            });
+//            return false;
+//        });
 
         // translate all button
         do_translate_all = function () {

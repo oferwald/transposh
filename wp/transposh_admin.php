@@ -47,6 +47,7 @@ class transposh_plugin_admin {
         add_action('wp_ajax_tp_backup', array(&$this, 'on_ajax_tp_backup'));
         add_action('wp_ajax_tp_restore', array(&$this, 'on_ajax_tp_restore'));
         add_action('wp_ajax_tp_maint', array(&$this, 'on_ajax_tp_maint'));
+//WIP        add_action('wp_ajax_tp_fetch', array(&$this, 'on_ajax_tp_fetch'));
         add_action('wp_ajax_tp_cleanup', array(&$this, 'on_ajax_tp_cleanup'));
         add_action('wp_ajax_tp_translate_all', array(&$this, 'on_ajax_tp_translate_all'));
         add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
@@ -568,8 +569,10 @@ class transposh_plugin_admin {
         echo '<div style="margin:10px 0"><a id="transposh-reset-options" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Reset configuration to default (saves keys)', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-unimportant" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations that add no apperant value', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-maint" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Attempt to fix errors caused by previous versions - please backup first', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
 
+// WIP        echo '<div style="margin:10px 0"><a id="transposh-fetch" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Try fetching translation files', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div id="progress_bar_all"></div><div id="tr_translate_title"></div>';
         echo '<div id="tr_loading" style="margin: 0 0 10px 0">' . __('Translate by clicking the button below', TRANSPOSH_TEXT_DOMAIN) . '</div>';
         echo '<div id="tr_allmsg" style="margin: 0 0 10px 0"></div>';
@@ -821,6 +824,50 @@ class transposh_plugin_admin {
         $this->transposh->database->db_maint();
         die();
     }
+    
+//    function on_ajax_tp_fetch() { WIP
+///*      	$transients = array( 'update_core' => 'core', 'update_plugins' => 'plugin', 'update_themes' => 'theme' );
+//	foreach ( $transients as $transient => $type ) {
+//            delete_site_transient($transient);
+//        };
+//        tp_logger('site transient removed');
+//        tp_logger(wp_get_translation_updates());*/
+//        $currentlangs = wp_get_installed_translations('core');
+//        
+//        /** Load WordPress Translation Install API */
+//        require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+//       // tp_logger(wp_can_install_language_pack());
+//        $translations = wp_get_available_translations();
+//        
+//        //con
+//        //foreach($this->transposh->options->)
+//        
+//        set_time_limit(600);
+//        foreach (explode(',', $this->transposh->options->viewable_languages) as $lang) {
+//            $locale = transposh_consts::get_language_locale($lang);
+//            $getme = false;
+//            foreach ( $translations as $translation ) {
+///*		if ( $translation['language'] === $download ) {
+//			$translation_to_load = true;
+//			break;
+//		}*/
+//                if ($translation['language'] == $locale) {
+//                  //   tp_logger($translation);
+//                     tp_logger("$translation[version] $translation[updated]");
+//                     $getme = true;
+//                }
+//            }
+//            if ($locale != 'en_US' && $getme) {
+//                tp_logger("fetching $locale");
+//                tp_logger($currentlangs['default'][$locale]);
+//                tp_logger(wp_download_language_pack($locale));
+//            } else {
+//                tp_logger("NOT fetching $locale");                
+//            }
+//        }
+//        //tp_logger(wp_download_language_pack('he_IL'));
+//        die();
+//    }
 
     // Start full translation
     function on_ajax_tp_translate_all() {
