@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.3
-Tested up to: 3.8.1
+Tested up to: 4.1
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 73 languages are automatically translated and can be manually corrected with ease.
@@ -107,18 +107,26 @@ This version allows sorting of languages within the widget
 
 == Credits ==
 = Translation credits =
- * Dutch translation by [Roland Nieuwendijk](http://blog.imagitect.nl/)
- * Russian translation by Romans Matusevics
- * Hebrew translation by [Amir](http://colnect.com/he)
- * Frontend Spanish translation by [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
- * Italian translation by [MacItaly](http://profiles.wordpress.org/macitaly)
- * Persian translation by [Sushyant Zavarzadeh](http://sushyant.com)
- * Spanish translation by [Angel Torregrosa](http://wordp.relatividad.org)
- * German translation by [Jenny Beelens](http://www.professionaltranslation.com)
- * Turkish translation by [Ömer Faruk Karabulut](http://yakalasam.com/) and [Semih Yeşilyurt](http://kingdroid.net)
- * Portuguese (Brazil) translation by [Amilton Junior](http://www.dicasemgeral.com)
+ * Dutch  - [Roland Nieuwendijk](http://blog.imagitect.nl/)
+ * German - [Jenny Beelens](http://www.professionaltranslation.com)
+ * Hebrew - [Amir](http://colnect.com/he)
+ * Italian - [MacItaly](http://profiles.wordpress.org/macitaly)
+ * Persian - [Sushyant Zavarzadeh](http://sushyant.com)
+ * Portuguese (Brazil) - [Amilton Junior](http://www.dicasemgeral.com)
+ * Russian - Romans Matusevics
+ * Serbian - [Borisa Djuraskovic]
+ * Spanish - [Angel Torregrosa](http://wordp.relatividad.org), [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
+ * Turkish - [Ömer Faruk Karabulut](http://yakalasam.com/) and [Semih Yeşilyurt](http://kingdroid.net)
 
 == Changelog ==
+= 2014/12/21 - 0.9.6 =
+ * Added new 10 Google languages
+ * Support for Yoast SEO sitemaps (patch required, instructions inside)
+ * Fixed transposh blocking upgrades with newer wordpress api
+ * Many warnings suppressed, including strict standards
+ * Added Serbian translation by Borisa Djuraskovic
+ * Lots of fixes for the google proxy
+ * Allow to remove useless auto translations (where string == translation)
 = 2014/01/25 - 0.9.5 =
  * Added new 8 Google languages
  * retired deprecated $wpdb->escape
