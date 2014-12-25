@@ -569,8 +569,9 @@ class parser {
             }
         }
 
-        // titles are also good places to translate, exist in a, img, abbr, acronym
-        if ($node->title) $this->parsetext($node->title);
+        // titles and placeholders are also good places to translate, exist in a, img, abbr, acronym
+        if ($node->title) {$this->parsetext($node->title);}
+        if ($node->placeholder) {$this->parsetext($node->placeholder);}
 
         // Meta content (keywords, description) are also good places to translate (but not in robots... or http-equiv)
         if ($node->tag == 'meta' && $node->content && ($node->name != 'robots') && ($node->name != 'viewport') && ($node->{'http-equiv'} != 'Content-Type'))
@@ -747,7 +748,7 @@ class parser {
               if ($ep->phrase) $originals[$ep->phrase] = true;
               }
               }
-              foreach (array('title', 'value') as $title) {
+              foreach (array('title', 'value', 'placeholder') as $title) {
               foreach ($this->html->find('[' . $title . ']') as $e) {
               if (isset($e->nodes))
               foreach ($e->nodes as $ep) {
@@ -855,7 +856,7 @@ class parser {
 
         // now we handle the title attributes (and the value of submit buttons)
         $hidden_phrases = array();
-        foreach (array('title', 'value') as $title) {
+        foreach (array('title', 'value', 'placeholder') as $title) {
             foreach ($this->html->find('[' . $title . ']') as $e) {
                 $replace = array();
                 $span = '';
