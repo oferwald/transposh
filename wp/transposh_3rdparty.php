@@ -40,7 +40,14 @@ class transposh_3rdparty {
         //bp_activity_permalink_redirect_url (can fit here if generic setting fails)
         // google xml sitemaps - with patch
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
+        // yoast - need patch
         add_filter('wpseo_sitemap_language', array(&$this, 'add_yoast_transposh_urls'));
+        
+        // business directory plugin
+        add_filter('wpbdp_get_page_link', array(&$this, 'fix_wpbdp_links_base'));
+        add_filter('wpbdp_listing_link', array(&$this, 'fix_wpbdp_links'));
+        add_filter('wpbdp_category_link', array(&$this, 'fix_wpbdp_links'));
+        
 
         // google analyticator
         if ($this->transposh->options->transposh_collect_stats) {
@@ -228,6 +235,7 @@ class transposh_3rdparty {
       }
 
       And change to:
+      ------------------------------------------------------------------------
 
       if ( ! in_array( $url['loc'], $stackedurls ) ) {
         // Use this filter to adjust the entry before it gets added to the sitemap
@@ -239,9 +247,11 @@ class transposh_3rdparty {
         $langurls = apply_filters( 'wpseo_sitemap_language',$url);
         if ( is_array( $langurls )) {
           foreach ($langurls as $langurl) {
-          $output .= $this->sitemap_url( $langurl );
+            $output .= $this->sitemap_url( $langurl );
+          }
         }
       }
+      -------------------------------------------------------------------------
      * @param yoast_url array $yoast_url Object containing the page information
      */
     function add_yoast_transposh_urls($yoast_url) {
@@ -271,5 +281,45 @@ class transposh_3rdparty {
         tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode));
         return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode);
     }
-
+    
+    /*
+     * For the business directory plugin, hidden fields needs to be added to enable search:
+     * every time after the do-srch param
+     1. in search.tpl.php added this:
+            <input type="hidden" name="lang" value="<?php echo transposh_get_current_language(); ?>" />
+     2. in widget-search.php
+        printf('<input type="hidden" name="lang" value="%s" />', transposh_get_current_language());
+     3. templates-ui.php
+        $html .= sprintf('<input type="hidden" name="lang" value="%s" />', transposh_get_current_language());
+     */
+    
+    function fix_wpbdp_cat_links($url) {
+        tp_logger($url,1);       
+        return $url;
+        $url = preg_replace('#/.lang=[a-z]*/#','/',$url);
+        if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
+            return $url;
+        } 
+        tp_logger($url,1);       
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);        
+        
+    }
+    
+    function fix_wpbdp_links($url) {
+        tp_logger($url,1);       
+        $url = preg_replace('#/.lang=[a-z]*/#','/',$url);
+        if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
+            return $url;
+        } 
+        tp_logger($url,1);       
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);        
+    }
+    
+    function fix_wpbdp_links_base($url) {
+        if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
+            return $url;
+        } 
+        tp_logger($url,1);       
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);        
+    }
 }
