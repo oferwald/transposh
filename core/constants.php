@@ -186,8 +186,9 @@ class transposh_consts {
     // @updated 2012-Feb-14 (mww)
     // @updated 2013-Feb-21 (ms, ur)
     // @updated 2014-Feb-21 (cy)
+    // @updated 2015-Apr-19 (bs, hr, sr)
     public static $bing_languages = array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
-        'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy');
+        'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr');
     // Apertium supported languages
     // a bit tricky, but we'll see - starting with just esperanto
     public static $apertium_languages = array('eo');
