@@ -349,11 +349,23 @@ class transposh_plugin {
           $this->on_parse_request($wp);
           } */
         tp_logger('processing page hit with language:' . $this->target_language, 1);
+        $bad_content = false;
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Content-Type') !== false) {
+                tp_logger($header);
+                if (stripos($header, 'text') === false) {
+                    tp_logger("won't do that");
+                    $bad_content = true;
+                }
+            }
+        }
         $start_time = microtime(TRUE);
 
         // Refrain from touching the administrative interface and important pages
         if ($this->is_special_page($_SERVER['REQUEST_URI'])) {
             tp_logger("Skipping translation for admin pages", 3);
+        } elseif ($bad_content) {
+            tp_logger("Seems like content we should not handle");
         }
         // This one fixed a bug transposh created with other pages (xml generator for other plugins - such as the nextgen gallery)
         // TODO: need to further investigate (will it be needed?)
@@ -438,7 +450,7 @@ class transposh_plugin {
         }
 
         //buddypress old activity
-        if (@$_POST['action'] == 'activity_get_older_updates') {
+        if (isset($_POST['action']) && $_POST['action'] == 'activity_get_older_updates') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
             $this->attempt_json = true;
         }
@@ -1274,6 +1286,10 @@ class transposh_plugin {
             }
         }
 
+        if (isset($atts['locale'])) {
+            return get_locale();
+        }
+
         if (isset($atts['mylang'])) {
             if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
                 return;
@@ -1328,12 +1344,14 @@ class transposh_plugin {
         if (!$q) {
             return; // avoid unneeded curling
         }
-        $url = 'http://translate.google.com/translate_a/t?client=a&q=' . $q . '&tl=' . $tl . '&sl=' . $sl;
+        $url = 'http://translate.google.com/translate_a/t?client=a&tl=' . $tl . '&sl=' . $sl;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         //must set agent for google to respond with utf-8
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "q=$q");
         $output = curl_exec($ch);
         if ($output === false) {
             echo 'Curl error: ' . curl_error($ch);
@@ -1404,72 +1422,48 @@ class transposh_plugin {
         }
         // we avoid curling we had all results prehand
         if ($q) {
+            $urls = array(
+                'http://translate.google.com',
+                'http://212.199.205.226',
+                'http://74.125.195.138',
+                'https://translate.googleapis.com');
+
+            $attempt = 1;
             $failed = true;
-            if ($googlemethod < 1) {
-                $failed = false;
-                tp_logger('First attempt', 1);
-                $url = 'http://translate.google.com/translate_a/t?client=a' . $q . '&tl=' . $tl . '&sl=' . $sl;
-                tp_logger($url, 5);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                //must set agent for google to respond with utf-8
-                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-                $output = curl_exec($ch);
-                $info = curl_getinfo($ch);
-                tp_logger('Curl code is: ' . $info['http_code'], 1);
-                curl_close($ch);
-                if ($info['http_code'] != 200) {
-                    tp_logger('method fail - 1', 1);
-                    $failed = true;
-                    update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array(1, time()));
+            foreach ($urls as $gurl) {
+                if ($googlemethod < $attempt && $failed) {
+                    $failed = false;
+                    tp_logger("Attempt: $attempt", 1);
+                    $url = $gurl . '/translate_a/t?client=a' . '&tl=' . $tl . '&sl=' . $sl;
+                    tp_logger($url, 5);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    //must set agent for google to respond with utf-8
+                    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $q);
+
+                    //if the attempt is 2 or more, we skip ipv6 and se an alternative user agent
+                    if ($attempt > 1) {
+                        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+                    }
+                    $output = curl_exec($ch);
+                    $info = curl_getinfo($ch);
+                    tp_logger('Curl code is: ' . $info['http_code'], 1);
+                    curl_close($ch);
+                    if ($info['http_code'] != 200) {
+                        tp_logger("method fail - $attempt", 1);
+                        $failed = true;
+                        update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array($attempt, time()));
+                    }
+                    unset($info);
                 }
-                unset($info);
+                $attempt++;
             }
-            if ($googlemethod < 2 && $failed) {
-                $failed = false;
-                tp_logger('Second attempt, no ipv6, alt url, alt agent', 1);
-                $url = 'http://212.199.205.226/translate_a/t?client=a' . $q . '&tl=' . $tl . '&sl=' . $sl;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                tp_logger($_SERVER['HTTP_USER_AGENT'], 1);
-                //must set agent for google to respond with utf-8
-                curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-                $output = curl_exec($ch);
-                $info = curl_getinfo($ch);
-                tp_logger('Curl code is: ' . $info['http_code'], 1);
-                curl_close($ch);
-                if ($info['http_code'] != 200) {
-                    tp_logger('method fail - 2', 1);
-                    $failed = true;
-                    update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array(2, time()));
-                }
-                unset($info);
-            }
-            if ($googlemethod < 3 && $failed) {
-                $failed = false;
-                tp_logger('Third attempt, alt address, no ipv6, alt url, alt agent', 1);
-                $url = 'http://74.125.195.138/translate_a/t?client=a' . $q . '&tl=' . $tl . '&sl=' . $sl;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                tp_logger($_SERVER['HTTP_USER_AGENT'], 1);
-                //must set agent for google to respond with utf-8
-                curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-                $output = curl_exec($ch);
-                $info = curl_getinfo($ch);
-                tp_logger('Curl code is: ' . $info['http_code'], 1);
-                curl_close($ch);
-                if ($info['http_code'] != 200) {
-                    tp_logger('method fail - 3', 1);
-                    $failed = true;
-                    update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array(3, time()));
-                }
-                unset($info);
-            }
+
+            // TODO - last attempt, with key
 
             if ($failed) {
                 tp_logger('out of options, die for the day!', 1);
@@ -1489,7 +1483,7 @@ class transposh_plugin {
                 $newout = str_replace(',,', ',"",', $output);
                 $jsonarrt = json_decode($newout);
                 if (!$jsonarrt) {
-                    die ('Not JSON');
+                    die('Not JSON');
                 }
                 @$jsonarr->results = array();
                 foreach ($jsonarrt[0] as $result) {
@@ -1834,5 +1828,3 @@ function tp_logger($msg, $severity = 3, $do_backtrace = false) {
     }
     $GLOBALS['tp_logger']->do_log($msg, $severity, $do_backtrace);
 }
-
-?>
