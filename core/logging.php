@@ -95,7 +95,7 @@ class tp_logger {
                 echo "$log_prefix:$msg";
                 echo ($this->eolprint) ? "\n" : "<br/>";
             } else {
-                if ($this->remoteip != $_SERVER['REMOTE_ADDR']) return;
+                if (!isset($_SERVER['REMOTE_ADDR']) || $this->remoteip != $_SERVER['REMOTE_ADDR']) return;
                 if ((is_array($msg) || is_object($msg)) && $this->show_caller) {
                     $this->firephp->group("$log_prefix: object/array", array('Collapsed' => true,
                         'Color' => '#FF00FF'));
