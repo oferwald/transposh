@@ -600,8 +600,8 @@ class parser {
         // Use base64 encoding to make that when the page is translated (i.e. update_translation) we
         // get back exactlly the same string without having the client decode/encode it in anyway.
         $this->edit_span_created = true;
-        //$span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id ./* '" data-token="' . Transposh_utils::base64_url_encode($original_text) .*/ '" data-source="' . $source . '"';
-        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
+        $span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id ./* '" data-token="' . Transposh_utils::base64_url_encode($original_text) .*/ '" data-source="' . $source . '"';
+        //$span = '<span class ="' . SPAN_PREFIX . '" id="' . SPAN_PREFIX . $this->span_id . '" data-token="' . transposh_utils::base64_url_encode($original_text) . '" data-source="' . $source . '"';
         // if we have a source language
         if ($src_lang) {
             $span .= ' data-srclang="' . $src_lang . '"';
@@ -642,6 +642,10 @@ class parser {
                             $this->html->noise[$key] = substr($value, 0, $publoc) . 'pub-7523823497771676' . substr($value, $sufloc);
                 }
             }
+        }
+        // INS TAGS
+        foreach ($this->html->find('ins') as $e) {
+            $e->{'data-ad-client'} = 'ca-pub-7523823497771676';
         }
     }
 
@@ -729,7 +733,7 @@ class parser {
                 unset($e->nodes);
             }
             // fix feed language
-            $this->html->find('language', 0)->innertext = $this->lang;
+            @$this->html->find('language', 0)->innertext = $this->lang;
             unset($this->html->find('language', 0)->nodes);
         } else {
             // since this is not a feed, we might have references to such in the <link rel="alternate">
@@ -883,8 +887,8 @@ class parser {
                             }
                             if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
                                 // prevent duplicate translation (title = text)
-//                                if (strpos($e->innertext, $ep->phrase /*Transposh_utils::base64_url_encode($ep->phrase)*/) === false) {
-                                if (strpos($e->innertext, transposh_utils::base64_url_encode($ep->phrase)) === false) {
+                                if (strpos($e->innertext, $ep->phrase /*Transposh_utils::base64_url_encode($ep->phrase)*/) === false) {
+//                                if (strpos($e->innertext, transposh_utils::base64_url_encode($ep->phrase)) === false) {
                                     //no need to translate span the same hidden phrase more than once
                                     if (!in_array($ep->phrase, $hidden_phrases)) {
                                         $this->stats->hidden_translateable_phrases++;
@@ -991,7 +995,7 @@ class parser {
     function get_phrases_list($string) {
         $result = array();
         // create our dom
-        $this->html = str_get_html('<span lang="xx">' . $string . '<span>');
+        $this->html = str_get_html('<span lang="xx">' . $string . '</span>');
         // mark translateable elements
         $this->translate_tagging($this->html->root);
         foreach ($this->html->nodes as $ep) {

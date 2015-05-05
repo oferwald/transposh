@@ -1,4 +1,4 @@
-/*  Copyright © 2009-2011 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2015 Transposh Team (website : http://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -52,12 +52,12 @@
         };
 
         // rewrite text for all matching items at once
-        $("*[data-token='" + token + "'][data-hidden!='y']")
+        $("*[data-orig='" + token + "'][data-hidden!='y']")
         .html(translation)
         .each(fix_image);
 
         // TODO - FIX hidden elements too (need to update father's title)
-        $("*[data-token='" + token + "'][data-hidden='y']")
+        $("*[data-orig='" + token + "'][data-hidden='y']")
         .attr('data-trans', translation)
         .each(fix_image);
     }
@@ -91,7 +91,7 @@
                 data["tr" + i] = translations[i];
                 // We are pre-accounting the progress bar here - which is not very nice
                 //if (source > 0) {
-                done_posted += $("*[data-token='" + tokens[i] + "']").size();
+                done_posted += $("*[data-orig='" + tokens[i] + "']").size();
             //}
             }
             $.ajax({
@@ -291,7 +291,7 @@
         var auto_translated_phrases = [], batchlength = 0, batchtrans = [], batchtokens = [];
 
         $("." + t_jp_prefix + '[data-source=""]').each(function () {
-            var token = $(this).attr('data-token'),
+            var token = $(this).attr('data-orig'),
             // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
             to_trans = $(this).attr('data-orig');
             if (to_trans === undefined) {

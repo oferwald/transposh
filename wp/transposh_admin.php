@@ -61,9 +61,10 @@ class transposh_plugin_admin {
     function can_translate($role_name) {
         if ($role_name != 'anonymous') {
             $role = $GLOBALS['wp_roles']->get_role($role_name);
-            if (isset($role) && $role->has_cap(TRANSLATOR)) return true;
-        }
-        else return $this->transposh->options->allow_anonymous_translation;
+            if (isset($role) && $role->has_cap(TRANSLATOR))
+                return true;
+        } else
+            return $this->transposh->options->allow_anonymous_translation;
     }
 
     /**
@@ -100,8 +101,9 @@ class transposh_plugin_admin {
                 foreach ($GLOBALS['wp_roles']->get_names() as $role_name => $something) {
                     $role = $GLOBALS['wp_roles']->get_role($role_name);
                     if (isset($_POST[$role_name]) && $_POST[$role_name] == "1")
-                            $role->add_cap(TRANSLATOR);
-                    else $role->remove_cap(TRANSLATOR);
+                        $role->add_cap(TRANSLATOR);
+                    else
+                        $role->remove_cap(TRANSLATOR);
                 }
 
                 // anonymous needs to be handled differently as it does not have a role
@@ -129,7 +131,7 @@ class transposh_plugin_admin {
                 // handle the backup change, create the hook
                 wp_clear_scheduled_hook('transposh_backup_event');
                 if ($this->transposh->options->transposh_backup_schedule)
-                        wp_schedule_event(time(), 'daily', 'transposh_backup_event');
+                    wp_schedule_event(time(), 'daily', 'transposh_backup_event');
 
                 $this->transposh->options->transposh_key = TP_FROM_POST;
                 break;
@@ -182,7 +184,7 @@ class transposh_plugin_admin {
             'tp_support' => array(__('Support', TRANSPOSH_TEXT_DOMAIN)),
         );
         if (isset($_GET['page']) && isset($this->pages[$_GET['page']]))
-                $this->page = $_GET['page'];
+            $this->page = $_GET['page'];
 
         // First param is page title, second is menu title
         add_menu_page(__('Transposh', TRANSPOSH_TEXT_DOMAIN), __('Transposh', TRANSPOSH_TEXT_DOMAIN), 'manage_options', 'tp_main', '', $this->transposh->transposh_plugin_url . "/img/tplogo.png");
@@ -323,7 +325,8 @@ class transposh_plugin_admin {
         }
 
         // the page content
-        if ($this->page) call_user_func(array(&$this, $this->page));
+        if ($this->page)
+            call_user_func(array(&$this, $this->page));
 
         // Add submission for pages that can be modified
         if (isset($this->pages[$this->page][2]) && $this->pages[$this->page][2]) { //$this->contains_settings) {
@@ -376,7 +379,7 @@ class transposh_plugin_admin {
         // this is the default language location
         list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$this->transposh->options->default_language]);
         echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">';
-        $this->header(__('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN),'languages');
+        $this->header(__('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN), 'languages');
         echo '<ul id="default_list"><li id="' . $this->transposh->options->default_language . '" class="languages">'
         . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false/* $this->transposh->options->get_widget_css_flags() */)
         . '<input type="hidden" name="languages[]" value="' . $this->transposh->options->default_language . '" />'
@@ -396,15 +399,15 @@ class transposh_plugin_admin {
             . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_active_language($langcode) ? ",v" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
             if (in_array($langcode, transposh_consts::$google_languages))
-                    echo '<img width="16" height="16" alt="g" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
+                echo '<img width="16" height="16" alt="g" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
             if (in_array($langcode, transposh_consts::$bing_languages))
-                    echo '<img width="16" height="16" alt="b" class="logoicon" title="' . esc_attr__('Language supported by bing translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
+                echo '<img width="16" height="16" alt="b" class="logoicon" title="' . esc_attr__('Language supported by bing translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
             if (in_array($langcode, transposh_consts::$apertium_languages))
-                    echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by apertium translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/apertiumicon.png"/>';
+                echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by apertium translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/apertiumicon.png"/>';
             if (in_array($langcode, transposh_consts::$oht_languages))
-                    echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by one hour translation', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/ohticon.png"/>';
+                echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by one hour translation', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/ohticon.png"/>';
             if (in_array($langcode, transposh_consts::$rtl_languages))
-                    echo '<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
+                echo '<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
             echo '</li>';
         }
         echo "</ul></div>";
@@ -468,7 +471,7 @@ class transposh_plugin_admin {
         echo '<input type="radio" value="0" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 0, false) . '/>' . __('Disable backup (Can be run manually by clicking the button below)', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
         echo __('Service Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" ' . $this->transposh->options->transposh_key_o->post_value_id_name() . '/><a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         $this->sectionstop();
-    }
+        }
 
     function tp_engines() {
         $this->section(__('Automatic Translation Settings', TRANSPOSH_TEXT_DOMAIN));
@@ -532,7 +535,7 @@ class transposh_plugin_admin {
     function tp_advanced() {
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
         $this->textinput($this->transposh->options->jqueryui_override_o, __('Override jQueryUI version', TRANSPOSH_TEXT_DOMAIN), __('Version', TRANSPOSH_TEXT_DOMAIN));
-        $this->checkbox($this->transposh->options->dont_add_rel_alternate_o, __('Disable adding rel=alternate to the html', TRANSPOSH_TEXT_DOMAIN) , __('Disable the feature that adds the alternate language list to your page html header', TRANSPOSH_TEXT_DOMAIN));
+        $this->checkbox($this->transposh->options->dont_add_rel_alternate_o, __('Disable adding rel=alternate to the html', TRANSPOSH_TEXT_DOMAIN), __('Disable the feature that adds the alternate language list to your page html header', TRANSPOSH_TEXT_DOMAIN));
         $this->section(__('Parser related settings', TRANSPOSH_TEXT_DOMAIN)
                 , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_puncts_o, __('Disable punctuations break', TRANSPOSH_TEXT_DOMAIN)
@@ -569,7 +572,7 @@ class transposh_plugin_admin {
         echo '<div style="margin:10px 0"><a id="transposh-reset-options" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Reset configuration to default (saves keys)', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-clean-unimportant" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations that add no apperant value', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-unimportant" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations that add no apparent value', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-maint" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Attempt to fix errors caused by previous versions - please backup first', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
 
 // WIP        echo '<div style="margin:10px 0"><a id="transposh-fetch" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Try fetching translation files', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
@@ -676,7 +679,7 @@ class transposh_plugin_admin {
     function on_save_changes() {
         //user permission check
         if (!current_user_can('manage_options'))
-                wp_die(__('Problems?', TRANSPOSH_TEXT_DOMAIN));
+            wp_die(__('Problems?', TRANSPOSH_TEXT_DOMAIN));
         // cross check the given referer
         check_admin_referer(TR_NONCE);
 
@@ -704,7 +707,8 @@ class transposh_plugin_admin {
     private function section($head, $text = '') {
         echo '<h2>' . $head . '</h2>';
         echo '<div class="col-wrap">';
-        if ($text) echo '<p>' . $text . '</p>';
+        if ($text)
+            echo '<p>' . $text . '</p>';
     }
 
     private function sectionstop() {
@@ -712,7 +716,8 @@ class transposh_plugin_admin {
     }
 
     private function header($head, $help = '') {
-        if (!isset($head)) return;
+        if (!isset($head))
+            return;
         if ($help) {
             $help = ' <a class="tp_help" href="#" rel="' . $help . '">[?]</a>';
         }
@@ -821,10 +826,10 @@ class transposh_plugin_admin {
 
     // Start maint
     function on_ajax_tp_maint() {
-        $this->transposh->database->db_maint();
+        $this->transposh->database->setup_db(true);
         die();
     }
-    
+
 //    function on_ajax_tp_fetch() { WIP
 ///*      	$transients = array( 'update_core' => 'core', 'update_plugins' => 'plugin', 'update_themes' => 'theme' );
 //	foreach ( $transients as $transient => $type ) {
@@ -868,7 +873,6 @@ class transposh_plugin_admin {
 //        //tp_logger(wp_download_language_pack('he_IL'));
 //        die();
 //    }
-
     // Start full translation
     function on_ajax_tp_translate_all() {
         // get all ids in need of translation
@@ -876,7 +880,8 @@ class transposh_plugin_admin {
         $page_ids = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE (post_type='page' OR post_type='post') AND (post_status='publish' OR post_status='private') ORDER BY ID DESC");
         // only high capabilities users can...
         // add a fake post to translate things such as tags
-        if (!current_user_can('edit_post', $page_ids[0])) return;
+        if (!current_user_can('edit_post', $page_ids[0]))
+            return;
         $page_ids[] = "-555";
         echo json_encode($page_ids);
         die();
@@ -892,10 +897,9 @@ class transposh_plugin_admin {
     function on_ajax_tp_comment_lang() {
         delete_comment_meta($_GET['cid'], 'tp_language');
         if ($_GET['lang'])
-                add_comment_meta($_GET['cid'], 'tp_language', $_GET['lang'], true);
+            add_comment_meta($_GET['cid'], 'tp_language', $_GET['lang'], true);
         die();
     }
 
 }
-
 ?>

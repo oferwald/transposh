@@ -1,4 +1,4 @@
-/*  Copyright © 2009-2010 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2015 Transposh Team (website : http://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@
         //reset to the original content - the unescaped version if translation is empty
         // TODO!
         if ($.trim(translation).length === 0) {
-            translation = $("[data-token='" + token + "']").attr('data-orig');
+            translation = $("[data-orig='" + token + "']").attr('data-orig');
         }
 
         var fix_image = function () { // handle the image changes
@@ -134,12 +134,12 @@
             }
         };
         // rewrite text for all matching items at once
-        $("*[data-token='" + token + "'][data-hidden!='y']")
+        $("*[data-orig='" + token + "'][data-hidden!='y']")
         .html(translation)
         .each(fix_image);
 
         // FIX hidden elements too (need to update father's title)
-        $("*[data-token='" + token + "'][data-hidden='y']")
+        $("*[data-orig='" + token + "'][data-hidden='y']")
         .attr('data-trans', translation)
         .each(fix_image);
 
@@ -177,6 +177,7 @@
     {
         if (!t_jp.google_key) {
             $.ajax({
+                type: "GET",
                 url: t_jp.ajaxurl,
                 dataType: "json",
                 data: {
@@ -309,7 +310,7 @@
             url: t_jp.ajaxurl, 
             data: {
                 action: 'tp_history',
-                token: $(idprefix + segment_id).attr('data-token'),
+                token: $(idprefix + segment_id).attr('data-orig'),
                 lang: t_jp.lang
             },
             dataType: "json",
@@ -373,7 +374,7 @@
                         url: t_jp.ajaxurl,
                         data: {
                             action: 'tp_history',
-                            token: $(idprefix + segment_id).attr('data-token'),
+                            token: $(idprefix + segment_id).attr('data-orig'),
                             timestamp: $(this).parents('tr').children(":last").text(),
                             lang: t_jp.lang
                         },
@@ -384,7 +385,7 @@
                                 $(row).children().addClass('ui-state-error');
                             } else {
                                 $(row).empty();
-                                fix_page_human($(idprefix + segment_id).attr('data-token'),data.translated, data.source);
+                                fix_page_human($(idprefix + segment_id).attr('data-orig'),data.translated, data.source);
                             }
                         }
                     });
@@ -596,7 +597,7 @@
                                 url: t_jp.ajaxurl,
                                 data: {
                                     action: 'tp_trans_alts',
-                                    token: $(idprefix + segment_id).attr('data-token')
+                                    token: $(idprefix + segment_id).attr('data-orig')
                                 },
                                 dataType: "json",
                                 cache: false,
@@ -664,7 +665,7 @@
             // save data if changed
             if ($(idprefix + 'translation').data("changed")) {
                 var translation = $(idprefix + 'translation').val(),
-                token = $(idprefix + segment_id).attr('data-token');
+                token = $(idprefix + segment_id).attr('data-orig');
                 ajax_translate_human(token, translation);
             }
             // dec counter, reload fields
@@ -676,7 +677,7 @@
             // save data if changed
             if ($(idprefix + 'translation').data("changed")) {
                 var translation = $(idprefix + 'translation').val(),
-                token = $(idprefix + segment_id).attr('data-token');
+                token = $(idprefix + segment_id).attr('data-orig');
                 ajax_translate_human(token, translation);
             }
             // inc counterm reload fields
@@ -688,7 +689,7 @@
             // save data if changed
             if ($(idprefix + 'translation').data("changed")) {
                 var translation = $(idprefix + 'translation').val(),
-                token = $(idprefix + segment_id).attr('data-token');
+                token = $(idprefix + segment_id).attr('data-orig');
                 ajax_translate_human(token, translation);
             }
             // inc counterm reload fields
@@ -800,7 +801,7 @@
                 data: {
                     action: 'tp_oht',
                     q: $(idprefix + "original").val(),
-                    token: $(idprefix + segment_id).attr('data-token'),
+                    token: $(idprefix + segment_id).attr('data-orig'),
                     orglang: $(idprefix + segment_id).attr('data-srclang'),
                     lang: t_jp.lang
                 },
@@ -824,7 +825,7 @@
             text: false
         }).click(function () {
             var translation = $(idprefix + 'translation').val(),
-            token = $(idprefix + segment_id).attr('data-token');
+            token = $(idprefix + segment_id).attr('data-orig');
             // we allow approval on computer generated translations too
             if ($(idprefix + 'translation').data("changed") || $(idprefix + segment_id).attr('data-source') !== "0") {
                 ajax_translate_human(token, translation);

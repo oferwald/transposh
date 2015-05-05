@@ -1086,7 +1086,7 @@ class transposh_plugin {
         $my_transposh_backup = new transposh_backup($this);
         $my_transposh_backup->do_backup();
     }
-
+    
     /**
      * Runs a restore
      */
@@ -1383,11 +1383,15 @@ class transposh_plugin {
 
 // Proxied translation for google translate
     function on_ajax_nopriv_tp_gp() {
-        list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
-        tp_logger("Google method $googlemethod, $timestamp", 1);
-        // we preserve the method, and will ignore lower methods for the given delay period
-        if ($timestamp && (time() - TRANSPOSH_GOOGLEPROXY_DELAY > $timestamp)) {
+        if (get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array())) {
+            list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
+            tp_logger("Google method $googlemethod, $timestamp", 1);
+        } else {            
+            tp_logger("Google is clean", 1);
             $googlemethod = 0;
+        }
+        // we preserve the method, and will ignore lower methods for the given delay period
+        if (isset($timestamp) && (time() - TRANSPOSH_GOOGLEPROXY_DELAY > $timestamp)) {  
             delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
         }
         tp_logger('Google proxy initiated', 1);
@@ -1411,7 +1415,7 @@ class transposh_plugin {
         $i = 0;
         $q = '';
         foreach ($_GET['q'] as $p) {
-            list($source, $trans) = $this->database->fetch_translation($p, $tl);
+            list(, $trans) = $this->database->fetch_translation($p, $tl);
             if (!$trans) {
                 $q .= '&q=' . urlencode(stripslashes($p));
             } else {
@@ -1485,7 +1489,8 @@ class transposh_plugin {
                 if (!$jsonarrt) {
                     die('Not JSON');
                 }
-                @$jsonarr->results = array();
+                $jsonarr = new stdClass();
+                $jsonarr->results = [];
                 foreach ($jsonarrt[0] as $result) {
                     array_push($jsonarr->results, $result[0][0][0]);
                 }
@@ -1503,9 +1508,9 @@ class transposh_plugin {
                     unset($result->server_time);
                 }
             }
+            tp_logger($jsonarr);
         }
         header('Content-type: text/html; charset=utf-8');
-        tp_logger($jsonarr);
 
         // here we match online results with cached ones
         $k = 0;
@@ -1534,7 +1539,8 @@ class transposh_plugin {
             $k = 0;
             for ($j = 0; $j < $i; $j++) {
                 if (!isset($r[$j])) {
-                    $_POST["tk$k"] = transposh_utils::base64_url_encode(stripslashes($_GET['q'][$j])); // stupid, but should work
+//                    $_POST["tk$k"] = transposh_utils::base64_url_encode(stripslashes($_GET['q'][$j])); // stupid, but should work
+                    $_POST["tk$k"] = stripslashes($_GET['q'][$j]); // stupid, but should work
                     $_POST["tr$k"] = $jsonout->results[$j];
                     $k++;
                 }
@@ -1690,14 +1696,14 @@ class transposh_plugin {
             tp_logger($plugs->plugins[$this->transposh_plugin_basename], 4);
             unset($plugs->plugins[$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = serialize($plugs);
-            tp_logger($arr);
+            tp_logger($arr,5);
             // now we should query our own service
             $this->do_update_check = true;
         } elseif (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
             $plugs = json_decode($arr['body']['plugins'], true);
             unset($plugs['plugins'][$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = json_encode($plugs);
-            tp_logger($arr);
+            tp_logger($arr,5);
             $this->do_update_check = true;
         }
         return $arr;
