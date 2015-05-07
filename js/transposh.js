@@ -15,23 +15,30 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+// List of exposed functions:
+//    t_jp.dgpt = do_mass_google_translate;
+//    t_jp.dgt = do_mass_google_api_translate;
+//    t_jp.dmt = do_mass_ms_translate;
+//    t_jp.dat = do_mass_apertium_translate;
+//    t_jp.tfl = test_for_lazyrun;
+//    t_jp.tfju = test_for_jqueryui;
+//    t_jp.at = do_auto_translate;
+
 /*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, window, _mstConfig */
 (function ($) { // closure
     var
-    // this is the size of strings to queue, we don't want too much there
-    BATCH_SIZE = 1024,
-    // number of phrases that might be translated
-    possibly_translateable,
-    // ids of progress bars
-    t_jp_prefix = t_jp.prefix,
-    progressbar_id = t_jp_prefix + "pbar",
-    progressbar_posted_id = progressbar_id + "_s",
-    // source - 0 is human, 1 is google translate, 2 is msn translate, 3 is apertium - higher reserved for future engines
-    source = 1,
-    //Ajax translation
-    done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
-    loadingmsn = 0
-    ;
+            // this is the size of strings to queue, we don't want too much there
+            BATCH_SIZE = 1024,
+            // number of phrases that might be translated
+            possibly_translateable,
+            // ids of progress bars
+            t_jp_prefix = t_jp.prefix,
+            // source - 0 is human, 1 is google translate, 2 is msn translate, 3 is apertium - higher reserved for future engines
+            source = 1,
+            //Ajax translation
+            done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
+            loadingmsn = 0
+            ;
 
     // This function fixes the page, it gets a token and translation and fixes this,
     // since here we only get the automated source, we use this to reduce the code size
@@ -46,29 +53,22 @@
         // edit script will fix this
         var fix_image = function () { // handle the image changes
             var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1),
-            img = $("#" + t_jp_prefix + "img_" + img_segment_id);
+                    img = $("#" + t_jp_prefix + "img_" + img_segment_id);
             $("#" + t_jp_prefix + img_segment_id).attr('data-source', 1); // source is 1
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-yellow');
         };
 
         // rewrite text for all matching items at once
         $("*[data-orig='" + token + "'][data-hidden!='y']")
-        .html(translation)
-        .each(fix_image);
+                .html(translation)
+                .each(fix_image);
 
         // TODO - FIX hidden elements too (need to update father's title)
         $("*[data-orig='" + token + "'][data-hidden='y']")
-        .attr('data-trans', translation)
-        .each(fix_image);
+                .attr('data-trans', translation)
+                .each(fix_image);
     }
 
-    // function to move the progress bars (if needed)
-    function make_progress(id, value) {
-        if (t_jp.progress) {
-            $('#' + id).progressbar('value', value);
-        }
-    }
-    
     // we have four params, here two are implicit (source =1 auto translate, lang = target language)
     function ajax_translate(token, translation) {
         // we aggregate translations together, 200ms from the last translation we will send the timer
@@ -92,7 +92,7 @@
                 // We are pre-accounting the progress bar here - which is not very nice
                 //if (source > 0) {
                 done_posted += $("*[data-orig='" + tokens[i] + "']").size();
-            //}
+                //}
             }
             $.ajax({
                 type: "POST",
@@ -100,48 +100,28 @@
                 data: data,
                 success: function () {
                     // Success now only updates the save progress bar (green)
-                    make_progress(progressbar_posted_id, done_posted / possibly_translateable * 100);
+                    console.window && console.log(done_posted + "/" + possibly_translateable + " translations posted");
                 }
-            // we removed the error function, as there is no alert for automated thing, this will silently fail
-            // which although bad, is what we can do for now
+                // we removed the error function, as there is no alert for automated thing, this will silently fail
+                // which although bad, is what we can do for now
             });
             translations = [];
             tokens = [];
         }, 200); // wait 200 ms... -- TODO, maybe do - items*3
     }
 
-
-    // function that creates the progress bar html
-    function create_progress_bar() {
-        // progress bar is for at least 5 items
-        $("#" + t_jp_prefix + "credit").css({
-            'overflow': 'auto'
-        }).append('<div style="float: left;width: 90%;height: 10px" id="' + progressbar_id + '"/><div style="margin-bottom:10px;float:left;width: 90%;height: 10px" id="' + progressbar_posted_id + '"/>');
-        $('#' + progressbar_id).progressbar({
-            value: 0
-        });
-        $('#' + progressbar_posted_id).progressbar({
-            value: 0
-        });
-        // color the "save" bar
-        $('#' + progressbar_posted_id + " > div").css({
-            'background': '#28F828',
-            'border' : "#08A908 1px solid"
-        });
-    }
-
     // happens on traslate success
     function auto_translate_success(token, translation) {
         ajax_translate(token, $("<div>" + $.trim(translation) + "</div>").text());
-        make_progress(progressbar_id, (possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size()) / possibly_translateable * 100);
+        window.console && console.log(possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size() + "/" + possibly_translateable + " auto translated");
     }
 
     // mass google translation - using proxy
     function do_mass_google_translate(batchtrans, callback, lang) {
         /*var sl = '';
-        if (usedefault) {
-            sl = t_jp.olang;
-        }*/
+         if (usedefault) {
+         sl = t_jp.olang;
+         }*/
         $.ajax({
             url: t_jp.ajaxurl,
             dataType: "json",
@@ -156,8 +136,6 @@
             success: callback
         });
     }
-    t_jp.dgpt = do_mass_google_translate;
-
     function do_mass_google_invoker(tokens, trans) {
         do_mass_google_translate(trans, function (result) {
             $(result.results).each(function (i) {
@@ -181,8 +159,6 @@
             success: callback
         });
     }
-    t_jp.dgt = do_mass_google_api_translate;
-       
     function do_mass_google_api_invoker(tokens, trans) {
         do_mass_google_api_translate(trans, function (result) {
             // if there was an error we will try the other invoker
@@ -195,13 +171,13 @@
             }
         }, t_jp.lang);
     }
-    
+
     // mass bing translation
     function do_mass_ms_translate(batchtrans, callback, lang) {
-        if(t_jp.msn_key) {
+        if (t_jp.msn_key) {
             var q = "[";
             $(batchtrans).each(function (i) {
-                q += '"' + encodeURIComponent(batchtrans[i].replace(/[\\"]/g, '\\$&').replace(/(\r\n|\n|\r)/gm," ")) + '",';
+                q += '"' + encodeURIComponent(batchtrans[i].replace(/[\\"]/g, '\\$&').replace(/(\r\n|\n|\r)/gm, " ")) + '",';
             });
             q = q.slice(0, -1) + ']';
             $.ajax({
@@ -212,21 +188,19 @@
             });
         } else {
             if (loadingmsn === 1) {
-                setTimeout(function() {
+                setTimeout(function () {
                     do_mass_ms_translate(batchtrans, callback, lang);
                 }, 500);
             } else {
                 loadingmsn = 1;
-                $.getScript('//www.microsofttranslator.com/ajax/v2/toolkit.ashx?loc=en&toolbar=none', function() {
+                $.getScript('//www.microsofttranslator.com/ajax/v2/toolkit.ashx?loc=en&toolbar=none', function () {
                     t_jp.msn_key = _mstConfig.appId;
                     do_mass_ms_translate(batchtrans, callback, lang);
                 });
-            }       
-        }            
+            }
+        }
     }
 
-    t_jp.dmt = do_mass_ms_translate;
-    
     function do_mass_ms_invoker(tokens, trans) {
         source = 2;
         do_mass_ms_translate(trans, function (result) {
@@ -250,8 +224,6 @@
             success: callback
         });
     }
-
-    t_jp.dat = do_mass_apertium_translate;
 
     function do_mass_apertium_invoker(tokens, trans) {
         source = 3;
@@ -292,8 +264,8 @@
 
         $("." + t_jp_prefix + '[data-source=""]').each(function () {
             var token = $(this).attr('data-orig'),
-            // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
-            to_trans = $(this).attr('data-orig');
+                    // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
+                    to_trans = $(this).attr('data-orig');
             if (to_trans === undefined) {
                 to_trans = $(this).html();
             }
@@ -313,7 +285,7 @@
         // this invokation is for the remaining items
         do_mass_invoke(batchtokens, batchtrans);
     }
-    
+
     // helper function for lazy running
     function test_for_lazyrun(callback) {
         if (typeof $.xLazyLoader === 'function') {
@@ -321,30 +293,34 @@
         } else {
             t_jp.$ = $;
             $.getScript(t_jp.plugin_url + '/js/lazy.js', callback);
-        }        
+        }
     }
-    
-    t_jp.tfl = test_for_lazyrun;
-    
+
     function test_for_jqueryui(callback) {
         if (test_for_jqueryui.hit /* might be needed? - && typeof $.fn.dialog !== 'function' */) {
             callback();
         } else {
             test_for_jqueryui.hit = true;
-            test_for_lazyrun(function() {
+            test_for_lazyrun(function () {
                 // This is needed when old jQueryUI is being loaded (default for wp3.2)
                 $.fn.propAttr = $.fn.prop || $.fn.attr;
                 $.xLazyLoader({
                     js: t_jp.jQueryUI + 'jquery-ui.min.js',
-                    css: t_jp.jQueryUI + 'themes/'+ t_jp.theme + '/jquery-ui.css',
+                    css: t_jp.jQueryUI + 'themes/' + t_jp.theme + '/jquery-ui.css',
                     success: callback
                 });
             });
         }
     }
 
-    t_jp.tfju = test_for_jqueryui;
+    // expose some functions
+    t_jp.dgpt = do_mass_google_translate;
+    t_jp.dgt = do_mass_google_api_translate;
+    t_jp.dmt = do_mass_ms_translate;
+    t_jp.dat = do_mass_apertium_translate;
     t_jp.at = do_auto_translate;
+    t_jp.tfl = test_for_lazyrun;
+    t_jp.tfju = test_for_jqueryui;
 
     $(function () {
         // set a global binglang (if needed)
@@ -368,7 +344,7 @@
                     action: 'tp_cookie'
                 },
                 cache: false
-            } );              
+            });
             $('.' + t_jp_prefix + 'setdeflang').hide("slow");
             return false;
         });
@@ -383,17 +359,8 @@
         });
         // was: we'll only auto-translate and load the stuff if we either have more than 5 candidate translations, or more than one at 4am, and this language is supported...
         // we'll translate if there's any candidate...?
-        if // ((possibly_translateable > 5 || (now.getHours() === 4 && possibly_translateable > 0)) &&
-        (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium)) {
-            // if we have a progress bar, we need to load the jqueryui before the auto translate, after the google was loaded, otherwise we can just go ahead
-            if (t_jp.progress) {
-                test_for_jqueryui(function () {
-                    create_progress_bar();
-                    do_auto_translate();
-                });
-            } else {
-                do_auto_translate();
-            }
+        if (possibly_translateable && !t_jp.noauto && (t_jp.google || t_jp.msn || t_jp.apertium)) {
+            do_auto_translate();
         }
 
         // this is the part when we have editor support
