@@ -28,6 +28,7 @@ define('DB_VERSION', '1.06');
 
 //Constant used as key in options database
 define('TRANSPOSH_DB_VERSION', "transposh_db_version");
+define('TRANSPOSH_OPTIONS_DBSETUP', 'transposh_inside_dbupgrade');
 
 class transposh_database {
 
@@ -451,7 +452,7 @@ class transposh_database {
             return;
         }
         // First we copy what we will overwrite to the log
-        $copytolog = "INSERT INTO {$this->translation_log_table} (original, translated, lang, translated_by, source) ".
+        $copytolog = "INSERT INTO {$this->translation_log_table} (original, translated, lang, translated_by, source) " .
                 "SELECT original, translated, lang, translated_by, source " .
                 "FROM {$this->translation_table} " .
                 "WHERE $delvalues";
@@ -619,7 +620,7 @@ class transposh_database {
                 // clear cache!
                 $this->cache_delete($original, $lang);
                 // copy from log if possible.
-                $query = "INSERT INTO {$this->translation_table} (original, translated, lang, translated_by, source) ".
+                $query = "INSERT INTO {$this->translation_table} (original, translated, lang, translated_by, source) " .
                         "SELECT original, translated, lang, translated_by, source " .
                         "FROM {$this->translation_log_table} " .
                         "WHERE original='$original' AND lang='$lang' " .
@@ -772,6 +773,14 @@ class transposh_database {
         $installed_ver = get_option(TRANSPOSH_DB_VERSION);
 
         if ($installed_ver != DB_VERSION || $force) {
+            $timestamp = get_option(TRANSPOSH_OPTIONS_DBSETUP, 0);
+            if (time() - 7200 > $timestamp) { //two hours are more than enough
+                delete_option(TRANSPOSH_OPTIONS_DBSETUP);
+            } else {
+                die("we don't want to be here more than once");
+            }
+            update_option(TRANSPOSH_OPTIONS_DBSETUP, time());
+
             tp_logger("Attempting to create table {$this->translation_table}", 1);
             // notice - keep every field on a new line or dbdelta fails
             $rows = $GLOBALS['wpdb']->get_results("SHOW INDEX FROM {$this->translation_table} WHERE key_name = 'PRIMARY'");
@@ -824,8 +833,8 @@ class transposh_database {
             $this->db_maint();
             tp_logger("postmaint");
             update_option(TRANSPOSH_DB_VERSION, DB_VERSION);
+            delete_option(TRANSPOSH_OPTIONS_DBSETUP);
         }
-
         tp_logger("Exit");
     }
 
