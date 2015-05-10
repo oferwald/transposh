@@ -390,7 +390,7 @@ class transposh_plugin {
                 }
             }
 
-            tp_logger("Translating {$_SERVER['REQUEST_URI']} to: {$this->target_language}", 1);
+            tp_logger("Translating {$_SERVER['REQUEST_URI']} to: {$this->target_language} for: {$_SERVER['REMOTE_ADDR']}", 1);
 
             //translate the entire page
             $parse = new parser();
@@ -828,9 +828,6 @@ class transposh_plugin {
         if ($this->options->oht_id && $this->options->oht_key && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options')) {
             $script_params['oht'] = 1;
         }
-        if ($this->options->widget_progressbar) {
-            $script_params['progress'] = 1;
-        }
         if (!$this->options->enable_autotranslate) {
             $script_params['noauto'] = 1;
         }
@@ -843,7 +840,7 @@ class transposh_plugin {
             }
         }
         // set theme when it is needed
-        if ($this->options->widget_progressbar || $this->edit_mode) {
+        if ($this->edit_mode) {
             $script_params['theme'] = $this->options->widget_theme;
             if ($this->options->jqueryui_override) {
                 $script_params['jQueryUI'] = '//ajax.googleapis.com/ajax/libs/jqueryui/' . $this->options->jqueryui_override . '/';
@@ -1086,7 +1083,7 @@ class transposh_plugin {
         $my_transposh_backup = new transposh_backup($this);
         $my_transposh_backup->do_backup();
     }
-    
+
     /**
      * Runs a restore
      */
@@ -1386,12 +1383,12 @@ class transposh_plugin {
         if (get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array())) {
             list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
             tp_logger("Google method $googlemethod, $timestamp", 1);
-        } else {            
+        } else {
             tp_logger("Google is clean", 1);
             $googlemethod = 0;
         }
         // we preserve the method, and will ignore lower methods for the given delay period
-        if (isset($timestamp) && (time() - TRANSPOSH_GOOGLEPROXY_DELAY > $timestamp)) {  
+        if (isset($timestamp) && (time() - TRANSPOSH_GOOGLEPROXY_DELAY > $timestamp)) {
             delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
         }
         tp_logger('Google proxy initiated', 1);
@@ -1490,7 +1487,7 @@ class transposh_plugin {
                     die('Not JSON');
                 }
                 $jsonarr = new stdClass();
-                $jsonarr->results = [];
+                $jsonarr->results = array();
                 foreach ($jsonarrt[0] as $result) {
                     array_push($jsonarr->results, $result[0][0][0]);
                 }
@@ -1696,14 +1693,14 @@ class transposh_plugin {
             tp_logger($plugs->plugins[$this->transposh_plugin_basename], 4);
             unset($plugs->plugins[$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = serialize($plugs);
-            tp_logger($arr,5);
+            tp_logger($arr, 5);
             // now we should query our own service
             $this->do_update_check = true;
         } elseif (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
             $plugs = json_decode($arr['body']['plugins'], true);
             unset($plugs['plugins'][$this->transposh_plugin_basename]);
             $arr['body']['plugins'] = json_encode($plugs);
-            tp_logger($arr,5);
+            tp_logger($arr, 5);
             $this->do_update_check = true;
         }
         return $arr;
