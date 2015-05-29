@@ -37,6 +37,7 @@
     background-repeat:no-repeat;
     overflow:hidden;
     display:inline-block;
+    box-sizing: content-box;
 }
 
 .trf-za {background-position: -24px 0}
