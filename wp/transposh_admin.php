@@ -30,6 +30,9 @@ class transposh_plugin_admin {
     private $pages = array();
     private $page = '';
 
+    /** @var transposh_editor_table $editor_table the wp table */
+    private $editor_table;
+
     // constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
         $this->transposh = &$transposh;
@@ -145,7 +148,7 @@ class transposh_plugin_admin {
                 $this->transposh->options->oht_key = TP_FROM_POST;
                 break;
             case "tp_widget":
-                $this->transposh->options->widget_progressbar = TP_FROM_POST;
+               // $this->transposh->options->widget_progressbar = TP_FROM_POST;
                 $this->transposh->options->widget_allow_set_deflang = TP_FROM_POST;
                 $this->transposh->options->widget_remove_logo = TP_FROM_POST;
                 $this->transposh->options->widget_theme = TP_FROM_POST;
@@ -179,6 +182,7 @@ class transposh_plugin_admin {
             'tp_engines' => array(__('Translation Engines', TRANSPOSH_TEXT_DOMAIN), '', true),
             'tp_widget' => array(__('Widgets settings', TRANSPOSH_TEXT_DOMAIN), '', true),
             'tp_advanced' => array(__('Advanced', TRANSPOSH_TEXT_DOMAIN), '', true),
+            'tp_editor' => array(__('Translation editor', TRANSPOSH_TEXT_DOMAIN)),
             'tp_utils' => array(__('Utilities', TRANSPOSH_TEXT_DOMAIN)),
             'tp_about' => array(__('About', TRANSPOSH_TEXT_DOMAIN)),
             'tp_support' => array(__('Support', TRANSPOSH_TEXT_DOMAIN)),
@@ -217,7 +221,10 @@ class transposh_plugin_admin {
      * @return void
      */
     function admin_print_styles() {
-        
+        switch ($this->page) {
+            case 'tp_editor':
+                $this->editor_table->print_style();
+        }
     }
 
     /**
@@ -300,6 +307,12 @@ class transposh_plugin_admin {
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
             add_meta_box('transposh-sidebox-stats', __('Plugin stats', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_stats_content'), '', 'column3', 'core');
             // add_meta_box('transposh-contentbox-community', __('Transposh community features', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_community_content'), '', 'normal', 'core');
+        }
+        if ($this->page == 'tp_editor') {
+            require_once ("transposh_editor.php");
+            $this->editor_table = new transposh_editor_table();
+            $this->editor_table->add_screen_options();
+            $this->editor_table->perform_actions();
         }
     }
 
@@ -520,8 +533,8 @@ class transposh_plugin_admin {
     }
 
     function tp_widget() {
-        $this->checkbox($this->transposh->options->widget_progressbar_o, __('Show progress bar', TRANSPOSH_TEXT_DOMAIN)
-                , __('Show progress bar when a client triggers automatic translation', TRANSPOSH_TEXT_DOMAIN));
+ //       $this->checkbox($this->transposh->options->widget_progressbar_o, __('Show progress bar', TRANSPOSH_TEXT_DOMAIN)
+ //               , __('Show progress bar when a client triggers automatic translation', TRANSPOSH_TEXT_DOMAIN));
 
         $this->checkbox($this->transposh->options->widget_allow_set_deflang_o, __('Allow user to set current language as default', TRANSPOSH_TEXT_DOMAIN)
                 , __('Widget will allow setting this language as user default', TRANSPOSH_TEXT_DOMAIN));
@@ -529,7 +542,7 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->widget_remove_logo_o, __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN)
                 , __('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN));
 
-        $this->select($this->transposh->options->widget_theme_o, __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
+        $this->select($this->transposh->options->widget_theme_o, __('Edit interface theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
     }
 
     function tp_advanced() {
@@ -559,6 +572,10 @@ class transposh_plugin_admin {
         ));
         $this->textinput($this->transposh->options->debug_remoteip_o, '', sprintf(__('Remote debug IP (Your current IP is %s)', TRANSPOSH_TEXT_DOMAIN), $_SERVER['REMOTE_ADDR']));
         $this->sectionstop();
+    }
+
+    function tp_editor() {
+        $this->editor_table->render_table();
     }
 
     //
