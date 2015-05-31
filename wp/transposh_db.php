@@ -582,8 +582,7 @@ class transposh_database {
                 "ORDER BY timestamp DESC";
         $rows = $GLOBALS['wpdb']->get_results($query);
         if (!empty($rows)) {
-            tp_logger('found in mains');
-
+            tp_logger('found in log');
             $inlogtable = true;
         }
         // than we look in the main table, if its not found
@@ -595,6 +594,7 @@ class transposh_database {
                     "ORDER BY timestamp DESC";
             $rows = $GLOBALS['wpdb']->get_results($query);
             if (!empty($rows)) {
+                tp_logger('found in mains');
                 $inmaintable = true;
             }
         }
@@ -632,7 +632,7 @@ class transposh_database {
                 $removelastfromlog = "DELETE {$this->translation_log_table} FROM {$this->translation_log_table} INNER JOIN {$this->translation_table} ON " .
                         "{$this->translation_table}.original = {$this->translation_log_table}.original AND " .
                         "{$this->translation_table}.lang = {$this->translation_log_table}.lang AND " .
-                        "{$this->translation_table}.translated = {$this->translation_log_table}.translated " .
+                        "{$this->translation_table}.translated = {$this->translation_log_table}.translated AND " .
                         "{$this->translation_table}.timestamp = {$this->translation_log_table}.timestamp " .
                         "WHERE {$this->translation_log_table}.original='$original' AND {$this->translation_log_table}.lang='$lang'";
                 tp_logger($removelastfromlog, 3);
@@ -727,8 +727,8 @@ class transposh_database {
             $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
         if ($limit)
             $limitterm = "LIMIT $limit";
-        $query = "SELECT *, UNIX_TIMESTAMP(timestamp) as timestamp " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
-                "FROM {$this->translation_log_table} " .
+        $query = "SELECT * " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
+                "FROM {$this->translation_table} " .
                 "WHERE source= 0 $dateterm " .
                 "ORDER BY $orderby $order $limitterm";
         tp_logger("query is $query");
@@ -752,7 +752,7 @@ class transposh_database {
         if ($limit)
             $limitterm = "LIMIT $limit";
         $query = "SELECT count(*) " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
-                "FROM {$this->translation_log_table} " .
+                "FROM {$this->translation_table} " .
                 "WHERE source= 0 $dateterm ";
         ;
         tp_logger("query is $query");
