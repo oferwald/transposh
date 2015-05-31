@@ -394,7 +394,7 @@ class transposh_database {
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
 //                $original = transposh_utils::base64_url_decode($_POST["tk$i"]);
-                $orig = $_POST["tk$i"];
+                $orig = stripslashes($_POST["tk$i"]);
                 // The original content is encoded as base64 before it is sent (i.e. token), after we
                 // decode it should just the same after it was parsed.
                 $original = esc_sql(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8'));
@@ -452,8 +452,8 @@ class transposh_database {
             return;
         }
         // First we copy what we will overwrite to the log
-        $copytolog = "INSERT INTO {$this->translation_log_table} (original, translated, lang, translated_by, source) " .
-                "SELECT original, translated, lang, translated_by, source " .
+        $copytolog = "INSERT INTO {$this->translation_log_table} (original, translated, lang, translated_by, source, timestamp) " .
+                "SELECT original, translated, lang, translated_by, source, timestamp " .
                 "FROM {$this->translation_table} " .
                 "WHERE $delvalues";
         tp_logger($copytolog, 3);
@@ -620,8 +620,8 @@ class transposh_database {
                 // clear cache!
                 $this->cache_delete($original, $lang);
                 // copy from log if possible.
-                $query = "INSERT INTO {$this->translation_table} (original, translated, lang, translated_by, source) " .
-                        "SELECT original, translated, lang, translated_by, source " .
+                $query = "INSERT INTO {$this->translation_table} (original, translated, lang, translated_by, source, timestamp) " .
+                        "SELECT original, translated, lang, translated_by, source, timestamp " .
                         "FROM {$this->translation_log_table} " .
                         "WHERE original='$original' AND lang='$lang' " .
                         "ORDER BY timestamp DESC LIMIT 1";

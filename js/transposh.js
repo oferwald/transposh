@@ -58,6 +58,9 @@
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green').addClass('tr-icon-yellow');
         };
 
+        // might need to escape the token selectors
+        token = token.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+        //window.console && console.log(token);
         // rewrite text for all matching items at once
         $("*[data-orig='" + token + "'][data-hidden!='y']")
                 .html(translation)
@@ -91,7 +94,7 @@
                 data["tr" + i] = translations[i];
                 // We are pre-accounting the progress bar here - which is not very nice
                 //if (source > 0) {
-                done_posted += $("*[data-orig='" + tokens[i] + "']").size();
+                done_posted += $("*[data-orig='" + tokens[i].replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1') + "']").size();
                 //}
             }
             $.ajax({

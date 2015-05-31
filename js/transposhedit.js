@@ -118,6 +118,7 @@
     function fix_page_human(token, translation, source) {
         //reset to the original content - the unescaped version if translation is empty
         // TODO!
+        token = token.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
         if ($.trim(translation).length === 0) {
             translation = $("[data-orig='" + token + "']").attr('data-orig');
         }
@@ -308,6 +309,7 @@
         }        
         $.ajax({
             url: t_jp.ajaxurl, 
+            type: "POST",
             data: {
                 action: 'tp_history',
                 token: $(idprefix + segment_id).attr('data-orig'),
@@ -372,6 +374,7 @@
                     var row = $(this).parents('tr');
                     $.ajax({
                         url: t_jp.ajaxurl,
+                        type: "POST",
                         data: {
                             action: 'tp_history',
                             token: $(idprefix + segment_id).attr('data-orig'),
