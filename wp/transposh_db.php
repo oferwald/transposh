@@ -422,11 +422,11 @@ class transposh_database {
                 $backup_immidiate_possible = true;
             }
 
-            //Here we check we are not redoing stuff
-            list($old_source, $translated_text) = $this->fetch_translation($original, $lang);
+            //Here we check we are not redoing stuff - and avoid escaping twice!!
+            list($old_source, $translated_text) = $this->fetch_translation($orig, $lang);
             if ($translated_text) {
                 if ($source > 0) {
-                    tp_logger("Warning auto-translation for already translated: $original $lang", 1);
+                    tp_logger("Warning auto-translation for already translated: $original $lang, $old_source - $translated_text", 1);
                     continue;
                     //return; // too harsh, we just need to get to the next in for
                 }
