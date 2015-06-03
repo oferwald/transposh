@@ -278,8 +278,8 @@ class transposh_3rdparty {
 
     function woo_uri_filter($url) {
         $lang = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->transposh->home_url);
-        tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode));
-        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $lang, $this->transposh->edit_mode);
+        tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $this->transposh->edit_mode));
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $this->transposh->edit_mode);
     }
     
     /*
