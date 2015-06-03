@@ -404,7 +404,7 @@ class parser {
                     $start = $pos + $len_of_entity;
                 }
                 // skip nbsp starting a phrase
-                tp_logger("entity ($entity)");
+                tp_logger("entity ($entity)", 4);
                 if ($entity === '&nbsp;' && $start === $pos) {
                     $start = $pos + $len_of_entity;
                 }
