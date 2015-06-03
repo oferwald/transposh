@@ -1,8 +1,15 @@
 <?php
 
-require_once 'PHPUnit/Framework.php';
+//require_once 'PHPUnit/Framework.php';
 
 require_once dirname(__FILE__) . '/../../core/parser.php';
+require_once dirname(__FILE__) . '/../../core/logging.php';
+
+//echo dirname(__FILE__) . '/../../core/logging.php';
+
+function tp_logger($msg, $severity = 3, $do_backtrace = false) {
+    $GLOBALS['logger']->do_log($msg, $severity, $do_backtrace);
+}
 
 /**
  * Test class for parser.
@@ -23,11 +30,12 @@ class parserTest extends PHPUnit_Framework_TestCase {
      * @access protected
      */
     protected function setUp() {
-        $GLOBALS['logger'] = logger::getInstance(true);
+        $GLOBALS['logger'] = tp_logger::getInstance(true);
         $GLOBALS['logger']->show_caller = true;
         $GLOBALS['logger']->set_debug_level(5);
         $GLOBALS['logger']->eolprint = true;
         $GLOBALS['logger']->printout = true;
+        $GLOBALS['logger']->set_log_file("/tmp/phpunit.log");
         $this->object = new parser;
     }
 
@@ -38,7 +46,7 @@ class parserTest extends PHPUnit_Framework_TestCase {
      * @access protected
      */
     protected function tearDown() {
-
+        
     }
 
     /**
@@ -162,9 +170,9 @@ class parserTest extends PHPUnit_Framework_TestCase {
     }
 
     function fetch_translation($original_text, $lang) {
-        echo "fetch for: <b>$original_text</b><br/>";
-        logger('hoo');
-        return array("z-$original_text-z", 0);
+        //echo "fetch for: <b>$original_text</b><br/>";
+        tp_logger("fetch for: $original_text, returning z-$original_text-z");
+        return array(0, "z-$original_text-z");
     }
 
     function rewrite($original_text) {
@@ -185,22 +193,44 @@ class parserTest extends PHPUnit_Framework_TestCase {
         $parse->lang = 'he';
         $parse->default_lang = false;
         $parse->is_edit_mode = false;
-        $parse->is_auto_translate = true;
+        $parse->is_auto_translate = false;
         $parse->allow_ad = false;
-        $this->assertEquals('<html dir="rtl" lang="he"></html>', $parse->fix_html('<html></html>'));
+        //$this->expectOutputString('blah');
+        //echo $parse->fix_html('<html><body>hello, world</body></html>');
+        $this->assertEquals('<html lang="he" dir="rtl"></html>', $parse->fix_html('<html></html>'));
         $this->assertEquals('<html dir="rtl" lang="he"></html>', $parse->fix_html('<html dir="rtl" lang="he"></html>'));
-        //$this->assertEquals('<html dir="rtl" lang="he"><body>z-hello-z, z-world-z</body></html>', $parse->fix_html('<html><body>hello, world</body></html>'));
-        $this->assertEquals('<html dir="rtl" lang="he"><body>z-hello-z, z-world-z, z-hello world-z</body></html>', $parse->fix_html('<html><body>hello, world, hello world</body></html>'));
-        $this->assertEquals('<html dir="rtl" lang="he"><body><a title="z-hello-z, z-world-z, z-hello world-z">z-hi-z</a></body></html>', $parse->fix_html('<html><body><a title="hello, world, hello world">hi</a></body></html>'));
+        $this->assertEquals('<html lang="he" dir="rtl"><body>z-hello-z, z-world-z</body></html>', $parse->fix_html('<html><body>hello, world</body></html>'));
+        $this->assertEquals('<html lang="he" dir="rtl"><body>z-hello-z, z-world-z, z-hello world-z</body></html>', $parse->fix_html('<html><body>hello, world, hello world</body></html>'));
+        $this->assertEquals('<html lang="he" dir="rtl"><body><a title="z-hello-z, z-world-z, z-hello world-z">z-hi-z</a></body></html>', $parse->fix_html('<html><body><a title="hello, world, hello world">hi</a></body></html>'));
 
-        $this->assertEquals('<html dir="rtl" lang="he"><body>z-hello, world-z</body></html>', $parse->fix_html('<html><body>&transposh;hello, world&transposh;</body></html>'));
+        // $this->assertEquals('<html lang="he" dir="rtl"><body>z-hello, world-z</body></html>', $parse->fix_html('<html><body>&transposh;hello, world&transposh;</body></html>'));
 
 
         $parse->is_edit_mode = true;
-        $this->assertEquals('<html dir="rtl" lang="he"><body><span class ="tr_" id="tr_0" data-token="aGVsbG8," data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_1" data-token="d29ybGQ," data-source="0" data-orig="world">z-world-z</span>, <span class ="tr_" id="tr_2" data-token="aGVsbG8gd29ybGQ," data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world, hello world</body></html>'));
-        //$this->assertEquals('<html dir="rtl" lang="he"><body><span class ="tr_" id="tr_2" data-token="aGVsbG8," data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_1" data-token="d29ybGQ," data-source="0" data-orig="world">z-world-z</span>, <span class ="tr_" id="tr_0" data-token="aGVsbG8gd29ybGQ," data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world, hello world</body></html>'));
-        $this->assertEquals('<html dir="rtl" lang="he"><body><span class ="tr_" id="tr_3" data-token="aGVsbG8," data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_4" data-token="d29ybGQ," data-source="0" data-orig="world">z-world-z</span>,<a title="z-hi-z" href="b"><span class ="tr_" id="tr_5" data-token="aG8," data-source="0" data-orig="ho">z-ho-z</span></a><span class ="tr_" id="tr_7" data-token="aGk," data-source="0" data-orig="hi" data-hidden="y" data-trans="z-hi-z"></span> <span class ="tr_" id="tr_6" data-token="aGVsbG8gd29ybGQ," data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world,<a title="hi" href="b">ho</a> hello world</body></html>'));
-        //$this->assertEquals('<html dir="rtl" lang="he"><body><span class ="tr_" id="tr_4" data-token="aGVsbG8," data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_3" data-token="d29ybGQ," data-source="0" data-orig="world">z-world-z</span>,<a title="z-hi-z" href="b"><span class ="tr_" id="tr_5" data-token="aG8," data-source="0" data-orig="ho">z-ho-z</span></a><span class ="tr_" id="tr_7" data-token="aGk," data-source="0" data-orig="hi" data-hidden="y" data-trans="z-hi-z"></span> <span class ="tr_" id="tr_6" data-token="aGVsbG8gd29ybGQ," data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world,<a title="hi" href="b">ho</a> hello world</body></html>'));
+        $this->assertEquals('<html lang="he" dir="rtl"><body><span class ="tr_" id="tr_0" data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_1" data-source="0" data-orig="world">z-world-z</span>, <span class ="tr_" id="tr_2" data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world, hello world</body></html>'));
+        //$this->assertEquals('<html lang="he" dir="rtl"><body><span class ="tr_" id="tr_2" data-token="aGVsbG8," data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_1" data-token="d29ybGQ," data-source="0" data-orig="world">z-world-z</span>, <span class ="tr_" id="tr_0" data-token="aGVsbG8gd29ybGQ," data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world, hello world</body></html>'));
+        $this->assertEquals('<html lang="he" dir="rtl"><body><span class ="tr_" id="tr_3" data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_4" data-source="0" data-orig="world">z-world-z</span>,<a title="z-hi-z" href="b"><span class ="tr_" id="tr_5" data-source="0" data-orig="ho">z-ho-z</span></a><span class ="tr_" id="tr_7" data-source="0" data-orig="hi" data-hidden="y" data-trans="z-hi-z"></span> <span class ="tr_" id="tr_6" data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world,<a title="hi" href="b">ho</a> hello world</body></html>'));
+        //$this->assertEquals('<html lang="he" dir="rtl"><body><span class ="tr_" id="tr_4" data-token="aGVsbG8," data-source="0" data-orig="hello">z-hello-z</span>, <span class ="tr_" id="tr_3" data-token="d29ybGQ," data-source="0" data-orig="world">z-world-z</span>,<a title="z-hi-z" href="b"><span class ="tr_" id="tr_5" data-token="aG8," data-source="0" data-orig="ho">z-ho-z</span></a><span class ="tr_" id="tr_7" data-token="aGk," data-source="0" data-orig="hi" data-hidden="y" data-trans="z-hi-z"></span> <span class ="tr_" id="tr_6" data-token="aGVsbG8gd29ybGQ," data-source="0" data-orig="hello world">z-hello world-z</span></body></html>', $parse->fix_html('<html><body>hello, world,<a title="hi" href="b">ho</a> hello world</body></html>'));                 
+    }
+
+    public function testADReplace_html() {
+        // Remove the following lines when you implement this test.
+        $parse = $this->object;
+        $parse->fetch_translate_func = array(&$this, 'fetch_translation');
+        //$parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
+        $parse->url_rewrite_func = array(&$this, 'rewrite');
+        $parse->dir_rtl = true;
+        $parse->lang = 'he';
+        $parse->default_lang = false;
+        $parse->is_edit_mode = false;
+        $parse->is_auto_translate = false;
+        $parse->allow_ad = true;
+        $testhtml = '<html><ins class="adsbygoogle" data-ad-format="auto" data-ad-slot="7652439345" data-ad-client="ca-pub-6081460725126312" style="display:block"></ins></html>';
+        $testoutput = '<html lang="he" dir="rtl"><ins class="adsbygoogle" data-ad-format="auto" data-ad-slot="7652439345" data-ad-client="ca-pub-6081460725126312" style="display:block"></ins></html>';
+        for ($i = 0; $i < 100; $i++) {
+            echo $i . "\n";
+            $this->assertEquals($parse->fix_html($testhtml), $testoutput);
+        }
     }
 
     /**
@@ -230,8 +260,9 @@ class parserTest extends PHPUnit_Framework_TestCase {
     public function testParsing() {
         $this->runtestCut("a, b", array('a', 'b'));
         $this->runtestCut("hello , world", array('hello', 'world'));
-        $this->runtestCut("42nd, street", array('42nd', 'street'));
-        $this->runtestCut("2b or not 2b", array('2b or not 2b'));
+        $this->runtestCut("here at 42nd, street", array('here at 42nd', 'street'));
+        //$this->runtestCut("42nd, street", array('42nd', 'street'));
+        //$this->runtestCut("2b or not 2b", array('2b or not 2b'));
         $this->runtestCut("again, again, and again", array('again', 'and again'));
         //   $this->testCut("again, again again, again    again, and again", array('again','again again','and again'));
         $this->runtestCut("there are 100 bottles of bear on the wall", array('there are', 'bottles of bear on the wall'));
@@ -247,4 +278,5 @@ class parserTest extends PHPUnit_Framework_TestCase {
     }
 
 }
+
 ?>
