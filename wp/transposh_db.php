@@ -586,8 +586,8 @@ class transposh_database {
             $inlogtable = true;
         }
         // than we look in the main table, if its not found
+        $inmaintable = false;
         if (!$inlogtable) {
-            $inmaintable = false;
             $query = "SELECT translated, translated_by, timestamp, source " .
                     "FROM {$this->translation_table} " .
                     "WHERE original='$original' AND lang='$lang' AND timestamp='$timestamp' " .

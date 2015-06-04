@@ -33,6 +33,8 @@ class transposh_plugin_admin {
     /** @var transposh_editor_table $editor_table the wp table */
     private $editor_table;
 
+    // TODO - memory cache clear button
+    // 
     // constructor of class, PHP4 compatible construction for backward compatibility
     function transposh_plugin_admin(&$transposh) {
         $this->transposh = &$transposh;
@@ -55,6 +57,12 @@ class transposh_plugin_admin {
         add_action('wp_ajax_tp_translate_all', array(&$this, 'on_ajax_tp_translate_all'));
         add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
         add_action('wp_ajax_tp_comment_lang', array(&$this, 'on_ajax_tp_comment_lang'));
+        add_filter('set-screen-option', array(&$this, 'on_screen_option'), 10, 3);
+    }
+
+    function on_screen_option($status, $option, $value) {
+        tp_logger("($status, $option, $value)");
+        return $value;
     }
 
     /**
@@ -136,7 +144,15 @@ class transposh_plugin_admin {
                 if ($this->transposh->options->transposh_backup_schedule)
                     wp_schedule_event(time(), 'daily', 'transposh_backup_event');
 
+                $this->transposh->options->enable_superproxy = TP_FROM_POST;
                 $this->transposh->options->transposh_key = TP_FROM_POST;
+
+                // superproxy hook
+                wp_clear_scheduled_hook('superproxy_reg_event');
+                if ($this->transposh->options->enable_superproxy)
+                    wp_schedule_event(time(), 'daily', 'superproxy_reg_event');
+
+                $this->transposh->options->superproxy_key = TP_FROM_POST;
                 break;
             case "tp_engines":
                 $this->transposh->options->enable_autotranslate = TP_FROM_POST;
@@ -148,7 +164,7 @@ class transposh_plugin_admin {
                 $this->transposh->options->oht_key = TP_FROM_POST;
                 break;
             case "tp_widget":
-               // $this->transposh->options->widget_progressbar = TP_FROM_POST;
+                // $this->transposh->options->widget_progressbar = TP_FROM_POST;
                 $this->transposh->options->widget_allow_set_deflang = TP_FROM_POST;
                 $this->transposh->options->widget_remove_logo = TP_FROM_POST;
                 $this->transposh->options->widget_theme = TP_FROM_POST;
@@ -260,6 +276,8 @@ class transposh_plugin_admin {
                     't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
                 );
                 wp_localize_script("transposh_backend", "t_be", $script_params);
+            case 'tp_editor':
+                wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/backendeditor.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
         }
         wp_enqueue_script('transposh_context_help', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/contexthelp.js', array('jquery'), TRANSPOSH_PLUGIN_VER, true);
         wp_enqueue_style('transposh_admin', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_CSS . '/admin.css'); ///, array('transposh'), TRANSPOSH_PLUGIN_VER, true)
@@ -484,7 +502,18 @@ class transposh_plugin_admin {
         echo '<input type="radio" value="0" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 0, false) . '/>' . __('Disable backup (Can be run manually by clicking the button below)', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
         echo __('Service Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" ' . $this->transposh->options->transposh_key_o->post_value_id_name() . '/><a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         $this->sectionstop();
+
+        $this->section(__('Super proxy support', TRANSPOSH_TEXT_DOMAIN));
+        $this->checkbox($this->transposh->options->enable_superproxy_o, __('Support super proxy, and get paid for traffic', TRANSPOSH_TEXT_DOMAIN)
+                , __('Enable support of this feature ' .
+                        'Read about this on <a href="http://superproxy.transposh.net/">superproxy.transposh.net</a>' .
+                        '', TRANSPOSH_TEXT_DOMAIN));
+        echo __('<br>Proxy Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" ' . $this->transposh->options->superproxy_key_o->post_value_id_name() . '/>';
+        if ($this->transposh->options->superproxy_key) {
+            echo ' <a target="_blank" href="http://superproxy.transposh.net/status.php?id=' . $this->transposh->options->superproxy_key . '">' . __('See node status', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         }
+        $this->sectionstop();
+    }
 
     function tp_engines() {
         $this->section(__('Automatic Translation Settings', TRANSPOSH_TEXT_DOMAIN));
@@ -533,8 +562,8 @@ class transposh_plugin_admin {
     }
 
     function tp_widget() {
- //       $this->checkbox($this->transposh->options->widget_progressbar_o, __('Show progress bar', TRANSPOSH_TEXT_DOMAIN)
- //               , __('Show progress bar when a client triggers automatic translation', TRANSPOSH_TEXT_DOMAIN));
+        //       $this->checkbox($this->transposh->options->widget_progressbar_o, __('Show progress bar', TRANSPOSH_TEXT_DOMAIN)
+        //               , __('Show progress bar when a client triggers automatic translation', TRANSPOSH_TEXT_DOMAIN));
 
         $this->checkbox($this->transposh->options->widget_allow_set_deflang_o, __('Allow user to set current language as default', TRANSPOSH_TEXT_DOMAIN)
                 , __('Widget will allow setting this language as user default', TRANSPOSH_TEXT_DOMAIN));
@@ -919,4 +948,5 @@ class transposh_plugin_admin {
     }
 
 }
+
 ?>
