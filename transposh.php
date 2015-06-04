@@ -1390,11 +1390,11 @@ class transposh_plugin {
 
         // Check requester IP to be allowed
         $ips = json_decode($this->options->superproxy_ips);
-        //if (!in_array($_SERVER['REMOTE_ADDR'], $ips)) {
+        if (!in_array($_SERVER['REMOTE_ADDR'], $ips)) {
             $errstr = "Error: 503: Unauthorized {$_SERVER['REMOTE_ADDR']}";
             tp_logger($errstr);
             die($errstr);
-        //}
+        }
         
         // We need curl for this proxy
         if (!function_exists('curl_init')) {
