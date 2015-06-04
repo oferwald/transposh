@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.3
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 73 languages are automatically translated and can be manually corrected with ease.
@@ -69,6 +69,8 @@ You can find them on our site [here](http://transposh.org/faq)
 5. Widget style selection box, with three basic appearances, flags below (in Hebrew), language selection on the top right and language list on the bottom right.
 
 == Upgrade Notice ==
+= 0.9.7 =
+Must upgrade if you are using Google as your translation Engine or you have upgraded to wordpress 4.2.x
 = 0.9.2 =
 Update for some bugs in parsing
 = 0.8.0 =
@@ -117,8 +119,24 @@ This version allows sorting of languages within the widget
  * Serbian - [Borisa Djuraskovic]
  * Spanish - [Angel Torregrosa](http://wordp.relatividad.org), [Ignacio](http://colnect.com/es/collectors/collector/iflvico)
  * Turkish - [Ömer Faruk Karabulut](http://yakalasam.com/) and [Semih Yeşilyurt](http://kingdroid.net)
+ * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2015/06/04 - 0.9.7 =
+ * SuperProxy allows you to sell some traffic and make money see [Site](http://superproxy.transposh.net)
+ * Backend Editor allows deleting of unwanted edits quickly
+ * Google proxy update fixes non working automatic google translate
+ * Database updated and will reduce the log table usage dramatically, saves up to 50% of the database site
+ * Wordpress 4.2 compatability supports new database table format to allow more complicated characters - making a backup is a good idea
+ * Woo integration fixes
+ * Ditch the base64 encoding and reduce size of translatable pages
+ * Widget fixes makes flags show correctly when wrong box sizing was used
+ * Removal of front end progress bar, it was rarely seen or used and caused more trouble than it was worth
+ * 3 new languages supported by bing
+ * locale shortcode [tp locale=y]
+ * avoid translation of non text/json content fixes issues with some download addon plugins
+ * Support the placeholder attribute, thanks Mark Serellis 
+ * Some support to the business directory plugin
 = 2014/12/21 - 0.9.6 =
  * Added new 10 Google languages
  * Support for Yoast SEO sitemaps (patch required, instructions inside)
