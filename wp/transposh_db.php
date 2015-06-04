@@ -777,7 +777,8 @@ class transposh_database {
             if (time() - 7200 > $timestamp) { //two hours are more than enough
                 delete_option(TRANSPOSH_OPTIONS_DBSETUP);
             } else {
-                die("we don't want to be here more than once");
+                tp_logger("we don't want to upgrade transposh tables more than once");
+                return;
             }
             update_option(TRANSPOSH_OPTIONS_DBSETUP, time());
 
