@@ -205,6 +205,13 @@ class transposh_plugin {
         add_action('wp_ajax_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
         add_action('wp_ajax_nopriv_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
 
+        // For super proxy
+        add_action('superproxy_reg_event', array(&$this, 'superproxy_reg'));
+        if ($this->options->enable_superproxy) {
+            add_action('wp_ajax_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
+            add_action('wp_ajax_nopriv_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
+        }
+
         // comment_moderation_text - future filter TODO
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
@@ -351,10 +358,10 @@ class transposh_plugin {
         tp_logger('processing page hit with language:' . $this->target_language, 1);
         $bad_content = false;
         foreach (headers_list() as $header) {
-            if (stripos($header, 'Content-Type') !== false) {
+            if (stripos($header, 'Content-Type:') !== false) {
                 tp_logger($header);
-                if (stripos($header, 'text') === false) {
-                    tp_logger("won't do that");
+                if (stripos($header, 'text') === false && stripos($header, 'json') === false) {
+                    tp_logger("won't do that - $header");
                     $bad_content = true;
                 }
             }
@@ -362,7 +369,7 @@ class transposh_plugin {
         $start_time = microtime(TRUE);
 
         // Refrain from touching the administrative interface and important pages
-        if ($this->is_special_page($_SERVER['REQUEST_URI'])) {
+        if ($this->is_special_page($_SERVER['REQUEST_URI']) && !$this->attempt_json) {
             tp_logger("Skipping translation for admin pages", 3);
         } elseif ($bad_content) {
             tp_logger("Seems like content we should not handle");
@@ -451,6 +458,23 @@ class transposh_plugin {
 
         //buddypress old activity
         if (isset($_POST['action']) && $_POST['action'] == 'activity_get_older_updates') {
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->attempt_json = true;
+        }
+
+        //woocommerce_update_order_review
+        if (isset($_POST['action']) && $_POST['action'] == 'woocommerce_update_order_review') {
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->attempt_json = true;
+        }
+
+        //woocommerce_get_refreshed_fragments
+        if (isset($_POST['action']) && $_POST['action'] == 'woocommerce_get_refreshed_fragments') {
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->attempt_json = true;
+        }
+
+        if (isset($_POST['action']) && $_POST['action'] == 'woocommerce_add_to_cart') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
             $this->attempt_json = true;
         }
@@ -964,6 +988,7 @@ class transposh_plugin {
      */
     function rewrite_url($href) {
         tp_logger("got: $href", 5);
+        ////$href = str_replace('&#038;', '&', $href);
         // fix what might be messed up -- TODO
         $href = str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $href);
 
@@ -1085,6 +1110,37 @@ class transposh_plugin {
     }
 
     /**
+     * Register for superproxy
+     */
+    function superproxy_reg() {
+        $url = "http://superproxy.transposh.net/?action=register&version=0.1&entry_url=" . admin_url('admin-ajax.php');
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        if ($output === false) {
+            echo 'Curl error: ' . curl_error($ch);
+            die();
+        }
+
+        tp_logger($output);
+        curl_close($ch);
+
+        $info = json_decode($output);
+        tp_logger($info);
+        if (isset($info->id)) {
+            $this->options->superproxy_key = $info->id;
+            $this->options->update_options();
+        }
+        if (isset($info->ips)) {
+            $this->options->superproxy_ips = json_encode($info->ips);
+            $this->options->update_options();
+        }
+        die();
+    }
+
+    /**
      * Runs a restore
      */
     function run_restore() {
@@ -1170,7 +1226,8 @@ class transposh_plugin {
                 tp_logger('iamhere?' . strpos($_SERVER['REQUEST_URI'], 'wp-admin/edit'));
                 $plugpath = @parse_url($this->transposh_plugin_url, PHP_URL_PATH);
                 list($langeng, $langorig, $langflag) = explode(',', transposh_consts::$languages[$lang]);
-                $text = transposh_utils::display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
+                //$text = transposh_utils::display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
+                $text = "[$lang] " . $text;
             } else {
                 $text = "<span lang =\"$lang\">" . $text . "</span>";
             }
@@ -1319,6 +1376,77 @@ class transposh_plugin {
         } else {
             return do_shortcode($content);
         }
+    }
+
+    // Super Proxy 
+    function on_ajax_nopriv_proxy() {
+        // Check if enabled
+        if (!$this->options->enable_superproxy)
+        {
+            $errstr = "Error: 500: Not enabled";
+            tp_logger($errstr);
+            die($errstr);
+        }
+
+        // Check requester IP to be allowed
+        $ips = json_decode($this->options->superproxy_ips);
+        //if (!in_array($_SERVER['REMOTE_ADDR'], $ips)) {
+            $errstr = "Error: 503: Unauthorized {$_SERVER['REMOTE_ADDR']}";
+            tp_logger($errstr);
+            die($errstr);
+        //}
+        
+        // We need curl for this proxy
+        if (!function_exists('curl_init')) {
+            $errstr = "Error: 504: fatal error - curl";
+            tp_logger($errstr);
+            die($errstr);
+        }
+
+        // Create proxy request
+        $encoded_url = $_GET['url'];
+        $url = base64_decode($encoded_url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+  
+        // Send the headers we got
+        $reqheaders = getallheaders();
+        //tp_logger($reqheaders);
+        unset($reqheaders['Host']);
+        unset($reqheaders['Content-Length']);
+        $headers = array();
+        foreach ($reqheaders as $name => $value) {
+            $headers[] = "$name: $value";
+        }
+        //tp_logger($headers);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // Handle POST method
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            //tp_logger($_POST);
+            curl_setopt($ch, CURLOPT_POST, true);
+            foreach($_POST as $key => $value) 
+            {
+                $post .= $amp . $key . "=" . urlencode($value); 
+                $amp = "&";                         
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);//$_POST);
+        }
+        
+        tp_logger("Before curl");
+        $output = curl_exec($ch);
+        tp_logger("After curl");
+        if ($output === false) {
+            $errstr = "Error: " . curl_errno($ch) . ' ' . curl_error($ch);
+            tp_logger($errstr);
+            die($errstr);
+        }
+
+        echo $output;
+        curl_close($ch);
+        die();
     }
 
     // Proxied google translate suggestions
@@ -1620,10 +1748,10 @@ class transposh_plugin {
     function on_ajax_nopriv_tp_history() {
         // deleting
         transposh_utils::allow_cors();
-        if (isset($_GET['timestamp'])) {
-            $this->database->del_translation_history($_GET['token'], $_GET['lang'], $_GET['timestamp']);
+        if (isset($_POST['timestamp'])) {
+            $this->database->del_translation_history(stripslashes($_POST['token']), $_POST['lang'], $_POST['timestamp']);
         }
-        $this->database->get_translation_history($_GET['token'], $_GET['lang']);
+        $this->database->get_translation_history(stripslashes($_POST['token']), $_POST['lang']);
         die();
     }
 
