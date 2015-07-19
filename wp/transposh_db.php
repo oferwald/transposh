@@ -402,7 +402,7 @@ class transposh_database {
             if (isset($_POST["tr$i"])) {
                 $trans = $_POST["tr$i"];
                 // Decode & remove already escaped character to avoid double escaping
-                $translation = esc_sql(htmlspecialchars(stripslashes(urldecode($trans))));
+                $translation = esc_sql(htmlspecialchars(stripslashes(rawurldecode($trans))));
             }
             if (isset($_POST["ln$i"])) {
                 $lang = $_POST["ln$i"];
@@ -430,7 +430,7 @@ class transposh_database {
                     continue;
                     //return; // too harsh, we just need to get to the next in for
                 }
-                if ($translation == esc_sql(htmlspecialchars(stripslashes(urldecode($translated_text)))) && $old_source == $source) {
+                if ($translation == esc_sql(htmlspecialchars(stripslashes(rawurldecode($translated_text)))) && $old_source == $source) {
                     tp_logger("Warning attempt to retranslate with same text: $original, $translation", 1);
                     continue;
                     //return; // too harsh, we just need to get to the next in for
@@ -932,11 +932,11 @@ class transposh_database {
         } else {
             $cleanup = 'DELETE ' . $this->translation_table . ' ,' . $this->translation_log_table .
                     ' FROM ' . $this->translation_table .
-                    ' INNER JOIN ' . $this->translation_log_table .
+                    ' LEFT JOIN ' . $this->translation_log_table .
                     ' ON ' . $this->translation_table . '.original = ' . $this->translation_log_table . '.original' .
                     ' AND ' . $this->translation_table . '.lang = ' . $this->translation_log_table . '.lang' .
                     ' WHERE ' . $this->translation_table . '.source > 0' .
-                    " AND timestamp < SUBDATE(NOW(),$days)";
+                    ' AND ' . $this->translation_table . "timestamp < SUBDATE(NOW(),$days)";
             $result = $GLOBALS['wpdb']->query($cleanup);
             tp_logger($cleanup, 4);
         }
