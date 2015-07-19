@@ -1381,8 +1381,7 @@ class transposh_plugin {
     // Super Proxy 
     function on_ajax_nopriv_proxy() {
         // Check if enabled
-        if (!$this->options->enable_superproxy)
-        {
+        if (!$this->options->enable_superproxy) {
             $errstr = "Error: 500: Not enabled";
             tp_logger($errstr);
             die($errstr);
@@ -1395,7 +1394,7 @@ class transposh_plugin {
             tp_logger($errstr);
             die($errstr);
         }
-        
+
         // We need curl for this proxy
         if (!function_exists('curl_init')) {
             $errstr = "Error: 504: fatal error - curl";
@@ -1410,7 +1409,7 @@ class transposh_plugin {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 1);
-  
+
         // Send the headers we got
         $reqheaders = getallheaders();
         //tp_logger($reqheaders);
@@ -1427,14 +1426,13 @@ class transposh_plugin {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             //tp_logger($_POST);
             curl_setopt($ch, CURLOPT_POST, true);
-            foreach($_POST as $key => $value) 
-            {
-                $post .= $amp . $key . "=" . urlencode($value); 
-                $amp = "&";                         
+            foreach ($_POST as $key => $value) {
+                $post .= $amp . $key . "=" . urlencode($value);
+                $amp = "&";
             }
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);//$_POST);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post); //$_POST);
         }
-        
+
         tp_logger("Before curl");
         $output = curl_exec($ch);
         tp_logger("After curl");
@@ -1470,6 +1468,8 @@ class transposh_plugin {
             return; // avoid unneeded curling
         }
         $url = 'http://translate.google.com/translate_a/t?client=a&tl=' . $tl . '&sl=' . $sl;
+        tp_logger($url, 4);
+        tp_logger($q, 4);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1483,7 +1483,7 @@ class transposh_plugin {
             die();
         }
         curl_close($ch);
-        //echo $output;
+        tp_logger($output, 4);
         $jsonarr = json_decode($output);
         if (!$jsonarr) {
             echo 'Not JSON';
@@ -1493,14 +1493,13 @@ class transposh_plugin {
             $jsonarr2->results[] = $jsonarr;
             $jsonarr = $jsonarr2;
         }
-        foreach ($jsonarr->results as $result) {
-            unset($result->sentences[0]->orig);
-            unset($result->sentences[0]->translit);
-            unset($result->sentences[0]->src_translit);
-            unset($result->src);
-            unset($result->server_time);
+
+        $jsonout = new stdClass();
+        $jsonout->result = '';
+        tp_logger(sizeof($jsonarr->results[0]->sentences), 5);
+        foreach ($jsonarr->results[0]->sentences as $sentence) {
+            $jsonout->result .= $sentence->trans;
         }
-        @$jsonout->result = $jsonarr->results[0]->sentences[0]->trans; //@ avoids the empty object warning
 
         echo json_encode($jsonout);
         die();
@@ -1644,7 +1643,10 @@ class transposh_plugin {
                 $jsonout->results[] = $r[$j];
             } else {
                 if (isset($jsonarr->results[$k]->sentences[0]->trans)) {
-                    $jsonout->results[] = $jsonarr->results[$k]->sentences[0]->trans;
+                    foreach ($jsonarr->results[$k]->sentences as $sentence) {
+                        $tmpresult .= $sentence->trans;
+                    }
+                    $jsonout->results[] = $tmpresult;
                 } elseif (isset($jsonarr->results[$k]) && $jsonarr->results[$k]) {
                     $jsonout->results[] = $jsonarr->results[$k];
                 } else {
