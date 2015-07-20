@@ -150,7 +150,7 @@ class transposh_utils {
             $params['lang'] = LANG_PARAM . "=$lang";
         } else {
             if ($lang) {
-                if (!$parsedurl['path']) $parsedurl['path'] = "/";
+                if (!isset($parsedurl['path'])) $parsedurl['path'] = "/"; //wait for it
                 $parsedurl['path'] = "/" . $lang . $parsedurl['path'];
             }
         }
