@@ -693,6 +693,12 @@ class parser {
                         $jsoner->contents = $this->fix_html($jsoner->contents);
                         return json_encode($jsoner);
                     }
+                    if ($jsoner->fragments->{'div.widget_shopping_cart_content'}) {
+                        $jsoner->fragments->{'div.widget_shopping_cart_content'} = $this->fix_html($jsoner->fragments->{'div.widget_shopping_cart_content'});
+                        $jsoner->fragments->{'div.kt-header-mini-cart-refreash'} = $this->fix_html($jsoner->fragments->{'div.kt-header-mini-cart-refreash'});
+                        $jsoner->fragments->{'a.cart-contents'} = $this->fix_html($jsoner->fragments->{'a.cart-contents'});
+                        return json_encode($jsoner);
+                    }
                 }
             }
         }
