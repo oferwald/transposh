@@ -122,6 +122,8 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2015/07/21 - 0.9.7.1 =
+ * Minor bug fixes
 = 2015/06/04 - 0.9.7 =
  * SuperProxy allows you to sell some traffic and make money see [Site](http://superproxy.transposh.net)
  * Backend Editor allows deleting of unwanted edits quickly
@@ -136,7 +138,7 @@ This version allows sorting of languages within the widget
  * locale shortcode [tp locale=y]
  * avoid translation of non text/json content fixes issues with some download addon plugins
  * Support the placeholder attribute, thanks Mark Serellis 
- * Some support to the business directory plugin
+ * Some support for the business directory plugin
 = 2014/12/21 - 0.9.6 =
  * Added new 10 Google languages
  * Support for Yoast SEO sitemaps (patch required, instructions inside)
