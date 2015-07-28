@@ -122,6 +122,9 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2015/07/29 - 0.9.7.2 =
+ * Shortcode revision following wordpress 4.2.3 release
+ * Update to the Google proxy code, so it works again for now
 = 2015/07/21 - 0.9.7.1 =
  * Minor bug fixes
 = 2015/06/04 - 0.9.7 =
