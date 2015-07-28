@@ -243,6 +243,7 @@ class transposh_plugin {
 
         // support shortcodes
         add_shortcode('tp', array(&$this, 'tp_shortcode'));
+        add_shortcode('tpe', array(&$this, 'tp_shortcode'));
         //
         // FUTURE add_action('update-custom_transposh', array(&$this, 'update'));
         // CHECK TODO!!!!!!!!!!!!
@@ -1334,17 +1335,23 @@ class transposh_plugin {
         $lang = '';
         $nt_class = '';
 
+        tp_logger($atts);
+        tp_logger($content);
+
         if (isset($atts['not_in']) && $this->target_language) {
             if (stripos($atts['not_in'], $this->target_language) !== false) {
                 return;
             }
         }
 
-        if (isset($atts['locale'])) {
-            return get_locale();
+        if (isset($atts['locale']) || in_array('locale', $atts)) {
+            if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
+                return;
+            }
+                return get_locale();                   
         }
 
-        if (isset($atts['mylang'])) {
+        if (isset($atts['mylang']) || in_array('mylang', $atts)) {
             if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
                 return;
             }
@@ -1355,7 +1362,7 @@ class transposh_plugin {
             $lang = ' lang="' . $atts['lang'] . '"';
         }
 
-        if (isset($atts['only'])) {
+        if (isset($atts['only']) || in_array('only', $atts)) {
             $only_class = ' class="' . ONLY_THISLANGUAGE_CLASS . '"';
         }
 
@@ -1368,11 +1375,11 @@ class transposh_plugin {
             $this->widget->widget(array('before_widget' => '', 'before_title' => '', 'after_widget' => '', 'after_title' => ''), array('title' => '', 'widget_file' => $atts['widget']), true);
             $widgetcontent = ob_get_contents();
             ob_end_clean();
-            return $widgetcontent;
+            return $widgetcontent . do_shortcode($content);
         }
 
         if ($lang || $only_class || $nt_class) {
-            return '<span ' . $only_class . $nt_class . $lang . '>' . do_shortcode($content) . '</span>';
+            return '<span' . $only_class . $nt_class . $lang . '>' . do_shortcode($content) . '</span>';
         } else {
             return do_shortcode($content);
         }
@@ -1467,9 +1474,9 @@ class transposh_plugin {
         if (!$q) {
             return; // avoid unneeded curling
         }
-        $url = 'http://translate.google.com/translate_a/t?client=a&tl=' . $tl . '&sl=' . $sl;
-        tp_logger($url, 4);
-        tp_logger($q, 4);
+        $url = 'http://translate.google.com/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl;
+        tp_logger($url, 3);
+        tp_logger($q, 3);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1483,23 +1490,24 @@ class transposh_plugin {
             die();
         }
         curl_close($ch);
-        tp_logger($output, 4);
+        tp_logger($output, 3);
         $jsonarr = json_decode($output);
+        tp_logger($jsonarr, 3);
         if (!$jsonarr) {
             echo 'Not JSON';
+            tp_logger($output, 3);
             die();
         }
-        if (!isset($jsonarr->results)) {
-            $jsonarr2->results[] = $jsonarr;
-            $jsonarr = $jsonarr2;
+
+        // this will happen based on sl (auto or not)
+        if (is_array($jsonarr)) {
+            $result = $jsonarr[0];
+        } else {
+            $result = $jsonarr;
         }
 
         $jsonout = new stdClass();
-        $jsonout->result = '';
-        tp_logger(sizeof($jsonarr->results[0]->sentences), 5);
-        foreach ($jsonarr->results[0]->sentences as $sentence) {
-            $jsonout->result .= $sentence->trans;
-        }
+        $jsonout->result = $result;
 
         echo json_encode($jsonout);
         die();
@@ -1562,8 +1570,9 @@ class transposh_plugin {
                 if ($googlemethod < $attempt && $failed) {
                     $failed = false;
                     tp_logger("Attempt: $attempt", 1);
-                    $url = $gurl . '/translate_a/t?client=a' . '&tl=' . $tl . '&sl=' . $sl;
-                    tp_logger($url, 5);
+                    $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl;
+                    tp_logger($url, 3);
+                    tp_logger($q, 3);
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1572,7 +1581,7 @@ class transposh_plugin {
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $q);
 
-                    //if the attempt is 2 or more, we skip ipv6 and se an alternative user agent
+                    //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
                     if ($attempt > 1) {
                         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                         curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
@@ -1581,6 +1590,7 @@ class transposh_plugin {
                     $info = curl_getinfo($ch);
                     tp_logger('Curl code is: ' . $info['http_code'], 1);
                     curl_close($ch);
+                    tp_logger($output, 3);
                     if ($info['http_code'] != 200) {
                         tp_logger("method fail - $attempt", 1);
                         $failed = true;
@@ -1603,33 +1613,15 @@ class transposh_plugin {
                 echo 'Curl error: ' . curl_error($ch);
                 die('I am done');
             }
-            tp_logger($output, 1);
-
+           // weird output that happens - $output='[[[[["Nnọọ"]],,"en"],[[["ụwa"]],,"en"],[[["Kedu ihe na-eme"]],,"en"]]]';
             $jsonarr = json_decode($output);
             if (!$jsonarr) {
-                tp_logger("google didn't return JSON, lets try to recover", 2);
-                $newout = str_replace(',,', ',"",', $output);
-                $jsonarrt = json_decode($newout);
-                if (!$jsonarrt) {
-                    die('Not JSON');
-                }
-                $jsonarr = new stdClass();
-                $jsonarr->results = array();
-                foreach ($jsonarrt[0] as $result) {
-                    array_push($jsonarr->results, $result[0][0][0]);
-                }
-                // If there is still no JSON
-            } else {
-                if (!isset($jsonarr->results)) {
-                    $jsonarr2->results[] = $jsonarr;
-                    $jsonarr = $jsonarr2;
-                }
-                foreach ($jsonarr->results as $result) {
-                    unset($result->sentences[0]->orig);
-                    unset($result->sentences[0]->translit);
-                    unset($result->sentences[0]->src_translit);
-                    unset($result->src);
-                    unset($result->server_time);
+                tp_logger("google didn't return Proper JSON, lets try to recover", 2);
+                $newout = str_replace(',,', ',', $output);
+                tp_logger($newout);
+                $jsonarr = json_decode($newout);
+                if (!$jsonarr) {
+                  die('Not JSON');
                 }
             }
             tp_logger($jsonarr);
@@ -1642,7 +1634,7 @@ class transposh_plugin {
             if (isset($r[$j])) {
                 $jsonout->results[] = $r[$j];
             } else {
-                if (isset($jsonarr->results[$k]->sentences[0]->trans)) {
+/*                if (isset($jsonarr->results[$k]->sentences[0]->trans)) {
                     foreach ($jsonarr->results[$k]->sentences as $sentence) {
                         $tmpresult .= $sentence->trans;
                     }
@@ -1651,6 +1643,20 @@ class transposh_plugin {
                     $jsonout->results[] = $jsonarr->results[$k];
                 } else {
                     $jsonout->results[] = $_GET['q'][$j];
+                }*/
+                // case of single item
+                if (!is_array($jsonarr)) {
+                    $jsonout->results[] = $jsonarr;
+                } else {
+                    $tmparr = $jsonarr[$k];
+                    // we drill down to the string
+                    while (is_array($tmparr)) {
+                        $tmparr = $tmparr[0];
+                    }
+                    // if its empty, we use the input
+                    if (!$tmparr) {$tmparr = $_GET['q'][$j];};
+                    
+                    $jsonout->results[] = $tmparr;                    
                 }
                 $k++;
             }
