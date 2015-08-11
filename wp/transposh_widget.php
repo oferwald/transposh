@@ -83,7 +83,7 @@ class transposh_plugin_widget extends WP_Widget {
         // Widget control defenitions
         $widget_ops = array('classname' => 'widget_transposh', 'description' => __('Transposh language selection widget', TRANSPOSH_TEXT_DOMAIN));
         $control_ops = array('width' => 200, 'height' => 300);
-        $this->WP_Widget('transposh', __('Transposh'), $widget_ops, $control_ops);
+        parent::__construct('transposh', __('Transposh'), $widget_ops, $control_ops);
 
         add_action('widgets_init', create_function('', 'register_widget("transposh_plugin_widget");'));
 
