@@ -34,6 +34,7 @@ class transposh_3rdparty {
 
         // buddypress compatability
         add_filter('bp_uri', array(&$this, 'bp_uri_filter'));
+        add_filter('bbp_get_search_results_url', array(&$this, 'bbp_get_search_results_url'));
         add_filter('bp_get_activity_content_body', array(&$this, 'bp_get_activity_content_body'), 10, 2);
         add_action('bp_activity_after_save', array(&$this, 'bp_activity_after_save'));
         add_action('transposh_human_translation', array(&$this, 'transposh_buddypress_stream'), 10, 3);
@@ -42,12 +43,12 @@ class transposh_3rdparty {
         add_action('sm_addurl', array(&$this, 'add_sm_transposh_urls'));
         // yoast - need patch
         add_filter('wpseo_sitemap_language', array(&$this, 'add_yoast_transposh_urls'));
-        
+
         // business directory plugin
         add_filter('wpbdp_get_page_link', array(&$this, 'fix_wpbdp_links_base'));
         add_filter('wpbdp_listing_link', array(&$this, 'fix_wpbdp_links'));
         add_filter('wpbdp_category_link', array(&$this, 'fix_wpbdp_links'));
-        
+
 
         // google analyticator
         if ($this->transposh->options->transposh_collect_stats) {
@@ -117,6 +118,16 @@ class transposh_3rdparty {
             $uri = transposh_utils::get_original_url($uri, '', $lang, array($this->transposh->database, 'fetch_original'));
         }
         return $uri;
+    }
+
+    /**
+     * For search form in current buddypress
+     * @param type $url
+     */
+    function bbp_get_search_results_url($url) {
+        $lang = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+        $href = transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
+        return $href;
     }
 
     /**
@@ -226,30 +237,30 @@ class transposh_3rdparty {
      * And this requires the following patch in class-sitemaps.php
      * For future yoast versions, and reference, look for this function:
       if ( ! in_array( $url['loc'], $stackedurls ) ) {
-        // Use this filter to adjust the entry before it gets added to the sitemap
-        $url = apply_filters( 'wpseo_sitemap_entry', $url, 'post', $p );
-        if ( is_array( $url ) && $url !== array() ) {
-          $output .= $this->sitemap_url( $url );
-          $stackedurls[] = $url['loc'];
-        }
+      // Use this filter to adjust the entry before it gets added to the sitemap
+      $url = apply_filters( 'wpseo_sitemap_entry', $url, 'post', $p );
+      if ( is_array( $url ) && $url !== array() ) {
+      $output .= $this->sitemap_url( $url );
+      $stackedurls[] = $url['loc'];
+      }
       }
 
       And change to:
       ------------------------------------------------------------------------
 
       if ( ! in_array( $url['loc'], $stackedurls ) ) {
-        // Use this filter to adjust the entry before it gets added to the sitemap
-        $url = apply_filters( 'wpseo_sitemap_entry', $url, 'post', $p );
-        if ( is_array( $url ) && $url !== array() ) {
-          $output .= $this->sitemap_url( $url );
-          $stackedurls[] = $url['loc'];
-        }
-        $langurls = apply_filters( 'wpseo_sitemap_language',$url);
-        if ( is_array( $langurls )) {
-          foreach ($langurls as $langurl) {
-            $output .= $this->sitemap_url( $langurl );
-          }
-        }
+      // Use this filter to adjust the entry before it gets added to the sitemap
+      $url = apply_filters( 'wpseo_sitemap_entry', $url, 'post', $p );
+      if ( is_array( $url ) && $url !== array() ) {
+      $output .= $this->sitemap_url( $url );
+      $stackedurls[] = $url['loc'];
+      }
+      $langurls = apply_filters( 'wpseo_sitemap_language',$url);
+      if ( is_array( $langurls )) {
+      foreach ($langurls as $langurl) {
+      $output .= $this->sitemap_url( $langurl );
+      }
+      }
       }
       -------------------------------------------------------------------------
      * @param yoast_url array $yoast_url Object containing the page information
@@ -281,45 +292,45 @@ class transposh_3rdparty {
         tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $this->transposh->edit_mode));
         return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $this->transposh->edit_mode);
     }
-    
+
     /*
      * For the business directory plugin, hidden fields needs to be added to enable search:
      * every time after the do-srch param
-     1. in search.tpl.php added this:
-            <input type="hidden" name="lang" value="<?php echo transposh_get_current_language(); ?>" />
-     2. in widget-search.php
-        printf('<input type="hidden" name="lang" value="%s" />', transposh_get_current_language());
-     3. templates-ui.php
-        $html .= sprintf('<input type="hidden" name="lang" value="%s" />', transposh_get_current_language());
+      1. in search.tpl.php added this:
+      <input type="hidden" name="lang" value="<?php echo transposh_get_current_language(); ?>" />
+      2. in widget-search.php
+      printf('<input type="hidden" name="lang" value="%s" />', transposh_get_current_language());
+      3. templates-ui.php
+      $html .= sprintf('<input type="hidden" name="lang" value="%s" />', transposh_get_current_language());
      */
-    
+
     function fix_wpbdp_cat_links($url) {
-        tp_logger($url,1);       
+        tp_logger($url, 1);
         return $url;
-        $url = preg_replace('#/.lang=[a-z]*/#','/',$url);
+        $url = preg_replace('#/.lang=[a-z]*/#', '/', $url);
         if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
             return $url;
-        } 
-        tp_logger($url,1);       
-        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);        
-        
+        }
+        tp_logger($url, 1);
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);
     }
-    
+
     function fix_wpbdp_links($url) {
-        tp_logger($url,1);       
-        $url = preg_replace('#/.lang=[a-z]*/#','/',$url);
+        tp_logger($url, 1);
+        $url = preg_replace('#/.lang=[a-z]*/#', '/', $url);
         if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
             return $url;
-        } 
-        tp_logger($url,1);       
-        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);        
+        }
+        tp_logger($url, 1);
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);
     }
-    
+
     function fix_wpbdp_links_base($url) {
         if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
             return $url;
-        } 
-        tp_logger($url,1);       
-        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);        
+        }
+        tp_logger($url, 1);
+        return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->options->enable_permalinks, $this->transposh->target_language, $this->transposh->edit_mode);
     }
+
 }
