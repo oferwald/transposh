@@ -67,36 +67,37 @@
         'cy': 'Welsh - Cymraeg',
         'yi': 'Yiddish - ייִדיש'
     }
-    
-    $(function() {
-        var commentclickfunction = function() {
+
+    $(function () {
+        var commentclickfunction = function () {
             var options = '<option value="">Unset</option>', selected, lang = $(this).data('lang');
-            $.each(l, function(x) {
+            $.each(l, function (x) {
                 if (x === lang) {
                     selected = 'selected="selected"'
                 } else {
                     selected = ''
-                };
-                options += '<option value="'+x+'"'+selected+'>'+l[x]+'</option>'
+                }
+                ;
+                options += '<option value="' + x + '"' + selected + '>' + l[x] + '</option>'
             });
             $(this).closest(".row-actions").toggleClass("row-actions-active").toggleClass("row-actions");
-            $(this).replaceWith('<select data-cid="'+$(this).data('cid')+'">'+options+"</select>");
-            $(".language select").change(function(){
+            $(this).replaceWith('<select data-cid="' + $(this).data('cid') + '">' + options + "</select>");
+            $(".language select").change(function () {
                 $.get(ajaxurl,
-                {
-                    action: 'tp_comment_lang',
-                    lang: $(this).val(),
-                    cid: $(this).data('cid')
-                }
+                        {
+                            action: 'tp_comment_lang',
+                            lang: $(this).val(),
+                            cid: $(this).data('cid')
+                        }
                 );
                 var cid = $(this).data('cid');
                 $(this).closest(".row-actions-active").toggleClass("row-actions-active").toggleClass("row-actions");
-                $(this).replaceWith('<a data-cid="'+cid+'" data-lang="'+$(this).val()+'" href="" onclick="return false">'+$('[data-cid='+cid+'] option:selected').text()+'</a>');
-                $('[data-cid='+cid+']').click(commentclickfunction);
+                $(this).replaceWith('<a data-cid="' + cid + '" data-lang="' + $(this).val() + '" href="" onclick="return false">' + $('[data-cid=' + cid + '] option:selected').text() + '</a>');
+                $('[data-cid=' + cid + ']').click(commentclickfunction);
             });
         };
         $(".language a").click(commentclickfunction);
-    })    
-    
+    })
+
 }(jQuery))
 

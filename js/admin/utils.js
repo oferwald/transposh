@@ -136,8 +136,8 @@
                                 //console.log("trigger translation of " +a);
                                 timer2 = setTimeout(function() {
                                     dotimer(a+1)
-                                },5000);
-                                $("#tr_allmsg").text('Waiting 5 seconds...');
+                                },2000);
+                                $("#tr_allmsg").text('Waiting 2 seconds...');
                             }
                         } else {
                             //console.log("waiting for translation to finish 60 seconds");

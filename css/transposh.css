@@ -3,39 +3,42 @@
  * This css will be either lazy-loaded or become part of the .js file
  */
 
- /* this is now useless?
+/* this is now useless?
 .post .postbody .tr_img_, .attachment .tr_img_, .navigation .alignleft .tr_img_, .navigation .alignright .tr_img_,
 .tr_img_ {
-    border: 0px; 
-    margin: 0px;
+   border: 0px; 
+   margin: 0px;
 }*/
 
 .tr-icon {
-	background-image:url(../img/tr_imgs.png);
-	height:12px;
-	width:12px;
-	background-repeat:no-repeat;
-	overflow:hidden;
-	text-indent:-99999px;
-        display:inline-block;
-        cursor:pointer;
-        box-shadow:0;
+    background-image:url(../img/tr_imgs.png);
+    height:12px;
+    width:12px;
+    background-repeat:no-repeat;
+    overflow:hidden;
+    text-indent:-99999px;
+    display:inline-block;
+    cursor:pointer;
+    box-shadow:0;
 }
 .tr-icon-yellow {
-	background-position:-12px 0;
+    background-position:-12px 0;
 }
 .tr-icon-green {
-	background-position:-24px 0;
+    background-position:-24px 0;
 }
 .tr-icon-google {
-	background-image:url(../img/googleicon.png) !important;
+    background-image:url(../img/googleicon.png) !important;
 }
 .tr-icon-bing {
-	background-image:url(../img/bingicon.png) !important;
+    background-image:url(../img/bingicon.png) !important;
 }
 .tr-icon-apertium {
-	background-image:url(../img/apertiumicon.png) !important;
+    background-image:url(../img/apertiumicon.png) !important;
 }
 .tr-icon-oht {
-	background-image:url(../img/ohticon.png) !important;
+    background-image:url(../img/ohticon.png) !important;
+}
+.tr-icon-yandex {
+    background-image:url(../img/yandexicon.png) !important;
 }
