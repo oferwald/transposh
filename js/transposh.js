@@ -280,8 +280,8 @@
 
     // invokes the correct mass translator based on the preferred one...
     function do_mass_invoke(batchtokens, batchtrans) {
-        t_jp.preferred.every(function (engine) {
-            console.log(engine);
+        t_jp.preferred.some(function (engine) {
+            //console.log(engine);
             if (t_jp.engines[engine]) {
                 if (engine === 'a') {
                     do_mass_apertium_invoker(batchtokens, batchtrans);
@@ -295,7 +295,7 @@
                 if (engine === 'y') {
                     do_mass_yandex_invoker(batchtokens, batchtrans);
                 }
-                return false;
+                return true;
             }
         });
     }
