@@ -27,19 +27,20 @@
             var me = this;
             var href = $(this).children().attr('href');
             console.log(href);
-             $.ajax({
+            $.ajax({
                 url: href,
                 dataType: 'json',
                 /*data: {
-                    action: "tp_translate_all"
-                },*/
+                 action: "tp_translate_all"
+                 },*/
                 cache: false,
                 success: function (data) {
-                   if (data) {
-                       $(me).parents('tr').hide();
-                   } else {
-                       $(me).parents('tr').css("background-color", "red");                       
-                   };
+                    if (data) {
+                        $(me).parents('tr').hide();
+                    } else {
+                        $(me).parents('tr').css("background-color", "red");
+                    }
+                    ;
                 }
             });
             return false;

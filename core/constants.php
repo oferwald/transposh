@@ -54,12 +54,13 @@ class transposh_consts {
         'ar' => 'Arabic,العربية,sa,',
         'hy' => 'Armenian,Հայերեն,am,',
         'az' => 'Azerbaijani,azərbaycan dili,az,',
-        'eu' => 'Basque,Euskara,basque,',
+        'eu' => 'Basque,Euskara,es-ba,',
+        'ba' => 'Bashkir,башҡорт теле,ru-ba',
         'be' => 'Belarusian,Беларуская,by,',
         'bn' => 'Bengali,বাংলা,bd,bn_BD',
         'bs' => 'Bosnian,bosanski jezik,ba,bs_BA',
         'bg' => 'Bulgarian,Български,bg,bg_BG',
-        'ca' => 'Catalan,Català,catalonia,',
+        'ca' => 'Catalan,Català,es-ca,',
         'ceb' => 'Cebuano,Binisaya,ph,',
         'ny' => 'Chichewa,Chinyanja,mw',
         'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
@@ -72,7 +73,7 @@ class transposh_consts {
         'et' => 'Estonian,Eesti keel,ee,',
         'fi' => 'Finnish,Suomi,fi,',
         'fr' => 'French,Français,fr,fr_FR',
-        'gl' => 'Galician,Galego,galicia,gl_ES',
+        'gl' => 'Galician,Galego,es_ga,gl_ES',
         'ka' => 'Georgian,ქართული,ge,ka_GE',
         'de' => 'German,Deutsch,de,de_DE',
         'el' => 'Greek,Ελληνικά,gr,',
@@ -95,6 +96,7 @@ class transposh_consts {
         'kk' => 'Kazakh,Қазақ тілі,kz',
         'km' => 'Khmer,ភាសាខ្មែរ,kh,',
         'ko' => 'Korean,한국어,kr,ko_KR',
+        'ky' => 'Kirghiz,кыргыз тили,kg,ky_KY',
         'lo' => 'Lao,ພາສາລາວ,la,',
         'la' => 'Latin,Latīna,va,',
         'lv' => 'Latvian,Latviešu valoda,lv,',
@@ -129,6 +131,7 @@ class transposh_consts {
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
         'tg' => 'Tajik,Тоҷикӣ,tj',
         'ta' => 'Tamil,தமிழ்,in,ta_LK', // apparently more in India
+        'tt' => 'Tatar,татарча,ru-ta',
         'te' => 'Telugu,తెలుగు,in,',
         'th' => 'Thai,ภาษาไทย,th,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
@@ -136,10 +139,56 @@ class transposh_consts {
         'ur' => 'Urdu,اردو,pk,',
         'uz' => 'Uzbek,Oʻzbek tili,uz,uz_UZ',
         'vi' => 'Vietnamese,Tiếng Việt,vn,',
-        'cy' => 'Welsh,Cymraeg,wales,',
+        'cy' => 'Welsh,Cymraeg,gb-wa,',
         'yi' => 'Yiddish,ייִדיש,europeanunion,',
         'yo' => 'Yoruba,èdè Yorùbá,ng,',
         'zu' => 'Zulu,isiZulu,za,'
+    );
+    // new var to hold translation engines information
+    public static $engines = array(
+        'a' => array(
+            'name' => 'Apertium',
+            'icon' => 'apertiumicon.png',
+            'langs' => array('eo'),
+        ),
+        'b' => array(
+            'name' => 'Bing',
+            'icon' => 'bingicon.png',
+            // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
+            // @updated 2012-Feb-14 (mww)
+            // @updated 2013-Feb-21 (ms, ur)
+            // @updated 2014-Feb-21 (cy)
+            // @updated 2015-Apr-19 (bs, hr, sr)
+            // @updated 2015-Oct-23 (sw)
+            'langs' => array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
+                'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw'),
+        ),
+        'g' => array(
+            'name' => 'Google',
+            'icon' => 'googleicon.png',
+            // (got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
+            // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
+            // @updated 2011-Nov-04
+            // @updated 2012-Feb-24 (eo)
+            // @updated 2012-Sep-17 (la)
+            // @updated 2013-Apr-19 (km)
+            // @updated 2013-May-09 (bs,ceb,hmn,jw,mr)
+            // @updated 2013-Dec-24 (ha,ig,mi,mn,ni,pa,so,yo,zu)
+            // @updated 2014-Dec-15 (kk,mg,ml,my,ny,si,st,su,tg,uz)
+            'langs' => array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu',
+                'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi',
+                'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu',
+                'kk', 'mg', 'ml', 'my', 'ny', 'si', 'st', 'su', 'tg', 'uz'),
+        ),
+        'y' => array(
+            'name' => 'Yandex',
+            'icon' => 'yandexicon.png',
+            // @updated 2015-Aug-12 initial list
+            // @updated 2015-Oct-25 (ba)
+            'langs' => array('sq', 'en', 'ar', 'hy', 'az', 'af', 'eu', 'be', 'bg', 'bs', 'cy', 'vi', 'hu', 'ht', 'gl', 'nl', 'el', 'ka',
+                'da', 'he', 'id', 'ga', 'it', 'is', 'es', 'ca', 'kk', 'ky', 'zh', 'ko', 'la', 'lv', 'lt', 'mg', 'ms', 'mt', 'mk', 'mn', 'de', 'no', 'fa', 'pl', 'pt',
+                'ro', 'ru', 'sr', 'sk', 'sl', 'sw', 'tg', 'th', 'tl', 'tt', 'tr', 'uz', 'uk', 'fi', 'fr', 'hr', 'cs', 'sv', 'et', 'ja', 'ba'),
+        ),
     );
 
     public static function get_language_name($lang) {
@@ -158,7 +207,7 @@ class transposh_consts {
     }
 
     public static function get_language_locale($lang) {
-        list (,,, $locale) = explode(",", transposh_consts::$languages[$lang]);
+        @list (,,, $locale) = explode(",", transposh_consts::$languages[$lang]);
         if ($locale) {
             return $locale;
         }
@@ -167,31 +216,6 @@ class transposh_consts {
 
     // Language which are read from right to left (rtl)
     public static $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
-    // Google supported languages
-    // (got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
-    // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
-    // @updated 2011-Nov-04
-    // @updated 2012-Feb-24 (eo)
-    // @updated 2012-Sep-17 (la)
-    // @updated 2013-Apr-19 (km)
-    // @updated 2013-May-09 (bs,ceb,hmn,jw,mr)
-    // @updated 2013-Dec-24 (ha,ig,mi,mn,ni,pa,so,yo,zu)
-    // @updated 2014-Dec-15 (kk,mg,ml,my,ny,si,st,su,tg,uz)
-    public static $google_languages = array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu',
-        'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi',
-        'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu',
-        'kk', 'mg', 'ml', 'my', 'ny', 'si', 'st', 'su', 'tg', 'uz');
-    // Bing supported languages
-    // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
-    // @updated 2012-Feb-14 (mww)
-    // @updated 2013-Feb-21 (ms, ur)
-    // @updated 2014-Feb-21 (cy)
-    // @updated 2015-Apr-19 (bs, hr, sr)
-    public static $bing_languages = array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
-        'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr');
-    // Apertium supported languages
-    // a bit tricky, but we'll see - starting with just esperanto
-    public static $apertium_languages = array('eo');
     // todo - more languages in OHT
     //Chinese Cantonese	zh-cn-yue -- check
     //Chinese Mandarin-Simplified	zh-cn-cmn-s
@@ -237,7 +261,6 @@ define('TRANSPOSH_OHT_DELAY', 600);
 //0.9.6 - Making sure Google works
 define('TRANSPOSH_OPTIONS_GOOGLEPROXY', 'transposh_options_googleproxy');
 define('TRANSPOSH_GOOGLEPROXY_DELAY', 86400); // give it a day
-
 //0.5.6 new definitions
 //Defintions for directories used in the plugin
 define('TRANSPOSH_DIR_CSS', 'css');
@@ -447,7 +470,6 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # /
   # kea/ ??
   # /
-  # ky_KY/
   # ml_IN/
   # nb_NO/ ? good Question, popped into Norway
   # nn_NO/ ? same question

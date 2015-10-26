@@ -47,23 +47,25 @@ class transposh_postpublish {
         $post_types = get_post_types();
         foreach ($post_types as $post_type) {
             if (in_array($post_type, array('attachment', 'revision', 'nav_menu_item')))
-                    continue;
+                continue;
             tp_logger($post_type, 5);
             if ($this->transposh->options->enable_autoposttranslate) {
                 add_meta_box('transposh_postpublish', __('Transposh', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_postpublish_box"), $post_type, 'side', 'core');
             }
             add_meta_box('transposh_setlanguage', __('Set post language', TRANSPOSH_TEXT_DOMAIN), array(&$this, "transposh_setlanguage_box"), $post_type, 'advanced', 'core');
         }
-        if (!isset($_GET['post'])) return;
+        if (!isset($_GET['post']))
+            return;
         if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
             $this->just_published = true; // this is later used in the meta boxes //XXXXXXXXXXXXXXXXXXXXXXXXXXXX
             wp_enqueue_script("transposh_backend", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/backendtranslate.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
             $script_params = array(
                 'post' => $_GET['post'],
                 'l10n_print_after' =>
-                't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
-                't_be.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';' .
-                't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
+                't_be.a_langs = ' . json_encode(transposh_consts::$engines['a']['langs']) . ';' .
+                't_be.b_langs = ' . json_encode(transposh_consts::$engines['b']['langs']) . ';' .
+                't_be.g_langs = ' . json_encode(transposh_consts::$engines['g']['langs']) . ';' .
+                't_be.y_langs = ' . json_encode(transposh_consts::$engines['y']['langs']) . ';'
             );
             wp_localize_script("transposh_backend", "t_be", $script_params);
             // MAKESURE 3.3
@@ -102,7 +104,8 @@ class transposh_postpublish {
         }
         // a normal post
         else {
-            if (!current_user_can('edit_post', $postID)) return;
+            if (!current_user_can('edit_post', $postID))
+                return;
             global $post; // thid is needed because some of the functions below expect it...
             $post = get_post($postID);
             // Display filters
@@ -131,7 +134,8 @@ class transposh_postpublish {
                 $permalink = substr($permalink, strlen($this->transposh->home_url) + 1);
                 $parts = explode('/', $permalink);
                 foreach ($parts as $part) {
-                    if (!$part || is_numeric($part)) continue;
+                    if (!$part || is_numeric($part))
+                        continue;
                     $part = str_replace('-', ' ', $part);
                     $phrases[] = urldecode($part);
                 }
@@ -148,9 +152,10 @@ class transposh_postpublish {
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->enable_default_translate) {
                     // There is no point in returning phrases, languages pairs that cannot be translated
-                    if (in_array($lang, transposh_consts::$bing_languages) ||
-                            in_array($lang, transposh_consts::$google_languages) ||
-                            in_array($lang, transposh_consts::$apertium_languages)) {
+                    if (in_array($lang, transposh_consts::$engines['b']['langs']) ||
+                            in_array($lang, transposh_consts::$engines['g']['langs']) ||
+                            in_array($lang, transposh_consts::$engines['y']['langs']) ||
+                            in_array($lang, transposh_consts::$engines['a']['langs'])) {
                         list($source, $translation) = $this->transposh->database->fetch_translation($key, $lang);
                         if (!$translation) {
                             // p stands for phrases, l stands for languages, t is token
@@ -167,8 +172,8 @@ class transposh_postpublish {
             }
             // only if a languages list was created we'll need to translate this
             if (@is_array($json['p'][$key]['l'])) {
-                $json['p'][$key]['t'] = transposh_utils::base64_url_encode($key);
-                @$json['length']++;
+                //$json['p'][$key]['t'] = $key;//transposh_utils::base64_url_encode($key);
+                @$json['length'] ++;
             }
         }
 
@@ -183,7 +188,7 @@ class transposh_postpublish {
      */
     function transposh_postpublish_box() {
         if (isset($_GET['post']) && get_post_meta($_GET['post'], 'transposh_can_translate', true))
-                $this->just_published = true;
+            $this->just_published = true;
 
         if ($this->just_published) {
             echo '<div id="tr_loading">Publication happened - loading phrases list...</div>';

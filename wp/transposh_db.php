@@ -500,7 +500,7 @@ class transposh_database {
             $this->transposh->run_backup();
         }
         // this is a termination for the ajax sequence
-        exit;
+        //exit;
     }
 
     /*
@@ -936,7 +936,7 @@ class transposh_database {
                     ' ON ' . $this->translation_table . '.original = ' . $this->translation_log_table . '.original' .
                     ' AND ' . $this->translation_table . '.lang = ' . $this->translation_log_table . '.lang' .
                     ' WHERE ' . $this->translation_table . '.source > 0' .
-                    ' AND ' . $this->translation_table . "timestamp < SUBDATE(NOW(),$days)";
+                    ' AND ' . $this->translation_table . ".timestamp < SUBDATE(NOW(),$days)";
             $result = $GLOBALS['wpdb']->query($cleanup);
             tp_logger($cleanup, 4);
         }

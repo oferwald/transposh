@@ -6,7 +6,7 @@ Requires at least: 3.3
 Tested up to: 4.2
 Stable tag: %VERSION%
 
-Transposh adds best of breed translation support to wordpress, 73 languages are automatically translated and can be manually corrected with ease.
+Transposh adds best of breed translation support to wordpress, 95 languages are automatically translated and can be manually corrected with ease.
 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
@@ -23,7 +23,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
-* Use either Google Translate,MS Translate or Apertium backends - 82 languages supported!
+* Use either Google, Bing, Yandex or Apertium translation backends - 95 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -122,6 +122,21 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2015/10/27 - 0.9.8 =
+ * Yandex translator support added
+ * Added the option to choose preferred translators order via drag and drop
+ * Fix critical bug in translate post and translate on publish
+ * Fixes in language selection UI (long language names)
+ * Fix translation dialog not loading on first click
+ * No longer expose Google keys externally
+ * Fix the clean automatic translations in the utils tab
+ * Support Bashkir, Kyrghiz and Tatar thanks to Yandex - Now supporting 95 Languages!
+ * Added Swahili support to Bing
+ * Reduced wait time between posts in translate all to 2 seconds
+ * Fix shortcodes when wrapping a <p> tag
+ * New Google icon
+ * Fix WP_Widget deprecation call for wordpress 4.3
+ * Minor fix for buddypress search integration
 = 2015/07/29 - 0.9.7.2 =
  * Shortcode revision following wordpress 4.2.3 release
  * Update to the Google proxy code, so it works again for now

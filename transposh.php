@@ -184,10 +184,10 @@ class transposh_plugin {
         add_action('transposh_oht_event', array(&$this, 'run_oht'));
         add_action('comment_post', array(&$this, 'add_comment_meta_settings'), 1);
         // our translation proxy
-        add_action('wp_ajax_tp_gp', array(&$this, 'on_ajax_nopriv_tp_gp'));
-        add_action('wp_ajax_nopriv_tp_gp', array(&$this, 'on_ajax_nopriv_tp_gp'));
-        add_action('wp_ajax_tp_gsp', array(&$this, 'on_ajax_nopriv_tp_gsp'));
-        add_action('wp_ajax_nopriv_tp_gsp', array(&$this, 'on_ajax_nopriv_tp_gsp'));
+//        add_action('wp_ajax_tp_gp', array(&$this, 'on_ajax_nopriv_tp_gp'));
+//        add_action('wp_ajax_nopriv_tp_gp', array(&$this, 'on_ajax_nopriv_tp_gp'));
+        add_action('wp_ajax_tp_tp', array(&$this, 'on_ajax_nopriv_tp_tp')); // translate suggest proxy
+        add_action('wp_ajax_nopriv_tp_tp', array(&$this, 'on_ajax_nopriv_tp_tp'));
         add_action('wp_ajax_tp_oht', array(&$this, 'on_ajax_nopriv_tp_oht'));
         add_action('wp_ajax_nopriv_tp_oht', array(&$this, 'on_ajax_nopriv_tp_oht'));
         // ajax actions in editor
@@ -828,30 +828,36 @@ class transposh_plugin {
             'olang' => $this->options->default_language,
             // those two options show if the script can support said engines
             'prefix' => SPAN_PREFIX,
-            'preferred' => $this->options->preferred_translator,
+            'preferred' => explode(",", $this->options->preferred_translators)
         );
 
-        // FIX BACKEND
-        if (!$this->target_language || in_array($this->target_language, transposh_consts::$bing_languages)) {
-            $script_params['msn'] = 1;
-            if ($this->options->msn_key) {
-                $script_params['msn_key'] = $this->options->msn_key;
+        $script_params['engines'] = new stdClass();
+        if (in_array($this->target_language, transposh_consts::$engines['a']['langs'])) {
+            $script_params['engines']->a = 1;
+        }
+        if (in_array($this->target_language, transposh_consts::$engines['b']['langs'])) {
+            $script_params['engines']->b = 1;
+//            $script_params['engines'][] = 'b';
+            switch ($this->target_language) {
+                case 'zh':
+                    $script_params['blang'] = 'zh-chs';
+                    break;
+                case 'zh-tw':
+                    $script_params['blang'] = 'zh-cht';
+                    break;
+                case 'mw':
+                    $script_params['blang'] = 'mww';
+                    break;
             }
         }
-        // FIX BACKEND
-        if (!$this->target_language || in_array($this->target_language, transposh_consts::$google_languages)) {
-            if ($this->options->google_key) {
-                $script_params['google_key'] = $this->options->google_key;
-            }
-            if ($this->options->google_key || function_exists('curl_init')) {
-                $script_params['google'] = 1;
-            }
+        if (in_array($this->target_language, transposh_consts::$engines['g']['langs'])) {
+            $script_params['engines']->g = 1;
         }
-        if (in_array($this->target_language, transposh_consts::$apertium_languages)) {
-            $script_params['apertium'] = 1;
+        if (in_array($this->target_language, transposh_consts::$engines['y']['langs'])) {
+            $script_params['engines']->y = 1;
         }
         if ($this->options->oht_id && $this->options->oht_key && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options')) {
-            $script_params['oht'] = 1;
+            $script_params['engines']->o = 1;
         }
         if (!$this->options->enable_autotranslate) {
             $script_params['noauto'] = 1;
@@ -1318,7 +1324,7 @@ class transposh_plugin {
             }
             $lang = $this->options->default_language;
         }
-        list ($l, $n, $f, $locale) = explode(',', transposh_consts::$languages[$lang]);
+        transposh_consts::get_language_locale($lang);
 
         return ($locale) ? $locale : $lang;
     }
@@ -1348,7 +1354,7 @@ class transposh_plugin {
             if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
                 return;
             }
-                return get_locale();                   
+            return get_locale();
         }
 
         if (isset($atts['mylang']) || in_array('mylang', $atts)) {
@@ -1364,6 +1370,10 @@ class transposh_plugin {
 
         if (isset($atts['only']) || in_array('only', $atts)) {
             $only_class = ' class="' . ONLY_THISLANGUAGE_CLASS . '"';
+            tp_logger($atts['lang'] . " " . $this->target_language);
+//            if ($atts['lang'] != $this->target_language) {
+//                return;
+//            }
         }
 
         if (isset($atts['no_translate'])) {
@@ -1379,7 +1389,10 @@ class transposh_plugin {
         }
 
         if ($lang || $only_class || $nt_class) {
-            return '<span' . $only_class . $nt_class . $lang . '>' . do_shortcode($content) . '</span>';
+            $newcontent = do_shortcode($content);
+            $newcontent = str_replace('<p>', '<p><span' . $only_class . $nt_class . $lang . '>', $newcontent);
+            $newcontent = str_replace('</p>', '</span></p>', $newcontent);
+            return '<span' . $only_class . $nt_class . $lang . '>' . $newcontent . '</span>';
         } else {
             return do_shortcode($content);
         }
@@ -1454,67 +1467,161 @@ class transposh_plugin {
         die();
     }
 
-    // Proxied google translate suggestions
-    function on_ajax_nopriv_tp_gsp() {
-        $i = 0;
+    // transposh translation proxy ajax wrapper
+
+    function on_ajax_nopriv_tp_tp() {
         // we need curl for this proxy
-        if (!function_exists('curl_init')) {
+        if (!function_exists('curl_init'))
             return;
-        }
+
+        // we are permissive for sites using multiple domains and such
         transposh_utils::allow_cors();
-        $tl = $_GET['tl']; // CHECK GET (ajax change to post case..)
-        // we want to avoid unneeded work or dos attacks on languages we don't support
-        if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl))
+        // get the needed params
+        $tl = $_GET['tl'];
+        // avoid handling inactive languages
+        if (!$this->options->is_active_language($tl))
             return;
-        $sl = 'auto';
         if (isset($_GET['sl'])) {
             $sl = $_GET['sl'];
+        } else {
+            $sl = '';
         }
-        $q = urlencode(stripslashes($_GET['q']));
-        if (!$q) {
-            return; // avoid unneeded curling
+        $suggestmode = false; // the suggest mode takes one string only, and does not save to the database
+        if (isset($_GET['m']) && $_GET['m'] == 's')
+            $suggestmode = true;
+        if ($suggestmode) {
+            $q = urlencode(stripslashes($_GET['q']));
+            if (!$q)
+                return;
+        } else {
+            // item count
+            $i = 0;
+            $q = array();
+            foreach ($_GET['q'] as $p) {
+                list(, $trans) = $this->database->fetch_translation(stripslashes($p), $tl);
+                if (!$trans) {
+                    $q[] = urlencode(stripslashes($p));
+                } else {
+                    $r[$i] = $trans;
+                }
+                $i++;
+            }
         }
-        $url = 'http://translate.google.com/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl;
+        if ($q) {
+            switch ($_GET['e']) {
+                case 'g': // google
+                    if (!$sl) {
+                        $sl = 'auto';
+                    }
+                    if (!in_array($tl, transposh_consts::$engines['g']['langs'])) // nope...
+                        return;
+                    $source = 1;
+                    $result = $this->get_google_translation($tl, $sl, $q);
+                    break;
+                case 'y': // yandex
+                    if (!in_array($tl, transposh_consts::$engines['y']['langs'])) // nope...
+                        return;
+                    $source = 4;
+                    $result = $this->get_yandex_translation($tl, $sl, $q);
+                    break;
+            }
+
+            if ($result === false) {
+                echo 'Proxy attempt failed';
+                die();
+            }
+        }
+
+        // encode results 
+        $jsonout = new stdClass();
+        if ($suggestmode) {
+            $jsonout->result = $result;
+        } else {
+            // here we match online results with cached ones
+            $k = 0;
+            for ($j = 0; $j < $i; $j++) {
+                if (isset($r[$j])) {
+                    $jsonout->results[] = $r[$j];
+                } else {
+                    // TODO: no value - original?
+                    $jsonout->results[] = $result[$k];
+                    $k++;
+                }
+            }
+
+            //  // we send here because update translation dies... TODO: fix this mess
+            //          echo json_encode($jsonout);
+//
+            // do the db dance - a bit hackish way to insert downloaded translations directly to the db without having
+            // to pass through the user and collect $200
+            if ($k) {
+                $_POST['items'] = $k;
+                $_POST['ln0'] = $tl;
+                $_POST['sr0'] = $source; // according to used engine
+                $k = 0;
+                for ($j = 0; $j < $i; $j++) {
+                    if (!isset($r[$j])) {
+                        $_POST["tk$k"] = stripslashes($_GET['q'][$j]); // stupid, but should work
+                        $_POST["tr$k"] = $jsonout->results[$j];
+                        $k++;
+                    }
+                }
+                tp_logger('updating! :)');
+                tp_logger($_POST);
+                $this->database->update_translation();
+            }
+        }
+
+        // send out result
+        echo json_encode($jsonout);
+        die();
+    }
+
+    // Proxied Yandex translate suggestions
+    function get_yandex_translation($tl, $sl, $q) {
+        if ($sl) {
+            $sl .= '-';
+        }
+        $qstr = '';
+        if (is_array($q)) {
+            foreach ($q as $v) {
+                $qstr .= '&text=' . $v;
+            }
+        } else {
+            $qstr = '&text=' . $q;
+        }
+        $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=0';
         tp_logger($url, 3);
         tp_logger($q, 3);
         $ch = curl_init();
+        // yandex wants a referer someimes
+        curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         //must set agent for google to respond with utf-8
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "q=$q");
         $output = curl_exec($ch);
         if ($output === false) {
-            echo 'Curl error: ' . curl_error($ch);
-            die();
+            tp_logger('Curl error: ' . curl_error($ch));
+            return false;
         }
         curl_close($ch);
         tp_logger($output, 3);
         $jsonarr = json_decode($output);
         tp_logger($jsonarr, 3);
         if (!$jsonarr) {
-            echo 'Not JSON';
+            tp_logger('No JSON here, failing');
             tp_logger($output, 3);
-            die();
+            return false;
         }
 
-        // this will happen based on sl (auto or not)
-        if (is_array($jsonarr)) {
-            $result = $jsonarr[0];
-        } else {
-            $result = $jsonarr;
-        }
+        $result = $jsonarr->text;
 
-        $jsonout = new stdClass();
-        $jsonout->result = $result;
-
-        echo json_encode($jsonout);
-        die();
+        return $result;
     }
 
 // Proxied translation for google translate
-    function on_ajax_nopriv_tp_gp() {
+    function get_google_translation($tl, $sl, $q) {
         if (get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array())) {
             list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
             tp_logger("Google method $googlemethod, $timestamp", 1);
@@ -1527,163 +1634,106 @@ class transposh_plugin {
             delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
         }
         tp_logger('Google proxy initiated', 1);
-        // we need curl for this proxy
-        if (!function_exists('curl_init')) {
-            return;
-        }
-        transposh_utils::allow_cors();
-        // target language
-        $tl = $_GET['tl'];
-        // we want to avoid unneeded work or dos attacks on languages we don't support
-        if (!in_array($tl, transposh_consts::$google_languages) || !$this->options->is_active_language($tl)) {
-            return;
-        }
-        // source language
-        $sl = 'auto';
-        if (isset($_GET['sl'])) {
-            $sl = $_GET['sl'];
-        }
-        // item count
-        $i = 0;
-        $q = '';
-        foreach ($_GET['q'] as $p) {
-            list(, $trans) = $this->database->fetch_translation($p, $tl);
-            if (!$trans) {
-                $q .= '&q=' . urlencode(stripslashes($p));
-            } else {
-                // holds cached results
-                $r[$i] = $trans;
+        if (is_array($q)) {
+            foreach ($q as $v) {
+                $qstr .= '&q=' . $v;
             }
-            $i++;
+        } else {
+            $qstr = '&q=' . $q;
         }
         // we avoid curling we had all results prehand
-        if ($q) {
-            $urls = array(
-                'http://translate.google.com',
-                'http://212.199.205.226',
-                'http://74.125.195.138',
-                'https://translate.googleapis.com');
+        $urls = array(
+            'http://translate.google.com',
+            'http://212.199.205.226',
+            'http://74.125.195.138',
+            'https://translate.googleapis.com');
 
-            $attempt = 1;
-            $failed = true;
-            foreach ($urls as $gurl) {
-                if ($googlemethod < $attempt && $failed) {
-                    $failed = false;
-                    tp_logger("Attempt: $attempt", 1);
-                    $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl;
-                    tp_logger($url, 3);
-                    tp_logger($q, 3);
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    //must set agent for google to respond with utf-8
-                    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-                    curl_setopt($ch, CURLOPT_POST, true);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $q);
+        $attempt = 1;
+        $failed = true;
+        foreach ($urls as $gurl) {
+            if ($googlemethod < $attempt && $failed) {
+                $failed = false;
+                tp_logger("Attempt: $attempt", 1);
+                $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl;
+                tp_logger($url, 3);
+                tp_logger($q, 3);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                //must set agent for google to respond with utf-8
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
 
-                    //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
-                    if ($attempt > 1) {
-                        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-                    }
-                    $output = curl_exec($ch);
-                    $info = curl_getinfo($ch);
-                    tp_logger('Curl code is: ' . $info['http_code'], 1);
-                    curl_close($ch);
-                    tp_logger($output, 3);
-                    if ($info['http_code'] != 200) {
-                        tp_logger("method fail - $attempt", 1);
-                        $failed = true;
-                        update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array($attempt, time()));
-                    }
-                    unset($info);
+                //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
+                if ($attempt > 1) {
+                    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                    curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
                 }
-                $attempt++;
+                $output = curl_exec($ch);
+                $info = curl_getinfo($ch);
+                tp_logger('Curl code is: ' . $info['http_code'], 1);
+                curl_close($ch);
+                tp_logger($output, 3);
+                if ($info['http_code'] != 200) {
+                    tp_logger("method fail - $attempt", 1);
+                    $failed = true;
+                    update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array($attempt, time()));
+                }
+                unset($info);
             }
+            $attempt++;
+        }
 
-            // TODO - last attempt, with key
+        // TODO - last attempt, with key
 
-            if ($failed) {
-                tp_logger('out of options, die for the day!', 1);
-                die('Dead Proxy');
-            }
+        if ($failed) {
+            tp_logger('out of options, die for the day!', 1);
+            return false;
+        }
 
+        if ($output === false) {
+            tp_logger('Curl error: ' . curl_error($ch));
+            return false;
+        }
 
-            if ($output === false) {
-                echo 'Curl error: ' . curl_error($ch);
-                die('I am done');
-            }
-           // weird output that happens - $output='[[[[["Nnọọ"]],,"en"],[[["ụwa"]],,"en"],[[["Kedu ihe na-eme"]],,"en"]]]';
-            $jsonarr = json_decode($output);
+        tp_logger($output, 3);
+        // weird output that happens - $output='[[[[["Nnọọ"]],,"en"],[[["ụwa"]],,"en"],[[["Kedu ihe na-eme"]],,"en"]]]';
+        $jsonarr = json_decode($output);
+        if (!$jsonarr) {
+            tp_logger("google didn't return Proper JSON, lets try to recover", 2);
+            $newout = str_replace(',,', ',', $output);
+            tp_logger($newout);
+            $jsonarr = json_decode($newout);
             if (!$jsonarr) {
-                tp_logger("google didn't return Proper JSON, lets try to recover", 2);
-                $newout = str_replace(',,', ',', $output);
-                tp_logger($newout);
-                $jsonarr = json_decode($newout);
-                if (!$jsonarr) {
-                  die('Not JSON');
-                }
+                tp_logger('No JSON here, failing');
+                tp_logger($output, 3);
+                return false;
             }
-            tp_logger($jsonarr);
         }
-        header('Content-type: text/html; charset=utf-8');
-
-        // here we match online results with cached ones
-        $k = 0;
-        for ($j = 0; $j < $i; $j++) {
-            if (isset($r[$j])) {
-                $jsonout->results[] = $r[$j];
+        tp_logger($jsonarr);
+        if (is_array($jsonarr)) {
+            if (is_array($jsonarr[0])) {
+                foreach ($jsonarr as $val) {
+                    // need to drill
+                    while (is_array($val)) {
+                        $val = $val[0];
+                    }
+                    $result[] = $val;
+                    tp_logger('$here');
+                }
             } else {
-/*                if (isset($jsonarr->results[$k]->sentences[0]->trans)) {
-                    foreach ($jsonarr->results[$k]->sentences as $sentence) {
-                        $tmpresult .= $sentence->trans;
-                    }
-                    $jsonout->results[] = $tmpresult;
-                } elseif (isset($jsonarr->results[$k]) && $jsonarr->results[$k]) {
-                    $jsonout->results[] = $jsonarr->results[$k];
-                } else {
-                    $jsonout->results[] = $_GET['q'][$j];
-                }*/
-                // case of single item
-                if (!is_array($jsonarr)) {
-                    $jsonout->results[] = $jsonarr;
-                } else {
-                    $tmparr = $jsonarr[$k];
-                    // we drill down to the string
-                    while (is_array($tmparr)) {
-                        $tmparr = $tmparr[0];
-                    }
-                    // if its empty, we use the input
-                    if (!$tmparr) {$tmparr = $_GET['q'][$j];};
-                    
-                    $jsonout->results[] = $tmparr;                    
-                }
-                $k++;
+                $result[] = $jsonarr[0];
             }
+        } else {
+            $result[] = $jsonarr;
         }
-        echo json_encode($jsonout);
+        /*
+          //        header('Content-type: text/html; charset=utf-8');
 
-        // do the db dance - a bit hackish way to insert downloaded translations directly to the db without having
-        // to pass through the user and collect $200
-        if ($k) {
-            $_POST['items'] = $k;
-            $_POST['ln0'] = $tl;
-            $_POST['sr0'] = 1; // google, hmm hmm,
-            $k = 0;
-            for ($j = 0; $j < $i; $j++) {
-                if (!isset($r[$j])) {
-//                    $_POST["tk$k"] = transposh_utils::base64_url_encode(stripslashes($_GET['q'][$j])); // stupid, but should work
-                    $_POST["tk$k"] = stripslashes($_GET['q'][$j]); // stupid, but should work
-                    $_POST["tr$k"] = $jsonout->results[$j];
-                    $k++;
-                }
-            }
-            tp_logger('updating! :)');
-            tp_logger($_POST);
-            $this->database->update_translation();
-        }
-
-        die();
+          }
+         */
+        return $result;
     }
 
     /**

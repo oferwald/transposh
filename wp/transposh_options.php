@@ -117,10 +117,12 @@ class transposh_option {
  * @property transposh_option $enable_autoposttranslate_o
  * @property string           $msn_key                       Option to store the msn API key
  * @property transposh_option $msn_key_o
- * @property string           $google_key                    Option to store the msn Google key
+ * @property string           $google_key                    Option to store the Google API key
  * @property transposh_option $google_key_o
- * @property int              $preferred_translator          Option to store translator preference @since 0.4.2
- * @property transposh_option $preferred_translator_o
+ * @property string           $yandex_key                    Option to store the Yandex API key
+ * @property transposh_option $yandex_key_o
+ * @property string           $preferred_translators         Option to store translator preference @since 0.4.2 (changed to string and plural @since 0.9.8)
+ * @property transposh_option $preferred_translators_o
  * @property string           $oht_id                        Option to store the oht ID
  * @property transposh_option $oht_id_o
  * @property string           $oht_key                       Option to store the oht key;
@@ -175,21 +177,22 @@ class transposh_plugin_options {
     private $vars = array();
 
     function set_default_option_value($option, $value = '') {
-        if (!isset($this->options[$option])) $this->options[$option] = $value;
+        if (!isset($this->options[$option]))
+            $this->options[$option] = $value;
     }
 
     // private $vars array() = (1,2,3);
 
     function register_option($name, $type, $default_value = '') {
         if (!isset($this->options[$name]))
-                $this->options[$name] = $default_value;
+            $this->options[$name] = $default_value;
         // can't log...     tp_logger($name . ' ' . $this->options[$name]);
         $this->vars[$name] = new transposh_option($name, $this->options[$name], $type);
     }
 
     function __get($name) {
         if (substr($name, -2) === "_o")
-                return $this->vars[substr($name, 0, -2)];
+            return $this->vars[substr($name, 0, -2)];
         // can't!? tp_logger($this->vars[$name]->get_value(), 5);
         return $this->vars[$name]->get_value();
     }
@@ -247,7 +250,8 @@ class transposh_plugin_options {
         $this->register_option('enable_autoposttranslate', TP_OPT_BOOLEAN, 1);
         $this->register_option('msn_key', TP_OPT_STRING);
         $this->register_option('google_key', TP_OPT_STRING);
-        $this->register_option('preferred_translator', TP_OPT_OTHER, 1); // 1 is Google, 2 is MSN
+        $this->register_option('yandex_key', TP_OPT_STRING);
+        $this->register_option('preferred_translators', TP_OPT_STRING, 'g,b,y,a');
         $this->register_option('oht_id', TP_OPT_STRING);
         $this->register_option('oht_key', TP_OPT_STRING);
 
@@ -297,6 +301,19 @@ class transposh_plugin_options {
             return array_merge(array_flip(explode(",", $this->sorted_languages)), transposh_consts::$languages);
         }
         return transposh_consts::$languages;
+    }
+
+    /**
+     * Get a user sorted translation engines list
+     * @since 0.9.8
+     * @return array sorted list of translation engines
+     */
+    function get_sorted_engines() {
+        if ($this->preferred_translators) {
+            tp_logger($this->preferred_translators, 3);
+            return array_merge(array_flip(explode(",", $this->preferred_translators)), transposh_consts::$engines);
+        }
+        return transposh_consts::$engines;
     }
 
     function get_transposh_admin_hide_warning($id) {
@@ -349,7 +366,8 @@ class transposh_plugin_options {
      * @return boolean Is this language viewable?
      */
     function is_active_language($language) {
-        if ($this->is_default_language($language)) return true;
+        if ($this->is_default_language($language))
+            return true;
         return (strpos($this->viewable_languages . ',', $language . ',') !== false);
     }
 

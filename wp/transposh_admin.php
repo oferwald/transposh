@@ -159,7 +159,11 @@ class transposh_plugin_admin {
                 $this->transposh->options->enable_autoposttranslate = TP_FROM_POST;
                 $this->transposh->options->msn_key = TP_FROM_POST;
                 $this->transposh->options->google_key = TP_FROM_POST;
-                $this->transposh->options->preferred_translator = TP_FROM_POST;
+                tp_logger($_POST['engines']);
+                foreach ($_POST['engines'] as $engine) {
+                    $sorted_engines[$engine] = $engine;
+                }
+                $this->transposh->options->preferred_translators = implode(',', $sorted_engines);
                 $this->transposh->options->oht_id = TP_FROM_POST;
                 $this->transposh->options->oht_key = TP_FROM_POST;
                 break;
@@ -260,6 +264,11 @@ class transposh_plugin_admin {
                 wp_enqueue_script('jquery-ui-sortable');
                 wp_enqueue_script('jquery-touch-punch');
                 wp_enqueue_script('transposh_admin_languages', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/languages.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
+            case 'tp_engines': // engines riding on languages
+                wp_enqueue_script('jquery-ui-droppable');
+                wp_enqueue_script('jquery-ui-sortable');
+                wp_enqueue_script('jquery-touch-punch');
+                wp_enqueue_script('transposh_admin_languages', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/engines.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
                 break;
             case 'tp_utils':
                 wp_enqueue_script('transposh_admin_utils', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/utils.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
@@ -271,9 +280,10 @@ class transposh_plugin_admin {
                 wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/backendtranslate.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
                 $script_params = array(
                     'l10n_print_after' =>
-                    't_be.g_langs = ' . json_encode(transposh_consts::$google_languages) . ';' .
-                    't_be.m_langs = ' . json_encode(transposh_consts::$bing_languages) . ';' .
-                    't_be.a_langs = ' . json_encode(transposh_consts::$apertium_languages) . ';'
+                    't_be.a_langs = ' . json_encode(transposh_consts::$engines['a']['langs']) . ';' .
+                    't_be.b_langs = ' . json_encode(transposh_consts::$engines['b']['langs']) . ';' .
+                    't_be.g_langs = ' . json_encode(transposh_consts::$engines['g']['langs']) . ';' .
+                    't_be.y_langs = ' . json_encode(transposh_consts::$engines['y']['langs']) . ';'
                 );
                 wp_localize_script("transposh_backend", "t_be", $script_params);
             case 'tp_editor':
@@ -316,6 +326,7 @@ class transposh_plugin_admin {
             'id' => 'keys', // This should be unique for the screen.
             'title' => __('Engine keys', TRANSPOSH_TEXT_DOMAIN),
             // retrieve the function output and set it as tab content
+            //TODO - add how to getting those keys
             'content' => '<h3>' . __('Translation engines keys', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
             '<p>' . __('Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site.', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
             '<p>' . __('For One Hour Translation, after registering. The key will be reachable at:', TRANSPOSH_TEXT_DOMAIN) . '<a href="https://www.onehourtranslation.com/profile/apiKeys/">https://www.onehourtranslation.com/profile/apiKeys/</a>' . '</p>'
@@ -429,16 +440,19 @@ class transposh_plugin_admin {
             // DOC THIS BUGBUG fix!
             . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_active_language($langcode) ? ",v" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
-            if (in_array($langcode, transposh_consts::$google_languages))
-                echo '<img width="16" height="16" alt="g" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/googleicon.png"/>';
-            if (in_array($langcode, transposh_consts::$bing_languages))
-                echo '<img width="16" height="16" alt="b" class="logoicon" title="' . esc_attr__('Language supported by bing translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/bingicon.png"/>';
-            if (in_array($langcode, transposh_consts::$apertium_languages))
-                echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by apertium translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/apertiumicon.png"/>';
+            foreach (transposh_consts::$engines as $enginecode => $enginerecord) {
+                if (in_array($langcode, $enginerecord['langs'])) {
+                    echo '<img width="16" height="16" alt="' . $enginecode . '" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/' . $enginerecord['icon'] . '"/>';
+                } else {
+                    echo '<img width="16" height="16" class="logoicon"/>';
+                }
+            }
             if (in_array($langcode, transposh_consts::$oht_languages))
-                echo '<img width="16" height="16" alt="a" class="logoicon" title="' . esc_attr__('Language supported by one hour translation', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/ohticon.png"/>';
+                echo '<img width="16" height="16" alt="o" class="logoicon" title="' . esc_attr__('Language supported by one hour translation', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/ohticon.png"/>';
             if (in_array($langcode, transposh_consts::$rtl_languages))
                 echo '<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
+            /* if ($this->does_mo_exist(transposh_consts::get_language_locale($langcode)))
+              echo 'BLBL<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>'; */
             echo '</li>';
         }
         echo "</ul></div>";
@@ -450,6 +464,21 @@ class transposh_plugin_admin {
         echo '<li><a href="#" id="sortiso">' . __('Sort by lSO code', TRANSPOSH_TEXT_DOMAIN) . '</a></li></ul>';
         echo '</div>';
     }
+
+    /* function does_mo_exist($locale) { //TODO - use and fix this :)
+      $domain = wp_get_theme()->get('TextDomain');
+      $path = get_template_directory();
+
+      // Load the textdomain according to the theme
+      $mofile = untrailingslashit($path) . "/{$locale}.mo";
+      if (file_exists($mofile))
+      return true;
+      // Otherwise, load from the languages directory
+      $mofile = WP_LANG_DIR . "/themes/{$domain}-{$locale}.mo";
+      if (file_exists($mofile))
+      return true;
+      return false;
+      } */
 
     // Show normal settings
     function tp_settings() {
@@ -516,6 +545,17 @@ class transposh_plugin_admin {
     }
 
     function tp_engines() {
+        // we need some styles
+        global $wp_locale;
+        if ($wp_locale->text_direction == 'rtl') {
+            echo '<style type="text/css">
+	#sortable li, #default_lang li { float: right !important;}
+        .logoicon {
+            float:left !important;
+        }
+        </style>';
+        }
+
         $this->section(__('Automatic Translation Settings', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_autotranslate_o, __('Enable automatic translation', TRANSPOSH_TEXT_DOMAIN)
                 , __('Allow automatic translation of pages', TRANSPOSH_TEXT_DOMAIN));
@@ -527,11 +567,22 @@ class transposh_plugin_admin {
         $this->textinput($this->transposh->options->google_key_o
                 , array('googleicon.png', __('Google API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
-        $this->select($this->transposh->options->preferred_translator_o, __('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN)
-                , __('Translation engine:', TRANSPOSH_TEXT_DOMAIN), array(
-            1 => __('Google', TRANSPOSH_TEXT_DOMAIN),
-            2 => __('Bing', TRANSPOSH_TEXT_DOMAIN),
-        ));
+        $this->textinput($this->transposh->options->yandex_key_o
+                , array('yandexicon.png', __('Yandex API key', TRANSPOSH_TEXT_DOMAIN))
+                , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
+
+        echo '<div style="overflow:auto; clear: both;">';
+        $this->header(__('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN));
+        echo '<ul id="sortable">';
+        foreach ($this->transposh->options->get_sorted_engines() as $enginecode => $enginerecord) {
+            echo '<li id="' . $enginecode . '" class="languages">';
+            echo '<div style="float:' . $this->localeleft . '">'
+            . '<input type="hidden" name="engines[]" value="' . $enginecode . '" />';
+            echo $enginerecord['name'];
+            echo '</div>';
+            echo '</li>';
+        }
+        echo "</ul></div>";
         $this->sectionstop();
 
         $this->section(__('Professional Translation Settings', TRANSPOSH_TEXT_DOMAIN), __('<a href="http://transposh.org/redir/oht">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide.', TRANSPOSH_TEXT_DOMAIN) .

@@ -89,23 +89,8 @@
         }, 200); // wait 200 ms...
     }
 
-    // this is the mass translate for MS
-    /*function do_mass_ms_translate(batchtrans, callback) {
-    var q = "[";
-    $(batchtrans).each(function (i) {
-        q += '"' + encodeURIComponent(batchtrans[i]) + '",';
-    });
-    q = q.slice(0, -1) + ']';
-    $.ajax({
-        url: 'http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.MSN_APPID + '&to=' + t_jp.binglang + '&texts=' + q,
-        dataType: "jsonp",
-        jsonp: "oncomplete",
-        success: callback
-    });
-}*/
-
     // and the invoker
-    function do_mass_ms_invoker(tokens, trans, lang) {
+    function do_mass_bing_invoker(tokens, trans, lang) {
         var binglang = lang;
         // fix this in ms mass...
         if (binglang === 'zh') {
@@ -113,7 +98,7 @@
         } else if (binglang === 'zh-tw') {
             binglang = 'zh-cht';
         }
-        t_jp.dmt(trans, function (result) {
+        t_jp.dbt(trans, function (result) {
             $(result).each(function (i) {
                 ajax_translate_me(tokens[i], this.TranslatedText, lang, 2); // notice the source
             });
@@ -146,41 +131,44 @@
         }, lang);
     }
 
-    function do_mass_google_api_invoker(tokens, trans, lang) {
-        t_jp.dgt(trans, function (result) {
-            // if there was an error we will try the other invoker
-            if (typeof result.error !== 'undefined') {
-                do_mass_google_invoker(tokens, trans, lang);
-            } else {
-                $(result.data.translations).each(function (i) {
-                    ajax_translate_me(tokens[i], this.translatedText, lang, 1);
-                });
-            }
+    function do_mass_yandex_invoker(tokens, trans, lang) {
+        t_jp.dyt(trans, function (result) {
+            $(result.results).each(function (i) {
+                ajax_translate_me(tokens[i], this, lang, 4);
+            });
         }, lang);
     }
 
     function do_invoker(batchtokens, batchtrans, currlang) {
-        if (t_be.m_langs.indexOf(currlang) !== -1 && t_jp.preferred === '2') {
-            do_mass_ms_invoker(batchtokens, batchtrans, currlang);
-        } else if (t_be.a_langs.indexOf(currlang) !== -1 && (t_jp.olang === 'en' || t_jp.olang === 'es')) {
-            do_mass_apertium_invoker(batchtokens, batchtrans, currlang);
-        } else if (t_jp.google_key) {
-            do_mass_google_api_invoker(batchtokens, batchtrans, currlang);
-        } else {
-            do_mass_google_invoker(batchtokens, batchtrans, currlang);
-        }
+        t_jp.preferred.some(function (engine) {
+            if (t_be[engine + '_langs'].indexOf(currlang) !== -1) {
+                if (engine === 'a') {
+                    do_mass_apertium_invoker(batchtokens, batchtrans, currlang);
+                }
+                if (engine === 'b') {
+                    do_mass_bing_invoker(batchtokens, batchtrans, currlang);
+                }
+                if (engine === 'g') {
+                    do_mass_google_invoker(batchtokens, batchtrans, currlang);
+                }
+                if (engine === 'y') {
+                    do_mass_yandex_invoker(batchtokens, batchtrans, currlang);
+                }
+                return true;
+            }
+        });
     }
 
     // the main translate function
     function translate_post(postid) {
         var currlang = '',
-        tokens = [],
-        strings = [],
-        lang, str, name, val,
-        batchlength = 0,
-        batchtrans = [],
-        batchtokens = [],
-        to_trans;
+                tokens = [],
+                strings = [],
+                str, name, val,
+                batchlength = 0,
+                batchtrans = [],
+                batchtokens = [],
+                to_trans;
 
         $("#tr_loading").data("done", false);
         // get the post // FIX
@@ -214,7 +202,6 @@
                 });
 
                 // per language passing...
-                // this things happens when msn translate is default
                 for (var lang in json.langs) {
                     currlang = json.langs[lang];
                     strings = [];
@@ -225,7 +212,7 @@
                         if (val.l.indexOf(currlang) !== -1) {
                             // add to candidates
                             strings.push(unescape(name));
-                            tokens.push(val.t);
+                            tokens.push(unescape(name));
                             val.l.splice(val.l.indexOf(currlang), 1);
                             // if no more languages, we can remove the item from further processing
                             if (val.l.length === 0) {
@@ -252,7 +239,7 @@
                         do_invoker(batchtokens, batchtrans, currlang);
                     }
                 }
-            
+
             }
         });
     }
