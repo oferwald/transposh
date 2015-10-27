@@ -354,6 +354,7 @@ class transposh_utils {
      * @return boolean if this is rewritable 
      */
     public static function is_rewriteable_url($url, $home_url) {
+        if (strpos($home_url,':')) {$home_url = substr($home_url,strpos($home_url,':'));}
         return (stripos($url, $home_url) !== FALSE);
     }
 
