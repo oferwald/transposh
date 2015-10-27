@@ -1041,6 +1041,16 @@ class transposh_database {
         tp_logger($removetranslogextras, 3);
         $GLOBALS['wpdb']->query($removetranslogextras);
 
+        // some more cleanups
+        $removebase64baddies = "DELETE FROM {$this->translation_table} WHERE `original` LIKE '%,' AND `source` != 0";
+        tp_logger($removebase64baddies, 3);
+        $GLOBALS['wpdb']->query($removebase64baddies);
+        
+        $removetranslationsofnothing = "DELETE FROM {$this->translation_table} WHERE `original` = '' AND `source` != 0";
+        tp_logger($removetranslationsofnothing, 3);
+        $GLOBALS['wpdb']->query($removetranslationsofnothing);
+            
+        
         // optimize it
         $optimizesql = "OPTIMIZE TABLE {$this->translation_table}, {$this->translation_log_table}";
         tp_logger($optimizesql, 3);
