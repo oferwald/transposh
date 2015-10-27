@@ -73,7 +73,7 @@ class transposh_consts {
         'et' => 'Estonian,Eesti keel,ee,',
         'fi' => 'Finnish,Suomi,fi,',
         'fr' => 'French,Français,fr,fr_FR',
-        'gl' => 'Galician,Galego,es_ga,gl_ES',
+        'gl' => 'Galician,Galego,es-ga,gl_ES',
         'ka' => 'Georgian,ქართული,ge,ka_GE',
         'de' => 'German,Deutsch,de,de_DE',
         'el' => 'Greek,Ελληνικά,gr,',
