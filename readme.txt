@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.3
-Tested up to: 4.2
+Tested up to: 4.3
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 95 languages are automatically translated and can be manually corrected with ease.
@@ -137,6 +137,8 @@ This version allows sorting of languages within the widget
  * New Google icon
  * Fix WP_Widget deprecation call for wordpress 4.3
  * Minor fix for buddypress search integration
+ * Fix some cases when https urls would not be rewritten
+ * Fix rewrite support for three letter languages (currently only ceb)
 = 2015/07/29 - 0.9.7.2 =
  * Shortcode revision following wordpress 4.2.3 release
  * Update to the Google proxy code, so it works again for now
