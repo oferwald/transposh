@@ -368,7 +368,7 @@
 
     $(function () {
         // set a global binglang (if needed)
-        if (typeof t_jp.blang === undefined)
+        if (typeof t_jp.blang === 'undefined')
             t_jp.blang = t_jp.lang
 
         // this is the set_default_language function
