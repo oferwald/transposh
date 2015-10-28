@@ -514,7 +514,7 @@ class transposh_plugin {
         }
 
         $newRules = array();
-        $lang_prefix = "([a-z]{2,3}(\-[a-z]{2,2})?)/";
+        $lang_prefix = "([a-z]{2,2}|ceb(\-[a-z]{2,2})?)/";
 
         $lang_parameter = "&" . LANG_PARAM . '=$matches[1]';
 
