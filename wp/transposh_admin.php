@@ -106,6 +106,7 @@ class transposh_plugin_admin {
 
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
                 $this->transposh->options->sorted_languages = implode(',', $sorted_langs);
+                $GLOBALS['wp_rewrite']->flush_rules();
                 break;
             case "tp_settings":
                 //update roles and capabilities
