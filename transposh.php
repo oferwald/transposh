@@ -514,7 +514,7 @@ class transposh_plugin {
         }
 
         $newRules = array();
-        $lang_prefix = "([a-z]{2,2}|ceb(\-[a-z]{2,2})?)/";
+        $lang_prefix = "(" . str_replace(',', '|', $this->options->viewable_languages) . ")/";
 
         $lang_parameter = "&" . LANG_PARAM . '=$matches[1]';
 
@@ -528,15 +528,15 @@ class transposh_plugin {
 
             $key = $lang_prefix . $key;
 
-            //Shift existing matches[i] two step forward as we pushed new elements
+            //Shift existing matches[i] a step forward as we pushed new elements
             //in the beginning of the expression
-            for ($i = 6; $i > 0; $i--) {
-                $value = str_replace('[' . $i . ']', '[' . ($i + 2) . ']', $value);
+            for ($i = 9; $i > 0; $i--) {
+                $value = str_replace('[' . $i . ']', '[' . ($i + 1) . ']', $value);
             }
 
             $value .= $lang_parameter;
 
-            tp_logger("\t $key ---> $value", 5);
+            tp_logger("\t $key ---> $value", 2);
 
 
             $newRules[$key] = $value;
@@ -1634,6 +1634,7 @@ class transposh_plugin {
             delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
         }
         tp_logger('Google proxy initiated', 1);
+        $qstr = '';
         if (is_array($q)) {
             foreach ($q as $v) {
                 $qstr .= '&q=' . $v;
@@ -1720,7 +1721,7 @@ class transposh_plugin {
                         $val = $val[0];
                     }
                     $result[] = $val;
-                    tp_logger('$here');
+                    //   tp_logger('$here');
                 }
             } else {
                 $result[] = $jsonarr[0];
