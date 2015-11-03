@@ -1324,7 +1324,7 @@ class transposh_plugin {
             }
             $lang = $this->options->default_language;
         }
-        transposh_consts::get_language_locale($lang);
+        $locale = transposh_consts::get_language_locale($lang);
 
         return ($locale) ? $locale : $lang;
     }
