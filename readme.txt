@@ -122,6 +122,9 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2015/10/27 - 0.9.8.1 =
+ * Better matching of languages in rewrite mode (will no longer accept any two random chars)
+ * Fix a critical bug in the locale filter code
 = 2015/10/27 - 0.9.8 =
  * Yandex translator support added
  * Added the option to choose preferred translators order via drag and drop
