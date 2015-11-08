@@ -42,6 +42,7 @@ require_once("wp/transposh_options.php");
 require_once("wp/transposh_postpublish.php");
 require_once("wp/transposh_backup.php");
 require_once("wp/transposh_3rdparty.php");
+//require_once("wp/transposh_wpmenu.php");
 
 /**
  * This class represents the complete plugin
@@ -828,7 +829,7 @@ class transposh_plugin {
             'olang' => $this->options->default_language,
             // those two options show if the script can support said engines
             'prefix' => SPAN_PREFIX,
-            'preferred' => explode(",", $this->options->preferred_translators)
+            'preferred' => array_keys($this->options->get_sorted_engines())
         );
 
         $script_params['engines'] = new stdClass();
@@ -838,16 +839,8 @@ class transposh_plugin {
         if (in_array($this->target_language, transposh_consts::$engines['b']['langs'])) {
             $script_params['engines']->b = 1;
 //            $script_params['engines'][] = 'b';
-            switch ($this->target_language) {
-                case 'zh':
-                    $script_params['blang'] = 'zh-chs';
-                    break;
-                case 'zh-tw':
-                    $script_params['blang'] = 'zh-cht';
-                    break;
-                case 'mw':
-                    $script_params['blang'] = 'mww';
-                    break;
+            if (isset(transposh_consts::$engines['b']['langconv'][$this->target_language])) {
+                $script_params['blang'] = transposh_consts::$engines['b']['langconv'][$this->target_language];
             }
         }
         if (in_array($this->target_language, transposh_consts::$engines['g']['langs'])) {
@@ -855,6 +848,9 @@ class transposh_plugin {
         }
         if (in_array($this->target_language, transposh_consts::$engines['y']['langs'])) {
             $script_params['engines']->y = 1;
+        }
+        if (in_array($this->target_language, transposh_consts::$engines['u']['langs'])) {
+            $script_params['engines']->u = 1;
         }
         if ($this->options->oht_id && $this->options->oht_key && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options')) {
             $script_params['engines']->o = 1;
@@ -1524,6 +1520,15 @@ class transposh_plugin {
                     $source = 4;
                     $result = $this->get_yandex_translation($tl, $sl, $q);
                     break;
+                case 'u': // baidu
+                    if (!in_array($tl, transposh_consts::$engines['u']['langs'])) // nope...
+                        return;                  
+                    $source = 5;                    
+                    $result = $this->get_baidu_translation($tl, $sl, $q);
+                    break;
+
+                default:
+                    die('engine not supported');
             }
 
             if ($result === false) {
@@ -1617,6 +1622,50 @@ class transposh_plugin {
 
         $result = $jsonarr->text;
 
+        return $result;
+    }
+
+    // Proxied Baidu translate suggestions
+    function get_baidu_translation($tl, $sl, $q) {
+        $qstr = 'to='.((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$tl] : $tl);
+        if ($sl) {
+            $qstr .= '&from='.((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$sl] : $sl);
+        }
+        $qstr .= '&query=';
+        if (is_array($q)) {
+            foreach ($q as $v) {
+                $qstr .= $v."%0A";
+            }
+        } else {
+            $qstr .= $q;
+        }
+        $url = 'http://fanyi.baidu.com/v2transapi';
+        tp_logger($url, 3);
+        tp_logger($q, 3);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        //must set agent for google to respond with utf-8
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
+        $output = curl_exec($ch);
+        if ($output === false) {
+            tp_logger('Curl error: ' . curl_error($ch));
+            return false;
+        }
+        curl_close($ch);
+        tp_logger($output, 3);
+        $jsonarr = json_decode($output);
+        tp_logger($jsonarr, 3);
+        if (!$jsonarr) {
+            tp_logger('No JSON here, failing');
+            tp_logger($output, 3);
+            return false;
+        }
+        foreach($jsonarr->trans_result->data as $val) {
+                    $result[] = $val->dst;
+        }
         return $result;
     }
 
