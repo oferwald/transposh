@@ -251,7 +251,8 @@ class transposh_plugin_options {
         $this->register_option('msn_key', TP_OPT_STRING);
         $this->register_option('google_key', TP_OPT_STRING);
         $this->register_option('yandex_key', TP_OPT_STRING);
-        $this->register_option('preferred_translators', TP_OPT_STRING, 'g,b,y,a');
+        $this->register_option('baidu_key', TP_OPT_STRING);
+        $this->register_option('preferred_translators', TP_OPT_STRING, 'g,b,y,a,u');
         $this->register_option('oht_id', TP_OPT_STRING);
         $this->register_option('oht_key', TP_OPT_STRING);
 

@@ -33,7 +33,7 @@
             possibly_translateable,
             // ids of progress bars
             t_jp_prefix = t_jp.prefix,
-            // source - 0 is human, 1 google , 2 bing, 3 apertium, 4 yandex - higher reserved for future engines
+            // source - 0 is human, 1 google , 2 bing, 3 apertium, 4 yandex, 5 baidu - higher reserved for future engines
             source = 1,
             //Ajax translation
             done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
@@ -214,7 +214,7 @@
         }, t_jp.blang);
     }
 
-    // mass google translation - using proxy
+    // mass yandex translation - using proxy
     function do_mass_yandex_translate(batchtrans, callback, lang) {
         /*var sl = '';
          if (usedefault) {
@@ -238,6 +238,36 @@
     function do_mass_yandex_invoker(tokens, trans) {
         source = 4;
         do_mass_yandex_translate(trans, function (result) {
+            $(result.results).each(function (i) {
+                auto_translate_success(tokens[i], this);
+            });
+        }, t_jp.lang);
+    }
+
+    // mass baidu translation - using proxy
+    function do_mass_baidu_translate(batchtrans, callback, lang) {
+        /*var sl = '';
+         if (usedefault) {
+         sl = t_jp.olang;
+         }*/
+        $.ajax({
+            url: t_jp.ajaxurl,
+            dataType: "json",
+            type: "GET",
+            // check each
+            data: {
+                action: 'tp_tp',
+                e: 'u',
+                tl: lang,
+                // sl: sl,
+                q: batchtrans
+            },
+            success: callback
+        });
+    }
+    function do_mass_baidu_invoker(tokens, trans) {
+        source = 5;
+        do_mass_baidu_translate(trans, function (result) {
             $(result.results).each(function (i) {
                 auto_translate_success(tokens[i], this);
             });
@@ -294,6 +324,9 @@
                 }
                 if (engine === 'y') {
                     do_mass_yandex_invoker(batchtokens, batchtrans);
+                }
+                if (engine === 'u') {
+                    do_mass_baidu_invoker(batchtokens, batchtrans);
                 }
                 return true;
             }
@@ -361,6 +394,7 @@
     //t_jp.dgt = do_mass_google_api_translate;
     t_jp.dbt = do_mass_bing_translate;
     t_jp.dyt = do_mass_yandex_translate;
+    t_jp.dut = do_mass_baidu_translate;
     t_jp.dat = do_mass_apertium_translate;
     t_jp.at = do_auto_translate;
     t_jp.tfl = test_for_lazyrun;

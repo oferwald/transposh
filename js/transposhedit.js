@@ -26,10 +26,15 @@
         'hy': 'Armenian - Հայերեն',
         'az': 'Azerbaijani - azərbaycan dili',
         'eu': 'Basque - Euskara',
+        'ba': 'Bashkir - башҡорт теле',
         'be': 'Belarusian - Беларуская',
         'bn': 'Bengali - বাংলা',
+        'bs': 'Bosnian - bosanski jezik',
         'bg': 'Bulgarian - Български',
         'ca': 'Catalan - Català',
+        'yue': 'Cantonese - 粤语',
+        'ceb': 'Cebuano - Binisaya',
+        'ny': 'Chichewa - Chinyanja',
         'zh': 'Chinese (Simplified) - 中文(简体)',
         'zh-tw': 'Chinese (Traditional) - 中文(漢字)',
         'hr': 'Croatian - Hrvatski',
@@ -46,46 +51,70 @@
         'el': 'Greek - Ελληνικά',
         'gu': 'Gujarati - ગુજરાતી',
         'ht': 'Haitian - Kreyòl ayisyen',
+        'ha': 'Hausa - Harshen Hausa',
+        'hmn': 'Hmong - Hmoob',
         'mw': 'Hmong Daw - Hmoob Daw',
         'he': 'Hebrew - עברית',
         'hi': 'Hindi - हिन्दी; हिंदी',
         'hu': 'Hungarian - Magyar',
         'is': 'Icelandic - Íslenska',
+        'ig': 'Igbo - Asụsụ Igbo',
         'id': 'Indonesian - Bahasa Indonesia',
         'ga': 'Irish - Gaeilge',
         'it': 'Italian - Italiano',
         'ja': 'Japanese - 日本語',
+        'jw': 'Javanese - basa Jawa',
         'kn': 'Kannada - ಕನ್ನಡ',
-        'ko': 'Korean - 우리말',
+        'kk': 'Kazakh - Қазақ тілі',
+        'km': 'Khmer - ភាសាខ្មែរ',
+        'ko': 'Korean - 한국어',
+        'ky': 'Kirghiz - кыргыз тили',
         'lo': 'Lao - ພາສາລາວ',
         'la': 'Latin - Latīna',
         'lv': 'Latvian - Latviešu valoda',
         'lt': 'Lithuanian - Lietuvių kalba',
         'mk': 'Macedonian - македонски јазик',
+        'mg': 'Malagasy - Malagasy fiteny',
         'ms': 'Malay - Bahasa Melayu',
+        'ml': 'Malayalam - മലയാളം',
         'mt': 'Maltese - Malti',
+        'mi': 'Maori - Te Reo Māori',
+        'mr': 'Marathi - मराठी',
+        'mn': 'Mongolian - Монгол',
+        'my': 'Burmese - မြန်မာစာ',
+        'ne': 'Nepali - नेपाली',
         'no': 'Norwegian - Norsk',
         'fa': 'Persian - پارسی',
         'pl': 'Polish - Polski',
         'pt': 'Portuguese - Português',
+        'pa': 'Punjabi - ਪੰਜਾਬੀ',
         'ro': 'Romanian - Română',
         'ru': 'Russian - Русский',
         'sr': 'Serbian - Cрпски језик',
+        'st': 'Sesotho - Sesotho',
+        'si': 'Sinhala - සිංහල',
         'sk': 'Slovak - Slovenčina',
         'sl': 'Slovene - Slovenščina',
+        'so': 'Somali - Af-Soomaali',
         'es': 'Spanish - Español',
+        'su': 'Sundanese - Basa Sunda',
         'sw': 'Swahili - Kiswahili',
         'sv': 'Swedish - Svenska',
         'tl': 'Tagalog - Tagalog',
+        'tg': 'Tajik - Тоҷикӣ',
         'ta': 'Tamil - தமிழ்',
+        'tt': 'Tatar - татарча',
         'te': 'Telugu - తెలుగు',
         'th': 'Thai - ภาษาไทย',
         'tr': 'Turkish - Türkçe',
         'uk': 'Ukrainian - Українська',
         'ur': 'Urdu - اردو',
+        'uz': 'Uzbek - Oʻzbek tili',
         'vi': 'Vietnamese - Tiếng Việt',
         'cy': 'Welsh - Cymraeg',
-        'yi': 'Yiddish - ייִדיש'
+        'yi': 'Yiddish - ייִדיש',
+        'yo': 'Yoruba - èdè Yorùbá',
+        'zu': 'Zulu - isiZulu'
     },
     prefix = t_jp.prefix,
             idprefix = "#" + prefix,
@@ -210,6 +239,11 @@
         getproxiedsuggestion('y');
     }
 
+    // fetch translation from baidu translate...
+    function getut()
+    {
+        getproxiedsuggestion('u');
+    }
 
 
     // fetch translation from bing translate...
@@ -361,6 +395,10 @@
                         case '4':
                             icon = 'tr-icon-yandex';
                             icontitle = __('yandex');
+                            break;
+                        case '5':
+                            icon = 'tr-icon-baidu';
+                            icontitle = __('baidu');
                             break;
                         default:
                             icon = 'ui-icon-person';
@@ -554,6 +592,9 @@
         if (t_jp.engines.y) {
             yandexbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'yandex">' + __('yandex suggest') + '</button>';
         }
+        if (t_jp.engines.u) {
+            baidubutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'baidu">' + __('baidu suggest') + '</button>';
+        }
         if (t_jp.engines.o) {
             ohtbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'oht">' + __('One Hour Translate queue') + '</button>';
         }
@@ -580,6 +621,7 @@
                 googlebutton +
                 bingbutton +
                 yandexbutton +
+                baidubutton +
                 apertiumbutton +
                 ohtbutton +
                 '<button id="' + prefix + 'approve">' + __('approve translation') + '</button>' +
@@ -807,6 +849,17 @@
             text: false
         }).click(function () {
             getyt();
+            $('.' + prefix + 'suggest').button("enable");
+            $(this).button("disable");
+        });
+
+        $(idprefix + 'baidu').button({
+            icons: {
+                primary: "tr-icon-baidu"
+            },
+            text: false
+        }).click(function () {
+            getut();
             $('.' + prefix + 'suggest').button("enable");
             $(this).button("disable");
         });

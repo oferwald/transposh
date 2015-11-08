@@ -160,6 +160,8 @@ class transposh_plugin_admin {
                 $this->transposh->options->enable_autoposttranslate = TP_FROM_POST;
                 $this->transposh->options->msn_key = TP_FROM_POST;
                 $this->transposh->options->google_key = TP_FROM_POST;
+                $this->transposh->options->yandex_key = TP_FROM_POST;
+                $this->transposh->options->baidu_key = TP_FROM_POST;
                 tp_logger($_POST['engines']);
                 foreach ($_POST['engines'] as $engine) {
                     $sorted_engines[$engine] = $engine;
@@ -443,7 +445,7 @@ class transposh_plugin_admin {
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
             foreach (transposh_consts::$engines as $enginecode => $enginerecord) {
                 if (in_array($langcode, $enginerecord['langs'])) {
-                    echo '<img width="16" height="16" alt="' . $enginecode . '" class="logoicon" title="' . esc_attr__('Language supported by google translate', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/' . $enginerecord['icon'] . '"/>';
+                    echo '<img width="16" height="16" alt="' . $enginecode . '" class="logoicon" title="' . esc_attr(sprintf(__('Language supported by %s translate', TRANSPOSH_TEXT_DOMAIN),$enginerecord['name'])) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/' . $enginerecord['icon'] . '"/>';
                 } else {
                     echo '<img width="16" height="16" class="logoicon"/>';
                 }
@@ -570,6 +572,9 @@ class transposh_plugin_admin {
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->textinput($this->transposh->options->yandex_key_o
                 , array('yandexicon.png', __('Yandex API key', TRANSPOSH_TEXT_DOMAIN))
+                , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
+        $this->textinput($this->transposh->options->baidu_key_o
+                , array('baiduicon.png', __('Baidu API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
 
         echo '<div style="overflow:auto; clear: both;">';

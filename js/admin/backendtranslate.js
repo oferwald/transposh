@@ -139,6 +139,14 @@
         }, lang);
     }
 
+    function do_mass_baidu_invoker(tokens, trans, lang) {
+        t_jp.dut(trans, function (result) {
+            $(result.results).each(function (i) {
+                ajax_translate_me(tokens[i], this, lang, 4);
+            });
+        }, lang);
+    }
+
     function do_invoker(batchtokens, batchtrans, currlang) {
         t_jp.preferred.some(function (engine) {
             if (t_be[engine + '_langs'].indexOf(currlang) !== -1) {
@@ -153,6 +161,9 @@
                 }
                 if (engine === 'y') {
                     do_mass_yandex_invoker(batchtokens, batchtrans, currlang);
+                }
+                if (engine === 'u') {
+                    do_mass_baidu_invoker(batchtokens, batchtrans, currlang);
                 }
                 return true;
             }

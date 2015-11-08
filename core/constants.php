@@ -61,6 +61,7 @@ class transposh_consts {
         'bs' => 'Bosnian,bosanski jezik,ba,bs_BA',
         'bg' => 'Bulgarian,Български,bg,bg_BG',
         'ca' => 'Catalan,Català,es-ca,',
+        'yue' => 'Cantonese,粤语,hk,zh_HK',
         'ceb' => 'Cebuano,Binisaya,ph,',
         'ny' => 'Chichewa,Chinyanja,mw',
         'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
@@ -162,6 +163,7 @@ class transposh_consts {
             // @updated 2015-Oct-23 (sw)
             'langs' => array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
                 'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw'),
+            'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww')
         ),
         'g' => array(
             'name' => 'Google',
@@ -180,6 +182,14 @@ class transposh_consts {
                 'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu',
                 'kk', 'mg', 'ml', 'my', 'ny', 'si', 'st', 'su', 'tg', 'uz'),
         ),
+        'u' => array(
+            'name' => 'Baidu',
+            'icon' => 'baiduicon.png',
+            // @updated 2015-Nov-03
+            'langs' => array('ar', 'et', 'bg', 'pl', 'da', 'de', 'ru', 'fr', 'fi', 'ko', 'nl', 'cs', 'ro', 'pt', 'jp', 'sv', 'sl', 'th', 'es', 'el', 'hu', 'zh', 'en', 'it', 'yue', 'zh-tw'), //wyw - old chinese
+            'langconv' => array('ar' => 'ara', 'et' => 'est', 'bg' => 'bul', 'da' => 'dan', 'fr' => 'fra', 'fi' => 'fin', 'ko' => 'kor', 'ro' => 'rom', 'sv' => 'swe', 'sl' => 'slo', 'es' => 'spa', 'zh-tw' => 'cht')
+        ),
+        //<li><a href="###" class="data-lang" value="wyw">文言文</a></li>
         'y' => array(
             'name' => 'Yandex',
             'icon' => 'yandexicon.png',

@@ -6,7 +6,7 @@ Requires at least: 3.3
 Tested up to: 4.3
 Stable tag: %VERSION%
 
-Transposh adds best of breed translation support to wordpress, 95 languages are automatically translated and can be manually corrected with ease.
+Transposh adds best of breed translation support to wordpress, 96 languages are automatically translated and can be manually corrected with ease.
 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
@@ -122,6 +122,9 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2015/10/27 - 0.9.9 =
+ * Add support for Baidu translation
+ * Support Cantonese thanks to Baidu - Support up to 96 Languages!
 = 2015/10/27 - 0.9.8.1 =
  * Better matching of languages in rewrite mode (will no longer accept any two random chars)
  * Fix a critical bug in the locale filter code
