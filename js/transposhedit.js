@@ -577,7 +577,7 @@
     //Open translation dialog
     function translate_dialog(segment_id) {
         //only add button is bing support is defined for the language
-        var bingbutton = '', googlebutton = '', apertiumbutton = '', ohtbutton = '', yandexbutton = '', dialog = idprefix + "dialog";
+        var bingbutton = '', googlebutton = '', apertiumbutton = '', ohtbutton = '', yandexbutton = '', baidubutton = '', dialog = idprefix + "dialog";
 
         // Only add buttons if translation engine is supported in said language
         if (t_jp.engines.b) {
