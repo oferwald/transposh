@@ -98,6 +98,10 @@ class transposh_plugin_admin {
                 tp_logger($_POST['languages']);
                 foreach ($_POST['languages'] as $lang) {
                     list ($langcode, $viewable) = explode(",", $lang);
+                    // clean possible wrong data
+                    if (transposh_consts::get_language_name($langcode) === '') {
+                        continue;                        
+                    }
                     $sorted_langs[$langcode] = $langcode;
                     if ($viewable) {
                         $viewable_langs[$langcode] = $langcode;
