@@ -160,6 +160,7 @@ class transposh_plugin_admin {
                 $this->transposh->options->superproxy_key = TP_FROM_POST;
                 break;
             case "tp_engines":
+                delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
                 $this->transposh->options->enable_autotranslate = TP_FROM_POST;
                 $this->transposh->options->enable_autoposttranslate = TP_FROM_POST;
                 $this->transposh->options->msn_key = TP_FROM_POST;
