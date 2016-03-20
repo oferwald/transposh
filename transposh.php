@@ -352,7 +352,7 @@ class transposh_plugin {
      * @param string $buffer Original page
      * @return string Modified page buffer
      */
-    function process_page(&$buffer) {
+    function process_page($buffer) { //php7?
         /*        if (!$this->target_language) {
           global $wp;
           $this->on_parse_request($wp);
@@ -1496,7 +1496,7 @@ class transposh_plugin {
             foreach ($_GET['q'] as $p) {
                 list(, $trans) = $this->database->fetch_translation(stripslashes($p), $tl);
                 if (!$trans) {
-                    $q[] = urlencode(stripslashes($p));
+                    $q[] = urlencode(stripslashes($p)); // fix for the + case?
                 } else {
                     $r[$i] = $trans;
                 }
@@ -1522,8 +1522,8 @@ class transposh_plugin {
                     break;
                 case 'u': // baidu
                     if (!in_array($tl, transposh_consts::$engines['u']['langs'])) // nope...
-                        return;                  
-                    $source = 5;                    
+                        return;
+                    $source = 5;
                     $result = $this->get_baidu_translation($tl, $sl, $q);
                     break;
 
@@ -1595,7 +1595,7 @@ class transposh_plugin {
         } else {
             $qstr = '&text=' . $q;
         }
-        $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=0';
+        $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=ed722759.56e66ff0.977d7e53-0-0';
         tp_logger($url, 3);
         tp_logger($q, 3);
         $ch = curl_init();
@@ -1619,6 +1619,11 @@ class transposh_plugin {
             tp_logger($output, 3);
             return false;
         }
+        if ($jsonarr->code != 200){
+            tp_logger('Some sort of error!');
+            tp_logger($output, 3);
+            return false;
+        };
 
         $result = $jsonarr->text;
 
@@ -1627,14 +1632,14 @@ class transposh_plugin {
 
     // Proxied Baidu translate suggestions
     function get_baidu_translation($tl, $sl, $q) {
-        $qstr = 'to='.((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$tl] : $tl);
+        $qstr = 'to=' . ((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$tl] : $tl);
         if ($sl) {
-            $qstr .= '&from='.((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$sl] : $sl);
+            $qstr .= '&from=' . ((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$sl] : $sl);
         }
         $qstr .= '&query=';
         if (is_array($q)) {
             foreach ($q as $v) {
-                $qstr .= $v."%0A";
+                $qstr .= $v . "%0A";
             }
         } else {
             $qstr .= $q;
@@ -1663,16 +1668,51 @@ class transposh_plugin {
             tp_logger($output, 3);
             return false;
         }
-        foreach($jsonarr->trans_result->data as $val) {
-                    $result[] = $val->dst;
+        foreach ($jsonarr->trans_result->data as $val) {
+            $result[] = $val->dst;
         }
         return $result;
+    }
+
+    function _bitwise_zfrs($a, $b) {
+        if ($b == 0)
+            return $a;
+        return ($a >> $b) & ~(1 << (8 * PHP_INT_SIZE - 1) >> ($b - 1));
+    }
+
+    function hq($a, $chunk) {
+        for ($offset = 0; $offset < strlen($chunk) - 2; $offset += 3) {
+            $b = $chunk[$offset + 2];
+            $b = ($b >= "a") ? ord($b) - 87 : intval($b);
+            $b = ($chunk[$offset + 1] == "+") ? $this->_bitwise_zfrs($a, $b) : $a << $b;
+            $a = ($chunk[$offset] == "+") ? $a + $b & 4294967295 : $a ^ $b;
+        }
+        return $a;
+    }
+
+    /**
+     * Hey googler, if you are reading this, it means that you are actually here, why won't we work together on this?
+     */
+    function iq($input, $error) {
+        $value = intval($error);
+        for ($i = 0; $i < strlen($input); $i++) {
+            $value += ord($input[$i]);
+            $value = $this->hq($value, "+-a^+6");
+        }
+        $value = $this->hq($value, "+-3^+b+-f");
+        if (0 > $value) {
+            $value = $value & 2147483647 + 2147483648;
+        }
+        $x = $value % 1E6;
+        return $x . "." . ($x ^ $error);
     }
 
 // Proxied translation for google translate
     function get_google_translation($tl, $sl, $q) {
         if (get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array())) {
             list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
+            //$googlemethod = 0;
+            //$timestamp = 0;
             tp_logger("Google method $googlemethod, $timestamp", 1);
         } else {
             tp_logger("Google is clean", 1);
@@ -1684,12 +1724,15 @@ class transposh_plugin {
         }
         tp_logger('Google proxy initiated', 1);
         $qstr = '';
+        $iqstr = '';
         if (is_array($q)) {
             foreach ($q as $v) {
                 $qstr .= '&q=' . $v;
+                $iqstr .= urldecode($v);
             }
         } else {
             $qstr = '&q=' . $q;
+            $iqstr = urldecode($q);
         }
         // we avoid curling we had all results prehand
         $urls = array(
@@ -1704,9 +1747,10 @@ class transposh_plugin {
             if ($googlemethod < $attempt && $failed) {
                 $failed = false;
                 tp_logger("Attempt: $attempt", 1);
-                $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl;
+                $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl . '&tk=' . $this->iq($iqstr, 100000);
                 tp_logger($url, 3);
                 tp_logger($q, 3);
+                tp_logger($iqstr, 3);
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
