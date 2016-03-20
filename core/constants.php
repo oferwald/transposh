@@ -51,6 +51,7 @@ class transposh_consts {
         'en' => 'English,English,us,en_US',
         'af' => 'Afrikaans,Afrikaans,za,',
         'sq' => 'Albanian,Shqip,al,',
+        'am' => 'Amharic,አማርኛ,et',
         'ar' => 'Arabic,العربية,sa,',
         'hy' => 'Armenian,Հայերեն,am,',
         'az' => 'Azerbaijani,azərbaycan dili,az,',
@@ -66,6 +67,7 @@ class transposh_consts {
         'ny' => 'Chichewa,Chinyanja,mw',
         'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
         'zh-tw' => 'Chinese (Traditional),中文(漢字),tw,zh_TW',
+        'co' => 'Corsican,Corsu,fr',//flag
         'hr' => 'Croatian,Hrvatski,hr,',
         'cs' => 'Czech,Čeština,cz,cs_CZ',
         'da' => 'Danish,Dansk,dk,da_DK',
@@ -74,6 +76,7 @@ class transposh_consts {
         'et' => 'Estonian,Eesti keel,ee,',
         'fi' => 'Finnish,Suomi,fi,',
         'fr' => 'French,Français,fr,fr_FR',
+        'fy' => 'Frisian,Frysk,nl',//flag
         'gl' => 'Galician,Galego,es-ga,gl_ES',
         'ka' => 'Georgian,ქართული,ge,ka_GE',
         'de' => 'German,Deutsch,de,de_DE',
@@ -81,6 +84,7 @@ class transposh_consts {
         'gu' => 'Gujarati,ગુજરાતી,in,',
         'ht' => 'Haitian,Kreyòl ayisyen,ht,',
         'ha' => 'Hausa,Harshen Hausa,ng,',
+        'haw' => 'Hawaiian,ʻŌlelo Hawaiʻi,hawaii',
         'hmn' => 'Hmong,Hmoob,la,',
         'mw' => 'Hmong Daw,Hmoob Daw,la,',
         'he' => 'Hebrew,עברית,il,he_IL',
@@ -96,12 +100,14 @@ class transposh_consts {
         'kn' => 'Kannada,ಕನ್ನಡ,in,',
         'kk' => 'Kazakh,Қазақ тілі,kz',
         'km' => 'Khmer,ភាសាខ្មែរ,kh,',
-        'ko' => 'Korean,한국어,kr,ko_KR',
         'ky' => 'Kirghiz,кыргыз тили,kg,ky_KY',
+        'ko' => 'Korean,한국어,kr,ko_KR',
+        'ku' => 'Kurdish (Kurmanji),Kurdî,tr,', //flag
         'lo' => 'Lao,ພາສາລາວ,la,',
         'la' => 'Latin,Latīna,va,',
         'lv' => 'Latvian,Latviešu valoda,lv,',
         'lt' => 'Lithuanian,Lietuvių kalba,lt,',
+        'lb' => 'Luxembourgish,Lëtzebuergesch,lu,',
         'mk' => 'Macedonian,македонски јазик,mk,mk_MK',
         'mg' => 'Malagasy,Malagasy fiteny,mg',
         'ms' => 'Malay,Bahasa Melayu,my,ms_MY',
@@ -119,8 +125,12 @@ class transposh_consts {
         'pa' => 'Punjabi,ਪੰਜਾਬੀ,pk,pa_IN',
         'ro' => 'Romanian,Română,ro,ro_RO',
         'ru' => 'Russian,Русский,ru,ru_RU',
+        'sm' => 'Samoan,gagana fa\'a Samoa,ws,',
+        'gd' => 'Scots Gaelic,Gàidhlig,scotland,',
         'sr' => 'Serbian,Cрпски језик,rs,sr_RS',
         'st' => 'Sesotho,Sesotho,ls', // PROBLEM - OLD flag
+        'sn' => 'Shona,chiShona,zw,',
+        'sd' => 'Sindhi,سنڌي,pk,',
         'si' => 'Sinhala,සිංහල,lk,si_LK',
         'sk' => 'Slovak,Slovenčina,sk,sk_SK',
         'sl' => 'Slovene,Slovenščina,si,sl_SI', //slovenian
@@ -131,7 +141,7 @@ class transposh_consts {
         'sv' => 'Swedish,Svenska,se,sv_SE',
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
         'tg' => 'Tajik,Тоҷикӣ,tj',
-        'ta' => 'Tamil,தமிழ்,in,ta_LK', // apparently more in India
+        'ta' => 'Tamil,தமிழ்,in,ta_IN', // apparently more in India
         'tt' => 'Tatar,татарча,ru-ta',
         'te' => 'Telugu,తెలుగు,in,',
         'th' => 'Thai,ภาษาไทย,th,',
@@ -141,9 +151,10 @@ class transposh_consts {
         'uz' => 'Uzbek,Oʻzbek tili,uz,uz_UZ',
         'vi' => 'Vietnamese,Tiếng Việt,vn,',
         'cy' => 'Welsh,Cymraeg,gb-wa,',
+        'xh' => 'Xhosa,isiXhosa,za',
         'yi' => 'Yiddish,ייִדיש,europeanunion,',
-        'yo' => 'Yoruba,èdè Yorùbá,ng,',
-        'zu' => 'Zulu,isiZulu,za,'
+        'yo' => 'Yoruba,èdè Yorùbá,ng',
+        'zu' => 'Zulu,isiZulu,za',
     );
     // new var to hold translation engines information
     public static $engines = array(
@@ -177,10 +188,13 @@ class transposh_consts {
             // @updated 2013-May-09 (bs,ceb,hmn,jw,mr)
             // @updated 2013-Dec-24 (ha,ig,mi,mn,ni,pa,so,yo,zu)
             // @updated 2014-Dec-15 (kk,mg,ml,my,ny,si,st,su,tg,uz)
-            'langs' => array('en', 'af', 'sq', 'ar', 'be', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'gl', 'de', 'el', 'ht', 'he', 'hi', 'hu',
-                'id', 'it', 'is', 'ga', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'mt', 'no', 'fa', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sw', 'sv', 'tl', 'th', 'tr', 'uk', 'vi',
-                'cy', 'yi', 'hy', 'az', 'eu', 'ka', 'la', 'ur', 'ta', 'te', 'kn', 'bn', 'gu', 'eo', 'km', 'bs', 'ceb', 'hmn', 'jw', 'mr', 'ha', 'ig', 'mi', 'mn', 'ne', 'pa', 'so', 'yo', 'zu',
-                'kk', 'mg', 'ml', 'my', 'ny', 'si', 'st', 'su', 'tg', 'uz'),
+            // @updated 2016-Mar-11 (am,co,fy,haw,ku,ky,lb,ps,sm,gd,sn,sd,xh)
+            'langs' => array('af', 'ar', 'az', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'ga', 'gl',
+                'gu', 'ha', 'he', 'hi', 'hmn', 'hr', 'ht', 'hu', 'hy', 'id', 'ig', 'is', 'it', 'ja', 'jw', 'ka', 'kk', 'km', 'kn', 'ko', 'la', 'lo', 'lt', 'lv',
+                'mg', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'ny', 'pa', 'pl', 'pt', 'ro', 'ru', 'si', 'sk', 'sl', 'so', 'sq', 'sr', 'st',
+                'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'uk', 'ur', 'uz', 'vi', 'yi', 'yo', 'zh', 'zh-tw', 'zu',
+                'am', 'co', 'fy', 'haw', 'ku', 'ky', 'lb', 'ps', 'sm', 'gd', 'sn', 'sd', 'xh'),
+        // iw - he, zh-CN - zh    
         ),
         'u' => array(
             'name' => 'Baidu',
@@ -203,21 +217,25 @@ class transposh_consts {
 
     public static function get_language_name($lang) {
         list ($langname) = explode(",", transposh_consts::$languages[$lang]);
+        $langname = apply_filters("tp_language_name", $langname);
         return $langname;
     }
 
     public static function get_language_orig_name($lang) {
         list (, $langorigname) = explode(",", transposh_consts::$languages[$lang]);
+        $langorigname = apply_filters("tp_language_origname", $langorigname);
         return $langorigname;
     }
 
     public static function get_language_flag($lang) {
         list (,, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        $flag = apply_filters("tp_language_flag", $flag);
         return $flag;
     }
 
     public static function get_language_locale($lang) {
         @list (,,, $locale) = explode(",", transposh_consts::$languages[$lang]);
+        $locale = apply_filters("tp_language_locale", $locale);
         if ($locale) {
             return $locale;
         }
@@ -476,10 +494,7 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # es_VE/
   # fo/ foroese
   # fr_BE/
-  # fy/
-  # /
-  # kea/ ??
-  # /
+  # kea/
   # ml_IN/
   # nb_NO/ ? good Question, popped into Norway
   # nn_NO/ ? same question
@@ -487,8 +502,7 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # ru_UA/
   # sd_PK/
   # su_ID/
-  # ta_IN/
+  # ta_LK/
   # ug_CN/
-  # zh_HK/
  */
 ?>
