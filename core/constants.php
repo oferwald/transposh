@@ -84,7 +84,7 @@ class transposh_consts {
         'gu' => 'Gujarati,ગુજરાતી,in,',
         'ht' => 'Haitian,Kreyòl ayisyen,ht,',
         'ha' => 'Hausa,Harshen Hausa,ng,',
-        'haw' => 'Hawaiian,ʻŌlelo Hawaiʻi,hawaii',
+        'haw' => 'Hawaiian,ʻŌlelo Hawaiʻi,us-ha',
         'hmn' => 'Hmong,Hmoob,la,',
         'mw' => 'Hmong Daw,Hmoob Daw,la,',
         'he' => 'Hebrew,עברית,il,he_IL',
@@ -126,7 +126,7 @@ class transposh_consts {
         'ro' => 'Romanian,Română,ro,ro_RO',
         'ru' => 'Russian,Русский,ru,ru_RU',
         'sm' => 'Samoan,gagana fa\'a Samoa,ws,',
-        'gd' => 'Scots Gaelic,Gàidhlig,scotland,',
+        'gd' => 'Scots Gaelic,Gàidhlig,gb-sc,',
         'sr' => 'Serbian,Cрпски језик,rs,sr_RS',
         'st' => 'Sesotho,Sesotho,ls', // PROBLEM - OLD flag
         'sn' => 'Shona,chiShona,zw,',
