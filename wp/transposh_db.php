@@ -103,6 +103,12 @@ class transposh_database {
                 return false;
             }
             tp_logger('apc', 5);
+        } elseif (function_exists('apcu_fetch')) {
+            $cached = apcu_fetch($key, $rc);
+            if ($rc === false) {
+                return false;
+            }
+            tp_logger('apcu', 5);
         } elseif (function_exists('xcache_get')) {
             $rc = @xcache_isset($key);
             if ($rc === false) {
@@ -146,6 +152,8 @@ class transposh_database {
             $rc = $this->memcache->set($key, $translated); //, time() + $ttl);
         } elseif (function_exists('apc_store')) {
             $rc = apc_store($key, $translated, $ttl);
+        } elseif (function_exists('apcu_store')) {
+            $rc = apcu_store($key, $translated, $ttl);
         } elseif (function_exists('xcache_set')) {
             $rc = @xcache_set($key, $translated, $ttl);
         } elseif (function_exists('eaccelerator_put')) {
@@ -174,6 +182,8 @@ class transposh_database {
             $this->memcache->delete($key);
         } elseif (function_exists('apc_delete')) {
             apc_delete($key);
+        } elseif (function_exists('apcu_delete')) {
+            apcu_delete($key);
         } elseif (function_exists('xcache_unset')) {
             @xcache_unset($key);
         } elseif (function_exists('eaccelerator_rm')) {
@@ -192,6 +202,8 @@ class transposh_database {
             $this->memcache->flush();
         } elseif (function_exists('apc_clear_cache')) {
             apc_clear_cache('user');
+        } elseif (function_exists('apc_clear_cache')) {
+            apc_clear_cache();
         } elseif (function_exists('xcache_unset_by_prefix')) {
             @xcache_unset_by_prefix();
         }
