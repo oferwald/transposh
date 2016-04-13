@@ -287,6 +287,9 @@ define('TRANSPOSH_OPTIONS_OHT_PROJECTS', 'transposh_options_oht_projects');
 define('TRANSPOSH_OHT_DELAY', 600);
 
 //0.9.6 - Making sure Google works
+define('TRANSPOSH_OPTIONS_YANDEXPROXY', 'transposh_options_yandexproxy');
+define('TRANSPOSH_YANDEXPROXY_DELAY', 3600); // give it an hour
+//0.9.6 - Making sure Google works
 define('TRANSPOSH_OPTIONS_GOOGLEPROXY', 'transposh_options_googleproxy');
 define('TRANSPOSH_GOOGLEPROXY_DELAY', 86400); // give it a day
 //0.5.6 new definitions

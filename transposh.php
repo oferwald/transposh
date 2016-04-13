@@ -1584,6 +1584,43 @@ class transposh_plugin {
 
     // Proxied Yandex translate suggestions
     function get_yandex_translation($tl, $sl, $q) {
+        $sid = '';
+        $timestamp = 0;
+        if (get_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array())) {
+            list($sid, $timestamp) = get_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array());
+        }
+        if ($sid == '') {
+            if ((time() - TRANSPOSH_YANDEXPROXY_DELAY > $timestamp)) {
+                // attempt key refresh on error
+                $url = 'https://translate.yandex.com/';
+                tp_logger($url, 3);
+                $ch = curl_init();
+                // yandex wants a referer someimes
+                curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                //must set agent for google to respond with utf-8
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+                $output = curl_exec($ch);
+                $sidpos = strpos($output, "SID: '") + 6;
+                $sid = substr($output, $sidpos, strpos($output, "',", $sidpos) - $sidpos);
+                tp_logger($sid);
+                $sid = strrev(substr($sid, 0, 8)) . '.' . strrev(substr($sid, 9, 8)) . '.' . strrev(substr($sid, 18, 8));
+                tp_logger($sid);
+                if ($output === false) {
+                    tp_logger('Curl error: ' . curl_error($ch));
+                    return false;
+                }
+                update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array($sid, time()));
+                curl_close($ch);
+            }
+        }
+
+        if (!$sid) {
+            tp_logger('No SID, gotta bail:' . $timestamp);
+            return false;
+        }
+
         if ($sl) {
             $sl .= '-';
         }
@@ -1595,7 +1632,7 @@ class transposh_plugin {
         } else {
             $qstr = '&text=' . $q;
         }
-        $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=ed722759.56e66ff0.977d7e53-0-0';
+        $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=' . $sid . '-0-0';
         tp_logger($url, 3);
         tp_logger($q, 3);
         $ch = curl_init();
@@ -1619,9 +1656,13 @@ class transposh_plugin {
             tp_logger($output, 3);
             return false;
         }
-        if ($jsonarr->code != 200){
+        if ($jsonarr->code != 200) {
             tp_logger('Some sort of error!');
             tp_logger($output, 3);
+            if ($jsonarr->code == 406) { //invalid session
+                update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array('', time()));
+            }
+
             return false;
         };
 
