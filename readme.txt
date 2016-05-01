@@ -6,7 +6,7 @@ Requires at least: 3.3
 Tested up to: 4.3
 Stable tag: %VERSION%
 
-Transposh adds best of breed translation support to wordpress, 96 languages are automatically translated and can be manually corrected with ease.
+Transposh adds best of breed translation support to wordpress, 107 languages are automatically translated and can be manually corrected with ease.
 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
@@ -23,7 +23,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
-* Use either Google, Bing, Yandex or Apertium translation backends - 109 languages supported!
+* Use either Google, Bing, Yandex or Apertium translation backends - 107 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -130,7 +130,7 @@ This version allows sorting of languages within the widget
  * Support for more UTF8 breaking chars (mostly Chinese)
  * Minor additions for 3rd party support
  * Support for apcu (advanced php cache user)
- * New languages added by Google (13 in total) - Support up to 109 Languages!
+ * New languages added by Google (13 in total) - Support up to 107 Languages!
  * Support new filters on constants, allowing to change flags without modifying the code
 = 2015/10/27 - 0.9.8.1 =
  * Better matching of languages in rewrite mode (will no longer accept any two random chars)
