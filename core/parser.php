@@ -706,14 +706,23 @@ class parser {
                     // currently we only handle contents (which buddypress heavily use)
                     if ($jsoner->contents) {
                         $jsoner->contents = $this->fix_html($jsoner->contents);
-                        return json_encode($jsoner);
                     }
                     if ($jsoner->fragments->{'div.widget_shopping_cart_content'}) {
                         $jsoner->fragments->{'div.widget_shopping_cart_content'} = $this->fix_html($jsoner->fragments->{'div.widget_shopping_cart_content'});
-                        $jsoner->fragments->{'div.kt-header-mini-cart-refreash'} = $this->fix_html($jsoner->fragments->{'div.kt-header-mini-cart-refreash'});
-                        $jsoner->fragments->{'a.cart-contents'} = $this->fix_html($jsoner->fragments->{'a.cart-contents'});
-                        return json_encode($jsoner);
                     }
+                    if ($jsoner->fragments->{'div.kt-header-mini-cart-refreash'}) {
+                        $jsoner->fragments->{'div.kt-header-mini-cart-refreash'} = $this->fix_html($jsoner->fragments->{'div.kt-header-mini-cart-refreash'});
+                    }
+                    if ($jsoner->fragments->{'a.cart-contents'}) {
+                        $jsoner->fragments->{'a.cart-contents'} = $this->fix_html($jsoner->fragments->{'a.cart-contents'});
+                    }
+                    if ($jsoner->fragments->{'.woocommerce-checkout-review-order-table'}) {
+			$jsoner->fragments->{'.woocommerce-checkout-review-order-table'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-review-order-table'});
+		    }
+		    if ($jsoner->fragments->{'.woocommerce-checkout-payment'}) {
+			$jsoner->fragments->{'.woocommerce-checkout-payment'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-payment'});
+		    }			
+                    return json_encode($jsoner); // now any attempted json will actually return a json 
                 }
             }
         }
