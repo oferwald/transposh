@@ -941,7 +941,7 @@ msgstr "מפתחות מנועי התרגום"
 #: wp/transposh_admin.php:320
 #@ transposh
 msgid "Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site."
-msgstr "בתנאים רגילים, ונכון למועד שחרור גרסה זו, אתם יכולים להשאיר את השדות הללו ריקים והמנועים פשוט יעבדו, אין צורך לשלם או ליצור מפתח. אבל אם מסיבה כלשהיא השיטות המוכחיות יפסיקו לתפקד באפשרותכם ליצור את המפתחות לשרות באתרים המתאימים."
+msgstr "בתנאים רגילים, ונכון למועד שחרור גרסה זו, אתם יכולים להשאיר את השדות הללו ריקים והמנועים פשוט יעבדו, אין צורך לשלם או ליצור מפתח. אבל אם מסיבה כלשהיא השיטות הנוכחיות יפסיקו לתפקד באפשרותכם ליצור את המפתחות לשרות באתרים המתאימים."
 
 #: wp/transposh_admin.php:321
 #@ transposh

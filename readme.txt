@@ -23,7 +23,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
-* Use either Google, Bing, Yandex or Apertium translation backends - 95 languages supported!
+* Use either Google, Bing, Yandex or Apertium translation backends - 109 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -122,9 +122,16 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
-= 2015/10/27 - 0.9.9 =
+= 2016/05/01 - 0.9.9.0 =
  * Add support for Baidu translation
  * Support Cantonese thanks to Baidu - Support up to 96 Languages!
+ * Add new Google method for working after the change
+ * Fix for Yandex key issues
+ * Support for more UTF8 breaking chars (mostly Chinese)
+ * Minor additions for 3rd party support
+ * Support for apcu (advanced php cache user)
+ * New languages added by Google (13 in total) - Support up to 109 Languages!
+ * Support new filters on constants, allowing to change flags without modifying the code
 = 2015/10/27 - 0.9.8.1 =
  * Better matching of languages in rewrite mode (will no longer accept any two random chars)
  * Fix a critical bug in the locale filter code
