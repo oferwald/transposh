@@ -463,9 +463,18 @@ class transposh_plugin {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
             $this->attempt_json = true;
         }
-
+        //alm news
+        if (isset($_GET['action']) && $_GET['action'] == 'alm_query_posts') {
+	   // $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_REFERER'];
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+        }
         //woocommerce_update_order_review
         if (isset($_POST['action']) && $_POST['action'] == 'woocommerce_update_order_review') {
+            $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
+            $this->attempt_json = true;
+        }
+
+        if (isset($_GET['wc-ajax']) && $_GET['wc-ajax'] == 'update_order_review') {
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
             $this->attempt_json = true;
         }
