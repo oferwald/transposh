@@ -122,6 +122,8 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2016/05/15 - 0.9.9.1 =
+ * Google proxy fix
 = 2016/05/01 - 0.9.9.0 =
  * Add support for Baidu translation
  * Support Cantonese thanks to Baidu - Support up to 96 Languages!
