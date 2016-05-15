@@ -1744,12 +1744,14 @@ class transposh_plugin {
      * Hey googler, if you are reading this, it means that you are actually here, why won't we work together on this?
      */
     function iq($input, $error) {
-        $value = intval($error);
+        $e = explode(".", $error);
+        $value = intval($e[0]);
         for ($i = 0; $i < strlen($input); $i++) {
             $value += ord($input[$i]);
             $value = $this->hq($value, "+-a^+6");
         }
         $value = $this->hq($value, "+-3^+b+-f");
+        $value ^= intval($e[1]);
         if (0 > $value) {
             $value = $value & 2147483647 + 2147483648;
         }
@@ -1797,7 +1799,7 @@ class transposh_plugin {
             if ($googlemethod < $attempt && $failed) {
                 $failed = false;
                 tp_logger("Attempt: $attempt", 1);
-                $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl . '&tk=' . $this->iq($iqstr, 100000);
+                $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl . '&tk=' . $this->iq($iqstr, '406448.272554134');
                 tp_logger($url, 3);
                 tp_logger($q, 3);
                 tp_logger($iqstr, 3);
