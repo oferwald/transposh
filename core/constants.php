@@ -172,8 +172,9 @@ class transposh_consts {
             // @updated 2014-Feb-21 (cy)
             // @updated 2015-Apr-19 (bs, hr, sr)
             // @updated 2015-Oct-23 (sw)
+            // @updated 2016-Jun-17 (af)
             'langs' => array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
-                'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw'),
+                'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw', 'af'),
             'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww')
         ),
         'g' => array(
