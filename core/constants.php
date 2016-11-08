@@ -74,6 +74,8 @@ class transposh_consts {
         'nl' => 'Dutch,Nederlands,nl,nl_NL',
         'eo' => 'Esperanto,Esperanto,esperanto,',
         'et' => 'Estonian,Eesti keel,ee,',
+        'fj' => 'Fijian,vosa Vakaviti,fj,',
+        'fil' => 'Filipino,Wikang Filipino,ph,',
         'fi' => 'Finnish,Suomi,fi,',
         'fr' => 'French,Français,fr,fr_FR',
         'fy' => 'Frisian,Frysk,nl',//flag
@@ -140,11 +142,13 @@ class transposh_consts {
         'sw' => 'Swahili,Kiswahili,tz,',
         'sv' => 'Swedish,Svenska,se,sv_SE',
         'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
+        'ty' => 'Tahitian,Reo Mā`ohi\',pf,',
         'tg' => 'Tajik,Тоҷикӣ,tj',
         'ta' => 'Tamil,தமிழ்,in,ta_IN', // apparently more in India
         'tt' => 'Tatar,татарча,ru-ta',
         'te' => 'Telugu,తెలుగు,in,',
-        'th' => 'Thai,ภาษาไทย,th,',
+        'th' => 'Thai,ภาษาไทย,th,',        
+        'to' => 'Tonga,faka Tonga,to,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
         'uk' => 'Ukrainian,Українська,ua,',
         'ur' => 'Urdu,اردو,pk,',
@@ -173,8 +177,10 @@ class transposh_consts {
             // @updated 2015-Apr-19 (bs, hr, sr)
             // @updated 2015-Oct-23 (sw)
             // @updated 2016-Jun-17 (af)
+            // @updated 2016-Jul-22 (yue)
+            // @updated 2016-Oct-30 (fj, fil, mg, sm, ty, to)
             'langs' => array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
-                'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw', 'af'),
+                'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw', 'af', 'yue','fj', 'fil', 'mg', 'sm', 'ty', 'to'),
             'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww')
         ),
         'g' => array(
