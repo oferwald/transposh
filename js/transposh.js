@@ -94,7 +94,7 @@
                 data["tr" + i] = translations[i];
                 // We are pre-accounting the progress bar here - which is not very nice
                 //if (source > 0) {
-                done_posted += $("*[data-orig='" + tokens[i].replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1') + "']").size();
+                done_posted += $("*[data-orig='" + tokens[i].replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1') + "']").length;
                 //}
             }
             $.ajax({
@@ -116,7 +116,7 @@
     // happens on traslate success
     function auto_translate_success(token, translation) {
         ajax_translate(token, $("<div>" + $.trim(translation) + "</div>").text());
-        window.console && console.log(possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').size() + "/" + possibly_translateable + " auto translated");
+        window.console && console.log(possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').length + "/" + possibly_translateable + " auto translated");
     }
 
     // mass google translation - using proxy
@@ -420,7 +420,7 @@
         });
 
         // how many phrases are yet untranslated
-        possibly_translateable = $("." + t_jp_prefix + '[data-source=""]').size();
+        possibly_translateable = $("." + t_jp_prefix + '[data-source=""]').length;
 
         //now = new Date();
         // we make sure script sub loaded are cached
