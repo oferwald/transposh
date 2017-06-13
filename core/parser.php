@@ -19,7 +19,7 @@ require_once("utils.php");
 /**
  * parserstats class - holds parser statistics
  */
-class parserstats {
+class tp_parserstats {
 
     /** @var int Holds the total phrases the parser encountered */
     public $total_phrases;
@@ -93,7 +93,7 @@ class parserstats {
 /**
  * Parser class - allows phrase marking and translation with callback functions
  */
-class parser {
+class tp_parser {
 
     private $punct_breaks = true;
     private $num_breaks = true;
@@ -696,7 +696,7 @@ class parser {
      */
     function fix_html($string) {
         // ready our stats
-        $this->stats = new parserstats();
+        $this->stats = new tp_parserstats();
         // handler for possible json (buddypress)
         if ($this->might_json) {
             if ($string[0] == '{') {

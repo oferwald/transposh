@@ -402,7 +402,7 @@ class transposh_plugin {
             tp_logger("Translating {$_SERVER['REQUEST_URI']} to: {$this->target_language} for: {$_SERVER['REMOTE_ADDR']}", 1);
 
             //translate the entire page
-            $parse = new parser();
+            $parse = new tp_parser();
             $parse->fetch_translate_func = array(&$this->database, 'fetch_translation');
             $parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
             $parse->url_rewrite_func = array(&$this, 'rewrite_url');
