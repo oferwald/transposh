@@ -724,7 +724,11 @@
             text: false
         });
 
+        cleanui = function() {
+            $('.' + prefix + 'suggest').button("enable");
+        }
         // prev button click
+        $(idprefix + 'prev').click(cleanui);
         $(idprefix + 'prev').click(function () {
             // save data if changed
             if ($(idprefix + 'translation').data("changed")) {
@@ -737,6 +741,7 @@
             set_translate_dialog_values(segment_id);
         });
         // next button click
+        $(idprefix + 'next').click(cleanui);
         $(idprefix + 'next').click(function () {
             // save data if changed
             if ($(idprefix + 'translation').data("changed")) {
@@ -819,7 +824,11 @@
                 });
             });
         });
-
+        // all the suggest buttons
+        $('.'+prefix+"suggest").click(function() {
+            cleanui();
+            $(this).button("disable");
+        });
         $(idprefix + 'google').button({
             icons: {
                 primary: "tr-icon-google"
@@ -827,8 +836,6 @@
             text: false
         }).click(function () {
             getgt();
-            $('.' + prefix + 'suggest').button("enable");
-            $(this).button("disable");
         });
 
         $(idprefix + 'bing').button({
@@ -838,8 +845,6 @@
             text: false
         }).click(function () {
             getbt();
-            $('.' + prefix + 'suggest').button("enable");
-            $(this).button("disable");
         });
 
         $(idprefix + 'yandex').button({
@@ -849,8 +854,6 @@
             text: false
         }).click(function () {
             getyt();
-            $('.' + prefix + 'suggest').button("enable");
-            $(this).button("disable");
         });
 
         $(idprefix + 'baidu').button({
@@ -860,7 +863,6 @@
             text: false
         }).click(function () {
             getut();
-            $('.' + prefix + 'suggest').button("enable");
             $(this).button("disable");
         });
 
@@ -871,7 +873,6 @@
             text: false
         }).click(function () {
             getat();
-            $('.' + prefix + 'suggest').button("enable");
             $(this).button("disable");
         });
 
