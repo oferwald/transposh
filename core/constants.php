@@ -61,13 +61,14 @@ class transposh_consts {
         'bn' => 'Bengali,বাংলা,bd,bn_BD',
         'bs' => 'Bosnian,bosanski jezik,ba,bs_BA',
         'bg' => 'Bulgarian,Български,bg,bg_BG',
+        'my' => 'Burmese,မြန်မာစာ,mm,my_MM', // PROBLEM - OLD flag
         'ca' => 'Catalan,Català,es-ca,',
         'yue' => 'Cantonese,粤语,hk,zh_HK',
         'ceb' => 'Cebuano,Binisaya,ph,',
         'ny' => 'Chichewa,Chinyanja,mw',
         'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
         'zh-tw' => 'Chinese (Traditional),中文(漢字),tw,zh_TW',
-        'co' => 'Corsican,Corsu,fr',//flag
+        'co' => 'Corsican,Corsu,fr', //flag
         'hr' => 'Croatian,Hrvatski,hr,',
         'cs' => 'Czech,Čeština,cz,cs_CZ',
         'da' => 'Danish,Dansk,dk,da_DK',
@@ -78,7 +79,7 @@ class transposh_consts {
         'fil' => 'Filipino,Wikang Filipino,ph,',
         'fi' => 'Finnish,Suomi,fi,',
         'fr' => 'French,Français,fr,fr_FR',
-        'fy' => 'Frisian,Frysk,nl',//flag
+        'fy' => 'Frisian,Frysk,nl', //flag
         'gl' => 'Galician,Galego,es-ga,gl_ES',
         'ka' => 'Georgian,ქართული,ge,ka_GE',
         'de' => 'German,Deutsch,de,de_DE',
@@ -90,6 +91,7 @@ class transposh_consts {
         'hmn' => 'Hmong,Hmoob,la,',
         'mw' => 'Hmong Daw,Hmoob Daw,la,',
         'he' => 'Hebrew,עברית,il,he_IL',
+        'mrj' => 'Hill Mari,Мары йӹлмӹ,ru,',
         'hi' => 'Hindi,हिन्दी; हिंदी,in,hi_IN',
         'hu' => 'Hungarian,Magyar,hu,hu_HU',
         'is' => 'Icelandic,Íslenska,is,',
@@ -117,10 +119,12 @@ class transposh_consts {
         'mt' => 'Maltese,Malti,mt,',
         'mi' => 'Maori,Te Reo Māori,nz,',
         'mr' => 'Marathi,मराठी,in,',
+        'mhr' => 'Mari,марий йылме,ru,',
         'mn' => 'Mongolian,Монгол,mn,',
-        'my' => 'Burmese,မြန်မာစာ,mm,my_MM', // PROBLEM - OLD flag
         'ne' => 'Nepali,नेपाली,np,ne_NP',
         'no' => 'Norwegian,Norsk,no,nb_NO',
+        'otq' => 'Otomi,Querétaro Otomi,mx,',
+        'pap' => 'Papiamento,Papiamentu,aw,',
         'fa' => 'Persian,پارسی,ir,fa_IR',
         'pl' => 'Polish,Polski,pl,pl_PL',
         'pt' => 'Portuguese,Português,pt,pt_PT',
@@ -147,9 +151,10 @@ class transposh_consts {
         'ta' => 'Tamil,தமிழ்,in,ta_IN', // apparently more in India
         'tt' => 'Tatar,татарча,ru-ta',
         'te' => 'Telugu,తెలుగు,in,',
-        'th' => 'Thai,ภาษาไทย,th,',        
+        'th' => 'Thai,ภาษาไทย,th,',
         'to' => 'Tonga,faka Tonga,to,',
         'tr' => 'Turkish,Türkçe,tr,tr_TR',
+        'udm' => 'Udmurt,удмурт кыл,ru,',
         'uk' => 'Ukrainian,Українська,ua,',
         'ur' => 'Urdu,اردو,pk,',
         'uz' => 'Uzbek,Oʻzbek tili,uz,uz_UZ',
@@ -158,6 +163,7 @@ class transposh_consts {
         'xh' => 'Xhosa,isiXhosa,za',
         'yi' => 'Yiddish,ייִדיש,europeanunion,',
         'yo' => 'Yoruba,èdè Yorùbá,ng',
+        'yua' => 'Yucatec Maya,Màaya T\'àan,mx,',
         'zu' => 'Zulu,isiZulu,za',
     );
     // new var to hold translation engines information
@@ -170,7 +176,7 @@ class transposh_consts {
         'b' => array(
             'name' => 'Bing',
             'icon' => 'bingicon.png',
-            // (got this using Microsoft.Translator.GetLanguages() - fixed to match our codes)
+            // (got this using Microsoft.Translator.GetLanguages().sort() - fixed to match our codes)
             // @updated 2012-Feb-14 (mww)
             // @updated 2013-Feb-21 (ms, ur)
             // @updated 2014-Feb-21 (cy)
@@ -179,8 +185,13 @@ class transposh_consts {
             // @updated 2016-Jun-17 (af)
             // @updated 2016-Jul-22 (yue)
             // @updated 2016-Oct-30 (fj, fil, mg, sm, ty, to)
-            'langs' => array('en', 'ar', 'bg', 'ca', 'zh', 'zh-tw', 'cs', 'da', 'nl', 'et', 'fi', 'fr', 'de', 'el', 'ht', 'he', 'hi', 'hu', 'id', 'it', 'ja', 'ko', 'lv',
-                'lt', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'es', 'sv', 'th', 'tr', 'uk', 'vi', 'mw', 'ms', 'ur', 'cy', 'bs', 'hr', 'sr', 'sw', 'af', 'yue','fj', 'fil', 'mg', 'sm', 'ty', 'to'),
+            // @updated 2017-Mar-30 (bn)
+            // @updated 2017-Sep-27 (fa, mt, otq, yua)
+            'langs' => array(
+                'af', 'ar', 'bg', 'bn', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'es', 'et', 'fa', 'fi', 'fil', 'fj', 'fr', 'he', 'hi', 'hr', 'ht',
+                'hu', 'id', 'it', 'ja', 'ko', 'lt', 'lv', 'mg', 'ms', 'mt', 'mw', 'nl', 'no', 'otq', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sm', 'sr', 'sv',
+                'sw', 'th', 'tlh', 'tlh-qaak', 'to', 'tr', 'ty', 'uk', 'ur', 'vi', 'yua', 'yue', 'zh', 'zh-tw'),
+            // check about bs-latn , sr-latn/cyr, (tlh) (klingon?)
             'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww')
         ),
         'g' => array(
@@ -207,19 +218,25 @@ class transposh_consts {
             'name' => 'Baidu',
             'icon' => 'baiduicon.png',
             // @updated 2015-Nov-03
-            'langs' => array('ar', 'et', 'bg', 'pl', 'da', 'de', 'ru', 'fr', 'fi', 'ko', 'nl', 'cs', 'ro', 'pt', 'jp', 'sv', 'sl', 'th', 'es', 'el', 'hu', 'zh', 'en', 'it', 'yue', 'zh-tw'), //wyw - old chinese
-            'langconv' => array('ar' => 'ara', 'et' => 'est', 'bg' => 'bul', 'da' => 'dan', 'fr' => 'fra', 'fi' => 'fin', 'ko' => 'kor', 'ro' => 'rom', 'sv' => 'swe', 'sl' => 'slo', 'es' => 'spa', 'zh-tw' => 'cht')
+            // @updated 2017-Sep-28 (Vie)
+            'langs' => array('ar', 'et', 'bg', 'pl', 'da', 'de', 'ru', 'fr', 'fi', 'ko', 'nl', 'cs', 'ro', 'pt', 'jp', 'sv', 'sl', 'th', 'es', 'el', 'hu', 'zh', 'en', 'it', 'yue', 'zh-tw', 'vi'),
+            //<li><a href="###" class="data-lang" value="wyw">文言文</a></li>  //wyw - old chinese
+            'langconv' => array('ar' => 'ara', 'et' => 'est', 'bg' => 'bul', 'da' => 'dan', 'fr' => 'fra', 'fi' => 'fin', 'ko' => 'kor', 'ro' => 'rom', 'sv' => 'swe', 'sl' => 'slo', 'es' => 'spa', 'zh-tw' => 'cht', 'vi' => 'vie')
         ),
-        //<li><a href="###" class="data-lang" value="wyw">文言文</a></li>
         'y' => array(
             'name' => 'Yandex',
             'icon' => 'yandexicon.png',
+            //got with Object.keys(config.TRANSLATOR_LANGS).sort() on yandex
             // @updated 2015-Aug-12 initial list
             // @updated 2015-Oct-25 (ba)
-            'langs' => array('sq', 'en', 'ar', 'hy', 'az', 'af', 'eu', 'be', 'bg', 'bs', 'cy', 'vi', 'hu', 'ht', 'gl', 'nl', 'el', 'ka',
-                'da', 'he', 'id', 'ga', 'it', 'is', 'es', 'ca', 'kk', 'ky', 'zh', 'ko', 'la', 'lv', 'lt', 'mg', 'ms', 'mt', 'mk', 'mn', 'de', 'no', 'fa', 'pl', 'pt',
-                'ro', 'ru', 'sr', 'sk', 'sl', 'sw', 'tg', 'th', 'tl', 'tt', 'tr', 'uz', 'uk', 'fi', 'fr', 'hr', 'cs', 'sv', 'et', 'ja', 'ba'),
-        ),
+            // @updated 2017-Sep-27 (am,bn,ceb,eo,gd,gu,hi,jw(jv),km,kn,lb,lo,mhr,mi,ml,mr,mrj,my,ne,pa,pap,si,sjn,su,ta,te,udm,ur,xh,yi)
+            'langs' => array('af', 'am', 'ar', 'az', 'ba', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr',
+                'ga', 'gd', 'gl', 'gu', 'he', 'hi', 'hr', 'ht', 'hu', 'hy', 'id', 'is', 'it', 'ja', 'jw', 'ka', 'kk', 'km', 'kn', 'ko', 'ky', 'la', 'lb', 'lo', 'lt', 'lv',
+                'mg', 'mhr', 'mi', 'mk', 'ml', 'mn', 'mr', 'mrj', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'pa', 'pap', 'pl', 'pt', 'ro', 'ru', 'si', 'sjn', 'sk', 'sl', 'sq',
+                'sr', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'tt', 'udm', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'zh'),
+            // check about (sjn) Elvish?
+            'langconv' => array('jw' => 'jv')
+        ),        
     );
 
     public static function get_language_name($lang) {
