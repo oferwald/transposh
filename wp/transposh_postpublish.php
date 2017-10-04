@@ -120,7 +120,7 @@ class transposh_postpublish {
 
             //TODO - get comments text
 
-            $parser = new parser();
+            $parser = new tp_parser();
             $phrases = $parser->get_phrases_list($content);
             $phrases2 = $parser->get_phrases_list($title);
             $phrases3 = $parser->get_phrases_list($the_content_feed);
