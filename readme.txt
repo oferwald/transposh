@@ -3,10 +3,10 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.3
-Tested up to: 4.3
+Tested up to: 4.8.2
 Stable tag: %VERSION%
 
-Transposh adds best of breed translation support to wordpress, 107 languages are automatically translated and can be manually corrected with ease.
+Transposh adds best of breed translation support to wordpress, 117 languages are automatically translated and can be manually corrected with ease.
 
 == Description ==
 Transposh translation filter for WordPress offers a unique approach to blog translation. It allows your blog to combine automatic translation with human translation aided by your users with an easy to use in-context interface.
@@ -23,7 +23,7 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
 * Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
-* Use either Google, Bing, Yandex or Apertium translation backends - 107 languages supported!
+* Use either Google, Bing, Yandex or Apertium translation backends - 117 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
 * Takes care of hidden elements, link tags, meta contents and titles
@@ -122,6 +122,11 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2017/10/05 - 0.9.9.2 =
+ * More languages by Bing, Yandex, Baidu
+ * Fix the ui suggestions on next and prev 
+ * Changing the parser class names to avoid conflicts
+ * Fix the jQueryUI conflict post wp 4.7
 = 2016/05/15 - 0.9.9.1 =
  * Google proxy fix
 = 2016/05/01 - 0.9.9.0 =
