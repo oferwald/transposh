@@ -1345,6 +1345,10 @@ class transposh_plugin {
         $only_class = '';
         $lang = '';
         $nt_class = '';
+        
+        if(!is_array($atts)) { // safety check
+            return do_shortcode($content);            
+        }
 
         tp_logger($atts);
         tp_logger($content);
