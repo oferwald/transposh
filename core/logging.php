@@ -93,8 +93,7 @@ class tp_logger {
             } else {
                 if (!isset($_SERVER['REMOTE_ADDR']) || $this->remoteip != $_SERVER['REMOTE_ADDR']) return;
                 if ((is_array($msg) || is_object($msg)) && $this->show_caller) {
-                    ChromePhp_tp::group("$log_prefix: object/array", array('Collapsed' => true,
-                        'Color' => '#FF00FF'));
+                    ChromePhp_tp::groupCollapsed("$log_prefix: object/array");
                     ChromePhp_tp::log($msg);
                     ChromePhp_tp::groupEnd();
                 } else {
