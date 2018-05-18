@@ -17,7 +17,7 @@
 
 // Report all PHP errors
 //error_reporting(E_ALL);
-require_once('FirePHP.class.php');
+require_once('chromelogger.php');
 
 class tp_logger {
 
@@ -36,9 +36,6 @@ class tp_logger {
     /** @var boolean shell we show which function called the logger */
     public $show_caller = true;
 
-    /** @var FirePHP used for outputing into firephp output */
-    private $firephp;
-
     /** @var used for remote firephp debugging */
     private $remoteip;
 
@@ -50,7 +47,6 @@ class tp_logger {
         if (!$this->printout) {
             ob_start();
         }
-        $this->firephp = FirePHP_tp::getInstance(true);
     }
 
     /**
@@ -62,7 +58,7 @@ class tp_logger {
         if ($severity <= $this->debug_level) {
             if ($this->show_caller) {
                 $trace = debug_backtrace();
-                if ($do_backtrace) $this->firephp->log($trace[3]);
+                if ($do_backtrace) ChromePhp_tp::log($trace[3]);
                 if (isset($trace[2 + $nest]['class'])) {
                     $log_prefix = str_pad("{$trace[2 + $nest]['class']}::{$trace[2 + $nest]['function']} {$trace[1 + $nest]['line']}", 55 + $nest, '_');
                 } else {
@@ -91,22 +87,21 @@ class tp_logger {
                     error_log(date(DATE_W3C) . " $log_prefix: Array stop\n", 3, $this->logfile);
                 }
             }
-            if ($this->printout || !isset($this->firephp)) {
+            if ($this->printout/* || !isset($this->firephp)*/) {
                 echo "$log_prefix:$msg";
                 echo ($this->eolprint) ? "\n" : "<br/>";
             } else {
                 if (!isset($_SERVER['REMOTE_ADDR']) || $this->remoteip != $_SERVER['REMOTE_ADDR']) return;
                 if ((is_array($msg) || is_object($msg)) && $this->show_caller) {
-                    $this->firephp->group("$log_prefix: object/array", array('Collapsed' => true,
+                    ChromePhp_tp::group("$log_prefix: object/array", array('Collapsed' => true,
                         'Color' => '#FF00FF'));
-                    //$this->firephp->log("$log_prefix:");
-                    $this->firephp->log($msg);
-                    $this->firephp->groupEnd();
+                    ChromePhp_tp::log($msg);
+                    ChromePhp_tp::groupEnd();
                 } else {
                     if (is_array($msg) || is_object($msg)) {
-                        $this->firephp->log($msg);
+                        ChromePhp_tp::log($msg);
                     } else {
-                        $this->firephp->log("$log_prefix:$msg");
+                        ChromePhp_tp::log("$log_prefix:$msg");
                     }
                 }
             }
