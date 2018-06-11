@@ -111,7 +111,7 @@ class transposh_plugin_admin {
                 // TODO: 5 languages limit for wp.org
                 if (!defined('FULL_VERSION')) { //** WPORG VERSION
                 $viewable_langs = array_slice($viewable_langs, 0, 5);
-                } //** WPORG STOP
+                } //** WPORGSTOP
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
                 $this->transposh->options->sorted_languages = implode(',', $sorted_langs);
                 $GLOBALS['wp_rewrite']->flush_rules();
@@ -128,7 +128,7 @@ class transposh_plugin_admin {
 
                 if (!defined('FULL_VERSION')) { //** WPORG VERSION
                 $this->transposh->options->allow_full_version_upgrade = TP_FROM_POST;
-                } //** WPORG STOP
+                } //** WPORGSTOP
                 // anonymous needs to be handled differently as it does not have a role
                 tp_logger($_POST['anonymous']);
                 $this->transposh->options->allow_anonymous_translation = $_POST['anonymous'];
@@ -449,7 +449,7 @@ class transposh_plugin_admin {
         $this->header(__('Available Languages (Click to toggle language state - Drag to sort in the widget)', TRANSPOSH_TEXT_DOMAIN));
         if (!defined('FULL_VERSION')) { //** WPORG VERSION
         $this->header(__('Only first five will be saved! Upgrade to full free version by choosing the option at the settings', TRANSPOSH_TEXT_DOMAIN));
-        } //** WPORG STOP
+        } //** WPORGSTOP
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             tp_logger($langcode, 5);
@@ -507,7 +507,7 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->allow_full_version_upgrade_o, __('Allow upgrading to full version', TRANSPOSH_TEXT_DOMAIN)
                 , __('Allow upgrading to full version from http://transposh.org, which has no limit on languages used and includes a full set of widgets', TRANSPOSH_TEXT_DOMAIN));
         $this->sectionstop();
-        } //** WPORG STOP
+        } //** WPORGSTOP
 
         $this->section(__('Translation related settings', TRANSPOSH_TEXT_DOMAIN));
 
