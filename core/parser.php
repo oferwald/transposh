@@ -54,7 +54,7 @@ class tp_parserstats {
     /**
      * This function is when the object is initialized, which is a good time to start ticking.
      */
-    function parserstats() {
+    function __construct() {
         $this->start_time = microtime(true);
     }
 
@@ -328,16 +328,16 @@ class tp_parser {
             return 3;
         //。
         if (ord($char) == 227 && ord($nextchar) == 128 && ord($nextnextchar) == 130)
-            return 3;        
+            return 3;
         //、
         if (ord($char) == 227 && ord($nextchar) == 128 && ord($nextnextchar) == 129)
-            return 3;        
+            return 3;
         //；
         if (ord($char) == 239 && ord($nextchar) == 188 && ord($nextnextchar) == 155)
-            return 3;        
+            return 3;
         //：
         if (ord($char) == 239 && ord($nextchar) == 188 && ord($nextnextchar) == 154)
-            return 3;        
+            return 3;
         //∙
         if (ord($char) == 226 && ord($nextchar) == 136 && ord($nextnextchar) == 153)
             return 3;
@@ -448,7 +448,7 @@ class tp_parser {
                 //tp_logger("inner text breaker $start $pos $string " . (($this->in_get_text_inner) ? 'true' : 'false'), 5);
                 $this->tag_phrase($string, $start, $pos);
                 if ($this->in_get_text)
-                    ($string[$pos] == TP_GTXT_IBRK) ? $this->in_get_text_inner += 1 : $this->in_get_text_inner -=1;
+                    ($string[$pos] == TP_GTXT_IBRK) ? $this->in_get_text_inner += 1 : $this->in_get_text_inner -= 1;
                 $pos++;
                 $start = $pos;
                 //$this->in_get_text_inner = !$this->in_get_text_inner;
@@ -636,10 +636,10 @@ class tp_parser {
         $span .= ' data-orig="' . $original_text . '"';
         // those are needed for hidden elements translations
         if ($for_hidden_element) {
-            $span.= ' data-hidden="y"';
+            $span .= ' data-hidden="y"';
             // hidden elements currently have issues figuring what they translated in the JS
             if ($translated_text != null) {
-                $span.= ' data-trans="' . $translated_text . '"';
+                $span .= ' data-trans="' . $translated_text . '"';
             }
         }
         $span .= '>';
@@ -654,6 +654,7 @@ class tp_parser {
         return $span;
     }
 
+    //** FULL VERSION
     /**
      * This function does some ad replacement for transposh benefit
      */
@@ -676,6 +677,8 @@ class tp_parser {
             $e->{'data-ad-client'} = 'ca-pub-7523823497771676';
         }
     }
+
+    //** FULLSTOP
 
     /**
      * Allow changing of parsing rules, yeah, I caved
@@ -717,11 +720,11 @@ class tp_parser {
                         $jsoner->fragments->{'a.cart-contents'} = $this->fix_html($jsoner->fragments->{'a.cart-contents'});
                     }
                     if ($jsoner->fragments->{'.woocommerce-checkout-review-order-table'}) {
-			$jsoner->fragments->{'.woocommerce-checkout-review-order-table'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-review-order-table'});
-		    }
-		    if ($jsoner->fragments->{'.woocommerce-checkout-payment'}) {
-			$jsoner->fragments->{'.woocommerce-checkout-payment'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-payment'});
-		    }			
+                        $jsoner->fragments->{'.woocommerce-checkout-review-order-table'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-review-order-table'});
+                    }
+                    if ($jsoner->fragments->{'.woocommerce-checkout-payment'}) {
+                        $jsoner->fragments->{'.woocommerce-checkout-payment'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-payment'});
+                    }
                     return json_encode($jsoner); // now any attempted json will actually return a json 
                 }
             }
@@ -1008,12 +1011,16 @@ class tp_parser {
             if ($body != null)
                 $body->lastChild()->outertext .= $hiddenspans;
         }
-        // we might show an ad for transposh in some cases
-        if (($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) || // 5 of 100 for translated non default language pages
-                ($this->allow_ad && $this->default_lang && mt_rand(1, 100) > 99) || // 1 of 100 for translated default languages pages
-                (!$this->allow_ad && mt_rand(1, 1000) > 999)) { // 1 of 1000 otherwise
-            $this->do_ad_switch();
-        }
+        
+        if (defined('FULL_VERSION')) { //** FULL VERSION
+            // we might show an ad for transposh in some cases
+            if (($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) || // 5 of 100 for translated non default language pages
+                    ($this->allow_ad && $this->default_lang && mt_rand(1, 100) > 99) || // 1 of 100 for translated default languages pages
+                    (!$this->allow_ad && mt_rand(1, 1000) > 999)) { // 1 of 1000 otherwise
+                $this->do_ad_switch();
+            }
+        } //** FULLSTOP
+        
         // This adds a meta tag with our statistics json-encoded inside...
 //      $this->stats->do_timing();
 //        Log::info("Stats Done:" . $this->stats->time);
