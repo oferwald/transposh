@@ -60,10 +60,10 @@ YEAR=`date +%Y`
 # Add php files while processing versions
 #
   echo "Adding .php files (with logging)"
-  for file in `find . -maxdepth 4 -iname '*.php' -not -path "./resources/*" -not -path "./test/*"`; do 
+  for file in `find . -maxdepth 4 -iname '*.php' -not -path "./build/*" -not -path "./resources/*" -not -path "./test/*"`; do 
     sed "s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
 #///hm,mm!
-    php generateversions.php $TRANSPOSH_DIR/$file full > $TRANSPOSH_DIR/$file
+    php build/generateversions.php $TRANSPOSH_DIR/$file full > $TRANSPOSH_DIR/$file
 #    cp $file $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
