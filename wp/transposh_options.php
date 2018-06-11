@@ -233,7 +233,7 @@ class transposh_plugin_options {
         $this->register_option('viewable_languages', TP_OPT_STRING);
         $this->register_option('sorted_languages', TP_OPT_STRING);
 
-        if (!defined('FULL_VERSION')) { //** WPORG VERSION
+        if (!defined('FULL_VERSION')) { //** WPORG_VERSION
         $this->register_option('allow_full_version_upgrade', TP_OPT_BOOLEAN, 0);
         } //** WPORGSTOP
         $this->register_option('allow_anonymous_translation', TP_OPT_BOOLEAN, 1);

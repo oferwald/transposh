@@ -108,8 +108,7 @@ class transposh_plugin_admin {
                     }
                 }
 
-                // TODO: 5 languages limit for wp.org
-                if (!defined('FULL_VERSION')) { //** WPORG VERSION
+                if (!defined('FULL_VERSION')) { //** WPORG_VERSION
                 $viewable_langs = array_slice($viewable_langs, 0, 5);
                 } //** WPORGSTOP
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
@@ -126,7 +125,7 @@ class transposh_plugin_admin {
                         $role->remove_cap(TRANSLATOR);
                 }
 
-                if (!defined('FULL_VERSION')) { //** WPORG VERSION
+                if (!defined('FULL_VERSION')) { //** WPORG_VERSION
                 $this->transposh->options->allow_full_version_upgrade = TP_FROM_POST;
                 } //** WPORGSTOP
                 // anonymous needs to be handled differently as it does not have a role
@@ -447,7 +446,7 @@ class transposh_plugin_admin {
         // list of languages
         echo '<div style="overflow:auto; clear: both;">';
         $this->header(__('Available Languages (Click to toggle language state - Drag to sort in the widget)', TRANSPOSH_TEXT_DOMAIN));
-        if (!defined('FULL_VERSION')) { //** WPORG VERSION
+        if (!defined('FULL_VERSION')) { //** WPORG_VERSION
         $this->header(__('Only first five will be saved! Upgrade to full free version by choosing the option at the settings', TRANSPOSH_TEXT_DOMAIN));
         } //** WPORGSTOP
         echo '<ul id="sortable">';
@@ -502,7 +501,7 @@ class transposh_plugin_admin {
 
     // Show normal settings
     function tp_settings() {
-        if (!defined('FULL_VERSION')) { //** WPORG VERSION
+        if (!defined('FULL_VERSION')) { //** WPORG_VERSION
         $this->section(__('Upgrade to full version', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->allow_full_version_upgrade_o, __('Allow upgrading to full version', TRANSPOSH_TEXT_DOMAIN)
                 , __('Allow upgrading to full version from http://transposh.org, which has no limit on languages used and includes a full set of widgets', TRANSPOSH_TEXT_DOMAIN));
