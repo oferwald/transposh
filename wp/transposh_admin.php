@@ -36,7 +36,7 @@ class transposh_plugin_admin {
     // TODO - memory cache clear button
     // 
     // constructor of class, PHP4 compatible construction for backward compatibility
-    function transposh_plugin_admin(&$transposh) {
+    function __construct(&$transposh) {
         $this->transposh = &$transposh;
         // add our notices
         add_action('admin_notices', array(&$this, 'notices'));
@@ -108,6 +108,10 @@ class transposh_plugin_admin {
                     }
                 }
 
+                // TODO: 5 languages limit for wp.org
+                if (!defined('FULL_VERSION')) { //** WPORG VERSION
+                $viewable_langs = array_slice($viewable_langs, 0, 5);
+                } //** WPORG STOP
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
                 $this->transposh->options->sorted_languages = implode(',', $sorted_langs);
                 $GLOBALS['wp_rewrite']->flush_rules();
@@ -122,6 +126,9 @@ class transposh_plugin_admin {
                         $role->remove_cap(TRANSLATOR);
                 }
 
+                if (!defined('FULL_VERSION')) { //** WPORG VERSION
+                $this->transposh->options->allow_full_version_upgrade = TP_FROM_POST;
+                } //** WPORG STOP
                 // anonymous needs to be handled differently as it does not have a role
                 tp_logger($_POST['anonymous']);
                 $this->transposh->options->allow_anonymous_translation = $_POST['anonymous'];
@@ -178,8 +185,10 @@ class transposh_plugin_admin {
             case "tp_widget":
                 // $this->transposh->options->widget_progressbar = TP_FROM_POST;
                 $this->transposh->options->widget_allow_set_deflang = TP_FROM_POST;
+                if (defined('FULL_VERSION')) { //** FULL VERSION
                 $this->transposh->options->widget_remove_logo = TP_FROM_POST;
                 $this->transposh->options->widget_theme = TP_FROM_POST;
+                } //** FULL STOP
                 break;
             case "tp_advanced":
                 $this->transposh->options->enable_url_translate = TP_FROM_POST;
@@ -355,7 +364,7 @@ class transposh_plugin_admin {
 
     function options() {
         echo '<div class="wrap">';
-        screen_icon('transposh-logo');
+        //screen_icon('transposh-logo'); --depracated?
 
         echo '<h2 class="nav-tab-wrapper">';
         foreach ($this->pages as $slug => $titles) {
@@ -438,6 +447,9 @@ class transposh_plugin_admin {
         // list of languages
         echo '<div style="overflow:auto; clear: both;">';
         $this->header(__('Available Languages (Click to toggle language state - Drag to sort in the widget)', TRANSPOSH_TEXT_DOMAIN));
+        if (!defined('FULL_VERSION')) { //** WPORG VERSION
+        $this->header(__('Only first five will be saved! Upgrade to full free version by choosing the option at the settings', TRANSPOSH_TEXT_DOMAIN));
+        } //** WPORG STOP
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             tp_logger($langcode, 5);
@@ -490,6 +502,13 @@ class transposh_plugin_admin {
 
     // Show normal settings
     function tp_settings() {
+        if (!defined('FULL_VERSION')) { //** WPORG VERSION
+        $this->section(__('Upgrade to full version', TRANSPOSH_TEXT_DOMAIN));
+        $this->checkbox($this->transposh->options->allow_full_version_upgrade_o, __('Allow upgrading to full version', TRANSPOSH_TEXT_DOMAIN)
+                , __('Allow upgrading to full version from http://transposh.org, which has no limit on languages used and includes a full set of widgets', TRANSPOSH_TEXT_DOMAIN));
+        $this->sectionstop();
+        } //** WPORG STOP
+
         $this->section(__('Translation related settings', TRANSPOSH_TEXT_DOMAIN));
 
         /*
@@ -630,10 +649,11 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->widget_allow_set_deflang_o, __('Allow user to set current language as default', TRANSPOSH_TEXT_DOMAIN)
                 , __('Widget will allow setting this language as user default', TRANSPOSH_TEXT_DOMAIN));
 
+        if (defined('FULL_VERSION')) { //** FULL VERSION
         $this->checkbox($this->transposh->options->widget_remove_logo_o, __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN)
                 , __('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN));
-
         $this->select($this->transposh->options->widget_theme_o, __('Edit interface theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
+        } //** FULL STOP
     }
 
     function tp_advanced() {

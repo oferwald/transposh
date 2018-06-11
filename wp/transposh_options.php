@@ -76,7 +76,10 @@ class transposh_option {
  * @property transposh_option $sorted_languages_o 
  * 
  * Settings
- * 
+ //** WPORG VERSION 
+ * @property boolean          $allow_full_version_upgrade    Option to allow to upgrade to full version
+ * @property transposh_option $allow_full_version_upgrade_o 
+ //** WPORGSTOP
  * @property boolean          $allow_anonymous_translation   Option defining whether anonymous translation is allowed
  * @property transposh_option $allow_anonymous_translation_o
  * @property boolean          $enable_default_translate      Option to enable/disable default language translation
@@ -134,10 +137,12 @@ class transposh_option {
  * @property transposh_option $widget_progressbar_o
  * @property boolean          $widget_allow_set_deflang      Allows user to set his default language per #63 @since 0.3.8
  * @property transposh_option $widget_allow_set_deflang_o
+ //** FULL VERSION
  * @property boolean          $widget_remove_logo            Allows removing of transposh logo in exchange for an ad @since 0.6.0
  * @property transposh_option $widget_remove_logo_o
  * @property string           $widget_theme                  Allows theming of the progressbar and edit window @since 0.7.0
  * @property transposh_option $widget_theme_o
+ //** FULL STOP
  * 
  * Advanced
  * 
@@ -228,6 +233,9 @@ class transposh_plugin_options {
         $this->register_option('viewable_languages', TP_OPT_STRING);
         $this->register_option('sorted_languages', TP_OPT_STRING);
 
+        if (!defined('FULL_VERSION')) { //** WPORG VERSION
+        $this->register_option('allow_full_version_upgrade', TP_OPT_BOOLEAN, 0);
+        } //** WPORGSTOP
         $this->register_option('allow_anonymous_translation', TP_OPT_BOOLEAN, 1);
         $this->register_option('enable_default_translate', TP_OPT_BOOLEAN, 0);
         $this->register_option('enable_search_translate', TP_OPT_BOOLEAN, 1);
@@ -259,9 +267,10 @@ class transposh_plugin_options {
 
         $this->register_option('widget_progressbar', TP_OPT_BOOLEAN, 0);
         $this->register_option('widget_allow_set_deflang', TP_OPT_BOOLEAN, 0);
+        if (defined('FULL_VERSION')) { //** FULL VERSION
         $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN, 0);
         $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
-
+        } // FULLSTOP
         $this->register_option('enable_url_translate', TP_OPT_BOOLEAN, 0);
         $this->register_option('jqueryui_override', TP_OPT_STRING);
         $this->register_option('dont_add_rel_alternate', TP_OPT_BOOLEAN, 0);
@@ -373,5 +382,3 @@ class transposh_plugin_options {
     }
 
 }
-
-?>

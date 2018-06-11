@@ -11,6 +11,9 @@
  * Date: %DATE%
  */
 
+//** FULL VERSION
+define('FULL_VERSION', true);
+//** FULLSTOP
 //Language indicator in URL. i.e. lang=en
 define('LANG_PARAM', 'lang');
 
@@ -238,32 +241,32 @@ class transposh_consts {
                 'sr', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'tt', 'udm', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'zh'),
             // check about (sjn) Elvish?
             'langconv' => array('jw' => 'jv')
-        ),        
+        ),
     );
 
     public static function get_language_name($lang) {
         list ($langname) = explode(",", transposh_consts::$languages[$lang]);
-        $langname = apply_filters("tp_language_name", $langname);
-        return $langname;
+        $langname_r = apply_filters("tp_language_name", $langname);
+        return $langname_r;
     }
 
     public static function get_language_orig_name($lang) {
         list (, $langorigname) = explode(",", transposh_consts::$languages[$lang]);
-        $langorigname = apply_filters("tp_language_origname", $langorigname);
-        return $langorigname;
+        $langorigname_r = apply_filters("tp_language_origname", $langorigname);
+        return $langorigname_r;
     }
 
     public static function get_language_flag($lang) {
         list (,, $flag) = explode(",", transposh_consts::$languages[$lang]);
-        $flag = apply_filters("tp_language_flag", $flag);
-        return $flag;
+        $flag_r = apply_filters("tp_language_flag", $flag);
+        return $flag_r;
     }
 
     public static function get_language_locale($lang) {
         @list (,,, $locale) = explode(",", transposh_consts::$languages[$lang]);
-        $locale = apply_filters("tp_language_locale", $locale);
-        if ($locale) {
-            return $locale;
+        $locale_r = apply_filters("tp_language_locale", $locale);
+        if ($locale_r) {
+            return $locale_r;
         }
         return $lang;
     }
@@ -534,4 +537,3 @@ define('TRANSPOSH_DIR_WIDGETS', 'widgets');
   # ta_LK/
   # ug_CN/
  */
-?>

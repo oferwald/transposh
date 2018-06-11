@@ -122,6 +122,9 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2018/xx/xx - 0.9.9.3 =
+ * PHP 7 stuff
+ * Full/WPOrg version support
 = 2017/10/05 - 0.9.9.2 =
  * More languages by Bing, Yandex, Baidu
  * Fix the ui suggestions on next and prev 

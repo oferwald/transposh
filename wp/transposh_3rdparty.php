@@ -24,7 +24,7 @@ class transposh_3rdparty {
      * Construct our class
      * @param transposh_plugin $transposh
      */
-    function transposh_3rdparty(&$transposh) {
+    function __construct(&$transposh) {
         $this->transposh = &$transposh;
 
         // supercache invalidation of pages - first lets find if supercache is here

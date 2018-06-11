@@ -22,7 +22,7 @@ class transposh_backup {
     private $transposh;
 
 //constructor of class, PHP4 compatible construction for backward compatibility
-    function transposh_backup(&$transposh) {
+    function __construct(&$transposh) {
         $this->transposh = &$transposh;
     }
 

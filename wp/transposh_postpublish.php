@@ -31,7 +31,7 @@ class transposh_postpublish {
      * Construct our class
      * @param transposh_plugin $transposh
      */
-    function transposh_postpublish(&$transposh) {
+    function __construct(&$transposh) {
         $this->transposh = &$transposh;
         // we need this anyway because of the change language selection
         add_action('edit_post', array(&$this, 'on_edit'));

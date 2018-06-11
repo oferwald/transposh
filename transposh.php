@@ -119,7 +119,7 @@ class transposh_plugin {
     /**
      * class constructor
      */
-    function transposh_plugin() {
+    function __construct() {
         // create and initialize sub-objects
         $this->options = new transposh_plugin_options();
         $this->database = new transposh_database($this);

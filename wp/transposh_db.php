@@ -51,9 +51,9 @@ class transposh_database {
     private $memcache;
 
     /**
-     * constructor of class, PHP4 compatible construction for backward compatibility
+     * PHP5+ only
      */
-    function transposh_database(&$transposh) {
+    function __construct(&$transposh) {
         $this->transposh = &$transposh;
         $this->translation_table = $GLOBALS['wpdb']->prefix . TRANSLATIONS_TABLE;
         $this->translation_log_table = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
