@@ -63,7 +63,9 @@ YEAR=`date +%Y`
   for file in `find . -maxdepth 4 -iname '*.php' -not -path "./build/*" -not -path "./resources/*" -not -path "./test/*"`; do 
     sed "s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
 #///hm,mm!
-    php build/generateversions.php $TRANSPOSH_DIR/$file full > $TRANSPOSH_DIR/$file
+    php build/generateversions.php $TRANSPOSH_DIR/$file full > /tmp/inp_nope
+    cp /tmp/inp_nope $TRANSPOSH_DIR/$file
+    rm /tmp/inp_nope
 #    cp $file $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
