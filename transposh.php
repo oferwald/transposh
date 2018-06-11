@@ -206,12 +206,14 @@ class transposh_plugin {
         add_action('wp_ajax_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
         add_action('wp_ajax_nopriv_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
 
+        //** FULL VERSION
         // For super proxy
         add_action('superproxy_reg_event', array(&$this, 'superproxy_reg'));
         if ($this->options->enable_superproxy) {
             add_action('wp_ajax_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
             add_action('wp_ajax_nopriv_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
         }
+        //** FULLSTOP
 
         // comment_moderation_text - future filter TODO
         // full post wrapping (should happen late)
@@ -1121,6 +1123,7 @@ class transposh_plugin {
         $my_transposh_backup->do_backup();
     }
 
+    //** FULL VERSION
     /**
      * Register for superproxy
      */
@@ -1151,6 +1154,7 @@ class transposh_plugin {
         }
         die();
     }
+    //** FULLSTOP
 
     /**
      * Runs a restore

@@ -104,14 +104,15 @@ class transposh_option {
  * @property transposh_option $transposh_backup_schedule_o  
  * @property string           $transposh_key                 Stores the site key to transposh services (backup @since 0.5.0)
  * @property transposh_option $transposh_key_o
- * 
+ //** FULL VERSION
  * @property boolean          $enable_superproxy             Enable superproxy
  * @property transposh_option $enable_superproxy_o
  * @property string           $superproxy_key                Stores the superproxy key
  * @property transposh_option $superproxy_key_o
  * @property string           $superproxy_ips                Stores the site allow proxy ips
  * @property transposh_option $superproxy_ips_o              
- *
+ //** FULL STOP
+ * 
  *  Engines
  * 
  * @property boolean          $enable_autotranslate          Option to enable/disable auto translation
@@ -249,10 +250,11 @@ class transposh_plugin_options {
 
         $this->register_option('transposh_backup_schedule', TP_OPT_OTHER, 2);
         $this->register_option('transposh_key', TP_OPT_STRING);
-
+        //** FULL VERSION
         $this->register_option('enable_superproxy', TP_OPT_BOOLEAN, 0);
         $this->register_option('superproxy_key', TP_OPT_STRING);
         $this->register_option('superproxy_ips', TP_OPT_STRING);
+        //** FULLSTOP
 
         $this->register_option('enable_autotranslate', TP_OPT_BOOLEAN, 1);
         $this->register_option('enable_autoposttranslate', TP_OPT_BOOLEAN, 1);
