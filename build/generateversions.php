@@ -17,14 +17,14 @@ if ($handle) {
     while (($line = fgets($handle)) !== false) {
         $ignorenext = false;
         // those lines will never be included
-        if (strpos($line, '//** FULL_VERSION') !== false ||
+        if (strpos($line, 'FULL VERSION') !== false ||
                 strpos($line, 'FULLSTOP') !== false ||
-                strpos($line, '//** WPORG_VERSION') !== false ||
+                strpos($line, 'WPORG VERSION') !== false ||
                 strpos($line, 'WPORGSTOP') !== false) {
             $ignorenext = true;
         }
         if ($version == "full") {
-            if (strpos($line, '//** FULL_VERSION') !== false) {
+            if (strpos($line, 'FULL VERSION') !== false) {
                 $inFull = true;
             }
             if (strpos($line, 'FULLSTOP') !== false) {
@@ -32,7 +32,7 @@ if ($handle) {
             }
         }
         if ($version == "wporg") {
-            if (strpos($line, '//** WPORG_VERSION') !== false) {
+            if (strpos($line, 'WPORG VERSION') !== false) {
                 $inFull = true;
             }
             if (strpos($line, 'WPORGSTOP') !== false) {
