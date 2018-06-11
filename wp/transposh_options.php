@@ -142,7 +142,7 @@ class transposh_option {
  * @property transposh_option $widget_remove_logo_o
  * @property string           $widget_theme                  Allows theming of the progressbar and edit window @since 0.7.0
  * @property transposh_option $widget_theme_o
- //** FULL STOP
+ //** FULLSTOP
  * 
  * Advanced
  * 
