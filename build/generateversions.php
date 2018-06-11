@@ -9,8 +9,7 @@
 $file = $argv[1];
 $version = strtolower($argv[2]);
 //var_dump($argv);
-$inFull = FALSE;
-$inWpORG = FALSE;
+$excludesection = FALSE;
 
 $handle = fopen($file, "r");
 if ($handle) {
@@ -24,22 +23,22 @@ if ($handle) {
             $ignorenext = true;
         }
         if ($version == "full") {
-            if (strpos($line, 'FULL VERSION') !== false) {
-                $inFull = true;
+            if (strpos($line, 'WPORG VERSION') !== false) {
+                $excludesection = true;
             }
-            if (strpos($line, 'FULLSTOP') !== false) {
-                $inFull = false;
+            if (strpos($line, 'WPORGSTOP') !== false) {
+                $excludesection = false;
             }
         }
         if ($version == "wporg") {
-            if (strpos($line, 'WPORG VERSION') !== false) {
-                $inFull = true;
+            if (strpos($line, 'FULL VERSION') !== false) {
+                $excludesection = true;
             }
-            if (strpos($line, 'WPORGSTOP') !== false) {
-                $inFull = false;
+            if (strpos($line, 'FULLSTOP') !== false) {
+                $excludesection = false;
             }
         }
-        if (!$inFull && !$ignorenext) {
+        if (!$excludesection && !$ignorenext) {
             echo $line;
         }
     }
