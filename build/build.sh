@@ -4,10 +4,25 @@
 #Script for packaging Transposh's plugin for WordPress
 #
 
-VERSION=$1;
-ZIPME=$2;
-COPYTO=$3;
+VERSION=$1
+ZIPME=$2
+COPYTO=$3
+WPO=$4
 MINIFY=true
+
+#
+# Init replacement vars
+#
+DATE=`date -R`
+YEAR=`date +%Y`
+
+if [ $WPO == 'wporg' ]
+then
+  ZIPME=false
+  DIRS="js css img langs wp"
+else
+  DIRS="js css img langs widgets wp"
+fi
 
 if [ -z $VERSION ]; then
   echo "Must enter a version number !!!"
@@ -28,11 +43,18 @@ echo
 #
 #Add sub directories
 #
-for DIR in js css img langs widgets wp; do
+for DIR in $DIRS; do
   cp -r $DIR $TRANSPOSH_DIR
   echo "added sub-directory $DIR"
-done;
+done
 echo
+
+if [ $WPO == 'wporg' ]
+then
+  echo "only add default widget"
+  mkdir -p $TRANSPOSH_DIR/widgets/default
+  cp -r widgets/default $TRANSPOSH_DIR/widgets/default
+fi
 
 #
 #Create core directory
@@ -42,35 +64,40 @@ mkdir $TRANSPOSH_DIR/core/shd
 mkdir $TRANSPOSH_DIR/core/jsonwrapper
 
 #
-#Add non-php files 
+#Add non-php files
 #
 for FTYPE in txt; do
   cp *.$FTYPE $TRANSPOSH_DIR
   echo "added $FTYPE files"
-done;
+done
 echo
-
-#
-# Init replacement vars
-#
-DATE=`date -R`
-YEAR=`date +%Y`
 
 #
 # Add php files while processing versions
 #
-  echo "Adding .php files (with logging)"
-  for file in `find . -maxdepth 4 -iname '*.php' -not -path "./build/*" -not -path "./resources/*" -not -path "./test/*"`; do 
+if [ $WPO == 'wporg' ]
+then
+  PHPFILES=`find . -maxdepth 4 -iname '*.php' -not -path "./build/*" -not -path "./resources/*" -not -path "./test/*" -not -path "./widgets/*"`
+  PHPFILES+=" ./widgets/default/tpw_default.php"
+else
+  PHPFILES=`find . -maxdepth 4 -iname '*.php' -not -path "./build/*" -not -path "./resources/*" -not -path "./test/*"`
+fi
+
+  echo "Adding .php files"
+  for file in $PHPFILES; do
     sed "s/%VERSION%/$VERSION/;s/%DATE%/$DATE/;s/%YEAR%/$YEAR/;" $file > $TRANSPOSH_DIR/$file
-#///hm,mm!
-    php build/generateversions.php $TRANSPOSH_DIR/$file full > /tmp/inp_nope
+    if [ $WPO == 'wporg' ]
+    then
+      php build/generateversions.php $TRANSPOSH_DIR/$file wporg > /tmp/inp_nope
+    else
+      php build/generateversions.php $TRANSPOSH_DIR/$file full > /tmp/inp_nope
+    fi
     cp /tmp/inp_nope $TRANSPOSH_DIR/$file
     rm /tmp/inp_nope
-#    cp $file $TRANSPOSH_DIR/$file
     echo "added $file"
   done;
-#fi
 echo
+
 #
 #Add the index.html
 #
@@ -124,15 +151,15 @@ fi
 
 #
 #Generate zip file
-# 
+#
 if [ "$ZIPME" == 'zip' ]; then
   cd $TRANSPOSH_DIR
   cd ..
+  echo "zipping..."
   zip -9rq "transposh.$VERSION.zip" transposh-translation-filter-for-wordpress
+  echo "rezipping..."
   advzip -z4 "transposh.$VERSION.zip"
   cd - >/dev/null
-#  mv "$TRANSPOSH_DIR/transposh.$VERSION.zip" . 
-  echo
   echo "transposh.$VERSION.zip is ready"
 fi
 

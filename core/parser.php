@@ -143,7 +143,9 @@ class tp_parser {
 
     /** @var boolean should we attempt to handle page as json */
     public $might_json = false;
+    //** FULL VERSION
     public $allow_ad = false;
+    //** FULLSTOP
     //first three are html, later 3 come from feeds xml (link is problematic...)
     protected $ignore_tags = array('script' => 1, 'style' => 1, 'code' => 1, 'wfw:commentrss' => 1, 'comments' => 1, 'guid' => 1);
 

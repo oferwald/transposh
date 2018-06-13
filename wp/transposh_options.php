@@ -272,7 +272,7 @@ class transposh_plugin_options {
         if (defined('FULL_VERSION')) { //** FULL VERSION
         $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN, 0);
         $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
-        } // FULLSTOP
+        } //** FULLSTOP
         $this->register_option('enable_url_translate', TP_OPT_BOOLEAN, 0);
         $this->register_option('jqueryui_override', TP_OPT_STRING);
         $this->register_option('dont_add_rel_alternate', TP_OPT_BOOLEAN, 0);

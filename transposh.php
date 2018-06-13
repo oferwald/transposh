@@ -415,7 +415,9 @@ class transposh_plugin {
             $parse->is_edit_mode = $this->edit_mode;
             $parse->might_json = $this->attempt_json;
             $parse->is_auto_translate = $this->is_auto_translate_permitted();
+            //** FULL VERSION
             $parse->allow_ad = $this->options->widget_remove_logo;
+            //** FULLSTOP
             // TODO - check this!
             if (stripos($_SERVER['REQUEST_URI'], '/feed/') !== FALSE) {
                 tp_logger("in rss feed!", 2);
