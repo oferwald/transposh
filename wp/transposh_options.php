@@ -141,9 +141,9 @@ class transposh_option {
  //** FULL VERSION
  * @property boolean          $widget_remove_logo            Allows removing of transposh logo in exchange for an ad @since 0.6.0
  * @property transposh_option $widget_remove_logo_o
+ //** FULLSTOP
  * @property string           $widget_theme                  Allows theming of the progressbar and edit window @since 0.7.0
  * @property transposh_option $widget_theme_o
- //** FULLSTOP
  * 
  * Advanced
  * 
@@ -271,8 +271,8 @@ class transposh_plugin_options {
         $this->register_option('widget_allow_set_deflang', TP_OPT_BOOLEAN, 0);
         if (defined('FULL_VERSION')) { //** FULL VERSION
         $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN, 0);
-        $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
         } //** FULLSTOP
+        $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
         $this->register_option('enable_url_translate', TP_OPT_BOOLEAN, 0);
         $this->register_option('jqueryui_override', TP_OPT_STRING);
         $this->register_option('dont_add_rel_alternate', TP_OPT_BOOLEAN, 0);

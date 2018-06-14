@@ -190,8 +190,8 @@ class transposh_plugin_admin {
                 $this->transposh->options->widget_allow_set_deflang = TP_FROM_POST;
                 if (defined('FULL_VERSION')) { //** FULL VERSION
                 $this->transposh->options->widget_remove_logo = TP_FROM_POST;
-                $this->transposh->options->widget_theme = TP_FROM_POST;
                 } //** FULLSTOP
+                $this->transposh->options->widget_theme = TP_FROM_POST;
                 break;
             case "tp_advanced":
                 $this->transposh->options->enable_url_translate = TP_FROM_POST;
@@ -657,8 +657,8 @@ class transposh_plugin_admin {
         if (defined('FULL_VERSION')) { //** FULL VERSION
         $this->checkbox($this->transposh->options->widget_remove_logo_o, __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN)
                 , __('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN));
-        $this->select($this->transposh->options->widget_theme_o, __('Edit interface theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
         } //** FULLSTOP
+        $this->select($this->transposh->options->widget_theme_o, __('Edit interface theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
     }
 
     function tp_advanced() {
