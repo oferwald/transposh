@@ -59,6 +59,7 @@ fi
 #
 #Create core directory
 #
+
 mkdir $TRANSPOSH_DIR/core
 mkdir $TRANSPOSH_DIR/core/shd
 mkdir $TRANSPOSH_DIR/core/jsonwrapper
@@ -66,6 +67,7 @@ mkdir $TRANSPOSH_DIR/core/jsonwrapper
 #
 #Add non-php files
 #
+
 for FTYPE in txt; do
   cp *.$FTYPE $TRANSPOSH_DIR
   echo "added $FTYPE files"
@@ -75,6 +77,7 @@ echo
 #
 # Add php files while processing versions
 #
+
 if [ $WPO == 'wporg' ]
 then
   PHPFILES=`find . -maxdepth 4 -iname '*.php' -not -path "./build/*" -not -path "./resources/*" -not -path "./test/*" -not -path "./widgets/*"`
@@ -101,42 +104,33 @@ echo
 #
 #Add the index.html
 #
-  echo "Adding index.html"
-  cp index.html $TRANSPOSH_DIR/index.html
+
+echo "Adding index.html"
+cp index.html $TRANSPOSH_DIR/index.html
 
 #
 #fixing version in readme.txt
 #
+
 echo "fixing version in readme.txt to $VERSION"
 sed "s/%VERSION%/$VERSION/;" readme.txt > $TRANSPOSH_DIR/readme.txt
 
+# those are the files that are lazy loaded, we make sure they will be read by the browser with the sourceURL comment
+LAZYLIST="transposhedit.js de.js es.js fa.js fr.js he.js it.js nl.js ru.js tr.js keyboard.js lazy.js jquery.ui.menu.js"
 #if [ "$DEBUG" != 'debug' ]; then
 if [ $MINIFY == true ]; then
   echo "Minify .js files"
-  for file in `find ./js -maxdepth 3 -iname '*.js' ! -name keyboard.js ! -name lazy.js ! -name jquery.ui.menu.js`; do
+  for file in `find ./js -maxdepth 3 -iname '*.js'`; do
     echo "minifying $file"
-#    java -jar /root/yui/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar $file -o $TRANSPOSH_DIR/$file
-echo "/*
- * Transposh v$VERSION
- * http://transposh.org/
- *
- * Copyright $YEAR, Team Transposh
- * Licensed under the GPL Version 2 or higher.
- * http://transposh.org/license
- *
- * Date: $DATE
- */" > $TRANSPOSH_DIR/$file
-    java -jar /root/googlecompiler/compiler.jar --source_map_include_content --source_map_format=V3 --create_source_map $TRANSPOSH_DIR/$file.map --js $file --js_output_file $TRANSPOSH_DIR/$file
-    echo "//# sourceMappingURL=`basename $file`.map" >> $TRANSPOSH_DIR/$file
-#    java -jar /root/googlecompiler/compiler.jar --js $file >> $TRANSPOSH_DIR/$file
-  done;
-# handle the third party .js and honor their copyrights
-  head -n 13 js/lazy.js > $TRANSPOSH_DIR/js/lazy.js
-  java -jar /root/googlecompiler/compiler.jar --js js/lazy.js --strict_mode_input false  >> $TRANSPOSH_DIR/js/lazy.js
-  head -n 13 js/jquery.ui.menu.js > $TRANSPOSH_DIR/js/jquery.ui.menu.js
-  java -jar /root/googlecompiler/compiler.jar --js js/jquery.ui.menu.js >> $TRANSPOSH_DIR/js/jquery.ui.menu.js
-  head -n 57 js/keyboard.js > $TRANSPOSH_DIR/js/keyboard.js
-  java -jar /root/googlecompiler/compiler.jar --js js/keyboard.js >> $TRANSPOSH_DIR/js/keyboard.js
+    BASENAME=`basename $file`
+    DIRNAME=`dirname $file`
+    uglifyjs --comments --compress --mangle --source-map-include-sources --source-map "base='$DIRNAME',url='$BASENAME.map',includeSources" $file -o $TRANSPOSH_DIR/$file
+
+    if [[ $LAZYLIST == *$BASENAME* ]] # lazy loaded?
+    then
+      echo -e -n "\n//# sourceURL=/wp-content/plugins/transposh-translation-filter-for-wordpress${DIRNAME:1}/$BASENAME" >> $TRANSPOSH_DIR/$file
+    fi
+  done
 
   echo "Minify .css files"
   for file in `find . -maxdepth 2 -iname '*.css'`; do 
@@ -145,13 +139,10 @@ echo "/*
   done;
 fi
 
-# Remove .svn dirs
-##echo "removed .svn dirs"
-##find $TRANSPOSH_DIR -name "*.svn*" -exec rm -rf {} 2>/dev/null \;
-
 #
 #Generate zip file
 #
+
 if [ "$ZIPME" == 'zip' ]; then
   cd $TRANSPOSH_DIR
   cd ..
