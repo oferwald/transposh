@@ -2,8 +2,8 @@
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
-Requires at least: 3.3
-Tested up to: 4.8.2
+Requires at least: 3.8
+Tested up to: 4.9.6
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 117 languages are automatically translated and can be manually corrected with ease.
@@ -122,9 +122,14 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
-= 2018/xx/xx - 0.9.9.3 =
+= 2018/06/16 - 1.0.0 =
  * PHP 7 stuff
- * Full/WPOrg version support
+ * Source map support for javascript files will make them easier to debug
+ * Switch from google compiler to uglify.js
+ * FirePHP is dead, long live Chromelogger
+ * Full/WPOrg version support - We will now release a limited version for wordpress and a full one which will have a .1 in the end, so we are releasing 1.0.0 and 1.0.0.1 at about the same time
+ * More languages supported by engined
+ * If you are migrating from the old wordpress version and encounter any issues, contact us
 = 2017/10/05 - 0.9.9.2 =
  * More languages by Bing, Yandex, Baidu
  * Fix the ui suggestions on next and prev 
