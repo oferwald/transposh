@@ -236,7 +236,6 @@ class transposh_plugin {
         }
 
         // internal update mechnism
-        add_filter('http_request_args', array(&$this, 'filter_wordpress_org_update'), 10, 2);
         add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_for_plugin_update'));
         add_filter('plugins_api', array(&$this, 'plugin_api_call'), 10, 3);
 
@@ -909,7 +908,18 @@ class transposh_plugin {
         tp_logger($widget_args, 4);
         foreach ($widget_args as $lang) {
             if (!$lang['active']) {
-                echo '<link rel="alternate" hreflang="' . $lang['isocode'] . '" href="' . $lang['url'] . '"/>';
+                echo '<link rel="alternate" hreflang="' . $lang['isocode'] . '" href="';
+                if ($this->options->full_rel_alternate) {
+                    $current_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                    $url = transposh_utils::rewrite_url_lang_param($current_url, $this->home_url, $this->enable_permalinks_rewrite, $lang['isocode'], $this->edit_mode);
+                    if ($this->options->is_default_language($lang['isocode'])) {
+                          $url = transposh_utils::cleanup_url($url, $this->home_url);
+                    }
+                    echo $url;
+                } else {
+                    echo $lang['url'];
+                }
+                echo '"/>';
             }
         }
     }
@@ -2021,31 +2031,6 @@ class transposh_plugin {
             $this->tp_redirect($my_transposh_plugin->home_url);
         }
         die();
-    }
-
-    // Catch the wordpress.org update post
-    function filter_wordpress_org_update($arr, $url) {
-        tp_logger($url, 5);
-        /* if ($url == "http://api.wordpress.org/plugins/info/1.0/") {
-          tp_logger($arr);
-          } */
-        // hide from wordpress.org
-        if ($url == "http://api.wordpress.org/plugins/update-check/1.0/") {
-            $plugs = unserialize($arr['body']['plugins']);
-            tp_logger($plugs->plugins[$this->transposh_plugin_basename], 4);
-            unset($plugs->plugins[$this->transposh_plugin_basename]);
-            $arr['body']['plugins'] = serialize($plugs);
-            tp_logger($arr, 5);
-            // now we should query our own service
-            $this->do_update_check = true;
-        } elseif (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
-            $plugs = json_decode($arr['body']['plugins'], true);
-            unset($plugs['plugins'][$this->transposh_plugin_basename]);
-            $arr['body']['plugins'] = json_encode($plugs);
-            tp_logger($arr, 5);
-            $this->do_update_check = true;
-        }
-        return $arr;
     }
 
     function check_for_plugin_update($checked_data) {
