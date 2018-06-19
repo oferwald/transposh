@@ -206,15 +206,15 @@ class transposh_plugin {
         add_action('wp_ajax_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
         add_action('wp_ajax_nopriv_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
 
-        //** FULL VERSION
-        // For super proxy
-        add_action('superproxy_reg_event', array(&$this, 'superproxy_reg'));
-        if ($this->options->enable_superproxy) {
-            add_action('wp_ajax_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
-            add_action('wp_ajax_nopriv_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
-        }
-        //** FULLSTOP
-
+        if (defined('FULL_VERSION')) { //** FULL VERSION
+            // For super proxy
+            add_action('superproxy_reg_event', array(&$this, 'superproxy_reg'));
+            if ($this->options->enable_superproxy) {
+                add_action('wp_ajax_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
+                add_action('wp_ajax_nopriv_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
+            }
+        }//** FULLSTOP
+        
         // comment_moderation_text - future filter TODO
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
@@ -468,7 +468,7 @@ class transposh_plugin {
         }
         //alm news
         if (isset($_GET['action']) && $_GET['action'] == 'alm_query_posts') {
-	   // $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_REFERER'];
+            // $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_REFERER'];
             $this->target_language = transposh_utils::get_language_from_url($_SERVER['HTTP_REFERER'], $this->home_url);
         }
         //woocommerce_update_order_review
@@ -718,6 +718,20 @@ class transposh_plugin {
         @unlink($this->transposh_plugin_dir . 'widgets/tpw_default.php');
         @unlink($this->transposh_plugin_dir . 'core/globals.php');
 
+        //** FULL VERSION
+        // create directories in upload folder, for use with third party widgets
+        $upload = wp_upload_dir();
+        $upload_dir = $upload['basedir'];
+        $transposh_upload_dir = $upload_dir . '/' . TRANSPOSH_DIR_UPLOAD;
+        if (!is_dir($transposh_upload_dir)) {
+            mkdir($transposh_upload_dir, 0700);
+        }
+        $transposh_upload_widgets_dir = $transposh_upload_dir . '/' . TRANSPOSH_DIR_WIDGETS;
+        if (!is_dir($transposh_upload_widgets_dir)) {
+            mkdir($transposh_upload_widgets_dir, 0700);
+        }
+        //** FULLSTOP        
+
         tp_logger("plugin_activate exit: " . dirname(__FILE__), 1);
         tp_logger("testing name:" . plugin_basename(__FILE__), 4);
         // tp_logger("testing name2:" . $this->get_plugin_name(), 4);
@@ -913,7 +927,7 @@ class transposh_plugin {
                     $current_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                     $url = transposh_utils::rewrite_url_lang_param($current_url, $this->home_url, $this->enable_permalinks_rewrite, $lang['isocode'], $this->edit_mode);
                     if ($this->options->is_default_language($lang['isocode'])) {
-                          $url = transposh_utils::cleanup_url($url, $this->home_url);
+                        $url = transposh_utils::cleanup_url($url, $this->home_url);
                     }
                     echo $url;
                 } else {
@@ -1361,9 +1375,9 @@ class transposh_plugin {
         $only_class = '';
         $lang = '';
         $nt_class = '';
-        
-        if(!is_array($atts)) { // safety check
-            return do_shortcode($content);            
+
+        if (!is_array($atts)) { // safety check
+            return do_shortcode($content);
         }
 
         tp_logger($atts);

@@ -327,6 +327,7 @@ define('TRANSPOSH_DIR_CSS', 'css');
 define('TRANSPOSH_DIR_IMG', 'img');
 define('TRANSPOSH_DIR_JS', 'js');
 define('TRANSPOSH_DIR_WIDGETS', 'widgets');
+define('TRANSPOSH_DIR_UPLOAD', 'transposh'); //1.0.1
 
 /* Full language list according to ISO
   ISO 639-1	Language name	Native name

@@ -125,6 +125,16 @@ class transposh_plugin_widget extends WP_Widget {
 
         // Followed by subwisgets selection
         $widgets = $this->get_widgets();
+        if (defined('FULL_VERSION')) { //** FULL VERSION
+            // Upload dir widgets
+            $upload = wp_upload_dir();
+            $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
+            $widgets2 = $this->get_widgets($upload_dir);
+            foreach ($widgets2 as $file => $widget) {
+                $widget['Name'] = '(*) ' . $widget['Name'];
+                $widgets['*' . $file] = $widget;
+            }
+        } //** FULLSTOP
 
         echo '<p><label for="' . $this->get_field_name('widget_file') . '">' . __('Style:', TRANSPOSH_TEXT_DOMAIN) .
         '<select id="' . $this->get_field_id('widget_file') . '" name="' . $this->get_field_name('widget_file') . '">';
@@ -143,7 +153,13 @@ class transposh_plugin_widget extends WP_Widget {
      */
     function load_widget($file) {
         tp_logger("widget loaded: $file", 4);
-        $widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
+        if ($file[0] == '*') {
+            $upload = wp_upload_dir();
+            $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
+            $widget_src = $upload_dir . '/' . substr($file, 1);
+        } else {
+            $widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
+        }
         if ($file && file_exists($widget_src)) {
             include_once $widget_src;
         } else {
@@ -171,7 +187,12 @@ class transposh_plugin_widget extends WP_Widget {
             $class = $this->load_widget($key);
             if (class_exists($class)) {
                 $tmpclass = new $class;
-                $tmpclass->tp_widget_css($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+                if ($key[0] == '*') {
+                    $upload = wp_upload_dir();
+                    $tmpclass->tp_widget_css(substr($key, 1), $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/', $upload['baseurl'] . '/' . TRANSPOSH_DIR_UPLOAD);
+                } else {
+                    $tmpclass->tp_widget_css($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+                }
             }
         }
         tp_logger('Added transposh_widget_css', 4);
@@ -194,7 +215,12 @@ class transposh_plugin_widget extends WP_Widget {
             $class = $this->load_widget($key);
             if (class_exists($class)) {
                 $tmpclass = new $class;
-                $tmpclass->tp_widget_js($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+                if ($key[0] == '*') {
+                    $upload = wp_upload_dir();
+                    $tmpclass->tp_widget_js(substr($key, 1), $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/', $upload['baseurl'] . '/' . TRANSPOSH_DIR_UPLOAD);
+                } else {
+                    $tmpclass->tp_widget_js($key, $this->transposh->transposh_plugin_dir, $this->transposh->transposh_plugin_url);
+                }
             }
         }
         tp_logger('Added transposh_widget_js', 4);
@@ -312,6 +338,7 @@ class transposh_plugin_widget extends WP_Widget {
             echo '<p>No languages available for display. Check the Transposh settings (Admin).</p>';
         }
 
+        //** FULL VERSION
         // Now this is a comment for those wishing to remove our logo (tplogo.png) and link (transposh.org) from the widget
         // first - according to the gpl, you may do so - but since the code has changed - please make in available under the gpl
         // second - we did invest a lot of time and effort into this, and the link is a way to help us grow and show your appreciation, if it
@@ -321,6 +348,7 @@ class transposh_plugin_widget extends WP_Widget {
         // fifth - if you just delete the following line, it means that you have little respect to the whole copyright thing, which as far as we
         // understand means that by doing so - you are giving everybody else the right to do the same and use your work without any attribution
         // last - you can now remove the logo in exchange to a few percentage of ad and affiliate revenues on your pages, isn't that better?
+        //** FULLSTOP
         $plugpath = @parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
 
         if (defined('FULL_VERSION')) { //** FULL VERSION
@@ -357,7 +385,7 @@ class transposh_plugin_widget extends WP_Widget {
         $tp_widgets = array();
         $widget_root = $this->transposh->transposh_plugin_dir . "widgets";
         if (!empty($widget_folder))
-            $widget_root .= $widget_folder;
+            $widget_root = $widget_folder;
 
         // Files in wp-content/widgets directory
         $widgets_dir = @opendir($widget_root);
