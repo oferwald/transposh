@@ -122,6 +122,10 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2018/06/27 - 1.0.1 =
+ * Allow generating of google compatible rel=alternate, check the advanced options
+ * widgets may be loaded from uploads dir (uploads/transposh/widgets) - full version feature
+ * Some more cleanups of wordpress.org version for unused stuff
 = 2018/06/16 - 1.0.0 =
  * PHP 7 stuff
  * Source map support for javascript files will make them easier to debug
