@@ -923,6 +923,7 @@ class transposh_plugin {
         foreach ($widget_args as $lang) {
             if (!$lang['active']) {
                 echo '<link rel="alternate" hreflang="' . $lang['isocode'] . '" href="';
+                if (defined('FULL_VERSION')) { //** FULL VERSION
                 if ($this->options->full_rel_alternate) {
                     $current_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                     $url = transposh_utils::rewrite_url_lang_param($current_url, $this->home_url, $this->enable_permalinks_rewrite, $lang['isocode'], $this->edit_mode);
@@ -930,9 +931,14 @@ class transposh_plugin {
                         $url = transposh_utils::cleanup_url($url, $this->home_url);
                     }
                     echo $url;
-                } else {
+                } else {                
                     echo $lang['url'];
                 }
+                } //** FULLSTOP    
+                if (!defined('FULL_VERSION')) { //** WPORG VERSION
+                    echo $lang['url'];                    
+                } // WPORGSTOP
+
                 echo '"/>';
             }
         }
