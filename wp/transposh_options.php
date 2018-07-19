@@ -97,6 +97,8 @@ class transposh_option {
  * @property transposh_option $enable_footer_scripts_o
  * @property boolean          $enable_detect_redirect        Option to enable detect and redirect language @since 0.3.8
  * @property transposh_option $enable_detect_redirect_o
+ * @property boolean          $enable_geoip_redirect         Option to enable language redirection based on geoip detection @since 1.0.2
+ * @property transposh_option $enable_geoip_redirect_o
  * @property boolean          $transposh_collect_stats       Should I allow collecting of anonymous stats (@since 0.7.6)
  * @property transposh_option $transposh_collect_stats_o
  * 
@@ -250,6 +252,7 @@ class transposh_plugin_options {
         $this->register_option('enable_permalinks', TP_OPT_BOOLEAN, 0);
         $this->register_option('enable_footer_scripts', TP_OPT_BOOLEAN, 0);
         $this->register_option('enable_detect_redirect', TP_OPT_BOOLEAN, 0);
+        $this->register_option('enable_geoip_redirect', TP_OPT_BOOLEAN, 0);
         $this->register_option('transposh_collect_stats', TP_OPT_BOOLEAN, 1);
 
         $this->register_option('transposh_backup_schedule', TP_OPT_OTHER, 2);

@@ -45,8 +45,10 @@ class transposh_utils {
         if (isset($parsedurl['query'])) {
             $params = explode('&', $parsedurl['query']);
             foreach ($params as $key => $param) {
-                if (stripos($param, LANG_PARAM) === 0) unset($params[$key]);
-                if (stripos($param, EDIT_PARAM) === 0) unset($params[$key]);
+                if (stripos($param, LANG_PARAM) === 0)
+                    unset($params[$key]);
+                if (stripos($param, EDIT_PARAM) === 0)
+                    unset($params[$key]);
             }
         }
         // clean the query
@@ -68,20 +70,23 @@ class transposh_utils {
 
         if (@strlen($parsedurl['path']) > 2) {
             $secondslashpos = strpos($parsedurl['path'], "/", 1);
-            if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+            if (!$secondslashpos)
+                $secondslashpos = strlen($parsedurl['path']);
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
             if (isset(transposh_consts::$languages[$prevlang])) {
                 tp_logger("prevlang: " . $prevlang, 4);
                 $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
             }
         }
-        if ($gluebackhome) $parsedurl['path'] = $home_path . $parsedurl['path'];
+        if ($gluebackhome)
+            $parsedurl['path'] = $home_path . $parsedurl['path'];
         if ($remove_host) {
             unset($parsedurl['scheme']);
             unset($parsedurl['host']);
         }
         $url = transposh_utils::glue_url($parsedurl);
-        if (!$url) return '/';
+        if (!$url)
+            return '/';
         return transposh_utils::urlencode($url);
     }
 
@@ -110,8 +115,10 @@ class transposh_utils {
         if (isset($parsedurl['query'])) {
             $params = explode('&', $parsedurl['query']);
             foreach ($params as $key => $param) {
-                if (stripos($param, LANG_PARAM) === 0) unset($params[$key]);
-                if (stripos($param, EDIT_PARAM) === 0) unset($params[$key]);
+                if (stripos($param, LANG_PARAM) === 0)
+                    unset($params[$key]);
+                if (stripos($param, EDIT_PARAM) === 0)
+                    unset($params[$key]);
             }
         }
         // clean the query
@@ -120,7 +127,9 @@ class transposh_utils {
         // remove the language from the url permalink (if in start of path, and is a defined language)
         $gluebackhome = false;
         $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
-        if (isset($parsedurl['path'])) {tp_logger("home: $home_path " . $parsedurl['path'], 5);}
+        if (isset($parsedurl['path'])) {
+            tp_logger("home: $home_path " . $parsedurl['path'], 5);
+        }
         if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
             tp_logger("homein!: $home_path", 5);
             $parsedurl['path'] = substr($parsedurl['path'], strlen($home_path));
@@ -128,7 +137,8 @@ class transposh_utils {
         }
         if (isset($parsedurl['path']) && strlen($parsedurl['path']) > 2) {
             $secondslashpos = strpos($parsedurl['path'], "/", 1);
-            if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+            if (!$secondslashpos)
+                $secondslashpos = strlen($parsedurl['path']);
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
             if (isset(transposh_consts::$languages[$prevlang])) {
                 tp_logger("prevlang: " . $prevlang, 4);
@@ -150,11 +160,13 @@ class transposh_utils {
             $params['lang'] = LANG_PARAM . "=$lang";
         } else {
             if ($lang) {
-                if (!isset($parsedurl['path'])) $parsedurl['path'] = "/"; //wait for it
+                if (!isset($parsedurl['path']))
+                    $parsedurl['path'] = "/"; //wait for it
                 $parsedurl['path'] = "/" . $lang . $parsedurl['path'];
             }
         }
-        if ($gluebackhome) $parsedurl['path'] = $home_path . $parsedurl['path'];
+        if ($gluebackhome)
+            $parsedurl['path'] = $home_path . $parsedurl['path'];
 
         // insert params to url
         if (isset($params) && $params) {
@@ -182,7 +194,7 @@ class transposh_utils {
                 if (stripos($param, LANG_PARAM) === 0) {
                     $langa = explode("=", $params[$key]);
                     if (isset(transposh_consts::$languages[$langa[1]]))
-                            return ($langa[1]);
+                        return ($langa[1]);
                 }
             }
         }
@@ -200,7 +212,8 @@ class transposh_utils {
 
         if (strlen($parsedurl['path']) > 2) {
             $secondslashpos = strpos($parsedurl['path'], "/", 1);
-            if (!$secondslashpos) $secondslashpos = strlen($parsedurl['path']);
+            if (!$secondslashpos)
+                $secondslashpos = strlen($parsedurl['path']);
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
             if (isset(transposh_consts::$languages[$prevlang])) {
                 //logger ("prevlang: ".$prevlang,4);
@@ -277,24 +290,27 @@ class transposh_utils {
         $href = substr($href, strlen($home_url));
         $parts = explode('/', $href);
         foreach ($parts as $part) {
-            if (!$part) continue;
+            if (!$part)
+                continue;
             if (is_numeric($part)) {
                 $translated_text = $part;
             } else {
                 list($source, $translated_text) = call_user_func_array($fetch_translation_func, array($part, $target_language));
             }
             if ($translated_text)
-                    $url .= '/' . str_replace(' ', '-', $translated_text);
+                $url .= '/' . str_replace(' ', '-', $translated_text);
             else {
                 // now the same attempt with '-' replaced to ' '
                 list($source, $translated_text) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
                 //logger ($part. ' '.str_replace('-', ' ', $part).' '.$translated_text);
                 if ($translated_text)
-                        $url .= '/' . str_replace(' ', '-', $translated_text);
-                else $url .= '/' . $part;
+                    $url .= '/' . str_replace(' ', '-', $translated_text);
+                else
+                    $url .= '/' . $part;
             }
         }
-        if (substr($href, strlen($href) - 1) == '/') $url.='/';
+        if (substr($href, strlen($href) - 1) == '/')
+            $url .= '/';
         return $home_url . $url . $querypart . $fragment;
     }
 
@@ -314,7 +330,8 @@ class transposh_utils {
         $url2 = '';
         $parts = explode('/', $url);
         foreach ($parts as $part) {
-            if (!$part) continue;
+            if (!$part)
+                continue;
             // don't attempt for lang or numbers
             if ($part == $target_language || is_numeric($part)) {
                 $url2 .= '/' . $part;
@@ -331,10 +348,12 @@ class transposh_utils {
             }
             // we'll add it if we have it
             if ($original_text)
-                    $url2 .= '/' . strtolower(str_replace(' ', '-', $original_text));
-            else $url2 .= '/' . $part;
+                $url2 .= '/' . strtolower(str_replace(' ', '-', $original_text));
+            else
+                $url2 .= '/' . $part;
         }
-        if ($url2 == '') $url2 = '/';
+        if ($url2 == '')
+            $url2 = '/';
         // TODO: Consider sanitize_title_with_dashes
         // TODO : need to handle params....
         //tp_logger(substr($url,strlen($url)-1));
@@ -342,7 +361,8 @@ class transposh_utils {
         //$url2 = rtrim($url2,'/');
         // tp_logger("h $home_url hr $href ur $url ur2 $url2");
         //$href = $this->home_url.$url2;
-        if (substr($href, strlen($href) - 1) == '/') $url2.='/';
+        if (substr($href, strlen($href) - 1) == '/')
+            $url2 .= '/';
         $url2 = str_replace('//', '/', $url2);
         return $home_url . $url2 . $params;
     }
@@ -354,7 +374,9 @@ class transposh_utils {
      * @return boolean if this is rewritable 
      */
     public static function is_rewriteable_url($url, $home_url) {
-        if (strpos($home_url,':')) {$home_url = substr($home_url,strpos($home_url,':'));}
+        if (strpos($home_url, ':')) {
+            $home_url = substr($home_url, strpos($home_url, ':'));
+        }
         return (stripos($url, $home_url) !== FALSE);
     }
 
@@ -385,7 +407,7 @@ class transposh_utils {
     public static function prefered_language($available_languages, $default_lang = "auto", $http_accept_language = "auto") {
         // if $http_accept_language was left out, read it from the HTTP-Header
         if ($http_accept_language == "auto")
-                $http_accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $http_accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 
         // standard  for HTTP_ACCEPT_LANGUAGE is defined under
         // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
@@ -399,8 +421,10 @@ class transposh_utils {
                 "(\s*;\s*q\s*=\s*(1\.0{0,3}|0\.\d{0,3}))?\s*(,|$)/i", $http_accept_language, $hits, PREG_SET_ORDER);
 
         // default language (in case of no hits) is the first in the array
-        if ($default_lang == 'auto') $bestlang = $available_languages[0]; else
-                $bestlang = $default_lang;
+        if ($default_lang == 'auto')
+            $bestlang = $available_languages[0];
+        else
+            $bestlang = $default_lang;
         $bestqval = 0;
 
         foreach ($hits as $arr) {
@@ -409,10 +433,11 @@ class transposh_utils {
             if (!empty($arr[3])) {
                 $langrange = strtolower($arr[3]);
                 $language = $langprefix . "-" . $langrange;
-            }
-            else $language = $langprefix;
+            } else
+                $language = $langprefix;
             $qvalue = 1.0;
-            if (!empty($arr[5])) $qvalue = floatval($arr[5]);
+            if (!empty($arr[5]))
+                $qvalue = floatval($arr[5]);
 
             // find q-maximal language
             if (in_array($language, $available_languages) && ($qvalue > $bestqval)) {
@@ -425,6 +450,32 @@ class transposh_utils {
                 $bestqval = $qvalue * 0.9;
             }
         }
+        return $bestlang;
+    }
+
+    public static function language_from_country($available_languages, $country, $default_lang = "auto") {
+        if ($default_lang == 'auto') {
+            $bestlang = $available_languages[0];
+        } else {
+            $bestlang = $default_lang;
+        }
+        if (isset(transposh_consts::$countryToLanguageMapping[strtolower($country)])) {
+            $lang = transposh_consts::$countryToLanguageMapping[strtolower($country)];
+            if (strpos($lang, ',') !== false) {
+                $langs = explode(",", $lang);
+                foreach ($langs as $lang) {
+                    if (in_array($lang, $available_languages)) {
+                        return $lang;
+                    }
+                }
+            }
+        } else {
+            $lang = strtolower($country); // those are the countries that have equal languages and names - (de, fr, etc)
+        }
+        if (in_array($lang, $available_languages)) {
+            return $lang;
+        }
+
         return $bestlang;
     }
 
