@@ -552,19 +552,19 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->enable_detect_redirect_o, __('Detect language based on the ACCEPT_LANGUAGES http header', TRANSPOSH_TEXT_DOMAIN)
                 , __('This enables auto detection of language used by the user as defined in the ACCEPT_LANGUAGES they send. ' .
                         'This will redirect the first page accessed in the session to the same page with the detected language.', TRANSPOSH_TEXT_DOMAIN));
-              $bestlang = transposh_utils::prefered_language(explode(',', $this->transposh->options->viewable_languages), $this->transposh->options->default_language);
-            $this->normaltext(__('Based on your current ACCEPT_LANGUAGES headers', TRANSPOSH_TEXT_DOMAIN).' - '.__('the language will be redirected to the language', TRANSPOSH_TEXT_DOMAIN).' <b>'.$bestlang.'</b>');
-        
+        $bestlang = transposh_utils::prefered_language(explode(',', $this->transposh->options->viewable_languages), $this->transposh->options->default_language);
+        $this->normaltext(__('Based on your current ACCEPT_LANGUAGES headers', TRANSPOSH_TEXT_DOMAIN) . ' - ' . __('the language will be redirected to the language', TRANSPOSH_TEXT_DOMAIN) . ' <b>' . $bestlang . '</b>');
+
         if (function_exists('geoip_detect2_get_info_from_ip')) {
             $this->checkbox($this->transposh->options->enable_geoip_redirect_o, __('Detect language based on IP', TRANSPOSH_TEXT_DOMAIN)
                     , __('This enables auto detection of language based on IP Geo detection. ' .
                             'This will redirect the first page accessed in the session to the same page with the detected language.', TRANSPOSH_TEXT_DOMAIN));
             $isocode = geoip_detect2_get_info_from_current_ip()->country->isoCode;
             $bestlang = transposh_utils::language_from_country(explode(',', $this->transposh->options->viewable_languages), $isocode, $this->transposh->options->default_language);
-            $this->normaltext(__('The detection assumes that your current country is', TRANSPOSH_TEXT_DOMAIN).' <b>'.$isocode.'</b>');
-            $this->normaltext(__('Based on that detection and your current language selections', TRANSPOSH_TEXT_DOMAIN).' - '.__('the language will be redirected to the language', TRANSPOSH_TEXT_DOMAIN).' <b>'.$bestlang.'</b>');
+            $this->normaltext(__('The detection assumes that your current country is', TRANSPOSH_TEXT_DOMAIN) . ' <b>' . $isocode . '</b>');
+            $this->normaltext(__('Based on that detection and your current language selections', TRANSPOSH_TEXT_DOMAIN) . ' - ' . __('the language will be redirected to the language', TRANSPOSH_TEXT_DOMAIN) . ' <b>' . $bestlang . '</b>');
         } else {
-            $this->normaltext('** '.__('You may enable geo IP based detection by installing and activating the GeoIP Detection plugin by yellowtree.de', TRANSPOSH_TEXT_DOMAIN).' **');
+            $this->normaltext('** ' . __('You may enable geo IP based detection by installing and activating the GeoIP Detection plugin by yellowtree.de', TRANSPOSH_TEXT_DOMAIN) . ' **');
         }
         $this->checkbox($this->transposh->options->transposh_collect_stats_o, __('Allow collecting usage statistics', TRANSPOSH_TEXT_DOMAIN)
                 , __('This option enables collection of statistics by transposh that will be used to improve the product.', TRANSPOSH_TEXT_DOMAIN));
@@ -577,16 +577,19 @@ class transposh_plugin_admin {
         echo '<input type="radio" value="1" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 1, false) . '/>' . __('Enable daily backup', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
         echo '<input type="radio" value="2" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 2, false) . '/>' . __('Enable live backup', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
         echo '<input type="radio" value="0" name="' . $this->transposh->options->transposh_backup_schedule_o->get_name() . '" ' . checked($this->transposh->options->transposh_backup_schedule, 0, false) . '/>' . __('Disable backup (Can be run manually by clicking the button below)', TRANSPOSH_TEXT_DOMAIN) . '<br/>';
-        echo __('Service Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" ' . $this->transposh->options->transposh_key_o->post_value_id_name() . '/><a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
+        $this->textinput($this->transposh->options->transposh_key_o
+                , '', __('Service key', TRANSPOSH_TEXT_DOMAIN));
+        echo '<a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         $this->sectionstop();
 
         //** FULL VERSION
         $this->section(__('Super proxy support', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_superproxy_o, __('Support super proxy, and get paid for traffic', TRANSPOSH_TEXT_DOMAIN)
-                , __('Enable support of this feature ' .
-                        'Read about this on <a href="http://superproxy.transposh.net/">superproxy.transposh.net</a>' .
+                , __('Enable support of this feature Read about this at <a href="http://superproxy.transposh.net/">superproxy.transposh.net</a>' .
                         '', TRANSPOSH_TEXT_DOMAIN));
-        echo __('<br>Proxy Key:', TRANSPOSH_TEXT_DOMAIN) . ' <input type="text" size="32" class="regular-text" ' . $this->transposh->options->superproxy_key_o->post_value_id_name() . '/>';
+        echo '<br>';
+        $this->textinput($this->transposh->options->superproxy_key_o
+                , '', __('Proxy key', TRANSPOSH_TEXT_DOMAIN));
         if ($this->transposh->options->superproxy_key) {
             echo ' <a target="_blank" href="http://superproxy.transposh.net/status.php?id=' . $this->transposh->options->superproxy_key . '">' . __('See node status', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         }
@@ -885,7 +888,7 @@ class transposh_plugin_admin {
     private function normaltext($head, $help = '') {
         if (!isset($head))
             return;
-            echo "<p>$head</p>";
+        echo "<p>$head</p>";
     }
 
     /**
@@ -918,7 +921,9 @@ class transposh_plugin_admin {
     }
 
     private function textinput($tpo, $head, $label, $length = 35, $help = '') {
-        $this->header($head, $help);
+        if ($head) {
+            $this->header($head, $help);
+        }
         echo $label . ': <input type="text" size="' . $length . '" class="regular-text" ' . $tpo->post_value_id_name() . '/>';
     }
 
