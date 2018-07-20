@@ -122,6 +122,8 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2018/07/21 - 1.0.2 =
+ * Allow redirection based on GEO IP detection (extra plugin needed)
 = 2018/06/27 - 1.0.1 =
  * Allow generating of google compatible rel=alternate, check the advanced options
  * widgets may be loaded from uploads dir (uploads/transposh/widgets) - full version feature
@@ -165,7 +167,7 @@ This version allows sorting of languages within the widget
  * Support Bashkir, Kyrghiz and Tatar thanks to Yandex - Now supporting 95 Languages!
  * Added Swahili support to Bing
  * Reduced wait time between posts in translate all to 2 seconds
- * Fix shortcodes when wrapping a <p> tag
+ * Fix shortcodes when wrapping a &lt;p&gt; tag
  * New Google icon
  * Fix WP_Widget deprecation call for wordpress 4.3
  * Minor fix for buddypress search integration
