@@ -235,6 +235,7 @@ class transposh_plugin {
         }
 
         // internal update mechnism
+        add_filter('http_request_args', array(&$this, 'filter_wordpress_org_update'), 10, 2);
         add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_for_plugin_update'));
         add_filter('plugins_api', array(&$this, 'plugin_api_call'), 10, 3);
 
@@ -2058,6 +2059,15 @@ class transposh_plugin {
         die();
     }
 
+    // Catch the wordpress.org update post
+    function filter_wordpress_org_update($arr, $url) {
+        tp_logger($url, 5);
+        if (strpos($url, "api.wordpress.org/plugins/update-check/") !== false) {
+            $this->do_update_check = true;
+        }
+        return $arr;
+    }
+
     function check_for_plugin_update($checked_data) {
         global $wp_version;
         tp_logger('should we check for upgrades?', 4);
@@ -2118,12 +2128,12 @@ class transposh_plugin {
         $request = wp_remote_post(TRANSPOSH_UPDATE_SERVICE_URL, $request_string);
 
         if (is_wp_error($request)) {
-            $res = new WP_Error('plugins_api_failed', __('An Unexpected HTTP Error occurred during the API request.</p> <p><a href="?" onclick="document.location.reload(); return false;">Try again</a>',TRANSPOSH_TEXT_DOMAIN), $request->get_error_message());
+            $res = new WP_Error('plugins_api_failed', __('An Unexpected HTTP Error occurred during the API request.</p> <p><a href="?" onclick="document.location.reload(); return false;">Try again</a>', TRANSPOSH_TEXT_DOMAIN), $request->get_error_message());
         } else {
             $res = unserialize($request['body']);
 
             if ($res === false)
-                $res = new WP_Error('plugins_api_failed', __('An unknown error occurred',TRANSPOSH_TEXT_DOMAIN), $request['body']);
+                $res = new WP_Error('plugins_api_failed', __('An unknown error occurred', TRANSPOSH_TEXT_DOMAIN), $request['body']);
         }
 
         return $res;
