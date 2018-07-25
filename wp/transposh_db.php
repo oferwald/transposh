@@ -503,7 +503,7 @@ class transposh_database {
         // if its a human translation we will call the action, this takes the assumption of a single human translation in
         // a function call, which should probably be verified (FIXME move up?)
         if ($source == 0) {
-            do_action('transposh_human_translation', $translation, $original, $lang);
+            do_action('transposh_human_translation', $translation, $original, $lang, $loguser);
         }
 
         // TODO: move this to an action

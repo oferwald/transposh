@@ -42,6 +42,7 @@ require_once("wp/transposh_options.php");
 require_once("wp/transposh_postpublish.php");
 require_once("wp/transposh_backup.php");
 require_once("wp/transposh_3rdparty.php");
+require_once("wp/transposh_mail.php");
 //require_once("wp/transposh_wpmenu.php");
 
 /**
@@ -127,6 +128,7 @@ class transposh_plugin {
         $this->widget = new transposh_plugin_widget($this);
         $this->postpublish = new transposh_postpublish($this);
         $this->third_party = new transposh_3rdparty($this);
+        $this->mail = new transposh_mail($this);
 
         // initialize logger
         if ($this->options->debug_enable) {
@@ -236,7 +238,7 @@ class transposh_plugin {
 
         // internal update mechnism - is disabled in wporg version unless user enabled this
         //** WPORG VERSION
-        if ($this->options->allow_full_version_upgrade) {
+        if (!defined('FULL_VERSION') && $this->options->allow_full_version_upgrade) {
         //** WPORGSTOP
             add_filter('http_request_args', array(&$this, 'filter_wordpress_org_update'), 10, 2);
             add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_for_plugin_update'));
