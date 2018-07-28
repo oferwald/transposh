@@ -387,7 +387,7 @@ class transposh_database {
             $loguser = get_current_user_id();
         }
         if (!$loguser) {
-            $loguser = $_SERVER['REMOTE_ADDR'];            
+            $loguser = $_SERVER['REMOTE_ADDR'];
         }
 
         // reset values (for good code style)
@@ -710,6 +710,10 @@ class transposh_database {
         }
         $query = "SELECT original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
                 "FROM {$this->translation_log_table} " .
+                "WHERE source= 0 $dateterm " .
+                "UNION " .
+                "SELECT original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
+                "FROM {$this->translation_table} " .
                 "WHERE source= 0 $dateterm " .
                 "ORDER BY timestamp ASC $limitterm";
         tp_logger("query is $query");
@@ -1051,12 +1055,12 @@ class transposh_database {
         $removebase64baddies = "DELETE FROM {$this->translation_table} WHERE `original` LIKE '%,' AND `source` != 0";
         tp_logger($removebase64baddies, 3);
         $GLOBALS['wpdb']->query($removebase64baddies);
-        
+
         $removetranslationsofnothing = "DELETE FROM {$this->translation_table} WHERE `original` = '' AND `source` != 0";
         tp_logger($removetranslationsofnothing, 3);
         $GLOBALS['wpdb']->query($removetranslationsofnothing);
-            
-        
+
+
         // optimize it
         $optimizesql = "OPTIMIZE TABLE {$this->translation_table}, {$this->translation_log_table}";
         tp_logger($optimizesql, 3);
