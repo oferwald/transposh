@@ -381,19 +381,13 @@ class transposh_database {
         //add our own custom header - so we will know that we got here
         header("Transposh: v-" . TRANSPOSH_PLUGIN_VER . " db_version-" . DB_VERSION);
 
-        // translation log stuff
-        if ($by) {
-            $user_ID = $by;
-        } else {
-            global $user_ID;
-            get_currentuserinfo();
+        // translation log stuff, log either by param, user id, or ip
+        $loguser = $by;
+        if (!$loguser) {
+            $loguser = get_current_user_id();
         }
-
-        // log either the user ID or his IP
-        if ('' == $user_ID) {
-            $loguser = $_SERVER['REMOTE_ADDR'];
-        } else {
-            $loguser = $user_ID;
+        if (!$loguser) {
+            $loguser = $_SERVER['REMOTE_ADDR'];            
         }
 
         // reset values (for good code style)
