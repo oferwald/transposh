@@ -110,6 +110,12 @@ class transposh_editor_table extends WP_List_Table {
         return $item['translated'];
     }
 
+    function column_translated_by($item) {
+        $by = $item['translated_by'];
+        // check if its a user and try to grab his login
+        return transposh_utils::wordpress_user_by_by($by);
+    }
+
     /* function get_views() {
       $views = array(
       'ip' => 'IP',

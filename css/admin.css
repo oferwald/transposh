@@ -43,3 +43,7 @@
     margin-left:2px;
     margin-top:-1px;
 }
+.transposh_section_top {
+    border-bottom: 1px solid #eee;
+    padding: 0 12px 12px;
+}

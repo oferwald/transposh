@@ -1049,7 +1049,7 @@ class transposh_plugin {
         tp_logger("got: $href", 5);
         ////$href = str_replace('&#038;', '&', $href);
         // fix what might be messed up -- TODO
-        $href = str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $href);
+        $href = transposh_utils::clean_breakers($href);
 
         // Ignore urls not from this site
         if (!transposh_utils::is_rewriteable_url($href, $this->home_url)) {

@@ -76,10 +76,10 @@ class transposh_option {
  * @property transposh_option $sorted_languages_o 
  * 
  * Settings
- //** WPORG VERSION 
+  //** WPORG VERSION
  * @property boolean          $allow_full_version_upgrade    Option to allow to upgrade to full version
  * @property transposh_option $allow_full_version_upgrade_o 
- //** WPORGSTOP
+  //** WPORGSTOP
  * @property boolean          $allow_anonymous_translation   Option defining whether anonymous translation is allowed
  * @property transposh_option $allow_anonymous_translation_o
  * @property boolean          $enable_default_translate      Option to enable/disable default language translation
@@ -101,19 +101,34 @@ class transposh_option {
  * @property transposh_option $enable_geoip_redirect_o
  * @property boolean          $transposh_collect_stats       Should I allow collecting of anonymous stats (@since 0.7.6)
  * @property transposh_option $transposh_collect_stats_o
+
+ * @property boolean          $enable_mails               Should I send mail messages on translation events (@since 1.0.3)
+ * @property transposh_option $enable_mails_o
+ * @property string           $mail_to                    Option defining recipient (Admin if empty) (@since 1.0.3)
+ * @property transposh_option $mail_to_o 
+ * @property boolean          $mail_ontranslate           Should I send mail immediately on human translation (@since 1.0.3)
+ * @property transposh_option $mail_ontranslate_o
+  //** FULL VERSION
+ * @property boolean          $mail_ontranslate_buffer    Should I buffer immediate human translation (@since 1.0.3)
+ * @property transposh_option $mail_ontranslate_buffer_o
+ * @property boolean          $mail_digest                Should I send a daily digest of translations today (@since 1.0.3)
+ * @property transposh_option $mail_digest_o
+ * @property boolean          $mail_ignore_admin          Ignore translations made by the admin (@since 1.0.3)
+ * @property transposh_option $mail_ignore_admin_o
+  //** FULL STOP
  * 
  * @property int              $transposh_backup_schedule     Stores the schedule for the backup service, 0-none, 1-daily, 2-live (backup @since 0.5.0)
  * @property transposh_option $transposh_backup_schedule_o  
  * @property string           $transposh_key                 Stores the site key to transposh services (backup @since 0.5.0)
  * @property transposh_option $transposh_key_o
- //** FULL VERSION
+  //** FULL VERSION
  * @property boolean          $enable_superproxy             Enable superproxy
  * @property transposh_option $enable_superproxy_o
  * @property string           $superproxy_key                Stores the superproxy key
  * @property transposh_option $superproxy_key_o
  * @property string           $superproxy_ips                Stores the site allow proxy ips
  * @property transposh_option $superproxy_ips_o              
- //** FULL STOP
+  //** FULL STOP
  * 
  *  Engines
  * 
@@ -140,10 +155,10 @@ class transposh_option {
  * @property transposh_option $widget_progressbar_o
  * @property boolean          $widget_allow_set_deflang      Allows user to set his default language per #63 @since 0.3.8
  * @property transposh_option $widget_allow_set_deflang_o
- //** FULL VERSION
+  //** FULL VERSION
  * @property boolean          $widget_remove_logo            Allows removing of transposh logo in exchange for an ad @since 0.6.0
  * @property transposh_option $widget_remove_logo_o
- //** FULLSTOP
+  //** FULLSTOP
  * @property string           $widget_theme                  Allows theming of the progressbar and edit window @since 0.7.0
  * @property transposh_option $widget_theme_o
  * 
@@ -155,10 +170,10 @@ class transposh_option {
  * @property transposh_option $jqueryui_override_o
  * @property boolean          $dont_add_rel_alternate        Option to disable the rel=alternate adding to the page @since 0.9.2
  * @property transposh_option $dont_add_rel_alternate_o
- //** FULL VERSION
+  //** FULL VERSION
  * @property boolean          $full_rel_alternate            Option to create fully qualified rel=alternate @since 1.0.1
  * @property transposh_option $full_rel_alternate_o
- //** FULLSTOP
+  //** FULLSTOP
  * @property boolean          $parser_dont_break_puncts      Option to allow punctuations such as , . ( not to break @since 0.9.0
  * @property transposh_option $parser_dont_break_puncts_o
  * @property boolean          $parser_dont_break_numbers     Option to allow numbers not to break @since 0.9.0
@@ -177,6 +192,7 @@ class transposh_option {
  * Hidden
  * 
  * @property transposh_option $transposh_admin_hide_warnings Stores hidden warnings (@since 0.7.6)
+ * @property transposh_option $transposh_last_mail_digest Stores date of last digest (@since 1.0.3)
  * 
  */
 class transposh_plugin_options {
@@ -241,7 +257,7 @@ class transposh_plugin_options {
         $this->register_option('sorted_languages', TP_OPT_STRING);
 
         if (!defined('FULL_VERSION')) { //** WPORG VERSION
-        $this->register_option('allow_full_version_upgrade', TP_OPT_BOOLEAN, 0);
+            $this->register_option('allow_full_version_upgrade', TP_OPT_BOOLEAN, 0);
         } //** WPORGSTOP
         $this->register_option('allow_anonymous_translation', TP_OPT_BOOLEAN, 1);
         $this->register_option('enable_default_translate', TP_OPT_BOOLEAN, 0);
@@ -255,12 +271,21 @@ class transposh_plugin_options {
         $this->register_option('enable_geoip_redirect', TP_OPT_BOOLEAN, 0);
         $this->register_option('transposh_collect_stats', TP_OPT_BOOLEAN, 1);
 
+        $this->register_option('enable_mails', TP_OPT_BOOLEAN, 0);
+        $this->register_option('mail_to', TP_OPT_STRING);
+        $this->register_option('mail_ontranslate', TP_OPT_BOOLEAN, 0);
+        //** FULL VERSION
+        $this->register_option('mail_ontranslate_buffer', TP_OPT_BOOLEAN, 0);
+        $this->register_option('mail_digest', TP_OPT_BOOLEAN, 0);
+        $this->register_option('mail_ignore_admin', TP_OPT_BOOLEAN, 0);
+        //** FULL STOP 
+
         $this->register_option('transposh_backup_schedule', TP_OPT_OTHER, 2);
         $this->register_option('transposh_key', TP_OPT_STRING);
         if (defined('FULL_VERSION')) { //** FULL VERSION
-        $this->register_option('enable_superproxy', TP_OPT_BOOLEAN, 0);
-        $this->register_option('superproxy_key', TP_OPT_STRING);
-        $this->register_option('superproxy_ips', TP_OPT_STRING);
+            $this->register_option('enable_superproxy', TP_OPT_BOOLEAN, 0);
+            $this->register_option('superproxy_key', TP_OPT_STRING);
+            $this->register_option('superproxy_ips', TP_OPT_STRING);
         } //** FULLSTOP
 
         $this->register_option('enable_autotranslate', TP_OPT_BOOLEAN, 1);
@@ -277,14 +302,14 @@ class transposh_plugin_options {
         $this->register_option('widget_progressbar', TP_OPT_BOOLEAN, 0);
         $this->register_option('widget_allow_set_deflang', TP_OPT_BOOLEAN, 0);
         if (defined('FULL_VERSION')) { //** FULL VERSION
-        $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN, 0);
+            $this->register_option('widget_remove_logo', TP_OPT_BOOLEAN, 0);
         } //** FULLSTOP
         $this->register_option('widget_theme', TP_OPT_STRING, 'ui-lightness');
         $this->register_option('enable_url_translate', TP_OPT_BOOLEAN, 0);
         $this->register_option('jqueryui_override', TP_OPT_STRING);
         $this->register_option('dont_add_rel_alternate', TP_OPT_BOOLEAN, 0);
         if (defined('FULL_VERSION')) { //** FULL VERSION        
-        $this->register_option('full_rel_alternate', TP_OPT_BOOLEAN, 0);
+            $this->register_option('full_rel_alternate', TP_OPT_BOOLEAN, 0);
         } //** FULLSTOP
         $this->register_option('parser_dont_break_puncts', TP_OPT_BOOLEAN, 0);
         $this->register_option('parser_dont_break_numbers', TP_OPT_BOOLEAN, 0);
@@ -296,6 +321,7 @@ class transposh_plugin_options {
 
 
         $this->register_option('transposh_admin_hide_warnings', TP_OPT_OTHER);
+        $this->register_option('transposh_last_mail_digest', TP_OPT_OTHER);
 
 
         // Fix default language if needed, only done once now, and since this was being done constantly, we gain

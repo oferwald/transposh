@@ -490,6 +490,28 @@ class transposh_utils {
         header('Access-Control-Max-Age: 86400');
     }
 
+    /**
+     * Cleans stray locale markings
+     * @param type $input
+     * @return type
+     */
+    public static function clean_breakers($input) {
+        return str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $input);
+    }
+
+    /**
+     * Returns the wordpress user by a given "by", if its an IP, just return it
+     * @param string $by
+     * @return string
+     */
+    public static function wordpress_user_by_by($by) {
+        if (strpos($by, '.') === false && strpos($by, ':') === false && is_numeric($by)) {
+            $user_info = get_userdata($by);
+            $by = $user_info->user_login;
+        }
+        return $by;
+    }
+
 }
 
 ?>
