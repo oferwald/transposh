@@ -600,10 +600,6 @@ class transposh_plugin_admin {
         $this->sectionstop();
 
         $this->section(__('Mail settings', TRANSPOSH_TEXT_DOMAIN));
-        $this->checkbox($this->transposh->options->enable_mails_o
-                , __('Enable mail messages', TRANSPOSH_TEXT_DOMAIN)
-                , __('Enabling this will allow Transposh to send messages.', TRANSPOSH_TEXT_DOMAIN));
-        echo '<br>';
         $this->textinput($this->transposh->options->mail_to_o
                 , __('Email address to send messages to', TRANSPOSH_TEXT_DOMAIN)
                 , __('Email', TRANSPOSH_TEXT_DOMAIN));
@@ -615,7 +611,7 @@ class transposh_plugin_admin {
         //** FULL VERSION
         $this->checkbox($this->transposh->options->mail_ontranslate_buffer_o
                 , __('Buffer immediate translations', TRANSPOSH_TEXT_DOMAIN)
-                , __('Enabling this will seet a timer, and messages will be buffered and sent after it expires.', TRANSPOSH_TEXT_DOMAIN));
+                , __('Enabling this will set a timer, and messages will be buffered and sent after it expires.', TRANSPOSH_TEXT_DOMAIN));
         echo '<br>';
         $this->checkbox($this->transposh->options->mail_digest_o
                 , __('Send translation digest', TRANSPOSH_TEXT_DOMAIN)

@@ -102,8 +102,6 @@ class transposh_option {
  * @property boolean          $transposh_collect_stats       Should I allow collecting of anonymous stats (@since 0.7.6)
  * @property transposh_option $transposh_collect_stats_o
 
- * @property boolean          $enable_mails               Should I send mail messages on translation events (@since 1.0.3)
- * @property transposh_option $enable_mails_o
  * @property string           $mail_to                    Option defining recipient (Admin if empty) (@since 1.0.3)
  * @property transposh_option $mail_to_o 
  * @property boolean          $mail_ontranslate           Should I send mail immediately on human translation (@since 1.0.3)
