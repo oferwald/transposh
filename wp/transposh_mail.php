@@ -122,9 +122,7 @@ class transposh_mail {
         $digest = "";
         tp_logger("digest should be generated from:" . $this->transposh->options->transposh_last_mail_digest);
         $rowstosend = $this->transposh->database->get_all_human_translation_history($this->transposh->options->transposh_last_mail_digest, 500);
-        if (!count($rowstosend)) {
-            _e('No translations found.', TRANSPOSH_TEXT_DOMAIN);
-        } else {
+        if (count($rowstosend)) {
             $digest .= "<table><tr><th>" .
                     __('Original string', TRANSPOSH_TEXT_DOMAIN) . "</th><th>" .
                     __('Language', TRANSPOSH_TEXT_DOMAIN) . "</th><th>" .

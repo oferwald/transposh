@@ -618,13 +618,16 @@ class transposh_plugin_admin {
                 , __('Get a daily digest of human translation activities.', TRANSPOSH_TEXT_DOMAIN));
         echo '<br>';
         if ($this->transposh->options->mail_digest) {
-            echo __('Last digest sent on: ', TRANSPOSH_TEXT_DOMAIN) . date('r', $this->transposh->options->transposh_last_mail_digest);
+            $rowstosend = $this->transposh->database->get_all_human_translation_history($this->transposh->options->transposh_last_mail_digest, 500);
+            if ($rowstosend) {
+                echo sprintf(__('The next digest will be sent on %s and will include %d translation', TRANSPOSH_TEXT_DOMAIN),date('r', $next_digest) ,count($rowstosend));
+            } else {
+                echo sprintf(__('There are no new translations since last digest', TRANSPOSH_TEXT_DOMAIN));                
+            }
         }
         $this->checkbox($this->transposh->options->mail_ignore_admin_o
                 , __('Ignore authenticated users translations', TRANSPOSH_TEXT_DOMAIN)
                 , __('Translations made by users with translation role will not be sent immediately, but only on daily digests.', TRANSPOSH_TEXT_DOMAIN));
-
-        $this->transposh->mail->generate_digest();
         //** FULL STOP */
         $this->sectionstop();
 
