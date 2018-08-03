@@ -91,7 +91,7 @@ class transposh_editor_table extends WP_List_Table {
             // 'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', 1/*$item['ID']*/),
             'filter' => sprintf('<a href="?page=%s&action=%s&fl=%s">Filter</a>', $_REQUEST['page'], 'filter-lang', $item['lang']),
         );
-        return sprintf('%1$s %2$s', $item['lang'], $this->row_actions($actions));
+        return sprintf('%1$s %2$s', transposh_consts::get_language_name($item['lang']), $this->row_actions($actions));
     }
 
     function column_original($item) {
