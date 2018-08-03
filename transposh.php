@@ -2007,9 +2007,11 @@ class transposh_plugin {
         // deleting
         transposh_utils::allow_cors();
         if (isset($_POST['timestamp'])) {
-            $this->database->del_translation_history(stripslashes($_POST['token']), $_POST['lang'], $_POST['timestamp']);
+            $result = $this->database->del_translation_history(stripslashes($_POST['token']), $_POST['lang'], $_POST['timestamp']);
+            echo json_encode($result);
+            die();
         }
-        $this->database->get_translation_history(stripslashes($_POST['token']), $_POST['lang']);
+        $this->database->get_translation_history(stripslashes($_POST['token']), $_POST['lang']);       
         die();
     }
 

@@ -644,11 +644,10 @@ class transposh_database {
                 tp_logger($removelastfromlog, 3);
                 $GLOBALS['wpdb']->query($removelastfromlog);
             }
-            echo json_encode(true);
+            return true;
         } else {
-            echo json_encode(false);
+            return false;
         }
-        exit;
     }
 
     /**
@@ -725,21 +724,34 @@ class transposh_database {
     /**
      * 
      * @param type $source
+     * @param type $date
      * @param type $limit
-     * @param type $by
+     * @param type $orderby
      * @param type $order
+     * @param type $filter
      * @return type
      */
-    function get_filtered_translations($source = '0', $date = 'null', $limit = '', $orderby = 'timestamp', $order = 'DESC') {
+    function get_filtered_translations($source = '0', $date = 'null', $limit = '', $orderby = 'timestamp', $order = 'DESC', $filter = '') {
         $limitterm = '';
         $dateterm = '';
-        if ($date != "null")
-            $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
+        if ($source != '') {
+            $sourceterm = "source=$source";
+        }
+        if ($date != "null") {
+            $dateterm = "";
+            if ($sourceterm) {
+                $dateterm = "AND ";
+            }
+            $dateterm .= "UNIX_TIMESTAMP(timestamp) > $date";
+        }
+        if (($sourceterm || $dateterm) && $filter) {
+            $filter = "AND " . $filter;
+        }
         if ($limit)
             $limitterm = "LIMIT $limit";
         $query = "SELECT * " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
                 "FROM {$this->translation_table} " .
-                "WHERE source= 0 $dateterm " .
+                "WHERE $sourceterm $dateterm $filter " .
                 "ORDER BY $orderby $order $limitterm";
         tp_logger("query is $query");
 
@@ -750,21 +762,31 @@ class transposh_database {
     /**
      * 
      * @param type $source
+     * @param type $date
      * @param type $limit
      * @param type $by
      * @param type $order
+     * @param type $filter
      * @return type
      */
-    function get_filtered_translations_count($source = '0', $date = 'null', $limit = '', $by = '', $order = 'DESC') {
+    function get_filtered_translations_count($source = '0', $date = 'null', $filter = '') {
         $dateterm = '';
-        if ($date != "null")
-            $dateterm = "and UNIX_TIMESTAMP(timestamp) > $date";
-        if ($limit)
-            $limitterm = "LIMIT $limit";
+        if ($source != '') {
+            $sourceterm = "source=$source";
+        }
+        if ($date != "null") {
+            $dateterm = "";
+            if ($sourceterm) {
+                $dateterm = "AND ";
+            }
+            $dateterm .= "UNIX_TIMESTAMP(timestamp) > $date";
+        }
+        if (($sourceterm || $dateterm) && $filter) {
+            $filter = "AND " . $filter;
+        }
         $query = "SELECT count(*) " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
                 "FROM {$this->translation_table} " .
-                "WHERE source= 0 $dateterm ";
-        ;
+                "WHERE $sourceterm $dateterm $filter";
         tp_logger("query is $query");
 
         $count = $GLOBALS['wpdb']->get_var($query);
