@@ -5,7 +5,7 @@ if (!class_exists('WP_List_Table')) {
 }
 
 class transposh_editor_table extends WP_List_Table {
-    
+
     private $filter = "";
 
     function __construct() {
@@ -35,7 +35,7 @@ class transposh_editor_table extends WP_List_Table {
     }
 
     function no_items() {
-        _e('No translations found.',TRANSPOSH_TEXT_DOMAIN);
+        _e('No translations found.', TRANSPOSH_TEXT_DOMAIN);
     }
 
     function item_key($item) {
@@ -97,7 +97,7 @@ class transposh_editor_table extends WP_List_Table {
     function column_original($item) {
         $actions = array(
             // 'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', 1/*$item['ID']*/),
-            'delete' => sprintf('<a href="?page=%s&action=%s&key=%s">'.__('Delete').'</a>', $_REQUEST['page'], 'delete', $this->item_key($item)),
+            'delete' => sprintf('<a href="?page=%s&action=%s&key=%s">' . __('Delete') . '</a>', $_REQUEST['page'], 'delete', $this->item_key($item)),
         );
         return sprintf('%1$s %2$s', $item['original'], $this->row_actions($actions));
     }
@@ -119,15 +119,6 @@ class transposh_editor_table extends WP_List_Table {
         );
         return sprintf('%1$s %2$s', $by, $this->row_actions($actions));
     }
-
-    /* function get_views() {
-      $views = array(
-      'ip' => 'IP',
-      'vp' => 'VIP',
-
-      );
-      return $views;
-      } */
 
     function extra_tablenav($which) {
         //echo "Filter me this!";
@@ -179,7 +170,7 @@ class transposh_editor_table extends WP_List_Table {
 
         $current_page = $this->get_pagenum();
         $limit = ($current_page - 1) * $per_page;
-        $total_items = $my_transposh_plugin->database->get_filtered_translations_count('0','null',$this->filter);
+        $total_items = $my_transposh_plugin->database->get_filtered_translations_count('0', 'null', $this->filter);
         $this->set_pagination_args(array(
             'total_items' => $total_items, //WE have to calculate the total number of items
             'per_page' => $per_page //WE have to determine how many items to show on a page
@@ -190,17 +181,17 @@ class transposh_editor_table extends WP_List_Table {
     }
 
     function render_table() {
-        echo '</pre><div class="wrap"><h2>'.__('Translations',TRANSPOSH_TEXT_DOMAIN).'</h2>';
+        echo '</pre><div class="wrap"><h2>' . __('Translations', TRANSPOSH_TEXT_DOMAIN) . '</h2>';
         $this->prepare_items();
-        //$rows = $this->transposh->database->get_filtered_translations();
-        //$myListTable->items = $rows;
+        if ($this->filter) {
+            $current_url = set_url_scheme('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+            echo (sprintf("<a href='%s'>%s</a>", esc_url(remove_query_arg(array('action', 'ftb', 'fl', 'paged'), $current_url)), __('Remove filter')));
+        }
         echo '
         <form method="post">
             <input type="hidden" name="page" value="tp_editor">';
 
-        $this->search_box(__('search',TRANSPOSH_TEXT_DOMAIN), 'search_id');
-        //$myListTable->views();
-        //$myListTable->view_switcher();
+        $this->search_box(__('search', TRANSPOSH_TEXT_DOMAIN), 'search_id');
         $this->display();
         echo '</form></div>';
     }
@@ -211,12 +202,12 @@ class transposh_editor_table extends WP_List_Table {
      */
     function perform_actions() {
         global $my_transposh_plugin;
-       // echo "Actioning";
-       // echo $this->current_action();
+        // echo "Actioning";
+        // echo $this->current_action();
         if ($this->current_action() === 'delete') {
             if (isset($_GET['key'])) {
-                list($timestamp,$lang,$original) = explode(',',base64_decode($_GET['key']),3);
-               // echo "($timestamp,$lang,$original)";
+                list($timestamp, $lang, $original) = explode(',', base64_decode($_GET['key']), 3);
+                // echo "($timestamp,$lang,$original)";
                 $return = $my_transposh_plugin->database->del_translation_history($original, $lang, $timestamp);
                 echo json_encode($return);
                 exit();
@@ -224,18 +215,19 @@ class transposh_editor_table extends WP_List_Table {
             if (isset($_REQUEST['keys'])) {
                 foreach ($_REQUEST['keys'] as $key) {
                     tp_logger($key);
-                    list($timestamp,$lang,$original) = explode(',',base64_decode($key),3);
+                    list($timestamp, $lang, $original) = explode(',', base64_decode($key), 3);
                     $my_transposh_plugin->database->del_translation_history($original, $lang, $timestamp);
                 }
                 exit();
             }
-        }        
+        }
         if ($this->current_action() === 'filter-lang') {
-            $this->filter = "lang = '".esc_sql($_REQUEST['fl'])."'";
+            $this->filter = "lang = '" . esc_sql($_REQUEST['fl']) . "'";
         }
         if ($this->current_action() === 'filter-by') {
-            $this->filter = "translated_by = '".esc_sql($_REQUEST['ftb'])."'";
+            $this->filter = "translated_by = '" . esc_sql($_REQUEST['ftb']) . "'";
         }
         tp_logger($this->current_action());
     }
+
 }
