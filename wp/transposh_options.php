@@ -113,7 +113,7 @@ class transposh_option {
  * @property transposh_option $mail_digest_o
  * @property boolean          $mail_ignore_admin          Ignore translations made by the admin (@since 1.0.3)
  * @property transposh_option $mail_ignore_admin_o
-  //** FULL STOP
+  //** FULLSTOP
  * 
  * @property int              $transposh_backup_schedule     Stores the schedule for the backup service, 0-none, 1-daily, 2-live (backup @since 0.5.0)
  * @property transposh_option $transposh_backup_schedule_o  
@@ -126,7 +126,7 @@ class transposh_option {
  * @property transposh_option $superproxy_key_o
  * @property string           $superproxy_ips                Stores the site allow proxy ips
  * @property transposh_option $superproxy_ips_o              
-  //** FULL STOP
+  //** FULLSTOP
  * 
  *  Engines
  * 
@@ -190,7 +190,9 @@ class transposh_option {
  * Hidden
  * 
  * @property transposh_option $transposh_admin_hide_warnings Stores hidden warnings (@since 0.7.6)
+  //** FULL VERSION
  * @property transposh_option $transposh_last_mail_digest Stores date of last digest (@since 1.0.3)
+  //** FULLSTOP
  * 
  */
 class transposh_plugin_options {
@@ -276,7 +278,7 @@ class transposh_plugin_options {
         $this->register_option('mail_ontranslate_buffer', TP_OPT_BOOLEAN, 0);
         $this->register_option('mail_digest', TP_OPT_BOOLEAN, 0);
         $this->register_option('mail_ignore_admin', TP_OPT_BOOLEAN, 0);
-        //** FULL STOP 
+        //** FULLSTOP 
 
         $this->register_option('transposh_backup_schedule', TP_OPT_OTHER, 2);
         $this->register_option('transposh_key', TP_OPT_STRING);

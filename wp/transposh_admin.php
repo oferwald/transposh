@@ -149,7 +149,6 @@ class transposh_plugin_admin {
                 $this->transposh->options->enable_geoip_redirect = TP_FROM_POST;
                 $this->transposh->options->transposh_collect_stats = TP_FROM_POST;
 
-                $this->transposh->options->enable_mails = TP_FROM_POST;
                 $this->transposh->options->mail_to = TP_FROM_POST;
                 $this->transposh->options->mail_ontranslate = TP_FROM_POST;
                 //** FULL VERSION
@@ -628,7 +627,7 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->mail_ignore_admin_o
                 , __('Ignore authenticated users translations', TRANSPOSH_TEXT_DOMAIN)
                 , __('Translations made by users with translation role will not be sent immediately, but only on daily digests.', TRANSPOSH_TEXT_DOMAIN));
-        //** FULL STOP */
+        //** FULLSTOP
         $this->sectionstop();
 
         $this->section(__('Backup service settings', TRANSPOSH_TEXT_DOMAIN));
