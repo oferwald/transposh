@@ -39,7 +39,8 @@ class transposh_plugin_admin {
     function __construct(&$transposh) {
         $this->transposh = &$transposh;
         // add our notices
-        add_action('admin_notices', array(&$this, 'notices'));
+        add_action('admin_notices', array(&$this, 'tp_notices'));
+        add_action('admin_head', array(&$this, 'remove_other_admin_notices'));
         // register callback for admin menu setup
         add_action('admin_menu', array(&$this, 'admin_menu'));
         // register the callback been used if options of page been submitted and needs to be processed
@@ -619,9 +620,9 @@ class transposh_plugin_admin {
         if ($this->transposh->options->mail_digest) {
             $rowstosend = $this->transposh->database->get_all_human_translation_history($this->transposh->options->transposh_last_mail_digest, 500);
             if ($rowstosend) {
-                echo sprintf(__('The next digest will be sent on %s and will include %d translation', TRANSPOSH_TEXT_DOMAIN),date('r', $next_digest) ,count($rowstosend));
+                echo sprintf(__('The next digest will be sent on %s and will include %d translation', TRANSPOSH_TEXT_DOMAIN), date('r', $next_digest), count($rowstosend));
             } else {
-                echo sprintf(__('There are no new translations since last digest', TRANSPOSH_TEXT_DOMAIN));                
+                echo sprintf(__('There are no new translations since last digest', TRANSPOSH_TEXT_DOMAIN));
             }
         }
         $this->checkbox($this->transposh->options->mail_ignore_admin_o
@@ -988,13 +989,38 @@ class transposh_plugin_admin {
     }
 
     /** UTILITY FUNCTIONS  END * */
-    function notices() {
+    function tp_notices() {
         if ((int) ini_get('memory_limit') < 64) {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
         if ($this->page && !(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
             $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>', 'updated');
+        }
+    }
+
+    /**
+     * this function will remove any notices that are not ours from our administration pages
+     * @global type $wp_filter
+     */
+    function remove_other_admin_notices() {
+        if ($this->page) {
+            global $wp_filter;
+            $actions = $wp_filter;
+            // I don't know why I need to run this more than once, but what the heck
+            for ($i = 0; $i < 5; $i++) {
+                foreach ($actions as $key => $value) {
+                    if (strpos($key, 'notices') !== false) {
+                        foreach ($value as $key2 => $value2) {
+                            foreach ($value2 as $key3 => $value3) {
+                                if (strpos($key3, 'tp_notices') === false) {
+                                    remove_action($key, $key3, $key2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

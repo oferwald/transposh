@@ -271,7 +271,6 @@ class transposh_plugin_options {
         $this->register_option('enable_geoip_redirect', TP_OPT_BOOLEAN, 0);
         $this->register_option('transposh_collect_stats', TP_OPT_BOOLEAN, 1);
 
-        $this->register_option('enable_mails', TP_OPT_BOOLEAN, 0);
         $this->register_option('mail_to', TP_OPT_STRING);
         $this->register_option('mail_ontranslate', TP_OPT_BOOLEAN, 0);
         //** FULL VERSION
@@ -321,7 +320,9 @@ class transposh_plugin_options {
 
 
         $this->register_option('transposh_admin_hide_warnings', TP_OPT_OTHER);
+        //** FULL VERSION
         $this->register_option('transposh_last_mail_digest', TP_OPT_OTHER);
+        //** FULLSTOP
 
 
         // Fix default language if needed, only done once now, and since this was being done constantly, we gain

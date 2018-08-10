@@ -122,7 +122,7 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
-= 2018/07/21 - 1.0.3 =
+= 2018/08/04 - 1.0.3 =
  * Integration of mail functions and notifications
  * Improvements to the settings interface
  * Some work on the translation editor (filters, bulk)
