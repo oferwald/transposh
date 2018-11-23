@@ -443,10 +443,11 @@ class transposh_consts {
             // @updated 2017-Sep-27 (fa, mt, otq, yua)
             // @updated 2017-Oct-26 (ta)
             // @updated 2018-May-12 (is)
+            // @updated 2018-Sep-05 (te)
             'langs' => array(
                 'af', 'ar', 'bg', 'bn', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'es', 'et', 'fa', 'fi', 'fil', 'fj', 'fr', 'he', 'hi', 'hr', 'ht',
                 'hu', 'id', 'is', 'it', 'ja', 'ko', 'lt', 'lv', 'mg', 'ms', 'mt', 'mw', 'nl', 'no', 'otq', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sm', 'sr',
-                'sv', 'sw', 'ta', 'th', 'tlh', 'tlh-qaak', 'to', 'tr', 'ty', 'uk', 'ur', 'vi', 'yua', 'yue', 'zh', 'zh-tw'),
+                'sv', 'sw', 'ta', 'te', 'th', 'tlh', 'tlh-qaak', 'to', 'tr', 'ty', 'uk', 'ur', 'vi', 'yua', 'yue', 'zh', 'zh-tw'),
             // check about bs-latn , sr-latn/cyr, (tlh) (klingon?)
             'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww')
         ),
