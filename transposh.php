@@ -239,11 +239,11 @@ class transposh_plugin {
         // internal update mechnism - is disabled in wporg version unless user enabled this
         //** WPORG VERSION
         if (!defined('FULL_VERSION') && $this->options->allow_full_version_upgrade) {
-        //** WPORGSTOP
+            //** WPORGSTOP
             add_filter('http_request_args', array(&$this, 'filter_wordpress_org_update'), 10, 2);
             add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_for_plugin_update'));
             add_filter('plugins_api', array(&$this, 'plugin_api_call'), 10, 3);
-        //** WPORG VERSION            
+            //** WPORG VERSION            
         }
         //** WPORGSTOP
         // debug function for bad redirects
@@ -347,6 +347,7 @@ class transposh_plugin {
      */
     function is_special_page($url) {
         return ( stripos($url, '/wp-login.php') !== FALSE ||
+                stripos($url, '/wp-json/') !== FALSE ||
                 stripos($url, '/wp-admin/') !== FALSE ||
                 stripos($url, '/wp-comments-post') !== FALSE ||
                 stripos($url, '/main-sitemap.xsl') !== FALSE || //YOAST?                
@@ -1336,7 +1337,7 @@ class transposh_plugin {
         // HACK - TODO - FIX
         if (in_array($domain, transposh_consts::$ignored_po_domains))
             return $translation;
-        if ($translation != $orig) {
+        if ($translation != $orig && $translation != "'") { // who thought about this, causing apostrophes to break
             $translation = TP_GTXT_BRK . $translation . TP_GTXT_BRK_CLOSER;
         }
         $translation = str_replace(array('%s', '%1$s', '%2$s', '%3$s', '%4$s', '%5$s'), array(TP_GTXT_IBRK . '%s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%1$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%2$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%3$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%4$s' . TP_GTXT_IBRK_CLOSER, TP_GTXT_IBRK . '%5$s' . TP_GTXT_IBRK_CLOSER), $translation);
@@ -2011,7 +2012,7 @@ class transposh_plugin {
             echo json_encode($result);
             die();
         }
-        $this->database->get_translation_history(stripslashes($_POST['token']), $_POST['lang']);       
+        $this->database->get_translation_history(stripslashes($_POST['token']), $_POST['lang']);
         die();
     }
 
