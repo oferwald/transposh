@@ -189,6 +189,7 @@ class transposh_plugin_admin {
                 break;
             case "tp_engines":
                 delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
+                delete_option(TRANSPOSH_OPTIONS_YANDEXPROXY);
                 $this->transposh->options->enable_autotranslate = TP_FROM_POST;
                 $this->transposh->options->enable_autoposttranslate = TP_FROM_POST;
                 $this->transposh->options->msn_key = TP_FROM_POST;
