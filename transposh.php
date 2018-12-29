@@ -347,6 +347,7 @@ class transposh_plugin {
      */
     function is_special_page($url) {
         return ( stripos($url, '/wp-login.php') !== FALSE ||
+                stripos($url, '/robots.txt') !== FALSE ||
                 stripos($url, '/wp-json/') !== FALSE ||
                 stripos($url, '/wp-admin/') !== FALSE ||
                 stripos($url, '/wp-comments-post') !== FALSE ||
