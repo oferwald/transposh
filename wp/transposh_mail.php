@@ -82,7 +82,10 @@ class transposh_mail {
             return;
         }
         //** FULLSTOP 
-
+        // if this option is off, no mail should be sent on translation 
+        if (!$this->transposh->options->mail_ontranslate) {
+            return;
+        }
         $to = $this->get_mail_to();
         $headers = array('Content-Type: text/html; charset=UTF-8'); // html mail...
         $subject = __('A new translation was just posted to your site', TRANSPOSH_TEXT_DOMAIN);
