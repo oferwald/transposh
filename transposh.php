@@ -33,7 +33,6 @@ if (!function_exists('add_action')) {
 require_once("core/logging.php");
 require_once("core/constants.php");
 require_once("core/utils.php");
-require_once("core/jsonwrapper/jsonwrapper.php");
 require_once("core/parser.php");
 require_once("wp/transposh_db.php");
 require_once("wp/transposh_widget.php");
