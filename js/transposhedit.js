@@ -326,9 +326,17 @@
         });
 
         // toolbars should float...
-        $(idprefix + 'dcbar').css({
-            'float': right
-        }).buttonset();
+        
+        if (typeof $().controlgroup === "function") {
+            $(idprefix + 'dcbar').css({
+                'float': right
+            }).controlgroup();
+            $(idprefix + 'dcbar button').css("float",left);
+        } else {
+            $(idprefix + 'dcbar').css({
+                'float': right
+            }).buttonset();
+        }
         // rtl fix for buttonsets
         if ($("html").attr("dir") === 'rtl') {
             fix_dialog_header_rtl(dialog);
@@ -407,7 +415,7 @@
                     if (row.user_login === null) {
                         row.user_login = row.translated_by;
                     }
-                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0px; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display: inline-block; "></span></span>'
+                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0px; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display:inline-block;"></span></span>';
                     if (row.can_delete) {
                         delline = '<span class="' + prefix + 'delete" title="' + __('delete') + '" style="width: 18px; margin-' + left + ': 3px">';
                     } else {
@@ -630,9 +638,22 @@
                 );
 
         // toolbars should float...
-        $(idprefix + 'utlbar,' + idprefix + 'ltlbar').css({
-            'float': right
-        }).buttonset();
+        if (typeof $().controlgroup === "function") {
+            $(idprefix + 'utlbar,' + idprefix + 'ltlbar').css({
+                'float': right
+            }).controlgroup();
+            // more rtl fixes for controlgroup
+            var uicorner = 'ui-corner-';
+            $(idprefix + 'utlbar button:first,'+idprefix + 'ltlbar button:first').addClass(uicorner + left).removeClass(uicorner + right);
+            $(idprefix + 'utlbar button:last,' +idprefix + 'ltlbar button:last').addClass(uicorner + right).removeClass(uicorner + left);
+            $(idprefix + 'utlbar button,'+idprefix + 'ltlbar button').css("float",left);
+        } else {
+            $(idprefix + 'utlbar,' + idprefix + 'ltlbar').css({
+                'float': right
+            }).buttonset();
+        }
+
+        
         // css for textareas
         $(dialog + ' textarea').css({
             'width': '483px',
@@ -666,14 +687,14 @@
                                 dataType: "json",
                                 cache: false,
                                 success: function (data) {
-                                    var itemlang
+                                    var itemlang;
                                     if (!(itemlang = $(idprefix + segment_id).attr('data-srclang'))) {
                                         itemlang = t_jp.olang;
                                     }
-                                    var liflag = '<li data-translated="' + $(idprefix + segment_id).attr('data-orig') + '"><a href="#">' + l[itemlang] + '</a></li>'
+                                    var liflag = '<li data-translated="' + $(idprefix + segment_id).attr('data-orig') + '"><a href="#">' + l[itemlang] + '</a></li>';
                                     $(data).each(function (index, item) {
                                         if (item.lang !== t_jp.lang) {
-                                            liflag = liflag + '<li data-translated="' + item.translated + '"><a href="#">' + l[item.lang] + '</a></li>'
+                                            liflag = liflag + '<li data-translated="' + item.translated + '"><a href="#">' + l[item.lang] + '</a></li>';
                                         }
                                     });
                                     $('<ul style="position: absolute; top: 0px" id="' + prefix + 'langmenu">' + liflag).appendTo(dialog);
@@ -726,7 +747,7 @@
 
         cleanui = function() {
             $('.' + prefix + 'suggest').button("enable");
-        }
+        };
         // prev button click
         $(idprefix + 'prev').click(cleanui);
         $(idprefix + 'prev').click(function () {
@@ -804,7 +825,7 @@
             },
             text: false
         }).click(function () {
-            history_dialog(segment_id)
+            history_dialog(segment_id);
         });
 
         $(idprefix + 'keyboard').button({
@@ -971,7 +992,7 @@
                         break;
                 }
             }
-        })
+        });
 
         // show confirmation dialog before closing
         $(dialog).bind('dialogbeforeclose', function (event, ui) {
@@ -1001,12 +1022,12 @@
             } else {
                 translate_dialog(translated_id);
             }
-        }
+        };
         img.click(function () {
             //  if we detect that $.ui is missing (TODO - check tabs - etal) we load it first, the added or solves a jquery tools conflict !!!!!!!!!!!
             t_jp.tfju(function () {
                 loadlocaleandrundialog();
-            })
+            });
             return false;
         }).css({
             'border': '0px',
