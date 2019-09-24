@@ -94,7 +94,8 @@ class transposh_mail {
                 . __('Translation', TRANSPOSH_TEXT_DOMAIN) . ": $translation\n<br/>"
                 . __('Language', TRANSPOSH_TEXT_DOMAIN) . ": $lang\n<br/>"
                 . __('Translated by', TRANSPOSH_TEXT_DOMAIN) . ": " . transposh_utils::wordpress_user_by_by($translated_by) . "\n\n<br/><br/>"
-                . __('If you believe that this translation is not good, use the translation editor to modify it', TRANSPOSH_TEXT_DOMAIN) . "\n\n<br/><br/>"
+                . '<a href="'. admin_url("admin.php?page=tp_editor").'">'
+                . __('If you believe that those translations are not good, use the translation editor to modify it', TRANSPOSH_TEXT_DOMAIN) . "</a>\n\n<br/><br/>"
                 . "<h2>" . __('Team Transposh', TRANSPOSH_TEXT_DOMAIN) . "</h2>\n\n<br/>"
         ;
         wp_mail($to, wp_specialchars_decode($subject), $body, $headers);
@@ -174,7 +175,8 @@ class transposh_mail {
         $subject = __('Some new translation were just posted to your site', TRANSPOSH_TEXT_DOMAIN);
         $body = "<h3>" . __('The following translations were just added to your site', TRANSPOSH_TEXT_DOMAIN) . ".</h3>\n\n"
                 . $buffered_mail
-                . __('If you believe that those translations are not good, use the translation editor to modify it', TRANSPOSH_TEXT_DOMAIN) . "\n\n<br/><br/>"
+                . '<a href="'. admin_url("admin.php?page=tp_editor").'">'
+                . __('If you believe that those translations are not good, use the translation editor to modify it', TRANSPOSH_TEXT_DOMAIN) . "</a>\n\n<br/><br/>"
                 . "<h2>" . __('Team Transposh', TRANSPOSH_TEXT_DOMAIN) . "</h2>\n\n<br/>"
         ;
         wp_mail($to, wp_specialchars_decode($subject), $body, $headers);
