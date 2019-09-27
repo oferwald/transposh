@@ -1865,6 +1865,9 @@ class transposh_plugin {
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
+                // timeout is probably a good idea
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+ 		curl_setopt($ch, CURLOPT_TIMEOUT, 7);
 
                 //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
                 if ($attempt > 1) {
