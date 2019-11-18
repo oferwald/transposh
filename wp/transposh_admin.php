@@ -745,7 +745,7 @@ class transposh_plugin_admin {
 
     function tp_advanced() {
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
-        $this->textinput($this->transposh->options->jqueryui_override_o, __('Override jQueryUI version', TRANSPOSH_TEXT_DOMAIN)." (".JQUERYUI_VER.")", __('Version', TRANSPOSH_TEXT_DOMAIN));
+        $this->textinput($this->transposh->options->jqueryui_override_o, __('Override jQueryUI version', TRANSPOSH_TEXT_DOMAIN) . " (" . JQUERYUI_VER . ")", __('Version', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->dont_add_rel_alternate_o, __('Disable adding rel=alternate to the html', TRANSPOSH_TEXT_DOMAIN), __('Disable the feature that adds the alternate language list to your page html header', TRANSPOSH_TEXT_DOMAIN));
         if (defined('FULL_VERSION')) { //** FULL VERSION
             $this->checkbox($this->transposh->options->full_rel_alternate_o, __('Add rel=alternate with fully qualified urls', TRANSPOSH_TEXT_DOMAIN), __('This will make google happy and will increase size of html by a lot', TRANSPOSH_TEXT_DOMAIN));
@@ -995,7 +995,12 @@ class transposh_plugin_admin {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
-        if ($this->page && !(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) && !function_exists('apc_fetch') && !function_exists('xcache_get') && !function_exists('eaccelerator_get')) {
+        if ($this->page &&
+                !(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) &&
+                !function_exists('apc_fetch') &&
+                !function_exists('apcu_fetch') &&
+                !function_exists('xcache_get') &&
+                !function_exists('eaccelerator_get')) {
             $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>', 'updated');
         }
     }
