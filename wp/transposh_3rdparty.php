@@ -32,6 +32,11 @@ class transposh_3rdparty {
             add_action('transposh_translation_posted', array(&$this, 'super_cache_invalidate'));
         }
 
+        // W3TC cache invalitadion
+        if (function_exists('w3tc_pgcache_flush_post')) {
+            add_action('transposh_translation_posted', array(&$this, 'w3tc_invalidate'));
+        }
+
         // buddypress compatability
         add_filter('bp_uri', array(&$this, 'bp_uri_filter'));
         add_filter('bbp_get_search_results_url', array(&$this, 'bbp_get_search_results_url'));
@@ -96,13 +101,24 @@ class transposh_3rdparty {
         @unlink($meta_pathname);
 
         // go at edit pages too
-        $GLOBALS['wp_cache_request_uri'] .="?edit=1";
+        $GLOBALS['wp_cache_request_uri'] .= "?edit=1";
         extract(wp_super_cache_init());
         tp_logger(wp_super_cache_init());
         tp_logger("attempting delete of edit_wp_cache: $cache_file");
         @unlink($cache_file);
         tp_logger("attempting delete of edit_wp_cache_meta: $meta_pathname");
         @unlink($meta_pathname);
+    }
+
+    function w3tc_invalidate() {
+        tp_logger("W3TC invalidate:".$_SERVER['HTTP_REFERER']);
+        $id = url_to_postid($_SERVER['HTTP_REFERER']);
+        if (is_numeric($id)) {
+            tp_logger("W3TC invalidate post id: $id");
+            w3tc_pgcache_flush_post($id);
+        } else {
+            w3tc_pgcache_flush();
+        }
     }
 
     /**
