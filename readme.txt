@@ -3,7 +3,7 @@ Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
 Requires at least: 3.8
-Tested up to: 5.2.3
+Tested up to: 5.3.2
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 117 languages are automatically translated and can be manually corrected with ease.
