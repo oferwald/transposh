@@ -122,6 +122,9 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2020/01/01 - 1.0.6 =
+ * Minor fixes
+ * Support for w3tc cache invalidation
 = 2019/09/28 - 1.0.5 =
  * Updated to jQueryUI 1.12.1
  * Added link to translation editor for the emails sent regarding translations
