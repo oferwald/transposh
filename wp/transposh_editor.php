@@ -151,8 +151,8 @@ class transposh_editor_table extends WP_List_Table {
         $hidden = array();
         $sortable = $this->get_sortable_columns();
         $this->_column_headers = array($columns, $hidden, $sortable);
-        $orderby = (!empty($_GET['orderby']) ) ? $_GET['orderby'] : 'timestamp';
-        $order = (!empty($_GET['order']) ) ? $_GET['order'] : 'desc';
+        $orderby = (!empty($_GET['orderby']) ) ? filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS) : 'timestamp';
+        $order = (!empty($_GET['order']) ) ? filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS) : 'desc';
 
 
         //$per_page = 5;
