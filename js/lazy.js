@@ -147,13 +147,13 @@ function xLazyLoader ()
         
 
         var link = $('<link rel="stylesheet" type="text/css" media="all" href="'+ href + key + '" id="'+name+'"></link>')[0];
-        if ( $.browser.msie ) {
+       /* if ( $.browser.msie ) {
             link.onreadystatechange = function () {
                 /loaded|complete/.test(link.readyState) && callback();
             };
         } else if ( $.browser.opera ) {
             link.onload = callback;
-        } else {
+        } else {*/
             /* 
              * Mozilla, Safari, Chrome 
              * unfortunately it is inpossible to check if the stylesheet is really loaded or it is "HTTP/1.0 400 Bad Request"
@@ -166,7 +166,7 @@ function xLazyLoader ()
             
             var hostname = location.hostname.replace('www.',''),
                 hrefHostname = /http:/.test(href) ? /^(\w+:)?\/\/([^\/?#]+)/.exec( href )[2] : hostname;
-            hostname != hrefHostname && $.browser.mozilla ?  
+            hostname != hrefHostname && true ?  
                 callback()
                 :  
                 //stylesheet is from the same domain or it is not firefox
@@ -179,7 +179,7 @@ function xLazyLoader ()
                     };
                     callback();
                 })();
-        };
+        //};
 
                 
         head.appendChild(link);
