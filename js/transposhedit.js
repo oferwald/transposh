@@ -614,7 +614,7 @@
         $(dialog).css("padding", "1px").append(
                 '<div style="width: 100%">' +
                 '<label for="original">' + __('Original text') + ' (<a href="#" title="' + __('read alternate translations') + '" id="' + prefix + 'orglang"></a>)' + '</label>' +
-                '<textarea cols="80" row="3" name="original" id="' + prefix + 'original" readonly="y"/>' +
+                '<textarea cols="80" row="3" name="original" id="' + prefix + 'original" readonly="y"></textarea>' +
                 '<span id="' + prefix + 'utlbar">' +
                 '<button id="' + prefix + 'prev">' + __('previous translation') + '</button>' +
                 '<button id="' + prefix + 'zoom">' + __('find on page') + '</button>' +
@@ -622,7 +622,7 @@
                 '<button id="' + prefix + 'next">' + __('next translation') + '</button>' +
                 '</span>' +
                 '<label for="translation">' + __('Translate to') + '</label>' +
-                '<textarea cols="80" row="3" name="translation" lang="' + t_jp.lang + '"id="' + prefix + 'translation"/>' +
+                '<textarea cols="80" row="3" name="translation" lang="' + t_jp.lang + '"id="' + prefix + 'translation"></textarea>' +
                 '<span id="' + prefix + 'ltlbar">' +
                 '<button id="' + prefix + 'history">' + __('view translation log') + '</button>' +
                 '<button id="' + prefix + 'keyboard">' + __('virtual keyboard') + '</button>' +
