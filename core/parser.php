@@ -344,8 +344,8 @@ class tp_parser {
         if (ord($char) == 226 && ord($nextchar) == 136 && ord($nextnextchar) == 153)
             return 3;
         //·
-        if (ord($char) == 194 && ord($nextchar) == 183)
-            return 2;
+        //if (ord($char) == 194 && ord($nextchar) == 183)
+        //    return 2;
         return (strpos(',?()[]{}"!:|;' . TP_GTXT_BRK . TP_GTXT_BRK_CLOSER . TP_GTXT_IBRK . TP_GTXT_IBRK_CLOSER, $char) !== false) ? 1 : 0; // TODO: might need to add < and > here
     }
 
@@ -735,6 +735,9 @@ class tp_parser {
         // create our dom
         $string = str_replace(chr(0xC2) . chr(0xA0), ' ', $string); // annoying NBSPs?
         $this->html = str_get_html($string, false); // false for RSS?
+        if (!is_object($this->html)) {
+            return $string;
+        }
         //$this->stats->do_timing();
         //Log::info("Stats Build dom:" . $this->stats->time);
         // mark translateable elements
