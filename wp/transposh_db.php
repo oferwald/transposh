@@ -465,9 +465,9 @@ class transposh_database {
         tp_logger($copytolog, 3);
         $copyresult = $GLOBALS['wpdb']->query($copytolog);
         if ($copyresult === FALSE) {
-            tp_logger(mysql_error(), 1);
+            tp_logger($GLOBALS['wpdb']->last_error, 1);
             tp_logger("Error !!! failed to move to log $delvalues,", 1);
-            header("HTTP/1.0 404 Failed to update language database " . mysql_error());
+            header("HTTP/1.0 404 Failed to update language database " . $GLOBALS['wpdb']->last_error);
         }
 
         // now we remove existing values
@@ -475,9 +475,9 @@ class transposh_database {
         tp_logger($delfrommain, 3);
         $delresult = $GLOBALS['wpdb']->query($delfrommain);
         if ($delresult === FALSE) {
-            tp_logger(mysql_error(), 1);
+            tp_logger($GLOBALS['wpdb']->last_error, 1);
             tp_logger("Error !!! failed remove $delvalues,", 1);
-            header("HTTP/1.0 404 Failed to update language database " . mysql_error());
+            header("HTTP/1.0 404 Failed to update language database " . $GLOBALS['wpdb']->last_error);
         }
 
         // and finally - insert new ones
@@ -489,9 +489,9 @@ class transposh_database {
         if ($addresult !== FALSE) {
             tp_logger("Inserted to db '$values'", 3);
         } else {
-            tp_logger(mysql_error(), 1);
+            tp_logger($GLOBALS['wpdb']->last_error, 1);
             tp_logger("Error !!! failed to insert to db $original , $translation, $lang,", 1);
-            header("HTTP/1.0 404 Failed to update language database " . mysql_error());
+            header("HTTP/1.0 404 Failed to update language database " . $GLOBALS['wpdb']->last_error);
         }
 
         // if its a human translation we will call the action, this takes the assumption of a single human translation in
@@ -1121,9 +1121,9 @@ class transposh_database {
             tp_logger($log, 3);
             $result = $GLOBALS['wpdb']->query($log);
         } else {
-            tp_logger(mysql_error(), 1);
+            tp_logger($GLOBALS['wpdb']->last_error, 1);
             tp_logger("Error !!! failed to insert to db $original , $translation, $lang,", 0);
-            header("HTTP/1.0 404 Failed to update language database " . mysql_error());
+            header("HTTP/1.0 404 Failed to update language database " . $GLOBALS['wpdb']->last_error);
         }
     }
 
