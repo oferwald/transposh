@@ -297,15 +297,21 @@ class transposh_utils {
             } else {
                 list($source, $translated_text) = call_user_func_array($fetch_translation_func, array($part, $target_language));
             }
-            if ($translated_text)
-                $url .= '/' . str_replace(' ', '-', $translated_text);
-            else {
+            if ($translated_text) {
+                $ttext = str_replace('-', '--', $translated_text);
+                $ttext = str_replace(' ', '-', $ttext);
+                $ttext = str_replace('?', '(qm)', $ttext);
+                $url .= '/' . $ttext;
+            } else {
                 // now the same attempt with '-' replaced to ' '
                 list($source, $translated_text) = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
                 //logger ($part. ' '.str_replace('-', ' ', $part).' '.$translated_text);
-                if ($translated_text)
-                    $url .= '/' . str_replace(' ', '-', $translated_text);
-                else
+                if ($translated_text) {
+                    $ttext = str_replace('-', '--', $translated_text);
+                    $ttext = str_replace(' ', '-', $ttext);
+                    $ttext = str_replace('?', '(qm)', $ttext);
+                    $url .= '/' . $ttext;
+                } else
                     $url .= '/' . $part;
             }
         }
@@ -342,8 +348,12 @@ class transposh_utils {
             $original_text = call_user_func_array($fetch_translation_func, array($part, $target_language));
             if (!$original_text) {
                 // if the part has dashes we attempt to resolve original without them
-                if ($part != str_replace('-', ' ', $part)) {
-                    $original_text = call_user_func_array($fetch_translation_func, array(str_replace('-', ' ', $part), $target_language));
+                $part2 = str_replace('--', 'tmptmptmp', $part);
+                $part2 = str_replace('-', ' ', $part2);
+                $part2 = str_replace('(qm)', '?', $part2);
+                $part2 = str_replace('tmptmptmp', '-', $part2);
+                if ($part != $part2) {
+                    $original_text = call_user_func_array($fetch_translation_func, array($part2, $target_language));
                 }
             }
             // we'll add it if we have it
