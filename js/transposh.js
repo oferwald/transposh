@@ -403,11 +403,11 @@
     $(function () {
         // set a global binglang (if needed)
         if (typeof t_jp.blang === 'undefined')
-            t_jp.blang = t_jp.lang
+            t_jp.blang = t_jp.lang;
 
         // this is the set_default_language function
         // attach a function to the set_default_language link if its there
-        $('.' + t_jp_prefix + 'setdeflang').click(function () {
+        $('.' + t_jp_prefix + 'setdeflang').on("click", function () {
             $.ajax({
                 url: t_jp.ajaxurl,
                 data: {

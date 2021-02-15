@@ -16,7 +16,7 @@
  */
 
 (function ($) { // closure
-    $('.tp_help').live('click', function (event) {
+    $(document).on('click','.tp_help', function (event) {
         event.preventDefault();
         window.scrollTo(0, 0);
         $('#tab-link-' + jQuery(this).attr('rel') + ' a').trigger('click');
