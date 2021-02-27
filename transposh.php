@@ -1047,12 +1047,13 @@ class transposh_plugin {
      * @return boolean Modified href
      */
     function rewrite_url($href) {
-        tp_logger("got: $href", 5);
+        tp_logger("got: $href", 3);
         ////$href = str_replace('&#038;', '&', $href);
         // fix what might be messed up -- TODO
         $href = transposh_utils::clean_breakers($href);
 
         // Ignore urls not from this site
+        tp_logger("homeurl: {$this->home_url} ", 3);
         if (!transposh_utils::is_rewriteable_url($href, $this->home_url)) {
             return $href;
         }
@@ -1061,8 +1062,8 @@ class transposh_plugin {
         // web server will not be able to locate them
         if (stripos($href, '/wp-admin') !== FALSE ||
                 stripos($href, WP_CONTENT_URL) !== FALSE ||
-                stripos($href, '/wp-login') !== FALSE ||
-                stripos($href, '/.php') !== FALSE) /* ??? */ {
+                stripos($href, '/wp-login') !== FALSE /*||
+                stripos($href, '/.php') !== FALSE*/) /* ??? */ {
             return $href;
         }
         $use_params = !$this->enable_permalinks_rewrite;
@@ -1128,7 +1129,10 @@ class transposh_plugin {
                 $q['search_terms'] = array($q['s']);
             } else {
                 preg_match_all('/".*?("|$)|((?<=[\\s",+])|^)[^\\s",+]+/', $q['s'], $matches);
-                $q['search_terms'] = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
+                $q['search_terms'] = array_map(function($a) {
+                    return trim($a, "\"'\\n\\r ");
+                }, $matches[0]);
+                //$q['search_terms'] = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
             }
             $n = !empty($q['exact']) ? '' : '%';
             $searchand = '';
@@ -1867,7 +1871,7 @@ class transposh_plugin {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
                 // timeout is probably a good idea
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
- 		curl_setopt($ch, CURLOPT_TIMEOUT, 7);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 7);
 
                 //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
                 if ($attempt > 1) {

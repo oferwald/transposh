@@ -434,8 +434,10 @@ class transposh_plugin_widget extends WP_Widget {
 
             $tp_widgets[plugin_basename($widget_file)] = $widget_data;
         }
-
-        uasort($tp_widgets, create_function('$a, $b', 'return strnatcasecmp( $a["Name"], $b["Name"] );'));
+        uasort($tp_widgets, function($a, $b) {
+            return strnatcasecmp( $a["Name"], $b["Name"] );
+        });
+        //uasort($tp_widgets, create_function('$a, $b', 'return strnatcasecmp( $a["Name"], $b["Name"] );'));
 
         return $tp_widgets;
     }
