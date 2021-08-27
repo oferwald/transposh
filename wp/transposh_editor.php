@@ -99,7 +99,7 @@ class transposh_editor_table extends WP_List_Table {
             // 'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', 1/*$item['ID']*/),
             'delete' => sprintf('<a href="?page=%s&action=%s&key=%s">' . __('Delete') . '</a>', $_REQUEST['page'], 'delete', $this->item_key($item)),
         );
-        return sprintf('%1$s %2$s', $item['original'], $this->row_actions($actions));
+        return sprintf('%1$s %2$s', htmlspecialchars(htmlspecialchars_decode($item['original'])), $this->row_actions($actions));
     }
 
     function column_translated($item) {
@@ -170,14 +170,14 @@ class transposh_editor_table extends WP_List_Table {
 
         $current_page = $this->get_pagenum();
         $limit = ($current_page - 1) * $per_page;
-        $total_items = $my_transposh_plugin->database->get_filtered_translations_count('0', 'null', $this->filter);
+        $total_items = $my_transposh_plugin->database->get_filtered_translations_count('', 'null', $this->filter);
         $this->set_pagination_args(array(
             'total_items' => $total_items, //WE have to calculate the total number of items
             'per_page' => $per_page //WE have to determine how many items to show on a page
         ));
         //$this->items = $this->found_data;
         global $my_transposh_plugin;
-        $this->items = $my_transposh_plugin->database->get_filtered_translations('0', 'null', "$limit, $per_page", $orderby, $order, $this->filter);
+        $this->items = $my_transposh_plugin->database->get_filtered_translations('', 'null', "$limit, $per_page", $orderby, $order, $this->filter);
     }
 
     function render_table() {

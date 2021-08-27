@@ -403,7 +403,7 @@ class transposh_database {
                 $orig = stripslashes($_POST["tk$i"]);
                 // The original content is encoded as base64 before it is sent (i.e. token), after we
                 // decode it should just the same after it was parsed.
-                $original = esc_sql(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8'));
+                $original = esc_sql(htmlspecialchars(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8')));
             }
             if (isset($_POST["tr$i"])) {
                 $trans = $_POST["tr$i"];
@@ -734,6 +734,7 @@ class transposh_database {
     function get_filtered_translations($source = '0', $date = 'null', $limit = '', $orderby = 'timestamp', $order = 'DESC', $filter = '') {
         $limitterm = '';
         $dateterm = '';
+        $sourceterm = '';
         if ($source != '') {
             $sourceterm = "source=$source";
         }
@@ -750,9 +751,11 @@ class transposh_database {
         if ($limit)
             $limitterm = "LIMIT $limit";
         $query = "SELECT * " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
-                "FROM {$this->translation_table} " .
-                "WHERE $sourceterm $dateterm $filter " .
-                "ORDER BY $orderby $order $limitterm";
+                "FROM {$this->translation_table} ";
+        if (($sourceterm || $dateterm || $filter)) {
+            $query .= "WHERE $sourceterm $dateterm $filter ";
+        }
+        $query .= "ORDER BY $orderby $order $limitterm";
         tp_logger("query is $query");
 
         $rows = $GLOBALS['wpdb']->get_results($query, ARRAY_A);
@@ -771,6 +774,7 @@ class transposh_database {
      */
     function get_filtered_translations_count($source = '0', $date = 'null', $filter = '') {
         $dateterm = '';
+        $sourceterm = '';
         if ($source != '') {
             $sourceterm = "source=$source";
         }
@@ -785,8 +789,10 @@ class transposh_database {
             $filter = "AND " . $filter;
         }
         $query = "SELECT count(*) " . //original, lang, translated, translated_by, UNIX_TIMESTAMP(timestamp) as timestamp " .
-                "FROM {$this->translation_table} " .
-                "WHERE $sourceterm $dateterm $filter";
+                "FROM {$this->translation_table} ";
+        if (($sourceterm || $dateterm || $filter)) {
+            $query .= "WHERE $sourceterm $dateterm $filter";
+        }
         tp_logger("query is $query");
 
         $count = $GLOBALS['wpdb']->get_var($query);
