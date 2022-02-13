@@ -152,24 +152,47 @@ class transposh_plugin_widget extends WP_Widget {
         ;
     }
 
+    /*
+     * Make sure that this feature would not be used to include files in weird locations
+     * No more then one "/" no more than one "." - Also sanitize nonsense by WP
+     */
+    function sanitize_file($file) {
+        $slashcount=substr_count($file, '/');
+        if ($slashcount > 1) {
+            return ""; // We would not like more than one degree of recursion
+        }
+        if (substr_count($file, ".") > 1) {
+            return ""; // One dot should be enough for everyone - Bill Gates
+        }
+        if ($slashcount == 1) {
+            list ($dir,$filename) = explode("/", $file);
+            $newfile = sanitize_file_name($dir)."/".sanitize_file_name($filename);
+        } else {
+            $newfile = sanitize_file_name($file);
+        }
+        return $newfile;
+    }
     /**
      * Loads the subwidget class code
      */
     function load_widget($file) {
         tp_logger("widget loaded: $file", 4);
+        // This is the support for user widgets that won't be deleted in newer versions
         if ($file[0] == '*') {
             $upload = wp_upload_dir();
             $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
-            $widget_src = $upload_dir . '/' . substr($file, 1);
+            $widget_src = $upload_dir . '/' . $this->sanitize_file (substr($file, 1));
         } else {
-            $widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
+            $widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $this->sanitize_file($file);
         }
-        if ($file && file_exists($widget_src)) {
+        // Load default widget for non-working stuff
+        if ($file && is_file($widget_src)) {
             include_once $widget_src;
         } else {
             $file = 'default/tpw_default.php';
             include_once $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
         }
+        // return just the file name, no extension
         return substr($file, strpos($file, '/') + 1, -4);
     }
 
