@@ -1936,7 +1936,7 @@ class transposh_plugin {
                 }
             } else {
                 // yes - it was all that was needed to fix the Google 2022 translation change
-                $result[] = $jsonarr;
+                $result = $jsonarr;
             }
         } else {
             $result[] = $jsonarr;
