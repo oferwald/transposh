@@ -68,6 +68,7 @@ class transposh_plugin {
     /** @var transposh_3rdparty Happens after editing */
     private $third_party;
     // list of properties
+
     /** @var string The site url */
     public $home_url;
 
@@ -558,7 +559,6 @@ class transposh_plugin {
             $value .= $lang_parameter;
 
             tp_logger("\t $key ---> $value", 2);
-
 
             $newRules[$key] = $value;
             $newRules[$original_key] = $original_value;
@@ -1062,8 +1062,8 @@ class transposh_plugin {
         // web server will not be able to locate them
         if (stripos($href, '/wp-admin') !== FALSE ||
                 stripos($href, WP_CONTENT_URL) !== FALSE ||
-                stripos($href, '/wp-login') !== FALSE /*||
-                stripos($href, '/.php') !== FALSE*/) /* ??? */ {
+                stripos($href, '/wp-login') !== FALSE /* ||
+          stripos($href, '/.php') !== FALSE */) /* ??? */ {
             return $href;
         }
         $use_params = !$this->enable_permalinks_rewrite;
@@ -1129,7 +1129,7 @@ class transposh_plugin {
                 $q['search_terms'] = array($q['s']);
             } else {
                 preg_match_all('/".*?("|$)|((?<=[\\s",+])|^)[^\\s",+]+/', $q['s'], $matches);
-                $q['search_terms'] = array_map(function($a) {
+                $q['search_terms'] = array_map(function ($a) {
                     return trim($a, "\"'\\n\\r ");
                 }, $matches[0]);
                 //$q['search_terms'] = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
@@ -1617,8 +1617,11 @@ class transposh_plugin {
                     $jsonout->results[] = $r[$j];
                 } else {
                     // TODO: no value - original?
-                    $jsonout->results[] = $result[$k];
-                    $k++;
+                    // There are no results? need to check!
+                    if (isset($result[$k])) {
+                        $jsonout->results[] = $result[$k];
+                        $k++;
+                    }
                 }
             }
 
@@ -1634,9 +1637,11 @@ class transposh_plugin {
                 $k = 0;
                 for ($j = 0; $j < $i; $j++) {
                     if (!isset($r[$j])) {
-                        $_POST["tk$k"] = stripslashes($_GET['q'][$j]); // stupid, but should work
-                        $_POST["tr$k"] = $jsonout->results[$j];
-                        $k++;
+                        if (isset($jsonout->results[$j])) {
+                            $_POST["tk$k"] = stripslashes($_GET['q'][$j]); // stupid, but should work
+                            $_POST["tr$k"] = $jsonout->results[$j];
+                            $k++;
+                        }
                     }
                 }
                 tp_logger('updating! :)');
@@ -1928,10 +1933,10 @@ class transposh_plugin {
                         $val = $val[0];
                     }
                     $result[] = $val;
-                    //   tp_logger('$here');
                 }
             } else {
-                $result[] = $jsonarr[0];
+                // yes - it was all that was needed to fix the Google 2022 translation change
+                $result[] = $jsonarr;
             }
         } else {
             $result[] = $jsonarr;
