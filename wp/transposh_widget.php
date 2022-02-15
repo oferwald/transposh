@@ -144,7 +144,7 @@ class transposh_plugin_widget extends WP_Widget {
         '<select id="' . $this->get_field_id('widget_file') . '" name="' . $this->get_field_name('widget_file') . '">';
         foreach ($widgets as $file => $widget) {
             tp_logger($widget, 4);
-            $selected = ($instance['widget_file'] == $file) ? ' selected="selected"' : '';
+            $selected = (isset($instance['widget_file']) && $instance['widget_file'] == $file) ? ' selected="selected"' : '';
             echo "<option value=\"$file\"$selected>{$widget['Name']}</option>";
         }
         echo '</select>' .
@@ -175,10 +175,10 @@ class transposh_plugin_widget extends WP_Widget {
     /**
      * Loads the subwidget class code
      */
-    function load_widget($file) {
+    function load_widget($file = "") {
         tp_logger("widget loaded: $file", 4);
         // This is the support for user widgets that won't be deleted in newer versions
-        if ($file[0] == '*') {
+        if ($file && $file[0] == '*') {
             $upload = wp_upload_dir();
             $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
             $widget_src = $upload_dir . '/' . $this->sanitize_file (substr($file, 1));
@@ -305,7 +305,11 @@ class transposh_plugin_widget extends WP_Widget {
         tp_logger($args, 4);
 
         // we load the class needed and get its base name for later
-        $class = $this->load_widget($instance['widget_file']);
+        if (isset($instance['widget_file'])) {
+            $class = $this->load_widget($instance['widget_file']);        
+        } else {
+            $class = $this->load_widget();
+        }
         if (!class_exists($class)) {
             echo __('Transposh subwidget was not loaded correctly', TRANSPOSH_TEXT_DOMAIN) . ": $class";
         }
@@ -408,6 +412,7 @@ class transposh_plugin_widget extends WP_Widget {
      * Inspired (and used code) from the get_plugins function of wordpress
      */
     function get_widgets($widget_folder = '') {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
         get_plugins();
 
         $tp_widgets = array();
