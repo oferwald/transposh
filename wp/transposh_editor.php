@@ -9,7 +9,7 @@ class transposh_editor_table extends WP_List_Table {
     private $filter = "";
 
     function __construct() {
-        global $status, $page;
+        //global $status, $page;
         parent::__construct(array(
             'singular' => __('translation', TRANSPOSH_TEXT_DOMAIN), //singular name of the listed records
             'plural' => __('translations', TRANSPOSH_TEXT_DOMAIN), //plural name of the listed records
@@ -86,19 +86,30 @@ class transposh_editor_table extends WP_List_Table {
         );
     }
 
+    function get_column_filter($remove = "") {
+        $filter = "";
+        foreach (["fts", "fl", "lang"] as $curfilt) {
+            if ($remove != $curfilt && filter_input(INPUT_GET, $curfilt, FILTER_DEFAULT, FILTER_NULL_ON_FAILURE) !== false) {
+                $filter .= "&";
+                $filter .= "$curfilt=" . filter_input(INPUT_GET, $curfilt);
+            }
+        }
+        return $filter;
+    }
+
     function column_lang($item) {
-        $actions = array(
-            // 'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', 1/*$item['ID']*/),
-            'filter' => sprintf('<a href="?page=%s&action=%s&fl=%s">Filter</a>', $_REQUEST['page'], 'filter-lang', $item['lang']),
-        );
+        $filter = "";
+        if (filter_input(INPUT_GET, 'fl', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE)) {
+            $filter = sprintf('<a href="?page=%s&action=%s%s">' . __('Remove filter') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $this->get_column_filter('fl'));
+        } else {
+            $filter = sprintf('<a href="?page=%s&action=%s&fl=%s%s">' . __('Filter') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $item['lang'], $this->get_column_filter('fl'));
+        }
+        $actions = ['filter' => $filter];
         return sprintf('%1$s %2$s', transposh_consts::get_language_name($item['lang']), $this->row_actions($actions));
     }
 
     function column_original($item) {
-        $actions = array(
-            // 'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', 1/*$item['ID']*/),
-            'delete' => sprintf('<a href="?page=%s&action=%s&key=%s">' . __('Delete') . '</a>', $_REQUEST['page'], 'delete', $this->item_key($item)),
-        );
+        $actions = ['delete' => sprintf('<a href="?page=%s&action=%s&key=%s">' . __('Delete') . '</a>', filter_input(INPUT_GET, "page"), 'delete', $this->item_key($item))];
         return sprintf('%1$s %2$s', htmlspecialchars(htmlspecialchars_decode($item['original'])), $this->row_actions($actions));
     }
 
@@ -113,10 +124,17 @@ class transposh_editor_table extends WP_List_Table {
     function column_translated_by($item) {
         // check if its a user and try to grab his login
         $by = transposh_utils::wordpress_user_by_by($item['translated_by']);
-        $actions = array(
+        $filter = "";
+        if (filter_input(INPUT_GET, 'ftb', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE)) {
+            $filter = sprintf('<a href="?page=%s&action=%s%s">' . __('Remove filter') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $this->get_column_filter('ftb'));
+        } else {
+            $filter = sprintf('<a href="?page=%s&action=%s&ftb=%s%s">' . __('Filter') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $item['translated_by'], $this->get_column_filter('ftb'));
+        }
+
+        $actions = [
             // 'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', 1/*$item['ID']*/),
-            'filter' => sprintf('<a href="?page=%s&action=%s&ftb=%s">Filter</a>', $_REQUEST['page'], 'filter-by', $item['translated_by']),
-        );
+            'filter' => $filter,
+        ];
         return sprintf('%1$s %2$s', $by, $this->row_actions($actions));
     }
 
@@ -151,9 +169,8 @@ class transposh_editor_table extends WP_List_Table {
         $hidden = array();
         $sortable = $this->get_sortable_columns();
         $this->_column_headers = array($columns, $hidden, $sortable);
-        $orderby = (!empty($_GET['orderby']) ) ? filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS) : 'timestamp';
-        $order = (!empty($_GET['order']) ) ? filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS) : 'desc';
-
+        $orderby = (!empty(filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS)) ) ? filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS) : 'timestamp';
+        $order = (!empty(filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS)) ) ? filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS) : 'desc';
 
         //$per_page = 5;
         $user = get_current_user_id();
@@ -184,8 +201,15 @@ class transposh_editor_table extends WP_List_Table {
         echo '</pre><div class="wrap"><h2>' . __('Translations', TRANSPOSH_TEXT_DOMAIN) . '</h2>';
         $this->prepare_items();
         if ($this->filter) {
-            $current_url = set_url_scheme('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-            echo (sprintf("<a href='%s'>%s</a>", esc_url(remove_query_arg(array('action', 'ftb', 'fl', 'paged'), $current_url)), __('Remove filter')));
+            $current_url = set_url_scheme('http://' . filter_input(INPUT_SERVER, 'HTTP_HOST') . filter_input(INPUT_SERVER, 'REQUEST_URI'));
+            echo (sprintf("<a href='%s'>%s</a></br>", esc_url(remove_query_arg(['action', 'ftb', 'fts', 'fl', 'paged'], $current_url)), __('Remove all filters')));
+        }
+
+        //'filter' => sprintf('<a href="?page=%s&action=%s&ftb=%s">Filter</a>', filter_input(INPUT_GET, "page"), 'filter-by', $item['translated_by']),
+        if (filter_input(INPUT_GET, 'fts', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE) !== false) {
+            echo (sprintf('<a href="?page=%s&action=%s%s">' . __('Show all translations') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $this->get_column_filter('fts'),));
+        } else {
+            echo (sprintf('<a href="?page=%s&action=%s&fts=%s%s">' . __('Show only human translations') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', "0", $this->get_column_filter('fts'),));
         }
         echo '
         <form method="post">
@@ -205,27 +229,42 @@ class transposh_editor_table extends WP_List_Table {
         // echo "Actioning";
         // echo $this->current_action();
         if ($this->current_action() === 'delete') {
-            if (isset($_GET['key'])) {
-                list($timestamp, $lang, $original) = explode(',', base64_decode($_GET['key']), 3);
+            if (filter_input(INPUT_GET, 'key', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE)) {
+                list($timestamp, $lang, $original) = explode(',', base64_decode(filter_input(INPUT_GET, 'key')), 3);
                 // echo "($timestamp,$lang,$original)";
                 $return = $my_transposh_plugin->database->del_translation_history($original, $lang, $timestamp);
                 echo json_encode($return);
                 exit();
             }
-            if (isset($_REQUEST['keys'])) {
-                foreach ($_REQUEST['keys'] as $key) {
+            $keys = filter_input(INPUT_POST, 'keys', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            if ($keys) {
+                foreach ($keys as $key) {
                     tp_logger($key);
                     list($timestamp, $lang, $original) = explode(',', base64_decode($key), 3);
                     $my_transposh_plugin->database->del_translation_history($original, $lang, $timestamp);
                 }
-                exit();
             }
         }
-        if ($this->current_action() === 'filter-lang') {
-            $this->filter = "lang = '" . esc_sql($_REQUEST['fl']) . "'";
-        }
+        // fts - filter source, fl - filter language, ftb - filter by
+        $this->filter = "";
         if ($this->current_action() === 'filter-by') {
-            $this->filter = "translated_by = '" . esc_sql($_REQUEST['ftb']) . "'";
+            if (filter_input(INPUT_GET, 'fts', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE) !== false) {
+                $this->filter .= "source = '" . esc_sql(filter_input(INPUT_GET, 'fts')) . "'";
+            }
+            if (filter_input(INPUT_GET, 'fl', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE)) {
+                if ($this->filter) {
+                    $this->filter .= " AND ";
+                }
+                $this->filter .= "lang = '" . esc_sql(filter_input(INPUT_GET, 'fl')) . "'";
+            }
+            if (filter_input(INPUT_GET, 'ftb', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE)) {
+                if ($this->filter) {
+                    $this->filter .= " AND ";
+                }
+                $this->filter .= "translated_by = '" . esc_sql(filter_input(INPUT_GET, 'ftb')) . "'";
+            }
+
+            tp_logger($this->filter);
         }
         tp_logger($this->current_action());
     }
