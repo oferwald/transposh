@@ -991,7 +991,7 @@ class transposh_plugin_admin {
 
     /** UTILITY FUNCTIONS  END * */
     function tp_notices() {
-        if ((int) ini_get('memory_limit') < 64) {
+        if ((int) ini_get('memory_limit') < 64 && strpos(strtolower(ini_get('memory_limit')),'g') == false) {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
