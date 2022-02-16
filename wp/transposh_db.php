@@ -319,7 +319,7 @@ class transposh_database {
         }
         // lang
         // FIXME - no prefetching for originals yet...
-        if ($this->translations[$translation]) {
+        if (isset($this->translations) && $this->translations[$translation]) {
             $original = $this->translations[$translation];
             tp_logger("prefetch result for $translation >>> {$this->translations[$translation][0]} ({$this->translations[$translation][1]})", 3);
         } else {
@@ -328,7 +328,7 @@ class transposh_database {
 
             if ($row !== null) {
                 $original = stripslashes($row->original);
-                tp_logger("db result for $translation >>> $original ($lang) (/*{$row->source}*/)", 4);
+                tp_logger("db result for $translation >>> $original ($lang)", 4);
             }
         }
 
