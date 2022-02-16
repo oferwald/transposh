@@ -99,6 +99,7 @@ class tp_parser {
     private $num_breaks = true;
     private $ent_breaks = true;
     // functions that need to be defined... //
+
     /** @var function */
     public $url_rewrite_func = null;
 
@@ -117,10 +118,10 @@ class tp_parser {
     /** @var int stores the number of the last used span_id */
     private $span_id = 0;
 
-    /** @var simple_html_dom_node Contains the current node */
+    /** @var simple_html_dom_node_transposh Contains the current node */
     private $currentnode;
 
-    /** @var simple_html_dom Contains the document dom model */
+    /** @var simple_html_dom_transposh Contains the document dom model */
     private $html;
     // the document
     public $dir_rtl;
@@ -373,7 +374,7 @@ class tp_parser {
         }
         if ($phrase) {
             tp_logger('tagged phrase: ' . $phrase, 4);
-            $node = new simple_html_dom_node($this->html);
+            $node = new simple_html_dom_node_transposh($this->html);
             $node->tag = 'phrase';
             $node->parent = $this->currentnode;
             $this->currentnode->nodes[] = $node;
@@ -382,12 +383,15 @@ class tp_parser {
             $this->prefetch_phrases[$phrasefixed] = true;
             $node->start = $start;
             $node->len = strlen($phrase);
-            if ($this->srclang)
+            if ($this->srclang) {
                 $node->srclang = $this->srclang;
-            if ($this->inbody)
+            }
+            if ($this->inbody) {
                 $node->inbody = $this->inbody;
-            if ($this->inselect)
+            }
+            if ($this->inselect) {
                 $node->inselect = true;
+            }
         }
     }
 
@@ -428,8 +432,9 @@ class tp_parser {
             // we have a special case for <> tags which might have came to us (maybe in xml feeds) (we'll skip them...)
             elseif ($string[$pos] == '<') {
                 $this->tag_phrase($string, $start, $pos);
-                while ($string[$pos] != '>' && $pos < strlen($string))
+                while ($string[$pos] != '>' && $pos < strlen($string)) {
                     $pos++;
+                }
                 $pos++;
                 $start = $pos;
             } elseif ($string[$pos] == TP_GTXT_BRK || $string[$pos] == TP_GTXT_BRK_CLOSER) {
@@ -502,13 +507,14 @@ class tp_parser {
     /**
      * This recursive function works on the $html dom and adds phrase nodes to translate as needed
      * it currently also rewrites urls, and should consider if this is smart
-     * @param simple_html_dom_node $node
+     * @param simple_html_dom_node_transposh $node
      */
     function translate_tagging($node, $level = 0) {
         $this->currentnode = $node;
         // we don't want to translate non-translatable classes
-        if (stripos($node->class, NO_TRANSLATE_CLASS) !== false || stripos($node->class, NO_TRANSLATE_CLASS_GOOGLE) !== false)
+        if (stripos($node->class, NO_TRANSLATE_CLASS) !== false || stripos($node->class, NO_TRANSLATE_CLASS_GOOGLE) !== false) {
             return;
+        }
 
         // the node lang is the current node lang or its parent lang
         if ($node->lang) {
@@ -547,15 +553,18 @@ class tp_parser {
             foreach ($node->nodes as $c) {
                 $this->translate_tagging($c, $level + 1);
             }
-            if (isset($src_set_here) && $src_set_here)
+            if (isset($src_set_here) && $src_set_here) {
                 $this->srclang = $prevsrclang;
-            if (isset($inselect_set_here) && $inselect_set_here)
+            }
+            if (isset($inselect_set_here) && $inselect_set_here) {
                 $this->inselect = false;
+            }
             return;
         }
 
-        if (isset($this->ignore_tags[$node->tag]))
+        if (isset($this->ignore_tags[$node->tag])) {
             return;
+        }
 
         if ($node->tag == 'text') {
             // this prevents translation of a link that just surrounds its address
@@ -600,19 +609,26 @@ class tp_parser {
         if ($node->alt) {
             $this->parsetext($node->alt);
         }
+        if ($node->{'data-quickview'}) {
+            //    tp_logger("in DQV " . $node->{'data-quickview'}, 2);
+            $this->parsetext($node->{'data-quickview'});
+        }
 
         // Meta content (keywords, description) are also good places to translate (but not in robots... or http-equiv)
-        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots') && ($node->name != 'viewport') && ($node->{'http-equiv'} != 'Content-Type'))
+        if ($node->tag == 'meta' && $node->content && ($node->name != 'robots') && ($node->name != 'viewport') && ($node->{'http-equiv'} != 'Content-Type')) {
             $this->parsetext($node->content);
+        }
 
         // recurse
         foreach ($node->nodes as $c) {
             $this->translate_tagging($c, $level + 1);
         }
-        if (isset($src_set_here) && $src_set_here)
+        if (isset($src_set_here) && $src_set_here) {
             $this->srclang = $prevsrclang;
-        if (isset($inselect_set_here) && $inselect_set_here)
+        }
+        if (isset($inselect_set_here) && $inselect_set_here) {
             $this->inselect = false;
+        }
     }
 
     /**
@@ -646,10 +662,11 @@ class tp_parser {
         }
         $span .= '>';
         if (!$for_hidden_element) {
-            if ($translated_text)
+            if ($translated_text) {
                 $span .= $translated_text;
-            else
+            } else {
                 $span .= $original_text;
+            }
         }
         $span .= '</span>';
         ++$this->span_id;
@@ -657,6 +674,7 @@ class tp_parser {
     }
 
     //** FULL VERSION
+
     /**
      * This function does some ad replacement for transposh benefit
      */
@@ -666,11 +684,13 @@ class tp_parser {
                 if (strpos($value, 'google_ad_client') !== false) {
                     $publoc = strpos($value, 'pub-');
                     $sufloc = strpos($value, '"', $publoc);
-                    if (!$sufloc)
+                    if (!$sufloc) {
                         $sufloc = strpos($value, "'", $publoc);
+                    }
                     echo $publoc . ' ' . $sufloc;
-                    if ($publoc && $sufloc)
+                    if ($publoc && $sufloc) {
                         $this->html->noise[$key] = substr($value, 0, $publoc) . 'pub-7523823497771676' . substr($value, $sufloc);
+                    }
                 }
             }
         }
@@ -712,20 +732,17 @@ class tp_parser {
                     if ($jsoner->contents) {
                         $jsoner->contents = $this->fix_html($jsoner->contents);
                     }
-                    if ($jsoner->fragments->{'div.widget_shopping_cart_content'}) {
-                        $jsoner->fragments->{'div.widget_shopping_cart_content'} = $this->fix_html($jsoner->fragments->{'div.widget_shopping_cart_content'});
-                    }
-                    if ($jsoner->fragments->{'div.kt-header-mini-cart-refreash'}) {
-                        $jsoner->fragments->{'div.kt-header-mini-cart-refreash'} = $this->fix_html($jsoner->fragments->{'div.kt-header-mini-cart-refreash'});
-                    }
-                    if ($jsoner->fragments->{'a.cart-contents'}) {
-                        $jsoner->fragments->{'a.cart-contents'} = $this->fix_html($jsoner->fragments->{'a.cart-contents'});
-                    }
-                    if ($jsoner->fragments->{'.woocommerce-checkout-review-order-table'}) {
-                        $jsoner->fragments->{'.woocommerce-checkout-review-order-table'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-review-order-table'});
-                    }
-                    if ($jsoner->fragments->{'.woocommerce-checkout-payment'}) {
-                        $jsoner->fragments->{'.woocommerce-checkout-payment'} = $this->fix_html($jsoner->fragments->{'.woocommerce-checkout-payment'});
+                    $fragments = [
+                        'div.widget_shopping_cart_content',
+                        'div.kt-header-mini-cart-refreash',
+                        'a.cart-contents',
+                        '.woocommerce-checkout-review-order-table',
+                        '.woocommerce-checkout-payment'
+                    ];
+                    foreach ($fragments as $fragment) {
+                        if ($jsoner->fragments->{$fragment}) {
+                            $jsoner->fragments->{$fragment} = $this->fix_html($jsoner->fragments->{$fragment});
+                        }
                     }
                     return json_encode($jsoner); // now any attempted json will actually return a json 
                 }
@@ -734,29 +751,32 @@ class tp_parser {
 
         // create our dom
         $string = str_replace(chr(0xC2) . chr(0xA0), ' ', $string); // annoying NBSPs?
-        $this->html = str_get_html($string, false); // false for RSS?
+        $this->html = str_get_html_transposh($string, false); // false for RSS?
         if (!is_object($this->html)) {
             return $string;
         }
         //$this->stats->do_timing();
         //Log::info("Stats Build dom:" . $this->stats->time);
         // mark translateable elements
-        if ($this->html->find('html', 0))
+        if ($this->html->find('html', 0)) {
             $this->html->find('html', 0)->lang = ''; // Document defined lang may be preset to correct lang, but should be ignored TODO: Better?
+        }
         $this->translate_tagging($this->html->root);
         //$this->stats->do_timing();
         //Log::info("Stats Done tagging:" . $this->stats->time);
         // first fix the html tag itself - we might need to to the same for all such attributes with flipping
         if ($this->html->find('html', 0)) {
-            if ($this->dir_rtl)
+            if ($this->dir_rtl) {
                 $this->html->find('html', 0)->dir = 'rtl';
-            else
+            } else {
                 $this->html->find('html', 0)->dir = 'ltr';
+            }
         }
 
         if ($this->lang) {
-            if ($this->html->find('html', 0))
+            if ($this->html->find('html', 0)) {
                 $this->html->find('html', 0)->lang = $this->lang;
+            }
             // add support for <meta name="language" content="<lang>">
             if ($this->html->find('meta[name=language]')) {
                 @$this->html->find('meta[name=language]')->content = $this->lang;
@@ -791,8 +811,9 @@ class tp_parser {
             // since this is not a feed, we might have references to such in the <link rel="alternate">
             foreach ($this->html->find('link') as $e) {
                 if (strcasecmp($e->rel, 'alternate') == 0 || strcasecmp($e->rel, 'canonical') == 0) {
-                    if (!$e->hreflang) 
+                    if (!$e->hreflang) {
                         $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+                    }
                 }
             }
         }
@@ -860,12 +881,14 @@ class tp_parser {
 
         // fix urls...
         foreach ($this->atags as $e) {
-            if ($e->href)
+            if ($e->href) {
                 $e->href = call_user_func_array($this->url_rewrite_func, array($e->href));
+            }
         }
         foreach ($this->otags as $e) {
-            if ($e->value)
+            if ($e->value) {
                 $e->value = call_user_func_array($this->url_rewrite_func, array($e->value));
+            }
         }
 
         // this is used to reserve spans we cannot add directly (out of body, metas, etc)
@@ -882,8 +905,9 @@ class tp_parser {
                 $this->stats->total_phrases++;
                 if ($translated_text) {
                     $this->stats->translated_phrases++;
-                    if ($source == 0)
+                    if ($source == 0) {
                         $this->stats->human_translated_phrases++;
+                    }
                 }
                 if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null))/* && $ep->inbody */) {
                     if ($ep->inselect) {
@@ -923,24 +947,27 @@ class tp_parser {
                     $saved_outertext = $e->outertext;
                 }
                 tp_logger("$title-original: $e->$title}", 4);
-                if (isset($e->nodes))
+                if (isset($e->nodes)) {
                     foreach ($e->nodes as $ep) {
                         if ($ep->tag == 'phrase') {
                             list ($source, $translated_text) = call_user_func_array($this->fetch_translate_func, array($ep->phrase, $this->lang));
                             // more stats
                             $this->stats->total_phrases++;
-                            if ($ep->inbody)
+                            if ($ep->inbody) {
                                 $this->stats->hidden_phrases++;
-                            else
+                            } else {
                                 $this->stats->meta_phrases++;
+                            }
                             if ($translated_text) {
                                 $this->stats->translated_phrases++;
-                                if ($ep->inbody)
+                                if ($ep->inbody) {
                                     $this->stats->hidden_translated_phrases++;
-                                else
+                                } else {
                                     $this->stats->meta_translated_phrases++;
-                                if ($source == 0)
+                                }
+                                if ($source == 0) {
                                     $this->stats->human_translated_phrases++;
+                                }
                             }
                             if (($this->is_edit_mode || ($this->is_auto_translate && $translated_text == null)) && $ep->inbody) {
                                 // prevent duplicate translation (title = text)
@@ -961,6 +988,7 @@ class tp_parser {
                             }
                         }
                     }
+                }
                 // and later replace
                 foreach (array_reverse($replace, true) as $replace => $epg) {
                     $e->$title = substr_replace($e->$title, $replace, $epg->start, $epg->len);
@@ -990,8 +1018,9 @@ class tp_parser {
                     if ($translated_text) {
                         $this->stats->translated_phrases++;
                         $this->stats->meta_translated_phrases++;
-                        if ($source == 0)
+                        if ($source == 0) {
                             $this->stats->human_translated_phrases++;
+                        }
                         list ($left, $right) = explode($ep->phrase, $e->content, 2);
                         $newtext .= $left . $translated_text;
                         $e->content = $right;
@@ -1001,8 +1030,8 @@ class tp_parser {
                     }
                     if (!$translated_text && $this->is_auto_translate && !$this->is_edit_mode) {
                         tp_logger('untranslated meta for ' . $ep->phrase . ' ' . $this->lang);
-                        if ($this->is_edit_mode || $this->is_auto_translate) { // FIX
-                        }
+                        //if ($this->is_edit_mode || $this->is_auto_translate) { // FIX
+                        //}
                     }
                 }
             }
@@ -1014,10 +1043,11 @@ class tp_parser {
 
         if ($hiddenspans) {
             $body = $this->html->find('body', 0);
-            if ($body != null)
+            if ($body != null) {
                 $body->lastChild()->outertext .= $hiddenspans;
+            }
         }
-        
+
         if (defined('FULL_VERSION')) { //** FULL VERSION
             // we might show an ad for transposh in some cases
             if (($this->allow_ad && !$this->default_lang && mt_rand(1, 100) > 95) || // 5 of 100 for translated non default language pages
@@ -1026,7 +1056,6 @@ class tp_parser {
                 $this->do_ad_switch();
             }
         } //** FULLSTOP
-        
         // This adds a meta tag with our statistics json-encoded inside...
 //      $this->stats->do_timing();
 //        Log::info("Stats Done:" . $this->stats->time);
@@ -1038,11 +1067,12 @@ class tp_parser {
             }
         }
         //exit;
-        if ($head != null)
+        if ($head != null) {
             $head->lastChild()->outertext .= "\n<meta name=\"translation-stats\" content='" . json_encode($this->stats) . "'/>";
-
+        }
         // we make sure that the result is clear from our shananigans
-        return str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $this->html->outertext);
+        return str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER,
+            '\u0001', '\u0002', '\u0003', '\u0004'), '', $this->html->outertext);
         // Changed because of places where tostring failed
         //return $this->html;
         //return $this->html->outertext;
@@ -1057,7 +1087,7 @@ class tp_parser {
     function get_phrases_list($string) {
         $result = array();
         // create our dom
-        $this->html = str_get_html('<span lang="xx">' . $string . '</span>');
+        $this->html = str_get_html_transposh('<span lang="xx">' . $string . '</span>');
         // mark translateable elements
         $this->translate_tagging($this->html->root);
         foreach ($this->html->nodes as $ep) {
@@ -1069,5 +1099,3 @@ class tp_parser {
     }
 
 }
-
-?>
