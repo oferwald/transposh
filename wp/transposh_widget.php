@@ -193,7 +193,7 @@ class transposh_plugin_widget extends WP_Widget {
             include_once $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $file;
         }
         // return just the file name, no extension
-        return substr($file, strpos($file, '/') + 1, -4);
+        return pathinfo($file)['filename'];
     }
 
     /**
@@ -312,6 +312,7 @@ class transposh_plugin_widget extends WP_Widget {
         }
         if (!class_exists($class)) {
             echo __('Transposh subwidget was not loaded correctly', TRANSPOSH_TEXT_DOMAIN) . ": $class";
+            return;
         }
 
         $clean_page = $this->transposh->get_clean_url();
