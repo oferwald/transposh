@@ -805,8 +805,10 @@ class tp_parser {
                 unset($e->nodes);
             }
             // fix feed language
-            @$this->html->find('language', 0)->innertext = $this->lang;
-            unset($this->html->find('language', 0)->nodes);
+            if ($this->html->find('language', 0)) {
+                $this->html->find('language', 0)->innertext = $this->lang;
+                unset($this->html->find('language', 0)->nodes);
+            }
         } else {
             // since this is not a feed, we might have references to such in the <link rel="alternate">
             foreach ($this->html->find('link') as $e) {
