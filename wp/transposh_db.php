@@ -901,7 +901,7 @@ class transposh_database {
         $rows = $GLOBALS['wpdb']->get_results($query);
         foreach ($rows as $row) {
             $td = mysql2date(get_option('date_format') . ' ' . get_option('time_format'), $row->timestamp);
-            printf('<p>' . __('On <strong>%1s</strong><br/>user <strong>%2s</strong> translated<br/>"<strong>%3s</strong>"<br/>to <strong style="color:red">%4s</strong><br/>"<strong>%5s</strong>"', TRANSPOSH_TEXT_DOMAIN) . '</p>', $td, $row->translated_by, $row->original, $row->lang, $row->translated);
+            printf('<p>' . __('On <strong>%1s</strong><br/>user <strong>%2s</strong> translated<br/>"<strong>%3s</strong>"<br/>to <strong style="color:red">%4s</strong><br/>"<strong>%5s</strong>"', TRANSPOSH_TEXT_DOMAIN) . '</p>', $td, $row->translated_by, esc_html($row->original), $row->lang, esc_html($row->translated));
         }
     }
 
