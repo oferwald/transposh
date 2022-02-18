@@ -1047,13 +1047,13 @@ class transposh_plugin {
      * @return boolean Modified href
      */
     function rewrite_url($href) {
-        tp_logger("got: $href", 3);
+        tp_logger("got: $href", 4);
         ////$href = str_replace('&#038;', '&', $href);
         // fix what might be messed up -- TODO
         $href = transposh_utils::clean_breakers($href);
 
         // Ignore urls not from this site
-        tp_logger("homeurl: {$this->home_url} ", 3);
+        tp_logger("homeurl: {$this->home_url} ", 4);
         if (!transposh_utils::is_rewriteable_url($href, $this->home_url)) {
             return $href;
         }
