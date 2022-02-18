@@ -958,7 +958,7 @@ class transposh_plugin_admin {
      */
     private function checkbox($tpo, $head, $text) {
         $this->header($head);
-        echo '<input type="checkbox" value="1" name="' . $tpo->get_name() . '" ' . checked($tpo->get_value(), true, false) . '/> ' . $text;
+        echo '<input type="checkbox" value="1" name="' . $tpo->get_name() . '" ' . checked($tpo->get_value(), true, false) . '/> ' . $text.'</br>';
     }
 
     /**
