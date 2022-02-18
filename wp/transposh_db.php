@@ -989,7 +989,7 @@ class transposh_database {
         foreach ($deduptargets as $target) {
             $dedup = 'SELECT * , count( * )' .
                     ' FROM ' . $this->translation_table .
-                    ' WHERE source = 1 ' .
+                    ' WHERE source > 0 ' .
                     ' GROUP BY `' . $target . '` , `lang`' .
                     ' HAVING count( * ) >1';
             tp_logger($dedup, 3);
@@ -998,7 +998,7 @@ class transposh_database {
                 // var_dump($row);
                 $row->$target = esc_sql($row->$target);
                 $row->lang = esc_sql($row->lang);
-                $delvalues = "($target ='{$row->$target}' AND lang='{$row->lang}')";
+                $delvalues = "($target ='{$row->$target}' AND lang='{$row->lang}' AND source > 0)";
                 $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
                 tp_logger($update, 3);
                 $GLOBALS['wpdb']->query($update);
