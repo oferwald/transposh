@@ -69,6 +69,26 @@
             });
             return false;
         };
+
+        // Dedup button
+        dedupautoclick = function (button) {
+            if (!confirm("Are you sure you want to do this?")) return false;
+            var prevtext = button.text();
+            button.unbind('click').click(function(){
+                return false
+            }).text("Deduplication in progress");
+            $.post(ajaxurl, {
+                action: 'tp_dedup'
+            },
+            function(data) {
+                button.unbind('click').click(function() {
+                    dedupautoclick(button);
+                    return false;
+                }).text(prevtext);
+            });
+            return false;
+        };
+     
         
         $("#transposh-clean-auto").click(function() {
             cleanautoclick(0,$(this));
@@ -85,6 +105,10 @@
             return false;
         });
 
+        $("#transposh-dedup").click(function() {
+            dedupautoclick($(this));
+            return false;
+        });
         maintclick = function (button) {
             if (!confirm("Are you sure you want to do this?")) return false;
             var prevtext = button.text();

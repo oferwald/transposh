@@ -35,7 +35,6 @@ class transposh_plugin_admin {
 
     // TODO - memory cache clear button
     // 
-    // constructor of class, PHP4 compatible construction for backward compatibility
     function __construct(&$transposh) {
         $this->transposh = &$transposh;
         // add our notices
@@ -48,16 +47,15 @@ class transposh_plugin_admin {
         // allow language change for comments
         add_filter('comment_row_actions', array(&$this, 'comment_row_actions'), 999, 2);
         // register ajax callbacks
-        add_action('wp_ajax_tp_close_warning', array(&$this, 'on_ajax_tp_close_warning'));
-        add_action('wp_ajax_tp_reset', array(&$this, 'on_ajax_tp_reset'));
-        add_action('wp_ajax_tp_backup', array(&$this, 'on_ajax_tp_backup'));
-        add_action('wp_ajax_tp_restore', array(&$this, 'on_ajax_tp_restore'));
-        add_action('wp_ajax_tp_maint', array(&$this, 'on_ajax_tp_maint'));
-//WIP        add_action('wp_ajax_tp_fetch', array(&$this, 'on_ajax_tp_fetch'));
-        add_action('wp_ajax_tp_cleanup', array(&$this, 'on_ajax_tp_cleanup'));
-        add_action('wp_ajax_tp_translate_all', array(&$this, 'on_ajax_tp_translate_all'));
-        add_action('wp_ajax_tp_post_phrases', array(&$this, 'on_ajax_tp_post_phrases'));
-        add_action('wp_ajax_tp_comment_lang', array(&$this, 'on_ajax_tp_comment_lang'));
+        $ajax_actions = [
+            "close_warning", "reset", "backup", "restore", "dedup", "maint", "cleanup",
+            "translate_all", "post_phrases", "comment_lang" /* WIP - fetch */
+        ];
+
+        foreach ($ajax_actions as $ajax) {
+            add_action("wp_ajax_tp_$ajax", array(&$this, "on_ajax_tp_$ajax"));
+        }
+        
         add_filter('set-screen-option', array(&$this, 'on_screen_option'), 10, 3);
     }
 
@@ -705,7 +703,6 @@ class transposh_plugin_admin {
                 '<br/>' .
                 __('One Hour Translation provides high-quality, fast professional translation to/from any language, and has specific domain expertise in SW localization, technical, business, and legal translations.', TRANSPOSH_TEXT_DOMAIN));
 
-
         $this->textinput($this->transposh->options->oht_id_o
                 , array('ohticon.png', __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN))
                 , __('Account ID', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
@@ -791,6 +788,7 @@ class transposh_plugin_admin {
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-clean-unimportant" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations that add no apparent value', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-dedup" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Remove duplicates translations and originals', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div style="margin:10px 0"><a id="transposh-maint" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Attempt to fix errors caused by previous versions - please backup first', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
 
 // WIP        echo '<div style="margin:10px 0"><a id="transposh-fetch" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Try fetching translation files', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
@@ -821,7 +819,6 @@ class transposh_plugin_admin {
         echo '</a></li><li><a href="http://www.youtube.com/user/transposh">';
         echo __('Our youtube channel', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li></ul>';
-
 
         $this->sectionstop();
         /*
@@ -991,7 +988,7 @@ class transposh_plugin_admin {
 
     /** UTILITY FUNCTIONS  END * */
     function tp_notices() {
-        if ((int) ini_get('memory_limit') < 64 && strpos(strtolower(ini_get('memory_limit')),'g') == false) {
+        if ((int) ini_get('memory_limit') < 64 && strpos(strtolower(ini_get('memory_limit')), 'g') == false) {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
@@ -1077,7 +1074,13 @@ class transposh_plugin_admin {
 
     // Start cleanup on demand
     function on_ajax_tp_cleanup() {
-        $this->transposh->database->cleanup($_POST['days']);
+        $this->transposh->database->cleanup(filter_input(INPUT_POST, 'days', FILTER_SANITIZE_NUMBER_INT));
+        die();
+    }
+
+    // Start dedupping
+    function on_ajax_tp_dedup() {
+        $this->transposh->database->deduplicate_auto();
         die();
     }
 
@@ -1159,5 +1162,3 @@ class transposh_plugin_admin {
     }
 
 }
-
-?>

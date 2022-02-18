@@ -983,6 +983,30 @@ class transposh_database {
         exit;
     }
 
+    function deduplicate_auto() {
+        // clean duplication in the translation table (don't know how it ever happened...)
+        $deduptargets = ['original', 'translated'];
+        foreach ($deduptargets as $target) {
+            $dedup = 'SELECT * , count( * )' .
+                    ' FROM ' . $this->translation_table .
+                    ' WHERE source = 1 ' .
+                    ' GROUP BY `' . $target . '` , `lang`' .
+                    ' HAVING count( * ) >1';
+            tp_logger($dedup, 3);
+            $rows = $GLOBALS['wpdb']->get_results($dedup);
+            foreach ($rows as $row) {
+                // var_dump($row);
+                $row->$target = esc_sql($row->$target);
+                $row->lang = esc_sql($row->lang);
+                $delvalues = "($target ='{$row->$target}' AND lang='{$row->lang}')";
+                $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
+                tp_logger($update, 3);
+                $GLOBALS['wpdb']->query($update);
+                $this->cache_delete($row->original, $row->lang); 
+            }
+        }
+    }
+
     function db_maint() {
         // clean duplicate log entries
         $dedup = 'SELECT * , count( * )' .
@@ -1087,7 +1111,6 @@ class transposh_database {
         $removetranslationsofnothing = "DELETE FROM {$this->translation_table} WHERE `original` = '' AND `source` != 0";
         tp_logger($removetranslationsofnothing, 3);
         $GLOBALS['wpdb']->query($removetranslationsofnothing);
-
 
         // optimize it
         $optimizesql = "OPTIMIZE TABLE {$this->translation_table}, {$this->translation_log_table}";
