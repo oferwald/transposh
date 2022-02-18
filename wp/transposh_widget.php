@@ -445,10 +445,9 @@ class transposh_plugin_widget extends WP_Widget {
         } else {
             return $tp_widgets;
         }
-
-        @closedir($widgets_dir);
-        @closedir($widgets_subdir);
-
+        
+        // There was a closedir once here, but turned out it just caused strange issues 
+        
         if (empty($widget_files))
             return $tp_widgets;
 
