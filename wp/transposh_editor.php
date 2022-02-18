@@ -266,6 +266,14 @@ class transposh_editor_table extends WP_List_Table {
 
             tp_logger($this->filter);
         }
+        $s = filter_input(INPUT_POST, 's', FILTER_SANITIZE_STRING, FILTER_NULL_ON_FAILURE);
+        if ($s) {
+            if ($this->filter) {
+                $this->filter .= " AND ";
+            }
+            $this->filter .= "(translated LIKE '%" . esc_sql($s) . "%' or original LIKE '%" . esc_sql($s) . "%')";
+        }
+
         tp_logger($this->current_action());
     }
 
