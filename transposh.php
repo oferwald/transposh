@@ -1651,6 +1651,10 @@ class transposh_plugin {
         }
 
         // send out result
+        // fix CVE-2021-24910
+        foreach ($jsonout->result as $key => $result) {
+            $jsonout->result[$key] = esc_html($result);
+        }
         echo json_encode($jsonout);
         die();
     }
