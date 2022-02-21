@@ -2,8 +2,8 @@
 Contributors: oferwald
 Donate link: http://transposh.org/donate/
 Tags: translation, translate, i18n, widget, filter, buddypress, bilingual, multilingual, transposh, language, crowdsourcing, google translate, bing translate, context, wiki, RTL, Hebrew, Spanish, French, Russian, English, Arabic, Portuguese
-Requires at least: 3.8
-Tested up to: 5.6
+Requires at least: 5.8
+Tested up to: 5.9
 Stable tag: %VERSION%
 
 Transposh adds best of breed translation support to wordpress, 117 languages are automatically translated and can be manually corrected with ease.
@@ -122,6 +122,16 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2022/02/22 - 1.0.8 =
+ * This version fixes vulnerabilities reported by Julian Ahrens from RCE Security and detailed in CVE-2021-24910, CVE-2021-24911, CVE-2021-24912
+ * Remove memory warning if PHP has more than 1G memory - (Thanks Udi)	
+ * This version offers better PHP8 compatibility with less warnings and errors, if you encounter anything - just let us know
+ * Refactoring of simple_html_node to avoid conflicts with third party software and plugins
+ * Many fixes for the widget code, now working with WP 5.9
+ * Many improvements of translation editor/now allowing removal of auto translations and multiple filters, even search works! (Thanks Alex)
+ * Fixes for changes in the Google Translation API that broke new translations for many
+ * Remove create_function and replace with anonymous functions (hopefully done right), also removed weird /.php match on admin	
+ * Remove Javascript deprecations on live (Thanks Senri Miura)
 = 2020/02/02 - 1.0.7 =
  * Fixes for jQuery 3.x compatibility
  * Fixes for url translation with ? and -
