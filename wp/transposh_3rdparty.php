@@ -54,7 +54,6 @@ class transposh_3rdparty {
         add_filter('wpbdp_listing_link', array(&$this, 'fix_wpbdp_links'));
         add_filter('wpbdp_category_link', array(&$this, 'fix_wpbdp_links'));
 
-
         // google analyticator
         if ($this->transposh->options->transposh_collect_stats) {
             add_action('google_analyticator_extra_js_after', array(&$this, 'add_analyticator_tracking'));
@@ -74,7 +73,8 @@ class transposh_3rdparty {
 
     function super_cache_invalidate() {
         //Now, we are actually using the referrer and not the request, with some precautions
-        $GLOBALS['wp_cache_request_uri'] = substr($_SERVER['HTTP_REFERER'], stripos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) + strlen($_SERVER[''] . $_SERVER['HTTP_HOST']));
+        // check server['']
+        $GLOBALS['wp_cache_request_uri'] = substr(filter_input(INPUT_SERVER, 'HTTP_REFERER'), stripos(filter_input(INPUT_SERVER, 'HTTP_REFERER'), filter_input(INPUT_SERVER, 'HTTP_HOST')) + strlen(filter_input(INPUT_SERVER, '') . filter_input(INPUT_SERVER, 'HTTP_HOST')));
         $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace('/index.php', '/', str_replace('..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri']))));
         // get some supercache variables
         extract(wp_super_cache_init());
@@ -111,7 +111,7 @@ class transposh_3rdparty {
     }
 
     function w3tc_invalidate() {
-        tp_logger("W3TC invalidate:".$_SERVER['HTTP_REFERER']);
+        tp_logger("W3TC invalidate:" . $_SERVER['HTTP_REFERER']);
         $id = url_to_postid($_SERVER['HTTP_REFERER']);
         if (is_numeric($id)) {
             tp_logger("W3TC invalidate post id: $id");
@@ -220,30 +220,61 @@ class transposh_3rdparty {
      * @param GoogleSitemapGeneratorPage $sm_page Object containing the page information
      */
     function add_sm_transposh_urls($sm_page) {
-        tp_logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority(), 4);
-        $sm_page = clone $sm_page;
-        // we need the generator object (we know it must exist...)
-        $generatorObject = &GoogleSitemapGenerator::GetInstance();
-        // we reduce the priorty by 0.2, but not below zero
-        $sm_page->SetProprity(max($sm_page->GetPriority() - 0.2, 0));
+        // up to 4.1.4
+        if (method_exists($sm_page, "GetUrl")) {
+            tp_logger("in sitemap add url: " . $sm_page->GetUrl() . " " . $sm_page->GetPriority(), 4);
+            $sm_page = clone $sm_page;
+            // we need the generator object (we know it must exist...)
+            $generatorObject = &GoogleSitemapGenerator::GetInstance();
+            // we reduce the priorty by 0.2, but not below zero
+            $sm_page->SetProprity(max($sm_page->GetPriority() - 0.2, 0));
 
-        /* <xhtml:link 
-          rel="alternate"
-          hreflang="de"
-          href="http://www.example.com/de" /> */
+            /* <xhtml:link 
+              rel="alternate"
+              hreflang="de"
+              href="http://www.example.com/de" /> */
 
-        $viewable_langs = explode(',', $this->transposh->options->viewable_languages);
-        $orig_url = $sm_page->GetUrl();
-        foreach ($viewable_langs as $lang) {
-            if (!$this->transposh->options->is_default_language($lang)) {
-                $newloc = $orig_url;
-                if ($this->transposh->options->enable_url_translate) {
-                    $newloc = transposh_utils::translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
+            $viewable_langs = explode(',', $this->transposh->options->viewable_languages);
+            $orig_url = $sm_page->GetUrl();
+            foreach ($viewable_langs as $lang) {
+                if (!$this->transposh->options->is_default_language($lang)) {
+                    $newloc = $orig_url;
+                    if ($this->transposh->options->enable_url_translate) {
+                        $newloc = transposh_utils::translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
+                    }
+                    $newloc = transposh_utils::rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
+                    $sm_page->SetUrl($newloc);
+                    $generatorObject->AddElement($sm_page);
                 }
-                $newloc = transposh_utils::rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
-                $sm_page->SetUrl($newloc);
-                $generatorObject->AddElement($sm_page);
             }
+        } elseif (method_exists($sm_page, "get_url")) {
+            tp_logger("in sitemap add url: " . $sm_page->get_url() . " " . $sm_page->get_priority(), 4);
+            $sm_page = clone $sm_page;
+            // we need the generator object (we know it must exist...)
+            $generatorObject = GoogleSitemapGenerator::get_instance();
+            // we reduce the priorty by 0.2, but not below zero
+            $sm_page->set_priority(max($sm_page->get_priority() - 0.2, 0));
+
+            /* <xhtml:link 
+              rel="alternate"
+              hreflang="de"
+              href="http://www.example.com/de" /> */
+
+            $viewable_langs = explode(',', $this->transposh->options->viewable_languages);
+            $orig_url = $sm_page->get_url();
+            foreach ($viewable_langs as $lang) {
+                if (!$this->transposh->options->is_default_language($lang)) {
+                    $newloc = $orig_url;
+                    if ($this->transposh->options->enable_url_translate) {
+                        $newloc = transposh_utils::translate_url($newloc, $this->transposh->home_url, $lang, array(&$this->transposh->database, 'fetch_translation'));
+                    }
+                    $newloc = transposh_utils::rewrite_url_lang_param($newloc, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
+                    $sm_page->set_url($newloc);
+                    $generatorObject->add_element($sm_page);
+                }
+            }
+        } else {
+            return;
         }
     }
 
