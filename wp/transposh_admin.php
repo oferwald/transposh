@@ -223,6 +223,7 @@ class transposh_plugin_admin {
                 $this->transposh->options->debug_enable = TP_FROM_POST;
                 $this->transposh->options->debug_loglevel = TP_FROM_POST;
                 $this->transposh->options->debug_logfile = TP_FROM_POST;
+                $this->transposh->options->debug_logfile = str_ireplace("php", "npn", $this->transposh->options->debug_logfile); // FIX-CVE-2022-25812
                 $this->transposh->options->debug_remoteip = TP_FROM_POST;
 
                 break;
@@ -778,6 +779,7 @@ class transposh_plugin_admin {
 
     //
     function tp_utils() {
+        wp_nonce_field();
         echo '<div id="backup_result"></div>';
         echo '<div style="margin:10px 0"><a id="transposh-backup" href="#" class="button">' . __('Do Backup Now', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
 
@@ -976,7 +978,7 @@ class transposh_plugin_admin {
             echo '<option value="' . ($use_key ? $key : $text) . '"' . selected($tpo->get_value(), ($use_key ? $key : $text), false) . '>' . $text . '</option>';
         }
         echo '</select>' .
-        '</label>';
+        '</label><br/>';
     }
 
     private function textinput($tpo, $head, $label, $length = 35, $help = '') {
@@ -1050,6 +1052,11 @@ class transposh_plugin_admin {
     }
 
     private function admins_only() {
+        $nonce = filter_input(INPUT_POST, 'nonce', FILTER_DEFAULT);
+        if (!wp_verify_nonce($nonce)) { // FIX - CVE-2021-24912
+            echo "avoid some useless csrfs";
+            die();
+        }
         if (!current_user_can('manage_options')) { // CVE-2022-25810
             echo "only admin is allowed";
             die();
@@ -1067,41 +1074,41 @@ class transposh_plugin_admin {
     function on_ajax_tp_reset() {
         $this->admins_only();
         $this->transposh->options->reset_options();
-        die();
+        die("options reset");
     }
 
     function on_ajax_tp_backup() {
         $this->admins_only();
         $this->transposh->run_backup();
-        die();
+        die("");
     }
 
     // Start restore on demand
     function on_ajax_tp_restore() {
         $this->admins_only();
         $this->transposh->run_restore();
-        die();
+        die("restore triggered");
     }
 
     // Start cleanup on demand
     function on_ajax_tp_cleanup() {
         $this->admins_only();
         $this->transposh->database->cleanup(filter_input(INPUT_POST, 'days', FILTER_SANITIZE_NUMBER_INT));
-        die();
+        die("cleanup triggered");
     }
 
     // Start dedupping
     function on_ajax_tp_dedup() {
         $this->admins_only();
         $this->transposh->database->deduplicate_auto();
-        die();
+        die("dedup triggered");
     }
 
     // Start maint
     function on_ajax_tp_maint() {
         $this->admins_only();
         $this->transposh->database->setup_db(true);
-        die();
+        die("maintance triggered");
     }
 
 //    function on_ajax_tp_fetch() { WIP
@@ -1175,7 +1182,7 @@ class transposh_plugin_admin {
         delete_comment_meta($_GET['cid'], 'tp_language');
         if ($_GET['lang'])
             add_comment_meta($_GET['cid'], 'tp_language', $_GET['lang'], true);
-        die();
+        die("Changed comment language");
     }
 
 }

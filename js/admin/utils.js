@@ -25,7 +25,8 @@
             if (!confirm("Are you sure you want to do this?")) return false;
             if (!confirm("Are you REALLY sure you want to do this, your configuration will be reset?")) return false;
             $.post(ajaxurl, {
-                action: 'tp_reset'
+                action: 'tp_reset',
+                nonce: $('#_wpnonce').val()
             });
         });
 
@@ -35,7 +36,8 @@
                 return false
             }).text("Backup In Progress");
             $.post(ajaxurl, {
-                action: 'tp_backup'
+                action: 'tp_backup',
+                nonce: $('#_wpnonce').val()
             },
             function(data) {
                 var color = 'red';
@@ -59,7 +61,8 @@
             }).text("Cleanup in progress");
             $.post(ajaxurl, {
                 action: 'tp_cleanup',
-                days: days
+                days: days,
+                nonce: $('#_wpnonce').val()
             },
             function(data) {
                 button.unbind('click').click(function() {
@@ -78,7 +81,8 @@
                 return false
             }).text("Deduplication in progress");
             $.post(ajaxurl, {
-                action: 'tp_dedup'
+                action: 'tp_dedup',
+                nonce: $('#_wpnonce').val()
             },
             function(data) {
                 button.unbind('click').click(function() {
@@ -116,7 +120,8 @@
                 return false
             }).text("Maintenance in progress");
             $.post(ajaxurl, {
-                action: 'tp_maint'
+                action: 'tp_maint',
+                nonce: $('#_wpnonce').val()
             },
             function(data) {
                 button.unbind('click').click(function() {
