@@ -55,7 +55,7 @@ class transposh_plugin_admin {
         foreach ($ajax_actions as $ajax) {
             add_action("wp_ajax_tp_$ajax", array(&$this, "on_ajax_tp_$ajax"));
         }
-        
+
         add_filter('set-screen-option', array(&$this, 'on_screen_option'), 10, 3);
     }
 
@@ -768,7 +768,7 @@ class transposh_plugin_admin {
             4 => __('Information', TRANSPOSH_TEXT_DOMAIN),
             5 => __('Debug', TRANSPOSH_TEXT_DOMAIN),
         ));
-        $this->textinput($this->transposh->options->debug_remoteip_o, '', sprintf(__('Remote debug IP (Your current IP is %s)', TRANSPOSH_TEXT_DOMAIN), filter_input(INPUT_SERVER,'REMOTE_ADDR')));
+        $this->textinput($this->transposh->options->debug_remoteip_o, '', sprintf(__('Remote debug IP (Your current IP is %s)', TRANSPOSH_TEXT_DOMAIN), filter_input(INPUT_SERVER, 'REMOTE_ADDR')));
         $this->sectionstop();
     }
 
@@ -958,7 +958,7 @@ class transposh_plugin_admin {
      */
     private function checkbox($tpo, $head, $text) {
         $this->header($head);
-        echo '<input type="checkbox" value="1" name="' . $tpo->get_name() . '" ' . checked($tpo->get_value(), true, false) . '/> ' . $text.'</br>';
+        echo '<input type="checkbox" value="1" name="' . $tpo->get_name() . '" ' . checked($tpo->get_value(), true, false) . '/> ' . $text . '</br>';
     }
 
     /**
@@ -1049,43 +1049,57 @@ class transposh_plugin_admin {
         return $actions;
     }
 
+    private function admins_only() {
+        if (!current_user_can('manage_options')) { // CVE-2022-25810
+            echo "only admin is allowed";
+            die();
+        }
+    }
+
     // ajax stuff!
     function on_ajax_tp_close_warning() {
+        $this->admins_only();
         $this->transposh->options->set_transposh_admin_hide_warning($_POST['id']);
         $this->transposh->options->update_options();
         die(); // this is required to return a proper result
     }
 
     function on_ajax_tp_reset() {
+        $this->admins_only();
         $this->transposh->options->reset_options();
         die();
     }
 
     function on_ajax_tp_backup() {
+        $this->admins_only();
         $this->transposh->run_backup();
         die();
     }
 
     // Start restore on demand
     function on_ajax_tp_restore() {
+        $this->admins_only();
         $this->transposh->run_restore();
         die();
     }
 
     // Start cleanup on demand
     function on_ajax_tp_cleanup() {
+        $this->admins_only();
         $this->transposh->database->cleanup(filter_input(INPUT_POST, 'days', FILTER_SANITIZE_NUMBER_INT));
         die();
     }
 
     // Start dedupping
     function on_ajax_tp_dedup() {
+        $this->admins_only();
         $this->transposh->database->deduplicate_auto();
         die();
     }
 
     // Start maint
     function on_ajax_tp_maint() {
+        $this->admins_only();
         $this->transposh->database->setup_db(true);
         die();
     }
@@ -1135,6 +1149,7 @@ class transposh_plugin_admin {
 //    }
     // Start full translation
     function on_ajax_tp_translate_all() {
+        $this->admins_only();
         // get all ids in need of translation
         global $wpdb;
         $page_ids = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE (post_type='page' OR post_type='post') AND (post_status='publish' OR post_status='private') ORDER BY ID DESC");
@@ -1149,12 +1164,14 @@ class transposh_plugin_admin {
 
     // getting phrases of a post (if we are in admin)
     function on_ajax_tp_post_phrases() {
+        $this->admins_only();
         $this->transposh->postpublish->get_post_phrases($_GET['post']);
         die();
     }
 
     // Handle comments language change on the admin side
     function on_ajax_tp_comment_lang() {
+        $this->admins_only();
         delete_comment_meta($_GET['cid'], 'tp_language');
         if ($_GET['lang'])
             add_comment_meta($_GET['cid'], 'tp_language', $_GET['lang'], true);
