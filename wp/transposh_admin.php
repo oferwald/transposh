@@ -488,7 +488,7 @@ class transposh_plugin_admin {
                 if (in_array($langcode, $enginerecord['langs'])) {
                     echo '<img width="16" height="16" alt="' . $enginecode . '" class="logoicon" title="' . esc_attr(sprintf(__('Language supported by %s translate', TRANSPOSH_TEXT_DOMAIN), $enginerecord['name'])) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/' . $enginerecord['icon'] . '"/>';
                 } else {
-                    echo '<img width="16" height="16" class="logoicon"/>';
+                    echo '<div class="logoicon" style="margin:9px"></div>';
                 }
             }
             if (in_array($langcode, transposh_consts::$oht_languages))
