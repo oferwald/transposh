@@ -62,7 +62,7 @@ class transposh_utils {
         $gluebackhome = false;
         //cleanup lang identifier in permalinks
         //remove the language from the url permalink (if in start of path, and is a defined language)
-        $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
+        $home_path = rtrim((string)@parse_url($home_url, PHP_URL_PATH), "/");
         tp_logger("home: $home_path " . @$parsedurl['path'], 5);
         if ($home_path && @strpos($parsedurl['path'], $home_path) === 0) {
             tp_logger("homein!: $home_path", 5);
@@ -133,7 +133,7 @@ class transposh_utils {
 
         // remove the language from the url permalink (if in start of path, and is a defined language)
         $gluebackhome = false;
-        $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
+        $home_path = rtrim((String)@parse_url($home_url, PHP_URL_PATH), "/");
         if (isset($parsedurl['path'])) {
             tp_logger("home: $home_path " . $parsedurl['path'], 5);
         }
@@ -213,7 +213,7 @@ class transposh_utils {
         // option 2, language is in permalink
         // cleanup lang identifier in permalinks
         // remove the language from the url permalink (if in start of path, and is a defined language)
-        $home_path = rtrim(@parse_url($home_url, PHP_URL_PATH), "/");
+        $home_path = rtrim((string)@parse_url($home_url, PHP_URL_PATH), "/");
 //    logger ("home: $home_path ".$parsedurl['path'],5);
         if ($home_path && strpos($parsedurl['path'], $home_path) === 0) {
 //        logger ("homein!: $home_path",5);
