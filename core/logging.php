@@ -58,7 +58,8 @@ class tp_logger {
         if ($severity <= $this->debug_level) {
             if ($this->show_caller) {
                 $trace = debug_backtrace();
-                if ($do_backtrace) ChromePhp_tp::log($trace[3]);
+                if ($do_backtrace)
+                    ChromePhp_tp::log($trace[3]);
                 if (isset($trace[2 + $nest]['class'])) {
                     $log_prefix = str_pad("{$trace[2 + $nest]['class']}::{$trace[2 + $nest]['function']} {$trace[1 + $nest]['line']}", 55 + $nest, '_');
                 } else {
@@ -78,7 +79,7 @@ class tp_logger {
                     foreach ($msg as $key => $item) {
                         if (!is_array($item)) {
                             if (!is_object($item) || method_exists($item, '__toString'))
-                                    error_log(date(DATE_W3C) . " $log_prefix: $key => $item\n", 3, $this->logfile);
+                                error_log(date(DATE_W3C) . " $log_prefix: $key => $item\n", 3, $this->logfile);
                         } else {
                             error_log(date(DATE_W3C) . " $log_prefix: subarray -> $key\n", 3, $this->logfile);
                             $this->do_log($item, $severity, false, $nest + 1);
@@ -87,11 +88,13 @@ class tp_logger {
                     error_log(date(DATE_W3C) . " $log_prefix: Array stop\n", 3, $this->logfile);
                 }
             }
-            if ($this->printout/* || !isset($this->firephp)*/) {
+            if ($this->printout/* || !isset($this->firephp) */) {
                 echo "$log_prefix:$msg";
                 echo ($this->eolprint) ? "\n" : "<br/>";
             } else {
-                if (!isset($_SERVER['REMOTE_ADDR']) || $this->remoteip != $_SERVER['REMOTE_ADDR']) return;
+                if (!filter_input(INPUT_SERVER, 'REMOTE_ADDR') || $this->remoteip != filter_input(INPUT_SERVER, 'REMOTE_ADDR')) {
+                    return;
+                }
                 if ((is_array($msg) || is_object($msg)) && $this->show_caller) {
                     ChromePhp_tp::groupCollapsed("$log_prefix: object/array");
                     ChromePhp_tp::log($msg);
