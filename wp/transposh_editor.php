@@ -171,6 +171,9 @@ class transposh_editor_table extends WP_List_Table {
         $this->_column_headers = array($columns, $hidden, $sortable);
         $orderby = (!empty(filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS)) ) ? filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS) : 'timestamp';
         $order = (!empty(filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS)) ) ? filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS) : 'desc';
+        // FIX CVE-2022-25811
+        if (!in_array($orderby,['timestamp','lang','original','translated','translated_by'] )) {$orderby = "timestamp";}
+        if (!in_array($order,['asc','desc'] )) {$order = "desc";}
 
         //$per_page = 5;
         $user = get_current_user_id();
@@ -266,7 +269,7 @@ class transposh_editor_table extends WP_List_Table {
 
             tp_logger($this->filter);
         }
-        $s = filter_input(INPUT_POST, 's', FILTER_SANITIZE_STRING, FILTER_NULL_ON_FAILURE);
+        $s = htmlspecialchars(filter_input(INPUT_POST, 's', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE));       
         if ($s) {
             if ($this->filter) {
                 $this->filter .= " AND ";
