@@ -122,6 +122,10 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2022/09/14 - 1.0.9 =
+ * This version fixes vulnerabilities reported by Julian Ahrens from RCE Security and detailed in CVE-2022-25811, CVE-2021-24912, CVE-2022-25812ת CVE-2022-25810
+ * This version offers better PHP8.1 compatibility with less warnings and errors, if you encounter anything - just let us know
+ * Fix support for XML sitemaps 4.1.5+ 
 = 2022/02/22 - 1.0.8 =
  * This version fixes vulnerabilities reported by Julian Ahrens from RCE Security and detailed in CVE-2021-24910, CVE-2021-24911, CVE-2021-24912
  * Remove memory warning if PHP has more than 1G memory - (Thanks Udi)	
