@@ -49,7 +49,7 @@ class transposh_plugin_admin {
         // register ajax callbacks
         $ajax_actions = [
             "close_warning", "reset", "backup", "restore", "dedup", "maint", "cleanup",
-            "translate_all", "post_phrases", "comment_lang" /* WIP - fetch */
+            "translate_all", "post_phrases", "comment_lang", "reset_timers" /* WIP - fetch */
         ];
 
         foreach ($ajax_actions as $ajax) {
@@ -404,7 +404,7 @@ class transposh_plugin_admin {
             echo '<form action="admin-post.php" method="post">';
             echo '<input type="hidden" name="action" value="save_transposh"/>';
             echo '<input type="hidden" name="page" value="' . $this->page . '"/>';
-            echo wp_nonce_field(TR_NONCE);
+            wp_nonce_field(-1, TR_NONCE);
         }
 
         // the page content
@@ -425,6 +425,7 @@ class transposh_plugin_admin {
     // not sure if this is the best place for this function, but heck
     function on_load_comments_page() {
         wp_enqueue_script('transposhcomments', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/commentslang.js', array('jquery'), TRANSPOSH_PLUGIN_VER);
+        wp_nonce_field(-1, TR_NONCE);
     }
 
     //executed to show the plugins complete admin page
@@ -779,19 +780,20 @@ class transposh_plugin_admin {
 
     //
     function tp_utils() {
-        wp_nonce_field();
+        wp_nonce_field(-1, TR_NONCE);
         echo '<div id="backup_result"></div>';
         echo '<div style="margin:10px 0"><a id="transposh-backup" href="#" class="button">' . __('Do Backup Now', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
 
         /*
          * Insert buttons allowing removal of automated translations from database and maintenence
          */
-        echo '<div style="margin:10px 0"><a id="transposh-reset-options" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Reset configuration to default (saves keys)', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-clean-unimportant" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Delete automated translations that add no apparent value', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-dedup" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Remove duplicates translations and originals', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
-        echo '<div style="margin:10px 0"><a id="transposh-maint" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Attempt to fix errors caused by previous versions - please backup first', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-reset-options" href="#" class="button">' . __('Reset configuration to default (saves keys)', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-reset-proxy-timers" href="#" class="button">' . __('Reset translation proxy timers', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-auto" href="#" class="button">' . __('Delete all automated translations', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-auto14" href="#" class="button">' . __('Delete automated translations older than 14 days', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-clean-unimportant" href="#" class="button">' . __('Delete automated translations that add no apparent value', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-dedup" href="#" class="button">' . __('Remove duplicates translations and originals', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
+        echo '<div style="margin:10px 0"><a id="transposh-maint" href="#" class="button">' . __('Attempt to fix errors caused by previous versions - please backup first', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
 
 // WIP        echo '<div style="margin:10px 0"><a id="transposh-fetch" href="#" nonce="' . wp_create_nonce('transposh-clean') . '" class="button">' . __('Try fetching translation files', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         echo '<div id="progress_bar_all"></div><div id="tr_translate_title"></div>';
@@ -898,7 +900,7 @@ class transposh_plugin_admin {
         if (!current_user_can('manage_options'))
             wp_die(__('Problems?', TRANSPOSH_TEXT_DOMAIN));
         // cross check the given referer
-        check_admin_referer(TR_NONCE);
+        check_admin_referer(-1, TR_NONCE);
 
         // process here your on $_POST validation and / or option saving
         $this->update_admin_options();
@@ -1054,7 +1056,7 @@ class transposh_plugin_admin {
     private function admins_only() {
         $nonce = filter_input(INPUT_POST, 'nonce', FILTER_DEFAULT);
         if (!wp_verify_nonce($nonce)) { // FIX - CVE-2021-24912
-            echo "avoid some useless csrfs";
+            echo "avoid some useless csrfs $nonce";
             die();
         }
         if (!current_user_can('manage_options')) { // CVE-2022-25810
@@ -1075,6 +1077,13 @@ class transposh_plugin_admin {
         $this->admins_only();
         $this->transposh->options->reset_options();
         die("options reset");
+    }
+
+    function on_ajax_tp_reset_timers() {
+        $this->admins_only();
+        delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
+        delete_option(TRANSPOSH_OPTIONS_YANDEXPROXY);
+        die("timers reset");
     }
 
     function on_ajax_tp_backup() {
@@ -1162,8 +1171,9 @@ class transposh_plugin_admin {
         $page_ids = $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE (post_type='page' OR post_type='post') AND (post_status='publish' OR post_status='private') ORDER BY ID DESC");
         // only high capabilities users can...
         // add a fake post to translate things such as tags
-        if (!current_user_can('edit_post', $page_ids[0]))
+        if (!current_user_can('edit_post', $page_ids[0])) {
             return;
+        }
         $page_ids[] = "-555";
         echo json_encode($page_ids);
         die();
@@ -1172,16 +1182,19 @@ class transposh_plugin_admin {
     // getting phrases of a post (if we are in admin)
     function on_ajax_tp_post_phrases() {
         $this->admins_only();
-        $this->transposh->postpublish->get_post_phrases($_GET['post']);
+        $this->transposh->postpublish->get_post_phrases(filter_input(INPUT_POST, 'post', FILTER_VALIDATE_INT));
         die();
     }
 
     // Handle comments language change on the admin side
     function on_ajax_tp_comment_lang() {
         $this->admins_only();
-        delete_comment_meta($_GET['cid'], 'tp_language');
-        if ($_GET['lang'])
-            add_comment_meta($_GET['cid'], 'tp_language', $_GET['lang'], true);
+        $cid = filter_input(INPUT_POST, 'cid', FILTER_VALIDATE_INT);
+        $lang = filter_input(INPUT_POST, 'lang', FILTER_DEFAULT);
+        delete_comment_meta($cid, 'tp_language');
+        if ($lang) {
+            add_comment_meta($cid, 'tp_language', $lang, true);
+        }
         die("Changed comment language");
     }
 

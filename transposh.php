@@ -1534,6 +1534,7 @@ class transposh_plugin {
     // transposh translation proxy ajax wrapper
 
     function on_ajax_nopriv_tp_tp() {
+        $GLOBALS['tp_logger']->set_global_log(3);        
         // we need curl for this proxy
         if (!function_exists('curl_init'))
             return;
@@ -1600,10 +1601,11 @@ class transposh_plugin {
             }
 
             if ($result === false) {
-                echo 'Proxy attempt failed';
+                echo 'Proxy attempt failed<br>'. $GLOBALS['tp_logger']->get_logstr();
                 die();
             }
         }
+        $GLOBALS['tp_logger']->set_global_log(0);
 
         // encode results 
         $jsonout = new stdClass();
@@ -1694,7 +1696,7 @@ class transposh_plugin {
                 curl_close($ch);
             }
         }
-
+ 
         if (!$sid) {
             tp_logger('No SID, gotta bail:' . $timestamp);
             return false;
@@ -1835,7 +1837,7 @@ class transposh_plugin {
             list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
             //$googlemethod = 0;
             //$timestamp = 0;
-            tp_logger("Google method $googlemethod, $timestamp", 1);
+            tp_logger("Google method $googlemethod, ".date(DATE_RFC2822,$timestamp).", current:".date(DATE_RFC2822,time())." Delay:".TRANSPOSH_GOOGLEPROXY_DELAY, 1);
         } else {
             tp_logger("Google is clean", 1);
             $googlemethod = 0;
