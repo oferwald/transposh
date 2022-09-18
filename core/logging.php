@@ -39,6 +39,10 @@ class tp_logger {
     /** @var used for remote firephp debugging */
     private $remoteip;
 
+    private $global_log = 0;
+    
+    private $logstr = "";
+
     /** @var logger Singelton instance of our logger */
     protected static $instance = null;
 
@@ -55,6 +59,10 @@ class tp_logger {
      * @param int $severity
      */
     function do_log($msg, $severity = 3, $do_backtrace = false, $nest = 0) {
+        //globalvarlogging
+        if ($severity<$this->global_log) {
+            $this->logstr .= $msg."<br>";
+        }
         if ($severity <= $this->debug_level) {
             if ($this->show_caller) {
                 $trace = debug_backtrace();
@@ -132,6 +140,15 @@ class tp_logger {
 
     public function set_debug_level($int) {
         $this->debug_level = $int;
+    }
+
+    public function set_global_log($int) {
+        if ($int == 0) {$this->logstr = "";}
+        $this->global_log = $int;        
+    }
+
+    public function get_logstr() {
+        return $this->logstr;        
     }
 
     public function set_log_file($filename) {
