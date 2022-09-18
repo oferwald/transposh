@@ -97,6 +97,8 @@
             binglang = 'zh-chs';
         } else if (binglang === 'zh-tw') {
             binglang = 'zh-cht';
+        } else if (binglang === 'mw') {
+            binglang = 'mww';
         }
         t_jp.dbt(trans, function (result) {
             $(result).each(function (i) {
