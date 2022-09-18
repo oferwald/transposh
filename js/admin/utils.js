@@ -26,7 +26,7 @@
             if (!confirm("Are you REALLY sure you want to do this, your configuration will be reset?")) return false;
             $.post(ajaxurl, {
                 action: 'tp_reset',
-                nonce: $('#_wpnonce').val()
+                nonce: $('#transposh_nonce').val()
             });
         });
 
@@ -37,7 +37,7 @@
             }).text("Backup In Progress");
             $.post(ajaxurl, {
                 action: 'tp_backup',
-                nonce: $('#_wpnonce').val()
+                nonce: $('#transposh_nonce').val()
             },
             function(data) {
                 var color = 'red';
@@ -62,7 +62,7 @@
             $.post(ajaxurl, {
                 action: 'tp_cleanup',
                 days: days,
-                nonce: $('#_wpnonce').val()
+                nonce: $('#transposh_nonce').val()
             },
             function(data) {
                 button.unbind('click').click(function() {
@@ -82,7 +82,7 @@
             }).text("Deduplication in progress");
             $.post(ajaxurl, {
                 action: 'tp_dedup',
-                nonce: $('#_wpnonce').val()
+                nonce: $('#transposh_nonce').val()
             },
             function(data) {
                 button.unbind('click').click(function() {
@@ -93,6 +93,13 @@
             return false;
         };
      
+        $("#transposh-reset-proxy-timers").click(function() {
+            $.post(ajaxurl, {
+                action: 'tp_reset_timers',
+                nonce: $('#transposh_nonce').val()
+            });
+            return false;
+        });
         
         $("#transposh-clean-auto").click(function() {
             cleanautoclick(0,$(this));
@@ -121,7 +128,7 @@
             }).text("Maintenance in progress");
             $.post(ajaxurl, {
                 action: 'tp_maint',
-                nonce: $('#_wpnonce').val()
+                nonce: $('#transposh_nonce').val()
             },
             function(data) {
                 button.unbind('click').click(function() {
@@ -158,11 +165,12 @@
             $.ajaxSetup({
                 cache: false
             });
-            $.ajax({
+            $.post({
                 url: ajaxurl,
                 dataType: 'json',
                 data: {
-                    action: "tp_translate_all"
+                    action: "tp_translate_all",
+                    nonce: $('#transposh_nonce').val()
                 },
                 cache: false,
                 success: function (data) {

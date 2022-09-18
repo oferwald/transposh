@@ -100,9 +100,10 @@
             $(this).closest(".row-actions").toggleClass("row-actions-active").toggleClass("row-actions");
             $(this).replaceWith('<select data-cid="' + $(this).data('cid') + '">' + options + "</select>");
             $(".language select").change(function () {
-                $.get(ajaxurl,
+                $.post(ajaxurl,
                         {
                             action: 'tp_comment_lang',
+                            nonce: $('#transposh_nonce').val(),
                             lang: $(this).val(),
                             cid: $(this).data('cid')
                         }

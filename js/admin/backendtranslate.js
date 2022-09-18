@@ -183,11 +183,12 @@
 
         $("#tr_loading").data("done", false);
         // get the post // FIX
-        $.ajax({
+        $.post({
             url: ajaxurl,
             dataType: 'json',
             data: {
-                action: "tp_post_phrases",
+                action: "tp_post_phrases",                
+                nonce: $('#transposh_nonce').val(),
                 post: postid
             },
             cache: false,
