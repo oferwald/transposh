@@ -221,7 +221,7 @@ class transposh_utils {
 //        $gluebackhome = true;
         }
 
-        if (strlen($parsedurl['path']) > 2) {
+        if (isset($parsedurl['path']) && strlen($parsedurl['path']) > 2) {
             $secondslashpos = strpos($parsedurl['path'], "/", 1);
             if (!$secondslashpos) {
                 $secondslashpos = strlen($parsedurl['path']);
