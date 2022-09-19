@@ -1670,35 +1670,44 @@ class transposh_plugin {
         if (get_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array())) {
             list($sid, $timestamp) = get_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array());
         }
+        tp_logger("yandex sid $sid",1);
         if ($sid == '') {
             if ((time() - TRANSPOSH_YANDEXPROXY_DELAY > $timestamp)) {
                 // attempt key refresh on error
                 $url = 'https://translate.yandex.com/';
-                tp_logger($url, 3);
+                tp_logger($url, 1);
                 $ch = curl_init();
                 // yandex wants a referer someimes
                 curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 //must set agent for google to respond with utf-8
-                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+                $UA = filter_input(INPUT_SERVER,"HTTP_USER_AGENT",FILTER_DEFAULT);
+//                tp_logger($UA,1);
+                curl_setopt($ch, CURLOPT_USERAGENT, $UA);
                 $output = curl_exec($ch);
+              //  tp_logger($output,1);
                 $sidpos = strpos($output, "SID: '") + 6;
-                $sid = substr($output, $sidpos, strpos($output, "',", $sidpos) - $sidpos);
-                tp_logger($sid);
-                $sid = strrev(substr($sid, 0, 8)) . '.' . strrev(substr($sid, 9, 8)) . '.' . strrev(substr($sid, 18, 8));
-                tp_logger($sid);
+//                tp_logger($sidpos,1);
+//                tp_logger(strlen($output),1);
+                $newout = substr($output,$sidpos);
+//                tp_logger($newout,1);
+//                tp_logger(strpos($newout, "',")-2);
+                $sid = substr($newout,0,strpos($newout, "',")-2);
+                tp_logger("new sid: $sid",1);
+                //$sid = strrev(substr($sid, 0, 8)) . '.' . strrev(substr($sid, 9, 8)) . '.' . strrev(substr($sid, 18, 8));
                 if ($output === false) {
                     tp_logger('Curl error: ' . curl_error($ch));
                     return false;
                 }
+                //return false;
                 update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array($sid, time()));
                 curl_close($ch);
             }
         }
  
         if (!$sid) {
-            tp_logger('No SID, gotta bail:' . $timestamp);
+            tp_logger('No SID, gotta bail:' . $timestamp,1);
             return false;
         }
 
@@ -1714,8 +1723,8 @@ class transposh_plugin {
             $qstr = '&text=' . $q;
         }
         $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=' . $sid . '-0-0';
-        tp_logger($url, 3);
-        tp_logger($q, 3);
+        tp_logger($url, 1);
+//        tp_logger($q, 1);
         $ch = curl_init();
         // yandex wants a referer someimes
         curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
@@ -1725,22 +1734,22 @@ class transposh_plugin {
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
         $output = curl_exec($ch);
         if ($output === false) {
-            tp_logger('Curl error: ' . curl_error($ch));
+            tp_logger('Curl error: ' . curl_error($ch),1);
             return false;
         }
         curl_close($ch);
-        tp_logger($output, 3);
+        tp_logger($output, 1);
         $jsonarr = json_decode($output);
         tp_logger($jsonarr, 3);
         if (!$jsonarr) {
-            tp_logger('No JSON here, failing');
+            tp_logger('No JSON here, failing',1);
             tp_logger($output, 3);
             return false;
         }
         if ($jsonarr->code != 200) {
-            tp_logger('Some sort of error!');
-            tp_logger($output, 3);
-            if ($jsonarr->code == 406) { //invalid session
+            tp_logger('Some sort of error!',1);
+            tp_logger($output, 1);
+            if ($jsonarr->code == 406 || $jsonarr->code == 405) { //invalid session
                 update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array('', time()));
             }
 
@@ -1879,7 +1888,9 @@ class transposh_plugin {
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 //must set agent for google to respond with utf-8
-                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+                $UA = filter_input(INPUT_SERVER,"HTTP_USER_AGENT",FILTER_DEFAULT);
+                tp_logger($UA,1);
+                curl_setopt($ch, CURLOPT_USERAGENT, $UA);
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
                 // timeout is probably a good idea
@@ -2081,6 +2092,7 @@ class transposh_plugin {
 
     // Set our cookie and return (if no js works - or we are in the default language)
     function on_ajax_nopriv_tp_cookie_bck() {
+        global $my_transposh_plugin;
         setcookie('TR_LNG', transposh_utils::get_language_from_url(filter_input(INPUT_SERVER, 'HTTP_REFERER'), $this->home_url), time() + 90 * 24 * 60 * 60, COOKIEPATH, COOKIE_DOMAIN);
         if (filter_input(INPUT_SERVER, 'HTTP_REFERER')) {
             $this->tp_redirect(filter_input(INPUT_SERVER, 'HTTP_REFERER'));
