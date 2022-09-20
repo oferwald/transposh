@@ -848,20 +848,16 @@ class transposh_plugin_admin {
         echo __('Create a ticket for us if you have found any bugs', TRANSPOSH_TEXT_DOMAIN) . '<br>';
         echo __('Reach us via different forums:', TRANSPOSH_TEXT_DOMAIN);
         echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
-        echo '<li><a href="http://wordpress.org/support/plugin/transposh-translation-filter-for-wordpress">';
-        echo __('Our support forum on wordpress.org', TRANSPOSH_TEXT_DOMAIN);
-        echo '<li><a href="http://trac.transposh.org">';
-        echo __('Our internal development site, with wiki and tickets', TRANSPOSH_TEXT_DOMAIN);
+        echo '<li><a href="https://github.com/oferwald/transposh/">';
+        echo __('Our development site on github, with wiki and tickets', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li><li><a href="https://www.facebook.com/transposh">';
         echo __('Our facebook page', TRANSPOSH_TEXT_DOMAIN);
-        echo '</a></li><li><a href="https://plus.google.com/103680503574339351392/posts">';
-        echo __('Our google plus page', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li></ul>';
         echo __('Contact us directly via:', TRANSPOSH_TEXT_DOMAIN);
         echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
-        echo '<li><a href="http://transposh.org/contact-us/">' . __('Our contact form', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
-        echo '<li><a href="http://transposh.org/redir/newfeature">' . __('Suggest a Feature', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
-        echo '<li><a href="http://transposh.org/redir/newticket">' . __('Report a Bug', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="https://transposh.org/contact-us/">' . __('Our contact form', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="https://transposh.org/redir/newfeature">' . __('Suggest a Feature', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
+        echo '<li><a href="https://transposh.org/redir/newticket">' . __('Report a Bug', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '</ul>';
 
         echo '</div>';

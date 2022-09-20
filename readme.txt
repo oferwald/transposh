@@ -33,13 +33,13 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 ***Our goals:***
 
 * **Performance** - very fast - using APC cache if available
-* **Support** - you want it - we'll implement it, just visit our [development site](http://trac.transposh.org "ticket system")
+* **Support** - you want it - we'll implement it, just visit our [development site](https://github.com/oferwald/transposh/ "ticket system")
 * **Security** - we have externally audited the plugin for improved security
 * **Ease of Use** - making translation as fun and as easy as possible
 * **Flexibility** - allowing you to take control of the user experience
 * **SEO** - search engines exposure increase
 
-Technology has been thoroughly tested on a large dynamic site with millions of monthly page views. Feel free to visit [Colnect](http://colnect.com "website for collectors"), the best site for collectors.
+Technology has been thoroughly tested on a large dynamic site with millions of monthly page views. Feel free to visit [Colnect](https://colnect.com "website for collectors"), the best site for collectors.
 
 == Installation ==
 
@@ -58,7 +58,7 @@ We are working really hard to make this the best possible wordpress translation 
 
 = Where are the real FAQs =
 
-You can find them on our site [here](http://transposh.org/faq)
+You can find them on our site [here](https://transposh.org/faq)
 
 == Screenshots ==
 
@@ -111,7 +111,7 @@ This version allows sorting of languages within the widget
 = Translation credits =
  * Dutch  - [Roland Nieuwendijk](http://blog.imagitect.nl/)
  * German - [Jenny Beelens](http://www.professionaltranslation.com)
- * Hebrew - [Amir](http://colnect.com/he)
+ * Hebrew - [Amir](https://colnect.com/he)
  * Italian - [MacItaly](http://profiles.wordpress.org/macitaly)
  * Persian - [Sushyant Zavarzadeh](http://sushyant.com)
  * Portuguese (Brazil) - [Amilton Junior](http://www.dicasemgeral.com)
@@ -122,8 +122,14 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2022/09/21 - 1.0.9.2 =
+ * Fix for some bugs added by CSRF protection, including working translate all
+ * Remove old references to non working places
+ * Migrate public development environment to github.com, instead of wordpress.org
+ * Some improvements for proxy debugging
+ * Translate all will work with Bing's Hmong Daw
 = 2022/09/14 - 1.0.9 =
- * This version fixes vulnerabilities reported by Julian Ahrens from RCE Security and detailed in CVE-2022-25811, CVE-2021-24912, CVE-2022-25812ת CVE-2022-25810
+ * This version fixes vulnerabilities reported by Julian Ahrens from RCE Security and detailed in CVE-2022-25811, CVE-2021-24912, CVE-2022-25812, CVE-2022-25810
  * This version offers better PHP8.1 compatibility with less warnings and errors, if you encounter anything - just let us know
  * Fix support for XML sitemaps 4.1.5+ 
 = 2022/02/22 - 1.0.8 =
