@@ -810,29 +810,19 @@ class transposh_plugin_admin {
         echo '<br/>';
         echo __('Learn more about us in the following online presenses', TRANSPOSH_TEXT_DOMAIN);
         echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
-        echo '<li><a href="http://transposh.org">';
+        echo '<li><a href="https://transposh.org">';
         echo __('Our website', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li><li><a href="http://blog.transposh.com">';
         echo __('Our blog', TRANSPOSH_TEXT_DOMAIN);
-        echo '</a></li><li><a href="http://twitter.com/transposh">';
+        echo '</a></li><li><a href="https://twitter.com/transposh">';
         echo __('Our twitter account (feel free to follow!)', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li><li><a href="https://www.facebook.com/transposh">';
         echo __('Our facebook page (feel free to like!)', TRANSPOSH_TEXT_DOMAIN);
-        echo '</a></li><li><a href="https://plus.google.com/103680503574339351392/posts">';
-        echo __('Our google plus page (add us to your circles!)', TRANSPOSH_TEXT_DOMAIN);
-        echo '</a></li><li><a href="http://www.youtube.com/user/transposh">';
+        echo '</a></li><li><a href="https://www.youtube.com/user/transposh">';
         echo __('Our youtube channel', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li></ul>';
 
         $this->sectionstop();
-        /*
-          require_once("pomo_upgrader.php");
-
-          $upgrader = new POMO_Upgrader();
-          $upgrader->run(array('package' => 'http://svn.automattic.com/wordpress-i18n/he_IL/tags/3.5/messages/he_IL.mo',
-          'destination' => '/tmp/', //WP_PLUGIN_DIR . '/themes',
-          'clear_destination' => false, //Do not overwrite files.
-          'clear_working' => false)); */
     }
 
     function tp_support() {
