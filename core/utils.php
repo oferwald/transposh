@@ -444,7 +444,7 @@ class transposh_utils {
     public static function prefered_language($available_languages, $default_lang = "auto", $http_accept_language = "auto") {
         // if $http_accept_language was left out, read it from the HTTP-Header
         if ($http_accept_language == "auto") {
-            $http_accept_language = filter_input(INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE');
+            $http_accept_language = transposh_utils::get_clean_server_var( 'HTTP_ACCEPT_LANGUAGE');
         }
 
         // standard  for HTTP_ACCEPT_LANGUAGE is defined under
@@ -521,7 +521,7 @@ class transposh_utils {
     }
 
     public static function is_bot() {
-        return preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", filter_input(INPUT_SERVER, 'HTTP_USER_AGENT'));
+        return preg_match("#(bot|yandex|validator|google|jeeves|spider|crawler|slurp)#si", transposh_utils::get_clean_server_var( 'HTTP_USER_AGENT'));
     }
 
     public static function allow_cors() {
@@ -551,6 +551,18 @@ class transposh_utils {
             $by = $user_info->user_login;
         }
         return $by;
+    }
+    /**
+     * Return a server var, because of the 15 years old filter_input bug.
+     * @param String $var
+     * @return type
+     */
+    public static function get_clean_server_var($var) {
+        $ret = filter_input(INPUT_SERVER, $var);
+        if (!$ret && isset($_SERVER[$var])) {
+            $ret = $_SERVER[$var];
+        }
+        return $ret;
     }
 
 }

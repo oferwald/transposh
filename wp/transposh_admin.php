@@ -770,7 +770,7 @@ class transposh_plugin_admin {
             4 => __('Information', TRANSPOSH_TEXT_DOMAIN),
             5 => __('Debug', TRANSPOSH_TEXT_DOMAIN),
         ));
-        $this->textinput($this->transposh->options->debug_remoteip_o, '', sprintf(__('Remote debug IP (Your current IP is %s)', TRANSPOSH_TEXT_DOMAIN), filter_input(INPUT_SERVER, 'REMOTE_ADDR')));
+        $this->textinput($this->transposh->options->debug_remoteip_o, '', sprintf(__('Remote debug IP (Your current IP is %s)', TRANSPOSH_TEXT_DOMAIN), transposh_utils::get_clean_server_var('REMOTE_ADDR')));
         $this->sectionstop();
     }
 

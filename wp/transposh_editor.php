@@ -172,8 +172,12 @@ class transposh_editor_table extends WP_List_Table {
         $orderby = (!empty(filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS)) ) ? filter_input(INPUT_GET, 'orderby', FILTER_SANITIZE_SPECIAL_CHARS) : 'timestamp';
         $order = (!empty(filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS)) ) ? filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS) : 'desc';
         // FIX CVE-2022-25811
-        if (!in_array($orderby,['timestamp','lang','original','translated','translated_by'] )) {$orderby = "timestamp";}
-        if (!in_array($order,['asc','desc'] )) {$order = "desc";}
+        if (!in_array($orderby, ['timestamp', 'lang', 'original', 'translated', 'translated_by'])) {
+            $orderby = "timestamp";
+        }
+        if (!in_array($order, ['asc', 'desc'])) {
+            $order = "desc";
+        }
 
         //$per_page = 5;
         $user = get_current_user_id();
@@ -204,7 +208,7 @@ class transposh_editor_table extends WP_List_Table {
         echo '</pre><div class="wrap"><h2>' . __('Translations', TRANSPOSH_TEXT_DOMAIN) . '</h2>';
         $this->prepare_items();
         if ($this->filter) {
-            $current_url = set_url_scheme('http://' . filter_input(INPUT_SERVER, 'HTTP_HOST') . filter_input(INPUT_SERVER, 'REQUEST_URI'));
+            $current_url = set_url_scheme('http://' . transposh_utils::get_clean_server_var('HTTP_HOST') . transposh_utils::get_clean_server_var('REQUEST_URI'));
             echo (sprintf("<a href='%s'>%s</a></br>", esc_url(remove_query_arg(['action', 'ftb', 'fts', 'fl', 'paged'], $current_url)), __('Remove all filters')));
         }
 
@@ -269,7 +273,7 @@ class transposh_editor_table extends WP_List_Table {
 
             tp_logger($this->filter);
         }
-        $s = htmlspecialchars(filter_input(INPUT_POST, 's', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE));       
+        $s = htmlspecialchars(filter_input(INPUT_POST, 's', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE));
         if ($s) {
             if ($this->filter) {
                 $this->filter .= " AND ";

@@ -373,7 +373,7 @@ class transposh_database {
         }
         if (!$by && !($all_editable &&
                 ($this->transposh->is_translator() || ($source > 0 && $this->transposh->options->enable_autotranslate)))) {
-            tp_logger("Unauthorized translation attempt " . filter_input(INPUT_SERVER,'REMOTE_ADDR'), 1);
+            tp_logger("Unauthorized translation attempt " . transposh_utils::get_clean_server_var('REMOTE_ADDR'), 1);
             header("HTTP/1.0 401 Unauthorized translation");
             exit;
         }
@@ -387,7 +387,7 @@ class transposh_database {
             $loguser = get_current_user_id();
         }
         if (!$loguser) {
-            $loguser = filter_input(INPUT_SERVER,'REMOTE_ADDR');
+            $loguser = transposh_utils::get_clean_server_var('REMOTE_ADDR');
         }
 
         // reset values (for good code style)
@@ -530,7 +530,7 @@ class transposh_database {
         // Check permissions, first the lanugage must be on the edit list. Then either the user
         // is a translator or automatic translation if it is enabled.
         if (!($this->transposh->options->is_active_language($lang) && $this->transposh->is_translator())) {
-            tp_logger("Unauthorized history request " . filter_input(INPUT_SERVER,'REMOTE_ADDR'), 1);
+            tp_logger("Unauthorized history request " . transposh_utils::get_clean_server_var('REMOTE_ADDR'), 1);
             header('HTTP/1.0 401 Unauthorized history');
             exit;
         }
@@ -557,7 +557,7 @@ class transposh_database {
 
         $rows = $GLOBALS['wpdb']->get_results($query);
         for ($i = 0; $i < count($rows); $i++) {
-            if (($rows[$i]->translated_by == filter_input(INPUT_SERVER,'REMOTE_ADDR') && $rows[$i]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options')) {
+            if (($rows[$i]->translated_by == transposh_utils::get_clean_server_var('REMOTE_ADDR') && $rows[$i]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options')) {
                 $rows[$i]->can_delete = true;
             }
         }
@@ -607,7 +607,7 @@ class transposh_database {
 
         tp_logger($query, 3);
         // We only delete if we found something to delete and it is allowed to delete it (user either did that - by ip, has the translator role or is an admin)
-        if (($inmaintable || $inlogtable) && (($rows[0]->translated_by == filter_input(INPUT_SERVER,'REMOTE_ADDR') && $rows[0]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options'))) {
+        if (($inmaintable || $inlogtable) && (($rows[0]->translated_by == transposh_utils::get_clean_server_var('REMOTE_ADDR') && $rows[0]->source == '0') || (is_user_logged_in() && current_user_can(TRANSLATOR)) || current_user_can('manage_options'))) {
             // delete faulty record, if in log
             if ($inlogtable) {
                 $query = "DELETE " .
@@ -667,7 +667,7 @@ class transposh_database {
 
         // Check permissions
         if (!($this->transposh->is_translator())) {
-            tp_logger("Unauthorized alt request " . filter_input(INPUT_SERVER,'REMOTE_ADDR'), 1);
+            tp_logger("Unauthorized alt request " . transposh_utils::get_clean_server_var('REMOTE_ADDR'), 1);
             header('HTTP/1.0 401 Unauthorized alt request');
             exit;
         }
@@ -1002,7 +1002,7 @@ class transposh_database {
                 $update = "DELETE FROM " . $this->translation_table . " WHERE $delvalues";
                 tp_logger($update, 3);
                 $GLOBALS['wpdb']->query($update);
-                $this->cache_delete($row->original, $row->lang); 
+                $this->cache_delete($row->original, $row->lang);
             }
         }
     }

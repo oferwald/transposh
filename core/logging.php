@@ -100,7 +100,7 @@ class tp_logger {
                 echo "$log_prefix:$msg";
                 echo ($this->eolprint) ? "\n" : "<br/>";
             } else {
-                if (!filter_input(INPUT_SERVER, 'REMOTE_ADDR') || $this->remoteip != filter_input(INPUT_SERVER, 'REMOTE_ADDR')) {
+                if (!transposh_utils::get_clean_server_var( 'REMOTE_ADDR') || $this->remoteip != transposh_utils::get_clean_server_var( 'REMOTE_ADDR')) {
                     return;
                 }
                 if ((is_array($msg) || is_object($msg)) && $this->show_caller) {

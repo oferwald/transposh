@@ -74,7 +74,7 @@ class transposh_3rdparty {
     function super_cache_invalidate() {
         //Now, we are actually using the referrer and not the request, with some precautions
         // check server['']
-        $GLOBALS['wp_cache_request_uri'] = substr(filter_input(INPUT_SERVER, 'HTTP_REFERER'), stripos(filter_input(INPUT_SERVER, 'HTTP_REFERER'), filter_input(INPUT_SERVER, 'HTTP_HOST')) + strlen(filter_input(INPUT_SERVER, '') . filter_input(INPUT_SERVER, 'HTTP_HOST')));
+        $GLOBALS['wp_cache_request_uri'] = substr(transposh_utils::get_clean_server_var('HTTP_REFERER'), stripos(transposh_utils::get_clean_server_var('HTTP_REFERER'), transposh_utils::get_clean_server_var('HTTP_HOST')) + strlen(transposh_utils::get_clean_server_var('HTTP_HOST')));
         $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace('/index.php', '/', str_replace('..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri']))));
         // get some supercache variables
         extract(wp_super_cache_init());
@@ -111,8 +111,8 @@ class transposh_3rdparty {
     }
 
     function w3tc_invalidate() {
-        tp_logger("W3TC invalidate:" . filter_input(INPUT_SERVER, 'HTTP_REFERER'));
-        $id = url_to_postid(filter_input(INPUT_SERVER, 'HTTP_REFERER'));
+        tp_logger("W3TC invalidate:" . transposh_utils::get_clean_server_var('HTTP_REFERER'));
+        $id = url_to_postid(transposh_utils::get_clean_server_var('HTTP_REFERER'));
         if (is_numeric($id)) {
             tp_logger("W3TC invalidate post id: $id");
             w3tc_pgcache_flush_post($id);
@@ -141,7 +141,7 @@ class transposh_3rdparty {
      * @param type $url
      */
     function bbp_get_search_results_url($url) {
-        $lang = transposh_utils::get_language_from_url(filter_input(INPUT_SERVER, 'HTTP_REFERER'), $this->home_url);
+        $lang = transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->home_url);
         $href = transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
         return $href;
     }
@@ -154,8 +154,8 @@ class transposh_3rdparty {
         // we don't need to modify our own activity stream
         if ($params->type == 'new_translation')
             return;
-        if (transposh_utils::get_language_from_url(filter_input(INPUT_SERVER, 'HTTP_REFERER'), $this->transposh->home_url))
-            bp_activity_update_meta($params->id, 'tp_language', transposh_utils::get_language_from_url(filter_input(INPUT_SERVER, 'HTTP_REFERER'), $this->transposh->home_url));
+        if (transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->transposh->home_url))
+            bp_activity_update_meta($params->id, 'tp_language', transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->transposh->home_url));
     }
 
     /**
@@ -335,7 +335,7 @@ class transposh_3rdparty {
     }
 
     function woo_uri_filter($url) {
-        $lang = transposh_utils::get_language_from_url(filter_input(INPUT_SERVER, 'HTTP_REFERER'), $this->transposh->home_url);
+        $lang = transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->transposh->home_url);
         tp_logger('altering woo url to:' . transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $this->transposh->edit_mode));
         return transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, $this->transposh->edit_mode);
     }

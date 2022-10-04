@@ -86,15 +86,14 @@ class transposh_plugin_widget extends WP_Widget {
         parent::__construct('transposh', __('Transposh'), $widget_ops, $control_ops);
 
         // PHP 5.3 and up...
-        add_action('widgets_init', function() {
+        add_action('widgets_init', function () {
             register_widget("transposh_plugin_widget");
         });
 //        add_action('widgets_init', create_function('', 'register_widget("transposh_plugin_widget");'));
-
         // We only need to add those actions once, makes life simpler
         if (is_active_widget(false, false, $this->id_base) && self::$first_init) {
             self::$first_init = false;
-            if (!is_admin()) {
+            if (!is_admin()) { // is admin page
                 add_action('wp_print_styles', array(&$this, 'add_transposh_widget_css'));
                 add_action('wp_print_scripts', array(&$this, 'add_transposh_widget_js'));
             }
@@ -156,8 +155,9 @@ class transposh_plugin_widget extends WP_Widget {
      * Make sure that this feature would not be used to include files in weird locations
      * No more then one "/" no more than one "." - Also sanitize nonsense by WP
      */
+
     function sanitize_file($file) {
-        $slashcount=substr_count($file, '/');
+        $slashcount = substr_count($file, '/');
         if ($slashcount > 1) {
             return ""; // We would not like more than one degree of recursion
         }
@@ -165,13 +165,14 @@ class transposh_plugin_widget extends WP_Widget {
             return ""; // One dot should be enough for everyone - Bill Gates
         }
         if ($slashcount == 1) {
-            list ($dir,$filename) = explode("/", $file);
-            $newfile = sanitize_file_name($dir)."/".sanitize_file_name($filename);
+            list ($dir, $filename) = explode("/", $file);
+            $newfile = sanitize_file_name($dir) . "/" . sanitize_file_name($filename);
         } else {
             $newfile = sanitize_file_name($file);
         }
         return $newfile;
     }
+
     /**
      * Loads the subwidget class code
      */
@@ -181,7 +182,7 @@ class transposh_plugin_widget extends WP_Widget {
         if ($file && $file[0] == '*') {
             $upload = wp_upload_dir();
             $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
-            $widget_src = $upload_dir . '/' . $this->sanitize_file (substr($file, 1));
+            $widget_src = $upload_dir . '/' . $this->sanitize_file(substr($file, 1));
         } else {
             $widget_src = $this->transposh->transposh_plugin_dir . TRANSPOSH_DIR_WIDGETS . '/' . $this->sanitize_file($file);
         }
@@ -306,7 +307,7 @@ class transposh_plugin_widget extends WP_Widget {
 
         // we load the class needed and get its base name for later
         if (isset($instance['widget_file'])) {
-            $class = $this->load_widget($instance['widget_file']);        
+            $class = $this->load_widget($instance['widget_file']);
         } else {
             $class = $this->load_widget();
         }
@@ -361,7 +362,7 @@ class transposh_plugin_widget extends WP_Widget {
             }
             // add the edit checkbox only for translators for languages marked as editable
             if ($this->transposh->is_editing_permitted()) {
-                $ref = transposh_utils::rewrite_url_lang_param(filter_input(INPUT_SERVER,'REQUEST_URI'), $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($this->transposh->options->is_default_language($this->transposh->target_language) ? "" : $this->transposh->target_language), !$this->transposh->edit_mode);
+                $ref = transposh_utils::rewrite_url_lang_param(transposh_utils::get_clean_server_var('REQUEST_URI'), $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, ($this->transposh->options->is_default_language($this->transposh->target_language) ? "" : $this->transposh->target_language), !$this->transposh->edit_mode);
                 echo '<input type="checkbox" name="' . EDIT_PARAM . '" value="1" ' .
                 ($this->transposh->edit_mode ? 'checked="checked" ' : '') .
                 ' onclick="document.location.href=\'' . $ref . '\';"/>&nbsp;Edit Translation';
@@ -445,9 +446,9 @@ class transposh_plugin_widget extends WP_Widget {
         } else {
             return $tp_widgets;
         }
-        
+
         // There was a closedir once here, but turned out it just caused strange issues 
-        
+
         if (empty($widget_files))
             return $tp_widgets;
 
@@ -462,8 +463,8 @@ class transposh_plugin_widget extends WP_Widget {
 
             $tp_widgets[plugin_basename($widget_file)] = $widget_data;
         }
-        uasort($tp_widgets, function($a, $b) {
-            return strnatcasecmp( $a["Name"], $b["Name"] );
+        uasort($tp_widgets, function ($a, $b) {
+            return strnatcasecmp($a["Name"], $b["Name"]);
         });
         //uasort($tp_widgets, create_function('$a, $b', 'return strnatcasecmp( $a["Name"], $b["Name"] );'));
 
