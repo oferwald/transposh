@@ -131,6 +131,7 @@ class transposh_consts {
         'fa' => 'Persian,پارسی,ir,fa_IR',
         'pl' => 'Polish,Polski,pl,pl_PL',
         'pt' => 'Portuguese,Português,pt,pt_PT',
+        'pt-br' => 'Brazilian Portuguese,Português do Brasil,br,pt_BR',
         'pa' => 'Punjabi,ਪੰਜਾਬੀ,pk,pa_IN',
         'ro' => 'Romanian,Română,ro,ro_RO',
         'ru' => 'Russian,Русский,ru,ru_RU',
@@ -202,7 +203,7 @@ class transposh_consts {
         'bm' => 'en',
         'bn' => 'ms',
         'bo' => 'es,qu,ay',
-        'br' => 'pt',
+        'br' => 'pt-br',
         'bs' => 'en',
         'bt' => 'dz',
         'bv' => 'no',
@@ -397,7 +398,7 @@ class transposh_consts {
         // 'tr'=> 'tr',
         'tt' => 'en',
         'tv' => 'en',
-        'tw' => 'zh',
+        'tw' => 'zh-tw,zh',
         'tz' => 'sw,en',
         'ua' => 'uk',
         'ug' => 'en,sw',
@@ -445,12 +446,147 @@ class transposh_consts {
             // @updated 2018-May-12 (is)
             // @updated 2018-Sep-05 (te)
             // @updated 2019-Nov-22 (mi)
+            // @pt-br?
+            /*
+             * <optgroup id="t_tgtAllLang" label="All languages">
+   <option aria-label="All languages Afrikaans" value="af">Afrikaans</option>
+   <option aria-label="Albanian" value="sq">Albanian</option>
+   <option aria-label="Amharic" value="am">Amharic</option>
+   <option aria-label="Arabic" value="ar">Arabic</option>
+   <option aria-label="Armenian" value="hy">Armenian</option>
+   <option aria-label="Assamese" value="as">Assamese</option>
+   <option aria-label="Azerbaijani" value="az">Azerbaijani</option>
+   <option aria-label="Bangla" value="bn">Bangla</option>
+   <option aria-label="Bashkir" value="ba">Bashkir</option>
+   <option aria-label="Basque" value="eu">Basque</option>
+   <option aria-label="Bosnian" value="bs">Bosnian</option>
+   <option aria-label="Bulgarian" value="bg">Bulgarian</option>
+   <option aria-label="Cantonese (Traditional)" value="yue">Cantonese (Traditional)</option>
+   <option aria-label="Catalan" value="ca">Catalan</option>
+   <option aria-label="Chinese (Literary)" value="lzh">Chinese (Literary)</option>
+   <option aria-label="Chinese Simplified" value="zh-Hans">Chinese Simplified</option>
+   <option aria-label="Chinese Traditional" value="zh-Hant">Chinese Traditional</option>
+   <option aria-label="Croatian" value="hr">Croatian</option>
+   <option aria-label="Czech" value="cs">Czech</option>
+   <option aria-label="Danish" value="da">Danish</option>
+   <option aria-label="Dari" value="prs">Dari</option>
+   <option aria-label="Divehi" value="dv">Divehi</option>
+   <option aria-label="Dutch" value="nl">Dutch</option>
+   <option aria-label="English" value="en">English</option>
+   <option aria-label="Estonian" value="et">Estonian</option>
+   <option aria-label="Faroese" value="fo">Faroese</option>
+   <option aria-label="Fijian" value="fj">Fijian</option>
+   <option aria-label="Filipino" value="fil">Filipino</option>
+   <option aria-label="Finnish" value="fi">Finnish</option>
+   <option aria-label="French" value="fr">French</option>
+   <option aria-label="French (Canada)" value="fr-CA">French (Canada)</option>
+   <option aria-label="Galician" value="gl">Galician</option>
+   <option aria-label="Ganda" value="lug">Ganda</option>
+   <option aria-label="Georgian" value="ka">Georgian</option>
+   <option aria-label="German" value="de">German</option>
+   <option aria-label="Greek" value="el">Greek</option>
+   <option aria-label="Gujarati" value="gu">Gujarati</option>
+   <option aria-label="Haitian Creole" value="ht">Haitian Creole</option>
+   <option aria-label="Hausa" value="ha">Hausa</option>
+   <option aria-label="Hebrew" value="he">Hebrew</option>
+   <option aria-label="Hindi" value="hi">Hindi</option>
+   <option aria-label="Hmong Daw" value="mww">Hmong Daw</option>
+   <option aria-label="Hungarian" value="hu">Hungarian</option>
+   <option aria-label="Icelandic" value="is">Icelandic</option>
+   <option aria-label="Igbo" value="ig">Igbo</option>
+   <option aria-label="Indonesian" value="id">Indonesian</option>
+   <option aria-label="Inuinnaqtun" value="ikt">Inuinnaqtun</option>
+   <option aria-label="Inuktitut" value="iu">Inuktitut</option>
+   <option aria-label="Inuktitut (Latin)" value="iu-Latn">Inuktitut (Latin)</option>
+   <option aria-label="Irish" value="ga">Irish</option>
+   <option aria-label="Italian" value="it">Italian</option>
+   <option aria-label="Japanese" value="ja">Japanese</option>
+   <option aria-label="Kannada" value="kn">Kannada</option>
+   <option aria-label="Kazakh" value="kk">Kazakh</option>
+   <option aria-label="Khmer" value="km">Khmer</option>
+   <option aria-label="Kinyarwanda" value="rw">Kinyarwanda</option>
+   <option aria-label="Klingon (Latin)" value="tlh-Latn">Klingon (Latin)</option>
+   <option aria-label="Konkani" value="gom">Konkani</option>
+   <option aria-label="Korean" value="ko">Korean</option>
+   <option aria-label="Kurdish (Central)" value="ku">Kurdish (Central)</option>
+   <option aria-label="Kurdish (Northern)" value="kmr">Kurdish (Northern)</option>
+   <option aria-label="Kyrgyz" value="ky">Kyrgyz</option>
+   <option aria-label="Lao" value="lo">Lao</option>
+   <option aria-label="Latvian" value="lv">Latvian</option>
+   <option aria-label="Lingala" value="ln">Lingala</option>
+   <option aria-label="Lithuanian" value="lt">Lithuanian</option>
+   <option aria-label="Lower Sorbian" value="dsb">Lower Sorbian</option>
+   <option aria-label="Macedonian" value="mk">Macedonian</option>
+   <option aria-label="Maithili" value="mai">Maithili</option>
+   <option aria-label="Malagasy" value="mg">Malagasy</option>
+   <option aria-label="Malay" value="ms">Malay</option>
+   <option aria-label="Malayalam" value="ml">Malayalam</option>
+   <option aria-label="Maltese" value="mt">Maltese</option>
+   <option aria-label="Marathi" value="mr">Marathi</option>
+   <option aria-label="Mongolian (Cyrillic)" value="mn-Cyrl">Mongolian (Cyrillic)</option>
+   <option aria-label="Mongolian (Traditional)" value="mn-Mong">Mongolian (Traditional)</option>
+   <option aria-label="Myanmar (Burmese)" value="my">Myanmar (Burmese)</option>
+   <option aria-label="Māori" value="mi">Māori</option>
+   <option aria-label="Nepali" value="ne">Nepali</option>
+   <option aria-label="Norwegian" value="nb">Norwegian</option>
+   <option aria-label="Nyanja" value="nya">Nyanja</option>
+   <option aria-label="Odia" value="or">Odia</option>
+   <option aria-label="Pashto" value="ps">Pashto</option>
+   <option aria-label="Persian" value="fa">Persian</option>
+   <option aria-label="Polish" value="pl">Polish</option>
+   <option aria-label="Portuguese (Brazil)" value="pt">Portuguese (Brazil)</option>
+   <option aria-label="Portuguese (Portugal)" value="pt-PT">Portuguese (Portugal)</option>
+   <option aria-label="Punjabi" value="pa">Punjabi</option>
+   <option aria-label="Querétaro Otomi" value="otq">Querétaro Otomi</option>
+   <option aria-label="Romanian" value="ro">Romanian</option>
+   <option aria-label="Rundi" value="run">Rundi</option>
+   <option aria-label="Russian" value="ru">Russian</option>
+   <option aria-label="Samoan" value="sm">Samoan</option>
+   <option aria-label="Serbian (Cyrillic)" value="sr-Cyrl">Serbian (Cyrillic)</option>
+   <option aria-label="Serbian (Latin)" value="sr-Latn">Serbian (Latin)</option>
+   <option aria-label="Sesotho" value="st">Sesotho</option>
+   <option aria-label="Sesotho sa Leboa" value="nso">Sesotho sa Leboa</option>
+   <option aria-label="Setswana" value="tn">Setswana</option>
+   <option aria-label="Shona" value="sn">Shona</option>
+   <option aria-label="Sindhi" value="sd">Sindhi</option>
+   <option aria-label="Sinhala" value="si">Sinhala</option>
+   <option aria-label="Slovak" value="sk">Slovak</option>
+   <option aria-label="Slovenian" value="sl">Slovenian</option>
+   <option aria-label="Somali" value="so">Somali</option>
+   <option aria-label="Spanish" value="es" selected="selected">Spanish</option>
+   <option aria-label="Swahili" value="sw">Swahili</option>
+   <option aria-label="Swedish" value="sv">Swedish</option>
+   <option aria-label="Tahitian" value="ty">Tahitian</option>
+   <option aria-label="Tamil" value="ta">Tamil</option>
+   <option aria-label="Tatar" value="tt">Tatar</option>
+   <option aria-label="Telugu" value="te">Telugu</option>
+   <option aria-label="Thai" value="th">Thai</option>
+   <option aria-label="Tibetan" value="bo">Tibetan</option>
+   <option aria-label="Tigrinya" value="ti">Tigrinya</option>
+   <option aria-label="Tongan" value="to">Tongan</option>
+   <option aria-label="Turkish" value="tr">Turkish</option>
+   <option aria-label="Turkmen" value="tk">Turkmen</option>
+   <option aria-label="Ukrainian" value="uk">Ukrainian</option>
+   <option aria-label="Upper Sorbian" value="hsb">Upper Sorbian</option>
+   <option aria-label="Urdu" value="ur">Urdu</option>
+   <option aria-label="Uyghur" value="ug">Uyghur</option>
+   <option aria-label="Uzbek (Latin)" value="uz">Uzbek (Latin)</option>
+   <option aria-label="Vietnamese" value="vi">Vietnamese</option>
+   <option aria-label="Welsh" value="cy">Welsh</option>
+   <option aria-label="Xhosa" value="xh">Xhosa</option>
+   <option aria-label="Yoruba" value="yo">Yoruba</option>
+   <option aria-label="Yucatec Maya" value="yua">Yucatec Maya</option>
+   <option aria-label="Zulu" value="zu">Zulu</option>
+</optgroup>
+
+             */
+
             'langs' => array(
                 'af', 'ar', 'bg', 'bn', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'es', 'et', 'fa', 'fi', 'fil', 'fj', 'fr', 'he', 'hi', 'hr', 'ht',
-                'hu', 'id', 'is', 'it', 'ja', 'ko', 'lt', 'lv', 'mg', 'mi', 'ms', 'mt', 'mw', 'nl', 'no', 'otq', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sm', 'sr',
+                'hu', 'id', 'is', 'it', 'ja', 'ko', 'lt', 'lv', 'mg', 'mi', 'ms', 'mt', 'mw', 'nl', 'no', 'otq', 'pl', 'pt','pt-br', 'ro', 'ru', 'sk', 'sl', 'sm', 'sr',
                 'sv', 'sw', 'ta', 'te', 'th', 'tlh', 'tlh-qaak', 'to', 'tr', 'ty', 'uk', 'ur', 'vi', 'yua', 'yue', 'zh', 'zh-tw'),
             // check about bs-latn , sr-latn/cyr, (tlh) (klingon?)
-            'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww')
+            'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww', 'pt' => 'pt-PT', 'pt-br' => 'pt')
         ),
         'g' => array(
             'name' => 'Google',
