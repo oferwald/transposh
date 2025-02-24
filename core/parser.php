@@ -732,6 +732,11 @@ class tp_parser {
                     if ($jsoner->contents) {
                         $jsoner->contents = $this->fix_html($jsoner->contents);
                     }
+                    if ($jsoner->data) {
+                        if ($jsoner->data->html) {
+                            $jsoner->data->html = $this->fix_html($jsoner->data->html);
+                        }
+                    }
                     $fragments = [
                         'div.widget_shopping_cart_content',
                         'div.kt-header-mini-cart-refreash',
