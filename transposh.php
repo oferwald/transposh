@@ -67,8 +67,11 @@ class transposh_plugin {
 
     /** @var transposh_3rdparty Happens after editing */
     private $third_party;
-    // list of properties
 
+    /** @var transposh_mail Mail element */
+    private $mail;
+
+    // list of properties
     /** @var string The site url */
     public $home_url;
 
