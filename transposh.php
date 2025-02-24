@@ -501,6 +501,14 @@ class transposh_plugin {
             $this->attempt_json = true;
         }
 
+        // jet engine load more
+        if (isset($_POST['action']) && $_POST['action'] == 'jet_engine_ajax' &&
+            isset($_POST['handler']) && $_POST['handler'] == 'listing_load_more') {
+        tp_logger("jet engine ajax more",2);
+            $this->target_language = transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->home_url);
+            $this->attempt_json = true;
+        }
+        
         tp_logger(transposh_utils::get_clean_server_var('REQUEST_URI'), 5);
         if (strpos(transposh_utils::get_clean_server_var('REQUEST_URI'), '/wpv-ajax-pagination/') === true) {
             tp_logger('wpv pagination', 5);
