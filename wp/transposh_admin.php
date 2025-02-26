@@ -12,7 +12,7 @@
  */
 
 /*
- * Provide the admin page for configuring the translation options. eg.  what languages ?
+ * Provide the admin page for configuring the translation options. e.g.  what languages ?
  * who is allowed to translate ?
  *
  * adapted metabox sample code from http://www.code-styling.de/
@@ -73,8 +73,8 @@ class transposh_plugin_admin {
             $role = $GLOBALS['wp_roles']->get_role($role_name);
             if (isset($role) && $role->has_cap(TRANSLATOR))
                 return true;
-        } else
-            return $this->transposh->options->allow_anonymous_translation;
+        }
+        return $this->transposh->options->allow_anonymous_translation;
     }
 
     /**
@@ -452,7 +452,7 @@ class transposh_plugin_admin {
         // we need some styles
         global $wp_locale;
         if ($wp_locale->text_direction == 'rtl') {
-            echo '<style type="text/css">
+            echo '<style>
 	#sortable li, #default_lang li { float: right !important;}
         .logoicon {
             float:left !important;
@@ -487,15 +487,16 @@ class transposh_plugin_admin {
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
             foreach (transposh_consts::$engines as $enginecode => $enginerecord) {
                 if (in_array($langcode, $enginerecord['langs'])) {
-                    echo '<img width="16" height="16" alt="' . $enginecode . '" class="logoicon" title="' . esc_attr(sprintf(__('Language supported by %s translate', TRANSPOSH_TEXT_DOMAIN), $enginerecord['name'])) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/' . $enginerecord['icon'] . '"/>';
+                    echo '<span class="tr-icon tr-icon-'.strtolower($enginerecord['name']).'"></span>';
                 } else {
                     echo '<div class="logoicon" style="margin:9px"></div>';
                 }
             }
-            if (in_array($langcode, transposh_consts::$oht_languages))
-                echo '<img width="16" height="16" alt="o" class="logoicon" title="' . esc_attr__('Language supported by one hour translation', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/ohticon.png"/>';
+            if (in_array($langcode, transposh_consts::$adsense_languages))
+                echo '<span class="tr-icon tr-icon-adsense"></span>';
             if (in_array($langcode, transposh_consts::$rtl_languages))
-                echo '<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>';
+                echo '<span class="tr-icon tr-icon-rtl"></span>';
+
             /* if ($this->does_mo_exist(transposh_consts::get_language_locale($langcode)))
               echo 'BLBL<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>'; */
             echo '</li>';
@@ -508,6 +509,15 @@ class transposh_plugin_admin {
         echo '<li><a href="#" id="sortname">' . __('Sort by language name', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="sortiso">' . __('Sort by lSO code', TRANSPOSH_TEXT_DOMAIN) . '</a></li></ul>';
         echo '</div>';
+        // icons legend
+        echo '<div style="clear: both;">' . __('Icons legend:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: none; margin-' . $this->localeleft . ':20px;font-size:11px">';
+        foreach (transposh_consts::$engines as $enginecode => $enginerecord) {
+           echo '<li><span class="tr-legendicon tr-icon-'.strtolower($enginerecord['name']).'"></span> '.esc_attr(sprintf(__('Language supported by %s translate', TRANSPOSH_TEXT_DOMAIN), $enginerecord['name'])).'</li>';
+        }
+        echo '<li><span class="tr-legendicon tr-icon-rtl"></span> '. esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '</li>';
+        echo '<li><span class="tr-legendicon tr-icon-adsense"></span> '. esc_attr__('Language supported by Google Adsense', TRANSPOSH_TEXT_DOMAIN) . '</li>';
+        echo '</div>';
+
     }
 
     /* function does_mo_exist($locale) { //TODO - use and fix this :)
@@ -621,6 +631,7 @@ class transposh_plugin_admin {
         if ($this->transposh->options->mail_digest) {
             $rowstosend = $this->transposh->database->get_all_human_translation_history($this->transposh->options->transposh_last_mail_digest, 500);
             if ($rowstosend) {
+                $next_digest = wp_next_scheduled('transposh_digest_event');
                 echo sprintf(__('The next digest will be sent on %s and will include %d translation', TRANSPOSH_TEXT_DOMAIN), date('r', $next_digest), count($rowstosend));
             } else {
                 echo sprintf(__('There are no new translations since last digest', TRANSPOSH_TEXT_DOMAIN));
@@ -661,7 +672,7 @@ class transposh_plugin_admin {
         // we need some styles
         global $wp_locale;
         if ($wp_locale->text_direction == 'rtl') {
-            echo '<style type="text/css">
+            echo '<style>
 	#sortable li, #default_lang li { float: right !important;}
         .logoicon {
             float:left !important;
@@ -861,8 +872,8 @@ class transposh_plugin_admin {
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCCE87P7B2MG8">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
   ';
         echo '</div>';
@@ -873,8 +884,8 @@ class transposh_plugin_admin {
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="4E52WJ8WDK79J">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>';
         echo '</div>';
         $this->sectionstop();
@@ -885,13 +896,13 @@ class transposh_plugin_admin {
         //user permission check
         if (!current_user_can('manage_options'))
             wp_die(__('Problems?', TRANSPOSH_TEXT_DOMAIN));
-        // cross check the given referer
+        // cross-check the given referer
         check_admin_referer(-1, TR_NONCE);
 
         // process here your on $_POST validation and / or option saving
         $this->update_admin_options();
 
-        // lets redirect the post request into get request (you may add additional params at the url, if you need to show save results
+        // let's redirect the post request into get request (you may add additional params at the url, if you need to show save results
         $this->transposh->tp_redirect($_POST['_wp_http_referer']);
     }
 

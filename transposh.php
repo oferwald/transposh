@@ -75,7 +75,7 @@ class transposh_plugin {
     /** @var string The site url */
     public $home_url;
 
-    /** @var a url of the request, assuming there was no language */
+    /** @var string a url of the request, assuming there was no language */
     private $clean_url;
 
     /** @var string The url to the plugin directory */
@@ -105,10 +105,10 @@ class transposh_plugin {
     /** @var string Saved search variables */
     private $search_s;
 
-    /** @var variable to make sure we only attempt to fix the url once, could have used remove_filter */
+    /** @var boolean variable to make sure we only attempt to fix the url once, could have used remove_filter */
     private $got_request = false;
 
-    /** @var might be that page is json... */
+    /** @var boolean might be that page is json... */
     private $attempt_json = false;
 
     /** @var boolean Is the wp_redirect being called by transposh? */
@@ -276,7 +276,7 @@ class transposh_plugin {
      * @return string
      */
     function on_wp_redirect($location, $status) {
-        // no point in mangling redirection if its our own or its the default language
+        // no point in mangling redirection if it's our own or it's the default language
         if ($this->transposh_redirect || $this->options->is_default_language($this->target_language)) {
             return $location;
         }
@@ -284,8 +284,7 @@ class transposh_plugin {
         // $trace = debug_backtrace();
         // tp_logger($trace);
         // tp_logger($this->target_language);
-        $location = $this->rewrite_url($location);
-        return $location;
+        return $this->rewrite_url($location);
     }
 
     /**
@@ -451,7 +450,7 @@ class transposh_plugin {
 //    }
 
     /**
-     * Setup a buffer that will contain the contents of the html page.
+     * Set up a buffer that will contain the contents of the html page.
      * Once processing is completed the buffer will go into the translation process.
      */
     function on_init() {
@@ -902,9 +901,6 @@ class transposh_plugin {
         if (in_array($this->target_language, transposh_consts::$engines['u']['langs'])) {
             $script_params['engines']->u = 1;
         }
-        if ($this->options->oht_id && $this->options->oht_key && in_array($this->target_language, transposh_consts::$oht_languages) && current_user_can('manage_options')) {
-            $script_params['engines']->o = 1;
-        }
         if (!$this->options->enable_autotranslate) {
             $script_params['noauto'] = 1;
         }
@@ -1053,8 +1049,8 @@ class transposh_plugin {
      * Callback from parser allowing to overide the global setting of url rewriting using permalinks.
      * Some urls should be modified only by adding parameters and should be identified by this
      * function.
-     * @param $href Original href
-     * @return boolean Modified href
+     * @param $href string Original href
+     * @return string Modified href
      */
     function rewrite_url($href) {
         tp_logger("got: $href", 4);
@@ -1421,20 +1417,20 @@ class transposh_plugin {
 
         if (isset($atts['not_in']) && $this->target_language) {
             if (stripos($atts['not_in'], $this->target_language) !== false) {
-                return;
+                return "";
             }
         }
 
         if (isset($atts['locale']) || in_array('locale', $atts)) {
             if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
-                return;
+                return "";
             }
             return get_locale();
         }
 
         if (isset($atts['mylang']) || in_array('mylang', $atts)) {
             if (isset($atts['lang']) && stripos($atts['lang'], $this->target_language) === false) {
-                return;
+                return "";
             }
             return $this->target_language;
         }
@@ -1507,12 +1503,14 @@ class transposh_plugin {
 
         // Send the headers we got
         $reqheaders = getallheaders();
-        //tp_logger($reqheaders);
-        unset($reqheaders['Host']);
-        unset($reqheaders['Content-Length']);
         $headers = array();
-        foreach ($reqheaders as $name => $value) {
-            $headers[] = "$name: $value";
+        //tp_logger($reqheaders);
+        if ($reqheaders) {
+            unset($reqheaders['Host']);
+            unset($reqheaders['Content-Length']);
+            foreach ($reqheaders as $name => $value) {
+                $headers[] = "$name: $value";
+            }
         }
         //tp_logger($headers);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -1765,11 +1763,9 @@ class transposh_plugin {
             }
 
             return false;
-        };
+        }
 
-        $result = $jsonarr->text;
-
-        return $result;
+        return $jsonarr->text;
     }
 
     // Proxied Baidu translate suggestions
@@ -2063,27 +2059,6 @@ class transposh_plugin {
         transposh_utils::allow_cors();
         do_action('transposh_translation_posted');
         $this->database->update_translation();
-        die();
-    }
-
-    /**
-     * callback from one hour translation
-     */
-    function on_ajax_nopriv_tp_ohtcallback() {
-        $ohtp = get_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, array());
-        tp_logger($ohtp);
-        if ($ohtp[$_POST['projectid']]) {
-            Logger($_POST['projectid'] . " was found and will be processed");
-            do_action('transposh_oht_callback');
-            tp_logger($_POST);
-            $ohtp[$_POST['projectid']] -= $_POST['items'];
-            if ($ohtp[$_POST['projectid']] <= 0) {
-                unset($ohtp[$_POST['projectid']]);
-            }
-            tp_logger($ohtp);
-            update_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, $ohtp);
-            $this->database->update_translation("OHT");
-        }
         die();
     }
 

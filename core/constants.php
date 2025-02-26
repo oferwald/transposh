@@ -423,11 +423,6 @@ class transposh_consts {
     );
     // new var to hold translation engines information
     public static $engines = array(
-        'a' => array(
-            'name' => 'Apertium',
-            'icon' => 'apertiumicon.png',
-            'langs' => array('eo'),
-        ),
         'b' => array(
             'name' => 'Bing',
             'icon' => 'bingicon.png',
@@ -631,6 +626,12 @@ class transposh_consts {
             // check about (sjn) Elvish?
             'langconv' => array('jw' => 'jv')
         ),
+        'a' => array(
+            'name' => 'Apertium',
+            'icon' => 'apertiumicon.png',
+            'langs' => array('eo','es','en'),
+        ),
+
     );
 
     public static function get_language_name($lang) {
@@ -670,8 +671,61 @@ class transposh_consts {
     //Kazakh	kk-kz
     //Pashto	ps
     //Uzbek	uz-uz
-    public static $oht_languages = array('en', 'sq', 'ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'et', 'fa', 'fi', 'fr', 'ka', 'de', 'el', 'he', 'hi', 'hu', 'id',
-        'it', 'ja', 'ko', 'lo', 'lv', 'lt', 'mk', 'ms', 'no', 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'th', 'tr', 'uk', 'ur', 'vi', 'km', 'bs');
+    public static $adsense_languages = array('ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'et', 'fi', 'fr', 'de', 'el', 'gu', 'he', 'hi', 'hu', 'id',
+        'it', 'ja', 'kn', 'ko', 'lv', 'lt', 'ms', 'ml', 'mr', 'no', 'pl', 'pt','pt-br', 'pa', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'te', 'th', 'tr', 'uk', 'ur', 'vi');
+
+// List of supported adsense languages - https://support.google.com/adsense/answer/9727 - 25/02/2025
+/*Arabic [2]
+Bengali [2, 3]
+Bulgarian [2]
+Catalan [2, 3]
+Chinese (simplified)
+Chinese (traditional)
+Croatian [2]
+Czech
+Danish [2]
+Dutch
+English
+Estonian [1, 2, 3]
+Filipino [2]
+Finnish [2]
+French
+German
+Greek
+Gujarati [2, 3]
+Hebrew [2]
+Hindi [2, 3]
+Hungarian
+Indonesian
+Italian
+Japanese
+Kannada [2, 3]
+Korean
+Latvian [2]
+Lithuanian [2]
+Malay [2, 3]
+Malayalam [2, 3]
+Marathi [2, 3]
+Norwegian [2]
+Polish
+Portuguese
+Punjabi [2, 3]
+Romanian [2]
+Russian
+Serbian [2]
+Slovak [2]
+Slovenian [1, 2, 3]
+Spanish (European)
+Spanish (Latin American)
+Swedish [2]
+Tamil [2]
+Telugu [2]
+Thai
+Turkish
+Ukrainian [2]
+Urdu [2, 3]
+Vietnamese*/
+
     // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
     // Array holding list of jQueryUI themes
