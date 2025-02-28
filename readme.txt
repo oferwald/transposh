@@ -22,7 +22,6 @@ You can watch the video above, made by Fabrice Meuwissen of obviousidea.com whic
 * Multiple options for widget appearances - with pluggable widgets and multiple instances
 * Translation of external plugins without a need for .po/.mo files
 * Automatic translation mode for all content (including comments!)
-* Professional translation bt [One Hour Translation](http://transposh.org/redir/oht)
 * Use either Google, Bing, Yandex or Apertium translation backends - 117 languages supported!
 * Automatic translation can be triggered on demand by the readers or on the server side
 * RSS feeds are translated too
@@ -71,41 +70,6 @@ You can find them on our site [here](https://transposh.org/faq)
 == Upgrade Notice ==
 = 0.9.7 =
 Must upgrade if you are using Google as your translation Engine or you have upgraded to wordpress 4.2.x
-= 0.9.2 =
-Update for some bugs in parsing
-= 0.8.0 =
-The widgets can have multiple instances, you need to change the current instance
-If you want to use a google/msn API key, it is now possible
-= 0.7.0 =
-New edit interface, tons of other fixes
-= 0.6.6 =
-Fixed two XSS vulnerabilities
-= 0.6.3 =
-Support .po/.mo files
-= 0.6.0 =
-Much improved translation interface engine
-= 0.5.7 =
-Fix for critical bug in 0.5.6
-= 0.5.6 =
-Support pluggable widgets
-= 0.5.5 =
-Support for buddypress URLs
-= 0.5.3 =
-Support URL translation
-= 0.5.2 =
-Improved lang attribute support, changed default language translation option
-= 0.5.1 =
-Improved speed and database structure
-= 0.5.0 =
-Ability to translate all content, backup service for human translations
-= 0.4.3 =
-Minor bug fixes, more compatability
-= 0.4.2 =
-This version provides Haitian support, auto translate with bing support
-= 0.4.0 =
-This version provides integration with google-sitemaps-xml and wp-super-cache
-= 0.3.9 =
-This version allows sorting of languages within the widget
 
 == Credits ==
 = Translation credits =
@@ -122,6 +86,12 @@ This version allows sorting of languages within the widget
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2025/02/28 - 1.0.9.4 =
+ * Mark adsense supported languages
+ * New language selection interface fixes
+ * Some newer wordpress compatability issues fixed
+ * Remove OHT support
+= 2022/10/20 - 1.0.9.3 =
  * Fix for filter_input input_server fcgi bug
 = 2022/09/21 - 1.0.9.2 =
  * Fix for some bugs added by CSRF protection, including working translate all
