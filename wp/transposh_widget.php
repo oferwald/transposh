@@ -80,8 +80,8 @@ class transposh_plugin_widget extends WP_Widget {
         // We get the transposh details from the global variable
         $this->transposh = &$GLOBALS['my_transposh_plugin'];
 
-        // Widget control defenitions
-        $widget_ops = array('classname' => 'widget_transposh', 'description' => __('Transposh language selection widget', TRANSPOSH_TEXT_DOMAIN));
+        // Widget control defenitions // preload bug is here... TODO
+        $widget_ops = array('classname' => 'widget_transposh', 'description' => __('Transposh language selection widget'));
         $control_ops = array('width' => 200, 'height' => 300);
         parent::__construct('transposh', __('Transposh'), $widget_ops, $control_ops);
 
