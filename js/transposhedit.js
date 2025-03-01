@@ -158,7 +158,7 @@
                     img = $(idprefix + "img_" + img_segment_id);
             $(idprefix + img_segment_id).attr('data-source', source); // source is 0 human
             img.removeClass('tr-icon-yellow').removeClass('tr-icon-green')
-            if (source == 0) {
+            if (source === 0) {
                 img.addClass('tr-icon-green');
             } else if (source) {
                 img.addClass('tr-icon-yellow');
@@ -373,7 +373,7 @@
             success: function (data) {
                 var icon, icontitle, iconline, delline;
                 $(dialog).empty().append(
-                        '<table width="100%">' +
+                        '<table style="width: 100%;">' +
                         '<col style="width: 80%;">' +
                         '<col>' +
                         '<col>' +
@@ -415,7 +415,7 @@
                     if (row.user_login === null) {
                         row.user_login = row.translated_by;
                     }
-                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0px; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display:inline-block;"></span></span>';
+                    iconline = '<span class="ui-button ui-widget ui-button-icon-only" style="width: 18px; border: 0; margin-' + right + ': 3px"><span title="' + icontitle + '" style="cursor: default" class="ui-button-icon-primary ui-icon ' + icon + '"></span><span class="ui-button-text" style="display:inline-block;"></span></span>';
                     if (row.can_delete) {
                         delline = '<span class="' + prefix + 'delete" title="' + __('delete') + '" style="width: 18px; margin-' + left + ': 3px">';
                     } else {
@@ -614,7 +614,7 @@
         $(dialog).css("padding", "1px").append(
                 '<div style="width: 100%">' +
                 '<label for="original">' + __('Original text') + ' (<a href="#" title="' + __('read alternate translations') + '" id="' + prefix + 'orglang"></a>)' + '</label>' +
-                '<textarea cols="80" row="3" name="original" id="' + prefix + 'original" readonly="y"></textarea>' +
+                '<textarea cols="80" rows="3" name="original" id="' + prefix + 'original" readonly="y"></textarea>' +
                 '<span id="' + prefix + 'utlbar">' +
                 '<button id="' + prefix + 'prev">' + __('previous translation') + '</button>' +
                 '<button id="' + prefix + 'zoom">' + __('find on page') + '</button>' +
@@ -622,7 +622,7 @@
                 '<button id="' + prefix + 'next">' + __('next translation') + '</button>' +
                 '</span>' +
                 '<label for="translation">' + __('Translate to') + '</label>' +
-                '<textarea cols="80" row="3" name="translation" lang="' + t_jp.lang + '"id="' + prefix + 'translation"></textarea>' +
+                '<textarea cols="80" rows="3" name="translation" lang="' + t_jp.lang + '" id="' + prefix + 'translation"></textarea>' +
                 '<span id="' + prefix + 'ltlbar">' +
                 '<button id="' + prefix + 'history">' + __('view translation log') + '</button>' +
                 '<button id="' + prefix + 'keyboard">' + __('virtual keyboard') + '</button>' +
@@ -697,7 +697,7 @@
                                             liflag = liflag + '<li data-translated="' + item.translated + '"><a href="#">' + l[item.lang] + '</a></li>';
                                         }
                                     });
-                                    $('<ul style="position: absolute; top: 0px" id="' + prefix + 'langmenu">' + liflag).appendTo(dialog);
+                                    $('<ul style="position: absolute; top: 0" id="' + prefix + 'langmenu">' + liflag).appendTo(dialog);
 
                                     $(idprefix + "langmenu").menu({
                                         select: function (event, ui) {
@@ -941,7 +941,7 @@
             }
         });
 
-        $(idprefix + "translation").keyup(function (e) {
+        $(idprefix + "translation").keyup(function () {
             if ($(this).data("origval") !== $(this).val()) {
                 $(this).addClass("ui-state-highlight");
                 $(idprefix + 'approve').button("enable");
@@ -961,7 +961,17 @@
         $(dialog).dialog({
             resizable: false,
             width: 500,
-            zIndex: 99999//,
+            open: function() {
+                // Set a very high z-index when the dialog opens
+                highest = 0;
+                $("*").each(function() {
+                    let z = parseInt($(this).css("z-index"), 10);
+                    if (!isNaN(z) && z > highest) {
+                        highest = z;
+                    }
+                });
+                $(this).parent().css("z-index", highest + 100);
+            }
         });
 
         // rtl fix for buttonsets, dialog
@@ -973,7 +983,7 @@
         $(idprefix + 'orglang').blur();
 
         // remove virtual keyboard and history on close
-        $(dialog).bind("dialogclose", function (event, ui) {
+        $(dialog).bind("dialogclose", function () {
             if (typeof VKI_close === 'function') {
                 VKI_close($(idprefix + "translation").get(0));
             }
@@ -995,7 +1005,7 @@
         });
 
         // show confirmation dialog before closing
-        $(dialog).bind('dialogbeforeclose', function (event, ui) {
+        $(dialog).bind('dialogbeforeclose', function () {
             if ($(idprefix + "translation").data("changed")) {
                 confirm_close();
                 return false;
@@ -1006,7 +1016,7 @@
     }
 
     // lets add the images
-    $("." + prefix).each(function (i) {
+    $("." + prefix).each(function () {
         if (typeof $(this).attr('id') === 'undefined')
             return; // who let the dogs out?? (who killed my id)
         var translated_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1), img;
