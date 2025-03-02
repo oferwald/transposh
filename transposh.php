@@ -1032,6 +1032,7 @@ class transposh_plugin {
         //$href = substr($href, strlen($this->home_url));
         // this might include the sub directory for non rooted sites, but its not that important to avoid
         $href = parse_url($href, PHP_URL_PATH);
+        if (!$href) $href='';
         $parts = explode('/', $href);
         foreach ($parts as $part) {
             if (!$part || is_numeric($part)) {
@@ -1695,16 +1696,23 @@ class transposh_plugin {
 //                tp_logger($UA,1);
                 curl_setopt($ch, CURLOPT_USERAGENT, $UA);
                 $output = curl_exec($ch);
-                //  tp_logger($output,1);
                 $sidpos = strpos($output, "SID: '") + 6;
 //                tp_logger($sidpos,1);
 //                tp_logger(strlen($output),1);
                 $newout = substr($output, $sidpos);
 //                tp_logger($newout,1);
 //                tp_logger(strpos($newout, "',")-2);
-                $sid = substr($newout, 0, strpos($newout, "',") - 2);
+                $sid = substr($newout, 0, strpos($newout, "',"));
                 tp_logger("new sid: $sid", 1);
-                //$sid = strrev(substr($sid, 0, 8)) . '.' . strrev(substr($sid, 9, 8)) . '.' . strrev(substr($sid, 18, 8));
+                // fix SID "encryption"
+                $sid = implode(".", array_map(
+                    function ($substring) {
+                        return implode('', array_reverse(str_split($substring)));
+                    },
+                    explode(".", $sid)
+                ));
+                tp_logger("fixed sid: $sid", 1);
+
                 if ($output === false) {
                     tp_logger('Curl error: ' . curl_error($ch));
                     return false;
@@ -1720,32 +1728,47 @@ class transposh_plugin {
             return false;
         }
 
+        $sourceadd = '';
         if ($sl) {
-            $sl .= '-';
+            $sourceadd = "&source_lang={$sl}";
         }
-        $qstr = '';
-        if (is_array($q)) {
-            foreach ($q as $v) {
-                $qstr .= '&text=' . $v;
-            }
-        } else {
-            $qstr = '&text=' . $q;
-        }
-        $url = 'https://translate.yandex.net/api/v1/tr.json/translate?lang=' . $sl . $tl . $qstr . '&srv=tr-url&id=' . $sid . '-0-0';
-        tp_logger($url, 1);
-//        tp_logger($q, 1);
+
+        $url = "https://translate.yandex.net/api/v1/tr.json/translate?id={$sid}-0-0&srv=tr-text".
+            $sourceadd.
+            "&target_lang={$tl}&reason=auto&format=text&strategy=0&disable_cache=false&ajax=1".
+            //"&yu=8520489821740499285".
+            "";
+        //    "&sprvk=dD0xNzQwOTA4MTg1O2k9ODIuMTY2LjIxMi41NjtEPUVEOTREOTQ5MUJGQkIyN0UxMTU2MTBEREMyMjI1QzU2NUVBODE4QTEwOTUyMjAwQUM5N0Q2MTUzQTkzQzVGMjg2NDIzNkFBOTdDMjk0MTA0RTcyRDZDMjBFQ0Q5Mjc2QjMzMTY0MENCRUQ4RDhDMkI2MEY0QjlGNTlCMTVGMkY0Nzc2MjUwRjU1NkMyOTMzQTExNzUyQkNCRDIxOEM4QkRDQjNBMTRBNzQyMDgxRjUxMUNGRDt1PTE3NDA5MDgxODU3OTIzNTYxNzM7aD1mZWVhMTVhNWMxNjBlMzk4MWMzZDNmNTM5YjQ0ZjgxYQ==";
+
+        // POST data
+        $q = urldecode($q);
+        $postData = [
+            'text' => $q,
+            'options' => 4
+        ];
+        // Initialize cURL
         $ch = curl_init();
-        // yandex wants a referer someimes
-        curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
+
+        // Set cURL options
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        //must set agent for google to respond with utf-8
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+        curl_setopt($ch, CURLOPT_POST, 1); // Set method to POST
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData)); // Encode POST data
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // Return response as string
+        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
+        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
+        curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: */*',
+            'X-Retpath-Y: https://translate.yandex.com',
+            'Origin: https://translate.yandex.com',
+            'Sec-Fetch-Dest: empty',
+            'Sec-Fetch-Mode: cors',
+            'Sec-Fetch-Site: cross-site',
+            'TE: trailers'
+        ]);
+
+        // Execute cURL request
         $output = curl_exec($ch);
-        if ($output === false) {
-            tp_logger('Curl error: ' . curl_error($ch), 1);
-            return false;
-        }
         curl_close($ch);
         tp_logger($output, 1);
         $jsonarr = json_decode($output);
