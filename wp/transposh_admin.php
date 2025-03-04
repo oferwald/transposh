@@ -199,8 +199,6 @@ class transposh_plugin_admin {
                     $sorted_engines[$engine] = $engine;
                 }
                 $this->transposh->options->preferred_translators = implode(',', $sorted_engines);
-                $this->transposh->options->oht_id = TP_FROM_POST;
-                $this->transposh->options->oht_key = TP_FROM_POST;
                 break;
             case "tp_widget":
                 // $this->transposh->options->widget_progressbar = TP_FROM_POST;
@@ -711,31 +709,6 @@ class transposh_plugin_admin {
         }
         echo "</ul></div>";
         $this->sectionstop();
-
-        $this->section(__('Professional Translation Settings', TRANSPOSH_TEXT_DOMAIN), __('<a href="http://transposh.org/redir/oht">One Hour Translation</a>, is the largest professional translation service online, with thousands of business customers, including 57% of the Fortune 500 companies, and over 15000 translators worldwide.', TRANSPOSH_TEXT_DOMAIN) .
-                '<br/>' .
-                __('One Hour Translation provides high-quality, fast professional translation to/from any language, and has specific domain expertise in SW localization, technical, business, and legal translations.', TRANSPOSH_TEXT_DOMAIN));
-
-        $this->textinput($this->transposh->options->oht_id_o
-                , array('ohticon.png', __('One Hour Translation account ID', TRANSPOSH_TEXT_DOMAIN))
-                , __('Account ID', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
-
-        $this->textinput($this->transposh->options->oht_key_o
-                , array('ohticon.png', __('One Hour Translation secret key', TRANSPOSH_TEXT_DOMAIN))
-                , __('Secret Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
-
-        $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
-        if (!empty($oht) && wp_next_scheduled('transposh_oht_event')) {
-            $timeforevent = floor((max(array(wp_next_scheduled('transposh_oht_event') - time(), 0))) / 60);
-            if ((max(array(wp_next_scheduled('transposh_oht_event') - time(), 0)))) {
-                $this->header(sprintf(__('%d phrases currently queued for next job in ~%d minutes', TRANSPOSH_TEXT_DOMAIN), sizeof($oht), $timeforevent));
-            }
-        }
-        $ohtp = get_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, array());
-        if (!empty($ohtp)) {
-            $this->header(sprintf(__('%d projects have been submitted and waiting for completion', TRANSPOSH_TEXT_DOMAIN), sizeof($ohtp)));
-        }
-        $this->sectionstop();
     }
 
     function tp_widget() {
@@ -884,7 +857,7 @@ class transposh_plugin_admin {
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="4E52WJ8WDK79J">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"name="submit" alt="PayPal - The safer, easier way to pay online!">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>';
         echo '</div>';
@@ -1005,7 +978,7 @@ class transposh_plugin_admin {
 
     /**
      * this function will remove any notices that are not ours from our administration pages
-     * @global type $wp_filter
+     * @global array $wp_filter
      */
     function remove_other_admin_notices() {
         if ($this->page) {
