@@ -18,7 +18,7 @@ class transposh_editor_table extends WP_List_Table {
     }
 
     function print_style() {
-        echo '<style type="text/css">';
+        echo '<style>';
         echo '.wp-list-table .column-lang { width: 5%; }';
         echo '.wp-list-table .column-source { width: 5%; }';
         echo '</style>';
@@ -114,7 +114,7 @@ class transposh_editor_table extends WP_List_Table {
     }
 
     function column_translated($item) {
-        if ((in_array($item['lang'], transposh_consts::$rtl_languages))) {
+        if (transposh_consts::is_language_rtl($item['lang'])) {
             return sprintf('<span dir="rtl" style="float:right">%1$s</span>', $item['translated']);
         }
 

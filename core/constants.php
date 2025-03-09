@@ -47,134 +47,1303 @@ define('TRANSPOSH_UPDATE_SERVICE_URL', 'http://svc.transposh.org/update-check');
  * Holds our arrays staticly to reduce chance of namespace collision
  */
 class transposh_consts {
-
 //Supported languages, new languages can be added here
-//the array directs from language code to - English Name, Native name, flag
-    public static $languages = array(
-        'en' => 'English,English,us,en_US',
-        'af' => 'Afrikaans,Afrikaans,za,',
-        'sq' => 'Albanian,Shqip,al,',
-        'am' => 'Amharic,አማርኛ,et',
-        'ar' => 'Arabic,العربية,sa,',
-        'hy' => 'Armenian,Հայերեն,am,',
-        'az' => 'Azerbaijani,azərbaycan dili,az,',
-        'eu' => 'Basque,Euskara,es-ba,',
-        'ba' => 'Bashkir,башҡорт теле,ru-ba',
-        'be' => 'Belarusian,Беларуская,by,',
-        'bn' => 'Bengali,বাংলা,bd,bn_BD',
-        'bs' => 'Bosnian,bosanski jezik,ba,bs_BA',
-        'bg' => 'Bulgarian,Български,bg,bg_BG',
-        'my' => 'Burmese,မြန်မာစာ,mm,my_MM', // PROBLEM - OLD flag
-        'ca' => 'Catalan,Català,es-ca,',
-        'yue' => 'Cantonese,粤语,hk,zh_HK',
-        'ceb' => 'Cebuano,Binisaya,ph,',
-        'ny' => 'Chichewa,Chinyanja,mw',
-        'zh' => 'Chinese (Simplified),中文(简体),cn,zh_CN',
-        'zh-tw' => 'Chinese (Traditional),中文(漢字),tw,zh_TW',
-        'co' => 'Corsican,Corsu,fr', //flag
-        'hr' => 'Croatian,Hrvatski,hr,',
-        'cs' => 'Czech,Čeština,cz,cs_CZ',
-        'da' => 'Danish,Dansk,dk,da_DK',
-        'nl' => 'Dutch,Nederlands,nl,nl_NL',
-        'eo' => 'Esperanto,Esperanto,esperanto,',
-        'et' => 'Estonian,Eesti keel,ee,',
-        'fj' => 'Fijian,vosa Vakaviti,fj,',
-        'fil' => 'Filipino,Wikang Filipino,ph,',
-        'fi' => 'Finnish,Suomi,fi,',
-        'fr' => 'French,Français,fr,fr_FR',
-        'fy' => 'Frisian,Frysk,nl', //flag
-        'gl' => 'Galician,Galego,es-ga,gl_ES',
-        'ka' => 'Georgian,ქართული,ge,ka_GE',
-        'de' => 'German,Deutsch,de,de_DE',
-        'el' => 'Greek,Ελληνικά,gr,',
-        'gu' => 'Gujarati,ગુજરાતી,in,',
-        'ht' => 'Haitian,Kreyòl ayisyen,ht,',
-        'ha' => 'Hausa,Harshen Hausa,ng,',
-        'haw' => 'Hawaiian,ʻŌlelo Hawaiʻi,us-ha',
-        'hmn' => 'Hmong,Hmoob,la,',
-        'mw' => 'Hmong Daw,Hmoob Daw,la,',
-        'he' => 'Hebrew,עברית,il,he_IL',
-        'mrj' => 'Hill Mari,Мары йӹлмӹ,ru,',
-        'hi' => 'Hindi,हिन्दी; हिंदी,in,hi_IN',
-        'hu' => 'Hungarian,Magyar,hu,hu_HU',
-        'is' => 'Icelandic,Íslenska,is,',
-        'ig' => 'Igbo,Asụsụ Igbo,ng,',
-        'id' => 'Indonesian,Bahasa Indonesia,id,id_ID',
-        'ga' => 'Irish,Gaeilge,ie,',
-        'it' => 'Italian,Italiano,it,it_IT',
-        'ja' => 'Japanese,日本語,jp,',
-        'jw' => 'Javanese,basa Jawa,id,jv_ID',
-        'kn' => 'Kannada,ಕನ್ನಡ,in,',
-        'kk' => 'Kazakh,Қазақ тілі,kz',
-        'km' => 'Khmer,ភាសាខ្មែរ,kh,',
-        'ky' => 'Kirghiz,кыргыз тили,kg,ky_KY',
-        'ko' => 'Korean,한국어,kr,ko_KR',
-        'ku' => 'Kurdish (Kurmanji),Kurdî,tr,', //flag
-        'lo' => 'Lao,ພາສາລາວ,la,',
-        'la' => 'Latin,Latīna,va,',
-        'lv' => 'Latvian,Latviešu valoda,lv,',
-        'lt' => 'Lithuanian,Lietuvių kalba,lt,',
-        'lb' => 'Luxembourgish,Lëtzebuergesch,lu,',
-        'mk' => 'Macedonian,македонски јазик,mk,mk_MK',
-        'mg' => 'Malagasy,Malagasy fiteny,mg',
-        'ms' => 'Malay,Bahasa Melayu,my,ms_MY',
-        'ml' => 'Malayalam,മലയാളം,in',
-        'mt' => 'Maltese,Malti,mt,',
-        'mi' => 'Maori,Te Reo Māori,nz,',
-        'mr' => 'Marathi,मराठी,in,',
-        'mhr' => 'Mari,марий йылме,ru,',
-        'mn' => 'Mongolian,Монгол,mn,',
-        'ne' => 'Nepali,नेपाली,np,ne_NP',
-        'no' => 'Norwegian,Norsk,no,nb_NO',
-        'otq' => 'Otomi,Querétaro Otomi,mx,',
-        'pap' => 'Papiamento,Papiamentu,aw,',
-        'fa' => 'Persian,پارسی,ir,fa_IR',
-        'pl' => 'Polish,Polski,pl,pl_PL',
-        'pt' => 'Portuguese,Português,pt,pt_PT',
-        'pt-br' => 'Brazilian Portuguese,Português do Brasil,br,pt_BR',
-        'pa' => 'Punjabi,ਪੰਜਾਬੀ,pk,pa_IN',
-        'ro' => 'Romanian,Română,ro,ro_RO',
-        'ru' => 'Russian,Русский,ru,ru_RU',
-        'sm' => 'Samoan,gagana fa\'a Samoa,ws,',
-        'gd' => 'Scots Gaelic,Gàidhlig,gb-sc,',
-        'sr' => 'Serbian,Cрпски језик,rs,sr_RS',
-        'st' => 'Sesotho,Sesotho,ls', // PROBLEM - OLD flag
-        'sn' => 'Shona,chiShona,zw,',
-        'sd' => 'Sindhi,سنڌي,pk,',
-        'si' => 'Sinhala,සිංහල,lk,si_LK',
-        'sk' => 'Slovak,Slovenčina,sk,sk_SK',
-        'sl' => 'Slovene,Slovenščina,si,sl_SI', //slovenian
-        'so' => 'Somali,Af-Soomaali,so,',
-        'es' => 'Spanish,Español,es,es_ES',
-        'su' => 'Sundanese,Basa Sunda,id',
-        'sw' => 'Swahili,Kiswahili,tz,',
-        'sv' => 'Swedish,Svenska,se,sv_SE',
-        'tl' => 'Tagalog,Tagalog,ph,', // fhilipino
-        'ty' => 'Tahitian,Reo Mā`ohi\',pf,',
-        'tg' => 'Tajik,Тоҷикӣ,tj',
-        'ta' => 'Tamil,தமிழ்,in,ta_IN', // apparently more in India
-        'tt' => 'Tatar,татарча,ru-ta',
-        'te' => 'Telugu,తెలుగు,in,',
-        'th' => 'Thai,ภาษาไทย,th,',
-        'to' => 'Tonga,faka Tonga,to,',
-        'tr' => 'Turkish,Türkçe,tr,tr_TR',
-        'udm' => 'Udmurt,удмурт кыл,ru,',
-        'uk' => 'Ukrainian,Українська,ua,',
-        'ur' => 'Urdu,اردو,pk,',
-        'uz' => 'Uzbek,Oʻzbek tili,uz,uz_UZ',
-        'vi' => 'Vietnamese,Tiếng Việt,vn,',
-        'cy' => 'Welsh,Cymraeg,gb-wa,',
-        'xh' => 'Xhosa,isiXhosa,za',
-        'yi' => 'Yiddish,ייִדיש,europeanunion,',
-        'yo' => 'Yoruba,èdè Yorùbá,ng',
-        'yua' => 'Yucatec Maya,Màaya T\'àan,mx,',
-        'zu' => 'Zulu,isiZulu,za',
-    );
+    private static $languages = [
+        'en' => [
+            'name' => 'English',
+            'orig' => 'English',
+            'flag' => 'us',
+            'locale' => 'en_US',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+                'a' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'af' => [
+            'name' => 'Afrikaans',
+            'orig' => 'Afrikaans',
+            'flag' => 'za',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'afr',
+                'y' => 'y',
+            ],
+        ],
+        'sq' => [
+            'name' => 'Albanian',
+            'orig' => 'Shqip',
+            'flag' => 'al',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'alb',
+                'y' => 'y',
+            ],
+        ],
+        'am' => [
+            'name' => 'Amharic',
+            'orig' => 'አማርኛ',
+            'flag' => 'et',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'amh',
+                'y' => 'y',
+            ],
+        ],
+        'ar' => [
+            'name' => 'Arabic',
+            'orig' => 'العربية',
+            'flag' => 'sa',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'ara',
+                'y' => 'y',
+            ],
+            'rtl' => 'y',
+            'adsense' => 'y',
+        ],
+        'hy' => [
+            'name' => 'Armenian',
+            'orig' => 'Հայերեն',
+            'flag' => 'am',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'arm',
+                'y' => 'y',
+            ],
+        ],
+        'az' => [
+            'name' => 'Azerbaijani',
+            'orig' => 'azərbaycan dili',
+            'flag' => 'az',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'aze',
+                'y' => 'y',
+            ],
+        ],
+        'eu' => [
+            'name' => 'Basque',
+            'orig' => 'Euskara',
+            'flag' => 'es-ba',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'baq',
+                'y' => 'y',
+            ],
+        ],
+        'ba' => [
+            'name' => 'Bashkir',
+            'orig' => 'башҡорт теле',
+            'flag' => 'ru-ba',
+            'engines' => [
+                'y' => 'y',
+            ],
+        ],
+        'be' => [
+            'name' => 'Belarusian',
+            'orig' => 'Беларуская',
+            'flag' => 'by',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'bel',
+                'y' => 'y',
+            ],
+        ],
+        'bn' => [
+            'name' => 'Bengali',
+            'orig' => 'বাংলা',
+            'flag' => 'bd',
+            'locale' => 'bn_BD',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'ben',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'bs' => [
+            'name' => 'Bosnian',
+            'orig' => 'bosanski jezik',
+            'flag' => 'ba',
+            'locale' => 'bs_BA',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'bos',
+                'y' => 'y',
+            ],
+        ],
+        'bg' => [
+            'name' => 'Bulgarian',
+            'orig' => 'Български',
+            'flag' => 'bg',
+            'locale' => 'bg_BG',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'bul',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'my' => [
+            'name' => 'Burmese',
+            'orig' => 'မြန်မာစာ',
+            'flag' => 'mm',
+            'locale' => 'my_MM',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'bur',
+                'y' => 'y',
+            ],
+        ],
+        'ca' => [
+            'name' => 'Catalan',
+            'orig' => 'Català',
+            'flag' => 'es-ca',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'cat',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'yue' => [
+            'name' => 'Cantonese',
+            'orig' => '粤语',
+            'flag' => 'hk',
+            'locale' => 'zh_HK',
+            'engines' => [
+                'b' => 'y',
+            ],
+        ],
+        'ceb' => [
+            'name' => 'Cebuano',
+            'orig' => 'Binisaya',
+            'flag' => 'ph',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+        ],
+        'ny' => [
+            'name' => 'Chichewa',
+            'orig' => 'Chinyanja',
+            'flag' => 'mw',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'zh' => [
+            'name' => 'Chinese (Simplified)',
+            'orig' => '中文(简体)',
+            'flag' => 'cn',
+            'locale' => 'zh_CN',
+            'engines' => [
+                'b' => 'zh-chs',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'zh-tw' => [
+            'name' => 'Chinese (Traditional)',
+            'orig' => '中文(漢字)',
+            'flag' => 'tw',
+            'locale' => 'zh_TW',
+            'engines' => [
+                'b' => 'zh-cht',
+                'g' => 'y',
+                'u' => 'cht',
+            ],
+            'adsense' => 'y',
+        ],
+        'co' => [
+            'name' => 'Corsican',
+            'orig' => 'Corsu',
+            'flag' => 'fr',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+            ],
+        ],
+        'hr' => [
+            'name' => 'Croatian',
+            'orig' => 'Hrvatski',
+            'flag' => 'hr',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'hrv',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'cs' => [
+            'name' => 'Czech',
+            'orig' => 'Čeština',
+            'flag' => 'cz',
+            'locale' => 'cs_CZ',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'da' => [
+            'name' => 'Danish',
+            'orig' => 'Dansk',
+            'flag' => 'dk',
+            'locale' => 'da_DK',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'dan',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'nl' => [
+            'name' => 'Dutch',
+            'orig' => 'Nederlands',
+            'flag' => 'nl',
+            'locale' => 'nl_NL',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'eo' => [
+            'name' => 'Esperanto',
+            'orig' => 'Esperanto',
+            'flag' => 'esperanto',
+            'engines' => [
+                'b' => 'epo',
+                'g' => 'y',
+                'u' => 'epo',
+                'y' => 'y',
+                'a' => 'y',
+            ],
+        ],
+        'et' => [
+            'name' => 'Estonian',
+            'orig' => 'Eesti keel',
+            'flag' => 'ee',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'est',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'fj' => [
+            'name' => 'Fijian',
+            'orig' => 'vosa Vakaviti',
+            'flag' => 'fj',
+            'engines' => [
+                'b' => 'y',
+            ],
+        ],
+        'fil' => [
+            'name' => 'Filipino',
+            'orig' => 'Wikang Filipino',
+            'flag' => 'ph',
+            'engines' => [
+                'b' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'fi' => [
+            'name' => 'Finnish',
+            'orig' => 'Suomi',
+            'flag' => 'fi',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'fin',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'fr' => [
+            'name' => 'French',
+            'orig' => 'Français',
+            'flag' => 'fr',
+            'locale' => 'fr_FR',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'fra',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'fy' => [
+            'name' => 'Frisian',
+            'orig' => 'Frysk',
+            'flag' => 'nl',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+            ],
+        ],
+        'gl' => [
+            'name' => 'Galician',
+            'orig' => 'Galego',
+            'flag' => 'es-ga',
+            'locale' => 'gl_ES',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'glg',
+                'y' => 'y',
+            ],
+        ],
+        'ka' => [
+            'name' => 'Georgian',
+            'orig' => 'ქართული',
+            'flag' => 'ge',
+            'locale' => 'ka_GE',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'geo',
+                'y' => 'y',
+            ],
+        ],
+        'de' => [
+            'name' => 'German',
+            'orig' => 'Deutsch',
+            'flag' => 'de',
+            'locale' => 'de_DE',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'el' => [
+            'name' => 'Greek',
+            'orig' => 'Ελληνικά',
+            'flag' => 'gr',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'gu' => [
+            'name' => 'Gujarati',
+            'orig' => 'ગુજરાતી',
+            'flag' => 'in',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'guj',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ht' => [
+            'name' => 'Haitian',
+            'orig' => 'Kreyòl ayisyen',
+            'flag' => 'ht',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+        ],
+        'ha' => [
+            'name' => 'Hausa',
+            'orig' => 'Harshen Hausa',
+            'flag' => 'ng',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'haw' => [
+            'name' => 'Hawaiian',
+            'orig' => 'ʻŌlelo Hawaiʻi',
+            'flag' => 'us-ha',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'hmn' => [
+            'name' => 'Hmong',
+            'orig' => 'Hmoob',
+            'flag' => 'la',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'mw' => [
+            'name' => 'Hmong Daw',
+            'orig' => 'Hmoob Daw',
+            'flag' => 'la',
+            'engines' => [
+                'b' => 'mww',
+            ],
+        ],
+        'he' => [
+            'name' => 'Hebrew',
+            'orig' => 'עברית',
+            'flag' => 'il',
+            'locale' => 'he_IL',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'heb',
+                'y' => 'y',
+            ],
+            'rtl' => 'y',
+            'adsense' => 'y',
+        ],
+        'mrj' => [
+            'name' => 'Hill Mari',
+            'orig' => 'Мары йӹлмӹ',
+            'flag' => 'ru',
+            'engines' => [
+                'y' => 'y',
+            ],
+        ],
+        'hi' => [
+            'name' => 'Hindi',
+            'orig' => 'हिन्दी; हिंदी',
+            'flag' => 'in',
+            'locale' => 'hi_IN',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'hu' => [
+            'name' => 'Hungarian',
+            'orig' => 'Magyar',
+            'flag' => 'hu',
+            'locale' => 'hu_HU',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'is' => [
+            'name' => 'Icelandic',
+            'orig' => 'Íslenska',
+            'flag' => 'is',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'ice',
+                'y' => 'y',
+            ],
+        ],
+        'ig' => [
+            'name' => 'Igbo',
+            'orig' => 'Asụsụ Igbo',
+            'flag' => 'ng',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'ibo',
+            ],
+        ],
+        'id' => [
+            'name' => 'Indonesian',
+            'orig' => 'Bahasa Indonesia',
+            'flag' => 'id',
+            'locale' => 'id_ID',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ga' => [
+            'name' => 'Irish',
+            'orig' => 'Gaeilge',
+            'flag' => 'ie',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'gle',
+                'y' => 'y',
+            ],
+        ],
+        'it' => [
+            'name' => 'Italian',
+            'orig' => 'Italiano',
+            'flag' => 'it',
+            'locale' => 'it_IT',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ja' => [
+            'name' => 'Japanese',
+            'orig' => '日本語',
+            'flag' => 'jp',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'jp',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'jw' => [
+            'name' => 'Javanese',
+            'orig' => 'basa Jawa',
+            'flag' => 'id',
+            'locale' => 'jv_ID',
+            'engines' => [
+                'b' => 'jav',
+                'g' => 'y',
+                'y' => 'jv',
+            ],
+        ],
+        'kn' => [
+            'name' => 'Kannada',
+            'orig' => 'ಕನ್ನಡ',
+            'flag' => 'in',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'kan',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'kk' => [
+            'name' => 'Kazakh',
+            'orig' => 'Қазақ тілі',
+            'flag' => 'kz',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'kaz',
+                'y' => 'y',
+            ],
+        ],
+        'km' => [
+            'name' => 'Khmer',
+            'orig' => 'ភាសាខ្មែរ',
+            'flag' => 'kh',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'hkm',
+                'y' => 'y',
+            ],
+        ],
+        'ky' => [
+            'name' => 'Kirghiz',
+            'orig' => 'кыргыз тили',
+            'flag' => 'kg',
+            'locale' => 'ky_KY',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'kir',
+                'y' => 'y',
+            ],
+        ],
+        'ko' => [
+            'name' => 'Korean',
+            'orig' => '한국어',
+            'flag' => 'kr',
+            'locale' => 'ko_KR',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'kor',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ku' => [
+            'name' => 'Kurdish (Kurmanji)',
+            'orig' => 'Kurdî',
+            'flag' => 'tr',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'lo' => [
+            'name' => 'Lao',
+            'orig' => 'ພາສາລາວ',
+            'flag' => 'la',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'lao',
+                'y' => 'y',
+            ],
+        ],
+        'la' => [
+            'name' => 'Latin',
+            'orig' => 'Latīna',
+            'flag' => 'va',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'lat',
+                'y' => 'y',
+            ],
+        ],
+        'lv' => [
+            'name' => 'Latvian',
+            'orig' => 'Latviešu valoda',
+            'flag' => 'lv',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'lav',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'lt' => [
+            'name' => 'Lithuanian',
+            'orig' => 'Lietuvių kalba',
+            'flag' => 'lt',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'lit',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'lb' => [
+            'name' => 'Luxembourgish',
+            'orig' => 'Lëtzebuergesch',
+            'flag' => 'lu',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'ltz',
+                'y' => 'y',
+            ],
+        ],
+        'mk' => [
+            'name' => 'Macedonian',
+            'orig' => 'македонски јазик',
+            'flag' => 'mk',
+            'locale' => 'mk_MK',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'mac',
+                'y' => 'y',
+            ],
+        ],
+        'mg' => [
+            'name' => 'Malagasy',
+            'orig' => 'Malagasy fiteny',
+            'flag' => 'mg',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+        ],
+        'ms' => [
+            'name' => 'Malay',
+            'orig' => 'Bahasa Melayu',
+            'flag' => 'my',
+            'locale' => 'ms_MY',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'may',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ml' => [
+            'name' => 'Malayalam',
+            'orig' => 'മലയാളം',
+            'flag' => 'in',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'mal',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'mt' => [
+            'name' => 'Maltese',
+            'orig' => 'Malti',
+            'flag' => 'mt',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'mlt',
+                'y' => 'y',
+            ],
+        ],
+        'mi' => [
+            'name' => 'Maori',
+            'orig' => 'Te Reo Māori',
+            'flag' => 'nz',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'y' => 'y',
+            ],
+        ],
+        'mr' => [
+            'name' => 'Marathi',
+            'orig' => 'मराठी',
+            'flag' => 'in',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'mar',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'mhr' => [
+            'name' => 'Mari',
+            'orig' => 'марий йылме',
+            'flag' => 'ru',
+            'engines' => [
+                'y' => 'y',
+            ],
+        ],
+        'mn' => [
+            'name' => 'Mongolian',
+            'orig' => 'Монгол',
+            'flag' => 'mn',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'mon',
+                'y' => 'y',
+            ],
+        ],
+        'ne' => [
+            'name' => 'Nepali',
+            'orig' => 'नेपाली',
+            'flag' => 'np',
+            'locale' => 'ne_NP',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'nep',
+                'y' => 'y',
+            ],
+        ],
+        'no' => [
+            'name' => 'Norwegian',
+            'orig' => 'Norsk',
+            'flag' => 'no',
+            'locale' => 'nb_NO',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'nor',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'otq' => [
+            'name' => 'Otomi',
+            'orig' => 'Querétaro Otomi',
+            'flag' => 'mx',
+            'engines' => [
+                'b' => 'y',
+            ],
+        ],
+        'pap' => [
+            'name' => 'Papiamento',
+            'orig' => 'Papiamentu',
+            'flag' => 'aw',
+            'engines' => [
+                'b' => 'y',
+                'y' => 'y',
+            ],
+        ],
+        'fa' => [
+            'name' => 'Persian',
+            'orig' => 'پارسی',
+            'flag' => 'ir',
+            'locale' => 'fa_IR',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'per',
+                'y' => 'y',
+            ],
+            'rtl' => 'y',
+        ],
+        'pl' => [
+            'name' => 'Polish',
+            'orig' => 'Polski',
+            'flag' => 'pl',
+            'locale' => 'pl_PL',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'pt' => [
+            'name' => 'Portuguese',
+            'orig' => 'Português',
+            'flag' => 'pt',
+            'locale' => 'pt_PT',
+            'engines' => [
+                'b' => 'pt-PT',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'pt-br' => [
+            'name' => 'Brazilian Portuguese',
+            'orig' => 'Português do Brasil',
+            'flag' => 'br',
+            'locale' => 'pt_BR',
+            'engines' => [
+                'b' => 'pt',
+            ],
+            'adsense' => 'y',
+        ],
+        'pa' => [
+            'name' => 'Punjabi',
+            'orig' => 'ਪੰਜਾਬੀ',
+            'flag' => 'pk',
+            'locale' => 'pa_IN',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'pan',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ro' => [
+            'name' => 'Romanian',
+            'orig' => 'Română',
+            'flag' => 'ro',
+            'locale' => 'ro_RO',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'rom',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ru' => [
+            'name' => 'Russian',
+            'orig' => 'Русский',
+            'flag' => 'ru',
+            'locale' => 'ru_RU',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'sm' => [
+            'name' => 'Samoan',
+            'orig' => 'gagana fa\'a Samoa',
+            'flag' => 'ws',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+            ],
+        ],
+        'gd' => [
+            'name' => 'Scots Gaelic',
+            'orig' => 'Gàidhlig',
+            'flag' => 'gb-sc',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'gla',
+                'y' => 'y',
+            ],
+        ],
+        'sr' => [
+            'name' => 'Serbian',
+            'orig' => 'Cрпски језик',
+            'flag' => 'rs',
+            'locale' => 'sr_RS',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'srp',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'st' => [
+            'name' => 'Sesotho',
+            'orig' => 'Sesotho',
+            'flag' => 'ls',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'sn' => [
+            'name' => 'Shona',
+            'orig' => 'chiShona',
+            'flag' => 'zw',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'sd' => [
+            'name' => 'Sindhi',
+            'orig' => 'سنڌي',
+            'flag' => 'pk',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'si' => [
+            'name' => 'Sinhala',
+            'orig' => 'සිංහල',
+            'flag' => 'lk',
+            'locale' => 'si_LK',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'sin',
+                'y' => 'y',
+            ],
+        ],
+        'sk' => [
+            'name' => 'Slovak',
+            'orig' => 'Slovenčina',
+            'flag' => 'sk',
+            'locale' => 'sk_SK',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'sl' => [
+            'name' => 'Slovene',
+            'orig' => 'Slovenščina',
+            'flag' => 'si',
+            'locale' => 'sl_SI',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'slo',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'so' => [
+            'name' => 'Somali',
+            'orig' => 'Af-Soomaali',
+            'flag' => 'so',
+            'engines' => [
+                'g' => 'y',
+            ],
+        ],
+        'es' => [
+            'name' => 'Spanish',
+            'orig' => 'Español',
+            'flag' => 'es',
+            'locale' => 'es_ES',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'spa',
+                'y' => 'y',
+                'a' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'su' => [
+            'name' => 'Sundanese',
+            'orig' => 'Basa Sunda',
+            'flag' => 'id',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'sun',
+                'y' => 'y',
+            ],
+        ],
+        'sw' => [
+            'name' => 'Swahili',
+            'orig' => 'Kiswahili',
+            'flag' => 'tz',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'swa',
+                'y' => 'y',
+            ],
+        ],
+        'sv' => [
+            'name' => 'Swedish',
+            'orig' => 'Svenska',
+            'flag' => 'se',
+            'locale' => 'sv_SE',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'swe',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'tl' => [
+            'name' => 'Tagalog',
+            'orig' => 'Tagalog',
+            'flag' => 'ph',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'tgl',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ty' => [
+            'name' => 'Tahitian',
+            'orig' => 'Reo Mā`ohi\'',
+            'flag' => 'pf',
+            'engines' => [
+                'b' => 'y',
+            ],
+        ],
+        'tg' => [
+            'name' => 'Tajik',
+            'orig' => 'Тоҷикӣ',
+            'flag' => 'tj',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'tgk',
+                'y' => 'y',
+            ],
+        ],
+        'ta' => [
+            'name' => 'Tamil',
+            'orig' => 'தமிழ்',
+            'flag' => 'in',
+            'locale' => 'ta_IN',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'tam',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'tt' => [
+            'name' => 'Tatar',
+            'orig' => 'татарча',
+            'flag' => 'ru-ta',
+            'engines' => [
+                'u' => 'tat',
+                'y' => 'y',
+            ],
+        ],
+        'te' => [
+            'name' => 'Telugu',
+            'orig' => 'తెలుగు',
+            'flag' => 'in',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'tel',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'th' => [
+            'name' => 'Thai',
+            'orig' => 'ภาษาไทย',
+            'flag' => 'th',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'to' => [
+            'name' => 'Tonga',
+            'orig' => 'faka Tonga',
+            'flag' => 'to',
+            'engines' => [
+                'b' => 'y',
+            ],
+        ],
+        'tr' => [
+            'name' => 'Turkish',
+            'orig' => 'Türkçe',
+            'flag' => 'tr',
+            'locale' => 'tr_TR',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'udm' => [
+            'name' => 'Udmurt',
+            'orig' => 'удмурт кыл',
+            'flag' => 'ru',
+            'engines' => [
+                'y' => 'y',
+            ],
+        ],
+        'uk' => [
+            'name' => 'Ukrainian',
+            'orig' => 'Українська',
+            'flag' => 'ua',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'ukr',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'ur' => [
+            'name' => 'Urdu',
+            'orig' => 'اردو',
+            'flag' => 'pk',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'urd',
+                'y' => 'y',
+            ],
+            'rtl' => 'y',
+            'adsense' => 'y',
+        ],
+        'uz' => [
+            'name' => 'Uzbek',
+            'orig' => 'Oʻzbek tili',
+            'flag' => 'uz',
+            'locale' => 'uz_UZ',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'uzb',
+                'y' => 'y',
+            ],
+        ],
+        'vi' => [
+            'name' => 'Vietnamese',
+            'orig' => 'Tiếng Việt',
+            'flag' => 'vn',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'vie',
+                'y' => 'y',
+            ],
+            'adsense' => 'y',
+        ],
+        'cy' => [
+            'name' => 'Welsh',
+            'orig' => 'Cymraeg',
+            'flag' => 'gb-wa',
+            'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'wel',
+                'y' => 'y',
+            ],
+        ],
+        'xh' => [
+            'name' => 'Xhosa',
+            'orig' => 'isiXhosa',
+            'flag' => 'za',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'xho',
+                'y' => 'y',
+            ],
+        ],
+        'yi' => [
+            'name' => 'Yiddish',
+            'orig' => 'ייִדיש',
+            'flag' => 'europeanunion',
+            'engines' => [
+                'b' => 'ydd',
+                'g' => 'y',
+                'u' => 'yid',
+                'y' => 'y',
+            ],
+            'rtl' => 'y',
+        ],
+        'yo' => [
+            'name' => 'Yoruba',
+            'orig' => 'èdè Yorùbá',
+            'flag' => 'ng',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'yor',
+            ],
+        ],
+        'yua' => [
+            'name' => 'Yucatec Maya',
+            'orig' => 'Màaya T\'àan',
+            'flag' => 'mx',
+            'engines' => [
+                'b' => 'y',
+            ],
+        ],
+        'zu' => [
+            'name' => 'Zulu',
+            'orig' => 'isiZulu',
+            'flag' => 'za',
+            'engines' => [
+                'g' => 'y',
+                'u' => 'zul',
+                'y' => 'y',
+            ],
+        ],
+    ];
 
     /*
      * Upstream source: https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes
      */
-    public static $countryToLanguageMapping = array(
+    private static $countryToLanguageMapping = [
         'ad' => 'ca', 
         'ae' => 'ar',
         'af' => 'fa,ps',
@@ -420,363 +1589,142 @@ class transposh_consts {
         'za' => 'zu,xh,af,st,tn,en',
         'zm' => 'en',
         'zw' => 'en,sn,nd',
-    );
+    ];
+
     // new var to hold translation engines information
-    public static $engines = array(
+    private static $engines = array(
         'b' => array(
             'name' => 'Bing',
             'icon' => 'bingicon.png',
-            // (got this using Microsoft.Translator.GetLanguages().sort() - fixed to match our codes)
-            // @updated 2012-Feb-14 (mww)
-            // @updated 2013-Feb-21 (ms, ur)
-            // @updated 2014-Feb-21 (cy)
-            // @updated 2015-Apr-19 (bs, hr, sr)
-            // @updated 2015-Oct-23 (sw)
-            // @updated 2016-Jun-17 (af)
-            // @updated 2016-Jul-22 (yue)
-            // @updated 2016-Oct-30 (fj, fil, mg, sm, ty, to)
-            // @updated 2017-Mar-30 (bn)
-            // @updated 2017-Sep-27 (fa, mt, otq, yua)
-            // @updated 2017-Oct-26 (ta)
-            // @updated 2018-May-12 (is)
-            // @updated 2018-Sep-05 (te)
-            // @updated 2019-Nov-22 (mi)
-            // @updated 2025-Mar-03 (ace,arz,ary,arb,ast,ban,bbc,be,bho,bik,brx,ceb,hne,co,doi,en-GB,epo,fy,fur,hil,iba,ilo,jam,jav,kae,pam,ks,kri,la,lij,lmo,lb,mwr,mfe,min,nno,oc,pap,pnb,sa,srd,crs,scn,su,tgk,tet,tpi,ve,war,ydd)
-            /*
-             * <optgroup id="t_tgtAllLang" label="All languages">
-   <option aria-label="All languages Acehnese (Latin)" value="ace">Acehnese (Latin)</option>
-   <option aria-label="Afrikaans" value="af">Afrikaans</option>
-   <option aria-label="Albanian" value="sq">Albanian</option>
-   <option aria-label="Amharic" value="am">Amharic</option>
-   <option aria-label="Arabic" value="ar">Arabic</option>
-   <option aria-label="Arabic (Egyptian)" value="arz">Arabic (Egyptian)</option>
-   <option aria-label="Arabic (Moroccan)" value="ary">Arabic (Moroccan)</option>
-   <option aria-label="Arabic (Romanized)" value="arb">Arabic (Romanized)</option>
-   <option aria-label="Armenian" value="hy">Armenian</option>
-   <option aria-label="Assamese" value="as">Assamese</option>
-   <option aria-label="Asturian" value="ast">Asturian</option>
-   <option aria-label="Azerbaijani" value="az">Azerbaijani</option>
-   <option aria-label="Balinese" value="ban">Balinese</option>
-   <option aria-label="Bangla" value="bn">Bangla</option>
-   <option aria-label="Bashkir" value="ba">Bashkir</option>
-   <option aria-label="Basque" value="eu">Basque</option>
-   <option aria-label="Batak Toba" value="bbc">Batak Toba</option>
-   <option aria-label="Belarusian" value="be">Belarusian</option>
-   <option aria-label="Bhojpuri" value="bho">Bhojpuri</option>
-   <option aria-label="Bikol" value="bik">Bikol</option>
-   <option aria-label="Bodo" value="brx">Bodo</option>
-   <option aria-label="Bosnian" value="bs">Bosnian</option>
-   <option aria-label="Bulgarian" value="bg">Bulgarian</option>
-   <option aria-label="Cantonese (Traditional)" value="yue">Cantonese (Traditional)</option>
-   <option aria-label="Catalan" value="ca">Catalan</option>
-   <option aria-label="Cebuano" value="ceb">Cebuano</option>
-   <option aria-label="Chhattisgarhi" value="hne">Chhattisgarhi</option>
-   <option aria-label="Chinese (Literary)" value="lzh">Chinese (Literary)</option>
-   <option aria-label="Chinese Simplified" value="zh-Hans">Chinese Simplified</option>
-   <option aria-label="Chinese Traditional" value="zh-Hant">Chinese Traditional</option>
-   <option aria-label="Corsican" value="co">Corsican</option>
-   <option aria-label="Croatian" value="hr">Croatian</option>
-   <option aria-label="Czech" value="cs">Czech</option>
-   <option aria-label="Danish" value="da">Danish</option>
-   <option aria-label="Dari" value="prs">Dari</option>
-   <option aria-label="Divehi" value="dv">Divehi</option>
-   <option aria-label="Dogri" value="doi">Dogri</option>
-   <option aria-label="Dutch" value="nl">Dutch</option>
-   <option aria-label="English" value="en">English</option>
-   <option aria-label="English (United Kingdom)" value="en-GB">English (United Kingdom)</option>
-   <option aria-label="Esperanto" value="epo">Esperanto</option>
-   <option aria-label="Estonian" value="et">Estonian</option>
-   <option aria-label="Faroese" value="fo">Faroese</option>
-   <option aria-label="Fijian" value="fj">Fijian</option>
-   <option aria-label="Filipino" value="fil">Filipino</option>
-   <option aria-label="Finnish" value="fi">Finnish</option>
-   <option aria-label="French" value="fr">French</option>
-   <option aria-label="French (Canada)" value="fr-CA">French (Canada)</option>
-   <option aria-label="Frisian" value="fy">Frisian</option>
-   <option aria-label="Friulian" value="fur">Friulian</option>
-   <option aria-label="Galician" value="gl">Galician</option>
-   <option aria-label="Ganda" value="lug">Ganda</option>
-   <option aria-label="Georgian" value="ka">Georgian</option>
-   <option aria-label="German" value="de">German</option>
-   <option aria-label="Greek" value="el">Greek</option>
-   <option aria-label="Gujarati" value="gu">Gujarati</option>
-   <option aria-label="Haitian Creole" value="ht">Haitian Creole</option>
-   <option aria-label="Hausa" value="ha">Hausa</option>
-   <option aria-label="Hebrew" value="he">Hebrew</option>
-   <option aria-label="Hiligaynon" value="hil">Hiligaynon</option>
-   <option aria-label="Hindi" value="hi">Hindi</option>
-   <option aria-label="Hmong Daw" value="mww">Hmong Daw</option>
-   <option aria-label="Hungarian" value="hu">Hungarian</option>
-   <option aria-label="Iban" value="iba">Iban</option>
-   <option aria-label="Icelandic" value="is">Icelandic</option>
-   <option aria-label="Igbo" value="ig">Igbo</option>
-   <option aria-label="Ilocano" value="ilo">Ilocano</option>
-   <option aria-label="Indonesian" value="id">Indonesian</option>
-   <option aria-label="Inuinnaqtun" value="ikt">Inuinnaqtun</option>
-   <option aria-label="Inuktitut" value="iu">Inuktitut</option>
-   <option aria-label="Inuktitut (Latin)" value="iu-Latn">Inuktitut (Latin)</option>
-   <option aria-label="Irish" value="ga">Irish</option>
-   <option aria-label="Italian" value="it">Italian</option>
-   <option aria-label="Jamaican Patois" value="jam">Jamaican Patois</option>
-   <option aria-label="Japanese" value="ja">Japanese</option>
-   <option aria-label="Javanese" value="jav">Javanese</option>
-   <option aria-label="Kabuverdianu" value="kea">Kabuverdianu</option>
-   <option aria-label="Kannada" value="kn">Kannada</option>
-   <option aria-label="Kapampangan" value="pam">Kapampangan</option>
-   <option aria-label="Kashmiri" value="ks">Kashmiri</option>
-   <option aria-label="Kazakh" value="kk">Kazakh</option>
-   <option aria-label="Khmer" value="km">Khmer</option>
-   <option aria-label="Kinyarwanda" value="rw">Kinyarwanda</option>
-   <option aria-label="Klingon (Latin)" value="tlh-Latn">Klingon (Latin)</option>
-   <option aria-label="Konkani" value="gom">Konkani</option>
-   <option aria-label="Korean" value="ko">Korean</option>
-   <option aria-label="Krio" value="kri">Krio</option>
-   <option aria-label="Kurdish (Central)" value="ku">Kurdish (Central)</option>
-   <option aria-label="Kurdish (Northern)" value="kmr">Kurdish (Northern)</option>
-   <option aria-label="Kyrgyz" value="ky">Kyrgyz</option>
-   <option aria-label="Lao" value="lo">Lao</option>
-   <option aria-label="Latin" value="la">Latin</option>
-   <option aria-label="Latvian" value="lv">Latvian</option>
-   <option aria-label="Ligurian (Genoese)" value="lij">Ligurian (Genoese)</option>
-   <option aria-label="Limburgish" value="lim">Limburgish</option>
-   <option aria-label="Lingala" value="ln">Lingala</option>
-   <option aria-label="Lithuanian" value="lt">Lithuanian</option>
-   <option aria-label="Lombard" value="lmo">Lombard</option>
-   <option aria-label="Lower Sorbian" value="dsb">Lower Sorbian</option>
-   <option aria-label="Luxembourgish" value="lb">Luxembourgish</option>
-   <option aria-label="Macedonian" value="mk">Macedonian</option>
-   <option aria-label="Maithili" value="mai">Maithili</option>
-   <option aria-label="Malagasy" value="mg">Malagasy</option>
-   <option aria-label="Malay" value="ms">Malay</option>
-   <option aria-label="Malayalam" value="ml">Malayalam</option>
-   <option aria-label="Maltese" value="mt">Maltese</option>
-   <option aria-label="Marathi" value="mr">Marathi</option>
-   <option aria-label="Marwari" value="mwr">Marwari</option>
-   <option aria-label="Mauritian Creole" value="mfe">Mauritian Creole</option>
-   <option aria-label="Minangkabau (Latin)" value="min">Minangkabau (Latin)</option>
-   <option aria-label="Mongolian (Cyrillic)" value="mn-Cyrl">Mongolian (Cyrillic)</option>
-   <option aria-label="Mongolian (Traditional)" value="mn-Mong">Mongolian (Traditional)</option>
-   <option aria-label="Myanmar (Burmese)" value="my">Myanmar (Burmese)</option>
-   <option aria-label="Māori" value="mi">Māori</option>
-   <option aria-label="Nepali" value="ne">Nepali</option>
-   <option aria-label="Norwegian" value="nb">Norwegian</option>
-   <option aria-label="Norwegian Nynorsk" value="nno">Norwegian Nynorsk</option>
-   <option aria-label="Nyanja" value="nya">Nyanja</option>
-   <option aria-label="Occitan" value="oc">Occitan</option>
-   <option aria-label="Odia" value="or">Odia</option>
-   <option aria-label="Papiamento" value="pap">Papiamento</option>
-   <option aria-label="Pashto" value="ps">Pashto</option>
-   <option aria-label="Persian" value="fa">Persian</option>
-   <option aria-label="Polish" value="pl">Polish</option>
-   <option aria-label="Portuguese (Brazil)" value="pt">Portuguese (Brazil)</option>
-   <option aria-label="Portuguese (Portugal)" value="pt-PT">Portuguese (Portugal)</option>
-   <option aria-label="Punjabi" value="pa">Punjabi</option>
-   <option aria-label="Punjabi (Shahmukhi)" value="pnb">Punjabi (Shahmukhi)</option>
-   <option aria-label="Querétaro Otomi" value="otq">Querétaro Otomi</option>
-   <option aria-label="Romanian" value="ro">Romanian</option>
-   <option aria-label="Rundi" value="run">Rundi</option>
-   <option aria-label="Russian" value="ru">Russian</option>
-   <option aria-label="Samoan" value="sm">Samoan</option>
-   <option aria-label="Sanskrit" value="sa">Sanskrit</option>
-   <option aria-label="Sardinian" value="srd">Sardinian</option>
-   <option aria-label="Serbian (Cyrillic)" value="sr-Cyrl">Serbian (Cyrillic)</option>
-   <option aria-label="Serbian (Latin)" value="sr-Latn">Serbian (Latin)</option>
-   <option aria-label="Sesotho" value="st">Sesotho</option>
-   <option aria-label="Sesotho sa Leboa" value="nso">Sesotho sa Leboa</option>
-   <option aria-label="Setswana" value="tn">Setswana</option>
-   <option aria-label="Seychelles French Creole" value="crs">Seychelles French Creole</option>
-   <option aria-label="Shona" value="sn">Shona</option>
-   <option aria-label="Sicilian" value="scn">Sicilian</option>
-   <option aria-label="Sindhi" value="sd">Sindhi</option>
-   <option aria-label="Sinhala" value="si">Sinhala</option>
-   <option aria-label="Slovak" value="sk">Slovak</option>
-   <option aria-label="Slovenian" value="sl">Slovenian</option>
-   <option aria-label="Somali" value="so">Somali</option>
-   <option aria-label="Spanish" value="es">Spanish</option>
-   <option aria-label="Sundanese" value="su">Sundanese</option>
-   <option aria-label="Swahili" value="sw">Swahili</option>
-   <option aria-label="Swedish" value="sv">Swedish</option>
-   <option aria-label="Tahitian" value="ty">Tahitian</option>
-   <option aria-label="Tajik" value="tgk">Tajik</option>
-   <option aria-label="Tamil" value="ta">Tamil</option>
-   <option aria-label="Tatar" value="tt">Tatar</option>
-   <option aria-label="Telugu" value="te">Telugu</option>
-   <option aria-label="Tetum" value="tet">Tetum</option>
-   <option aria-label="Thai" value="th">Thai</option>
-   <option aria-label="Tibetan" value="bo">Tibetan</option>
-   <option aria-label="Tigrinya" value="ti">Tigrinya</option>
-   <option aria-label="Tok Pisin" value="tpi">Tok Pisin</option>
-   <option aria-label="Tongan" value="to">Tongan</option>
-   <option aria-label="Turkish" value="tr">Turkish</option>
-   <option aria-label="Turkmen" value="tk">Turkmen</option>
-   <option aria-label="Ukrainian" value="uk">Ukrainian</option>
-   <option aria-label="Upper Sorbian" value="hsb">Upper Sorbian</option>
-   <option aria-label="Urdu" value="ur">Urdu</option>
-   <option aria-label="Uyghur" value="ug">Uyghur</option>
-   <option aria-label="Uzbek (Latin)" value="uz">Uzbek (Latin)</option>
-   <option aria-label="Venetian" value="vec">Venetian</option>
-   <option aria-label="Vietnamese" value="vi">Vietnamese</option>
-   <option aria-label="Waray" value="war">Waray</option>
-   <option aria-label="Welsh" value="cy">Welsh</option>
-   <option aria-label="Xhosa" value="xh">Xhosa</option>
-   <option aria-label="Yiddish (Eastern)" value="ydd">Yiddish (Eastern)</option>
-   <option aria-label="Yoruba" value="yo">Yoruba</option>
-   <option aria-label="Yucatec Maya" value="yua">Yucatec Maya</option>
-   <option aria-label="Zulu" value="zu">Zulu</option>
-</optgroup>
-             */
-            'langs' => array(
-                'af', 'ar', 'bg', 'bn', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'es', 'et', 'fa', 'fi', 'fil', 'fj', 'fr', 'he', 'hi', 'hr', 'ht',
-                'hu', 'id', 'is', 'it', 'ja', 'ko', 'lt', 'lv', 'mg', 'mi', 'ms', 'mt', 'mw', 'nl', 'no', 'otq', 'pl', 'pt','pt-br', 'ro', 'ru', 'sk', 'sl', 'sm', 'sr',
-                'sv', 'sw', 'ta', 'te', 'th', 'tlh', 'tlh-qaak', 'to', 'tr', 'ty', 'uk', 'ur', 'vi', 'yua', 'yue', 'zh', 'zh-tw',
-                'ace','arz','ary','arb','ast','ban','bbc','be','bho','bik','brx','ceb','hne','co','doi','en-GB','eo','fy','fur','hil','iba','ilo','jam',
-                'jw','kae','pam','ks','kri','la','lij','lmo','lb','mwr','mfe','min','nno','oc','pap','pnb','sa','srd','crs','scn','su','tgk','tet','tpi','ve','war','yi'),
-            // check about bs-latn , sr-latn/cyr, (tlh) (klingon?)
-            'langconv' => array('zh' => 'zh-chs', 'zh-tw' => 'zh-cht', 'mw' => 'mww', 'pt' => 'pt-PT', 'pt-br' => 'pt', 'eo' => 'epo', 'jw' => 'jav','yi' => 'ydd' )
         ),
         'g' => array(
             'name' => 'Google',
             'icon' => 'googleicon.png',
-            // (got using - var langs =''; jQuery.each(google.language.Languages,function(){if (google.language.isTranslatable(this)) {langs += this +'|'}}); console.log(langs); - fixed for our codes)
-            // @updated 2010-Oct-01 (hy,az,eu,ka,la,ur)
-            // @updated 2011-Nov-04
-            // @updated 2012-Feb-24 (eo)
-            // @updated 2012-Sep-17 (la)
-            // @updated 2013-Apr-19 (km)
-            // @updated 2013-May-09 (bs,ceb,hmn,jw,mr)
-            // @updated 2013-Dec-24 (ha,ig,mi,mn,ni,pa,so,yo,zu)
-            // @updated 2014-Dec-15 (kk,mg,ml,my,ny,si,st,su,tg,uz)
-            // @updated 2016-Mar-11 (am,co,fy,haw,ku,ky,lb,ps,sm,gd,sn,sd,xh)
-            'langs' => array('af', 'ar', 'az', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'ga', 'gl',
-                'gu', 'ha', 'he', 'hi', 'hmn', 'hr', 'ht', 'hu', 'hy', 'id', 'ig', 'is', 'it', 'ja', 'jw', 'ka', 'kk', 'km', 'kn', 'ko', 'la', 'lo', 'lt', 'lv',
-                'mg', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'ny', 'pa', 'pl', 'pt', 'ro', 'ru', 'si', 'sk', 'sl', 'so', 'sq', 'sr', 'st',
-                'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'uk', 'ur', 'uz', 'vi', 'yi', 'yo', 'zh', 'zh-tw', 'zu',
-                'am', 'co', 'fy', 'haw', 'ku', 'ky', 'lb', 'ps', 'sm', 'gd', 'sn', 'sd', 'xh'),
-        // iw - he, zh-CN - zh    
         ),
         'u' => array(
             'name' => 'Baidu',
             'icon' => 'baiduicon.png',
-            // @updated 2015-Nov-03
-            // @updated 2017-Sep-28 (Vie)
-            'langs' => array('ar', 'et', 'bg', 'pl', 'da', 'de', 'ru', 'fr', 'fi', 'ko', 'nl', 'cs', 'ro', 'pt', 'jp', 'sv', 'sl', 'th', 'es', 'el', 'hu', 'zh', 'en', 'it', 'yue', 'zh-tw', 'vi'),
-            //<li><a href="###" class="data-lang" value="wyw">文言文</a></li>  //wyw - old chinese
-            'langconv' => array('ar' => 'ara', 'et' => 'est', 'bg' => 'bul', 'da' => 'dan', 'fr' => 'fra', 'fi' => 'fin', 'ko' => 'kor', 'ro' => 'rom', 'sv' => 'swe', 'sl' => 'slo', 'es' => 'spa', 'zh-tw' => 'cht', 'vi' => 'vie')
         ),
         'y' => array(
             'name' => 'Yandex',
             'icon' => 'yandexicon.png',
-            //got with Object.keys(config.TRANSLATOR_LANGS).sort() on yandex
-            // @updated 2015-Aug-12 initial list
-            // @updated 2015-Oct-25 (ba)
-            // @updated 2017-Sep-27 (am,bn,ceb,eo,gd,gu,hi,jw(jv),km,kn,lb,lo,mhr,mi,ml,mr,mrj,my,ne,pa,pap,si,sjn,su,ta,te,udm,ur,xh,yi)
-            // @updated 2025-Mar-03 (zu,emj,kazlat,kv,os,uzbcyr,sha)
-            'langs' => array('af', 'am', 'ar', 'az', 'ba', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr',
-                'ga', 'gd', 'gl', 'gu', 'he', 'hi', 'hr', 'ht', 'hu', 'hy', 'id', 'is', 'it', 'ja', 'jw', 'ka', 'kk', 'km', 'kn', 'ko', 'ky', 'la', 'lb', 'lo', 'lt', 'lv',
-                'mg', 'mhr', 'mi', 'mk', 'ml', 'mn', 'mr', 'mrj', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'pa', 'pap', 'pl', 'pt', 'ro', 'ru', 'si', 'sjn', 'sk', 'sl', 'sq',
-                'sr', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'tt', 'udm', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'zh', 'zu'),
-            // check about (cv) Chuvash (emj) Emoji (kazlat) Kazakh (Latin) (kv) Komi (os) Ossetian (uzbcyr) Uzbek (Cyrillic) (sah) Yakut (sjn) Elvish
-            'langconv' => array('jw' => 'jv')
         ),
         'a' => array(
             'name' => 'Apertium',
             'icon' => 'apertiumicon.png',
-            'langs' => array('eo','es','en'),
         ),
 
     );
 
     public static function get_language_name($lang) {
-        list ($langname) = explode(",", transposh_consts::$languages[$lang]);
+        $langname = self::$languages[$lang]['name'];
         $langname_r = apply_filters("tp_language_name", $langname);
         return $langname_r;
     }
 
     public static function get_language_orig_name($lang) {
-        list (, $langorigname) = explode(",", transposh_consts::$languages[$lang]);
+        $langorigname = self::$languages[$lang]['orig'];
         $langorigname_r = apply_filters("tp_language_origname", $langorigname);
         return $langorigname_r;
     }
 
     public static function get_language_flag($lang) {
-        list (,, $flag) = explode(",", transposh_consts::$languages[$lang]);
+        $flag = self::$languages[$lang]['flag'];
         $flag_r = apply_filters("tp_language_flag", $flag);
         return $flag_r;
     }
 
-    public static function get_language_locale($lang) {
-        @list (,,, $locale) = explode(",", transposh_consts::$languages[$lang]);
-        $locale_r = apply_filters("tp_language_locale", $locale);
-        if ($locale_r) {
-            return $locale_r;
+    public static function get_language_locale($lang)
+    {
+        if (isset(self::$languages[$lang]['locale'])) {
+            $locale = self::$languages[$lang]['locale'];
+        } else {
+            $locale = $lang;
         }
-        return $lang;
+        $locale_r = apply_filters("tp_language_locale", $locale);
+        return $locale_r;
     }
 
-    // Language which are read from right to left (rtl)
-    public static $rtl_languages = array('ar', 'he', 'fa', 'ur', 'yi');
-    // todo - more languages in OHT
-    //Chinese Cantonese	zh-cn-yue -- check
-    //Chinese Mandarin-Simplified	zh-cn-cmn-s
-    //Chinese Mandarin-Traditional	zh-cn-cmn-t
-    //Dari	fa-af
-    //Kazakh	kk-kz
-    //Pashto	ps
-    //Uzbek	uz-uz
-    public static $adsense_languages = array('ar', 'bn', 'bg', 'ca', 'zh', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'et', 'fi', 'fil', 'fr', 'de', 'el', 'gu', 'he', 'hi', 'hu', 'id',
-        'it', 'ja', 'kn', 'ko', 'lv', 'lt', 'ms', 'ml', 'mr', 'no', 'pl', 'pt','pt-br', 'pa', 'ro', 'ru', 'sr', 'sk', 'sl', 'es', 'sv', 'tl', 'ta', 'te', 'th', 'tr', 'uk', 'ur', 'vi');
+    /**
+     * @param string $lang - language tested
+     * @return bool - do we have it?
+     */
+    public static function is_supported_language($lang) {
+        return isset(self::$languages[$lang]);
+    }
 
-// List of supported adsense languages - https://support.google.com/adsense/answer/9727 - 25/02/2025
-/*Arabic [2]
-Bengali [2, 3]
-Bulgarian [2]
-Catalan [2, 3]
-Chinese (simplified)
-Chinese (traditional)
-Croatian [2]
-Czech
-Danish [2]
-Dutch
-English
-Estonian [1, 2, 3]
-Filipino [2]
-Finnish [2]
-French
-German
-Greek
-Gujarati [2, 3]
-Hebrew [2]
-Hindi [2, 3]
-Hungarian
-Indonesian
-Italian
-Japanese
-Kannada [2, 3]
-Korean
-Latvian [2]
-Lithuanian [2]
-Malay [2, 3]
-Malayalam [2, 3]
-Marathi [2, 3]
-Norwegian [2]
-Polish
-Portuguese
-Punjabi [2, 3]
-Romanian [2]
-Russian
-Serbian [2]
-Slovak [2]
-Slovenian [1, 2, 3]
-Spanish (European)
-Spanish (Latin American)
-Swedish [2]
-Tamil [2]
-Telugu [2]
-Thai
-Turkish
-Ukrainian [2]
-Urdu [2, 3]
-Vietnamese*/
+    /**
+     * @param string $lang - language tested
+     * @return bool - is it rtl?
+     */
+    public static function is_language_rtl($lang) {
+        return isset(self::$languages[$lang]['rtl']);
+    }
+
+    /**
+     * @param string $lang - language tested
+     * @return bool - is it adsense language?
+     */
+    public static function is_language_adsense($lang) {
+        return isset(self::$languages[$lang]['adsense']);
+    }
+
+    /**
+     * @param string $lang - language tested
+     * @param string $engine - engine tested
+     * @return bool - is language supported by engine?
+     */
+    public static function is_supported_engine($lang, $engine) {
+        return isset(self::$languages[$lang]['engines'][$engine]);
+    }
+
+    /**
+     * @param string $lang - language tested
+     * @param string $engine - engine tested
+     * @return string - conversion of this engine?
+     */
+    public static function get_engine_lang_code($lang, $engine) {
+        if (isset(self::$languages[$lang]['engines'][$engine])) {
+            if (self::$languages[$lang]['engines'][$engine] == 'y') {
+                return $lang;
+            } else {
+                return self::$languages[$lang]['engines'][$engine];
+            }
+        }
+        return '';
+    }
+
+    /**
+     * @param string $lang - language tested
+     * @return array - all languages supported by engine
+     */
+    public static function get_engine_lang_codes($engine) {
+        $langs = [];
+        foreach (self::$languages as $lang => $langrec) {
+            if ($langrec['engines'][$engine]) {
+                $langs[$lang] = $lang;
+            }
+        }
+        return $langs;
+    }
+
+    public static function get_engines() {
+        return self::$engines;
+    }
+
+    /**
+     * @return array
+     */
+    public static function get_country_mapping() {
+        return self::$countryToLanguageMapping;
+    }
+
+    /**
+     * @return int[]|string[]
+     */
+    public static function get_langauge_keys() {
+        return array_keys(self::$languages);
+    }
 
     // Array for holding po domains we have problems with
     public static $ignored_po_domains = array('MailPress');
@@ -804,12 +1752,6 @@ define('TRANSPOSH_TEXT_DOMAIN', 'transposh');
 
 //0.3.5 - Storing all options in this config option
 define('TRANSPOSH_OPTIONS', 'transposh_options');
-
-//0.8.4 - Storing oht project
-define('TRANSPOSH_OPTIONS_OHT', 'transposh_options_oht');
-define('TRANSPOSH_OPTIONS_OHT_PROJECTS', 'transposh_options_oht_projects');
-define('TRANSPOSH_OHT_DELAY', 600);
-
 //0.9.6 - Making sure Google works
 define('TRANSPOSH_OPTIONS_YANDEXPROXY', 'transposh_options_yandexproxy');
 define('TRANSPOSH_YANDEXPROXY_DELAY', 3600); // give it an hour
@@ -823,213 +1765,3 @@ define('TRANSPOSH_DIR_IMG', 'img');
 define('TRANSPOSH_DIR_JS', 'js');
 define('TRANSPOSH_DIR_WIDGETS', 'widgets');
 define('TRANSPOSH_DIR_UPLOAD', 'transposh'); //1.0.1
-
-/* Full language list according to ISO
-  ISO 639-1	Language name	Native name
-  aa	Afar	Afaraf
-  ab	Abkhazian	Аҧсуа
-  ae	Avestan	avesta
-  af	Afrikaans	Afrikaans
-  ak	Akan	Akan
-  am	Amharic	አማርኛ
-  an	Aragonese	Aragonés
-  ar	Arabic	العربية
-  as	Assamese	অসমীয়া
-  av	Avaric	авар мацӀ, магӀарул мацӀ
-  ay	Aymara	aymar aru
-  az	Azerbaijani	azərbaycan dili
-  ba	Bashkir	башҡорт теле
-  be	Belarusian	Беларуская
-  bg	Bulgarian	български език
-  bh	Bihari	भोजपुरी
-  bi	Bislama	Bislama
-  bm	Bambara	bamanankan
-  bn	Bengali	বাংলা
-  bo	Tibetan	བོད་ཡིག
-  br	Breton	brezhoneg
-  bs	Bosnian	bosanski jezik
-  ca	Catalan, Valencian	Català
-  ce	Chechen	нохчийн мотт
-  ch	Chamorro	Chamoru
-  co	Corsican	corsu, lingua corsa
-  cr	Cree	ᓀᐦᐃᔭᐍᐏᐣ
-  cs	Czech	česky, čeština
-  cu	Church Slavic, Old Slavonic, Church Slavonic, Old Bulgarian, Old Church Slavonic	ѩзыкъ словѣньскъ
-  cv	Chuvash	чӑваш чӗлхи
-  cy	Welsh	Cymraeg
-  da	Danish	dansk
-  de	German	Deutsch
-  dv	Divehi, Dhivehi, Maldivian	ދިވެހި
-  dz	Dzongkha	རྫོང་ཁ
-  ee	Ewe	Eʋegbe
-  el	Modern Greek	Ελληνικά
-  en	English	English
-  eo	Esperanto	Esperanto
-  es	Spanish, Castilian	español, castellano
-  et	Estonian	eesti, eesti keel
-  eu	Basque	euskara, euskera
-  fa	Persian	فارسی
-  ff	Fulah	Fulfulde, Pulaar, Pular
-  fi	Finnish	suomi, suomen kieli
-  fj	Fijian	vosa Vakaviti
-  fo	Faroese	føroyskt
-  fr	French	français, langue française
-  fy	Western Frisian	Frysk
-  ga	Irish	Gaeilge
-  gd	Gaelic, Scottish Gaelic	Gàidhlig
-  gl	Galician	Galego
-  gn	Guaraní	Avañe'ẽ
-  gu	Gujarati	ગુજરાતી
-  gv	Manx	Gaelg, Gailck
-  ha	Hausa	Hausa, هَوُسَ
-  he	Modern Hebrew	עברית
-  hi	Hindi	हिन्दी, हिंदी
-  ho	Hiri Motu	Hiri Motu
-  hr	Croatian	hrvatski
-  ht	Haitian, Haitian Creole	Kreyòl ayisyen
-  hu	Hungarian	Magyar
-  hy	Armenian	Հայերեն
-  hz	Herero	Otjiherero
-  ia	Interlingua (International Auxiliary Language Association)	Interlingua
-  id	Indonesian	Bahasa Indonesia
-  ie	Interlingue, Occidental	Interlingue
-  ig	Igbo	Igbo
-  ii	Sichuan Yi, Nuosu	ꆇꉙ
-  ik	Inupiaq	Iñupiaq, Iñupiatun
-  io	Ido	Ido
-  is	Icelandic	Íslenska
-  it	Italian	Italiano
-  iu	Inuktitut	ᐃᓄᒃᑎᑐᑦ
-  ja	Japanese	日本語 (にほんご／にっぽんご)
-  jv	Javanese	basa Jawa
-  ka	Georgian	ქართული
-  kg	Kongo	KiKongo
-  ki	Kikuyu, Gikuyu	Gĩkũyũ
-  kj	Kwanyama, Kuanyama	Kuanyama
-  kk	Kazakh	Қазақ тілі
-  kl	Kalaallisut, Greenlandic	kalaallisut, kalaallit oqaasii
-  km	Central Khmer	ភាសាខ្មែរ
-  kn	Kannada	ಕನ್ನಡ
-  ko	Korean	한국어 (韓國語), 조선말 (朝鮮語)
-  kr	Kanuri	Kanuri
-  ks	Kashmiri	कश्मीरी, كشميري‎
-  ku	Kurdish	Kurdî, كوردی‎
-  kv	Komi	коми кыв
-  kw	Cornish	Kernewek
-  ky	Kirghiz, Kyrgyz	кыргыз тили
-  la	Latin	latine, lingua latina
-  lb	Luxembourgish, Letzeburgesch	Lëtzebuergesch
-  lg	Ganda	Luganda
-  li	Limburgish, Limburgan, Limburger	Limburgs
-  ln	Lingala	Lingála
-  lo	Lao	ພາສາລາວ
-  lt	Lithuanian	lietuvių kalba
-  lu	Luba-Katanga
-  lv	Latvian	latviešu valoda
-  mg	Malagasy	Malagasy fiteny
-  mh	Marshallese	Kajin M̧ajeļ
-  mi	Māori	te reo Māori
-  mk	Macedonian	македонски јазик
-  ml	Malayalam	മലയാളം
-  mn	Mongolian	Монгол
-  mr	Marathi	मराठी
-  ms	Malay	bahasa Melayu, بهاس ملايو‎
-  mt	Maltese	Malti
-  my	Burmese	ဗမာစာ
-  na	Nauru	Ekakairũ Naoero
-  nb	Norwegian Bokmål	Norsk bokmål
-  nd	North Ndebele	isiNdebele
-  ne	Nepali	नेपाली
-  ng	Ndonga	Owambo
-  nl	Dutch, Flemish	Nederlands, Vlaams
-  nn	Norwegian Nynorsk	Norsk nynorsk
-  no	Norwegian	Norsk
-  nr	South Ndebele	isiNdebele
-  nv	Navajo, Navaho	Diné bizaad, Dinékʼehǰí
-  ny	Chichewa, Chewa, Nyanja	chiCheŵa, chinyanja
-  oc	Occitan (after 1500)	Occitan
-  oj	Ojibwa	ᐊᓂᔑᓈᐯᒧᐎᓐ
-  om	Oromo	Afaan Oromoo
-  or	Oriya	ଓଡ଼ିଆ
-  os	Ossetian, Ossetic	Ирон æвзаг
-  pa	Panjabi, Punjabi	ਪੰਜਾਬੀ, پنجابی‎
-  pi	Pāli	पाऴि
-  pl	Polish	polski
-  ps	Pashto, Pushto	پښتو
-  pt	Portuguese	Português
-  qu	Quechua	Runa Simi, Kichwa
-  rm	Romansh	rumantsch grischun
-  rn	Rundi	kiRundi
-  ro	Romanian, Moldavian, Moldovan	română
-  ru	Russian	Русский язык
-  rw	Kinyarwanda	Ikinyarwanda
-  sa	Sanskrit	संस्कृतम्
-  sc	Sardinian	sardu
-  sd	Sindhi	सिन्धी, سنڌي، سندھی‎
-  se	Northern Sami	Davvisámegiella
-  sg	Sango	yângâ tî sängö
-  si	Sinhala, Sinhalese	සිංහල
-  sk	Slovak	slovenčina
-  sl	Slovene	slovenščina
-  sm	Samoan	gagana fa'a Samoa
-  sn	Shona	chiShona
-  so	Somali	Soomaaliga, af Soomaali
-  sq	Albanian	Shqip
-  sr	Serbian	српски језик
-  ss	Swati	SiSwati
-  st	Southern Sotho	Sesotho
-  su	Sundanese	Basa Sunda
-  sv	Swedish	svenska
-  sw	Swahili	Kiswahili
-  ta	Tamil	தமிழ்
-  te	Telugu	తెలుగు
-  tg	Tajik	тоҷикӣ, toğikī, تاجیکی‎
-  th	Thai	ไทย
-  ti	Tigrinya	ትግርኛ
-  tk	Turkmen	Türkmen, Түркмен
-  tl	Tagalog	Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔
-  tn	Tswana	Setswana
-  to	Tonga (Tonga Islands)	faka Tonga
-  tr	Turkish	Türkçe
-  ts	Tsonga	Xitsonga
-  tt	Tatar	татарча, tatarça, تاتارچا‎
-  tw	Twi	Twi
-  ty	Tahitian	Reo Mā`ohi
-  ug	Uighur, Uyghur	Uyƣurqə, ئۇيغۇرچە‎
-  uk	Ukrainian	Українська
-  ur	Urdu	اردو
-  uz	Uzbek	O'zbek, Ўзбек, أۇزبېك‎
-  ve	Venda	Tshivenḓa
-  vi	Vietnamese	Tiếng Việt
-  vo	Volapük	Volapük
-  wa	Walloon	Walon
-  wo	Wolof	Wollof
-  xh	Xhosa	isiXhosa
-  yi	Yiddish	ייִדיש
-  yo	Yoruba	Yorùbá
-  za	Zhuang, Chuang	Saɯ cueŋƅ, Saw cuengh
-  zh	Chinese	中文 (Zhōngwén), 汉语, 漢語
-  zu	Zulu	isiZulu
-
- */
-
-/* List of unused wordpress locales (22-Jun-2011)
-  # ckb/ Kurdish
-  # cpp/ ??
-  # el/
-  # es_CL/
-  # es_PE/
-  # es_VE/
-  # fo/ foroese
-  # fr_BE/
-  # kea/
-  # ml_IN/
-  # nb_NO/ ? good Question, popped into Norway
-  # nn_NO/ ? same question
-  # pt_BR/
-  # ru_UA/
-  # sd_PK/
-  # su_ID/
-  # ta_LK/
-  # ug_CN/
- */

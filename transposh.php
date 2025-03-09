@@ -34,6 +34,7 @@ require_once("core/logging.php");
 require_once("core/constants.php");
 require_once("core/utils.php");
 require_once("core/parser.php");
+require_once("core/translate.php");
 require_once("wp/transposh_db.php");
 require_once("wp/transposh_widget.php");
 require_once("wp/transposh_admin.php");
@@ -419,7 +420,7 @@ class transposh_plugin {
             $parse->prefetch_translate_func = array(&$this->database, 'prefetch_translations');
             $parse->url_rewrite_func = array(&$this, 'rewrite_url');
             $parse->split_url_func = array(&$this, 'split_url');
-            $parse->dir_rtl = (in_array($this->target_language, transposh_consts::$rtl_languages));
+            $parse->dir_rtl = transposh_consts::is_language_rtl($this->target_language);
             $parse->lang = $this->target_language;
             $parse->default_lang = $this->options->is_default_language($this->target_language);
             $parse->is_edit_mode = $this->edit_mode;
@@ -628,7 +629,7 @@ class transposh_plugin {
         }
 
         // make themes that support rtl - go rtl http://wordpress.tv/2010/05/01/yoav-farhi-right-to-left-themes-sf10
-        if (in_array($this->target_language, transposh_consts::$rtl_languages)) {
+        if (transposh_consts::is_language_rtl($this->target_language)) {
             global $wp_locale;
             $wp_locale->text_direction = 'rtl';
         }
@@ -668,7 +669,7 @@ class transposh_plugin {
                         $country = geoip_detect2_get_info_from_current_ip()->country->isoCode;
                         $bestlang = transposh_utils::language_from_country(explode(',', $this->options->viewable_languages), $country, $this->options->default_language);
                     }
-                    if ($bestlang && $bestlang != $this->target_language) {
+                    if (isset($bestlang) && $bestlang != $this->target_language) {
                         $url = transposh_utils::rewrite_url_lang_param(transposh_utils::get_clean_server_var('REQUEST_URI'), $this->home_url, $this->enable_permalinks_rewrite, $bestlang, $this->edit_mode);
                         if ($this->options->is_default_language($bestlang))
                         //TODO - fix wrt translation
@@ -882,25 +883,16 @@ class transposh_plugin {
         );
 
         $script_params['engines'] = new stdClass();
-        if (in_array($this->target_language, transposh_consts::$engines['a']['langs'])) {
-            $script_params['engines']->a = 1;
-        }
-        if (in_array($this->target_language, transposh_consts::$engines['b']['langs'])) {
-            $script_params['engines']->b = 1;
-//            $script_params['engines'][] = 'b';
-            if (isset(transposh_consts::$engines['b']['langconv'][$this->target_language])) {
-                $script_params['blang'] = transposh_consts::$engines['b']['langconv'][$this->target_language];
+        foreach (transposh_consts::get_engines() as $enginekey => $enginevals ) {
+            if (transposh_consts::is_supported_engine($this->target_language,$enginekey)) {
+                $script_params['engines']->$enginekey = 1;
+                // special case of bing
+                if ($enginekey == 'b' && transposh_consts::get_engine_lang_code($this->target_language,$enginekey) != $this->target_language) {
+                    $script_params['blang'] = transposh_consts::get_engine_lang_code($this->target_language,$enginekey);
+                }
             }
         }
-        if (in_array($this->target_language, transposh_consts::$engines['g']['langs'])) {
-            $script_params['engines']->g = 1;
-        }
-        if (in_array($this->target_language, transposh_consts::$engines['y']['langs'])) {
-            $script_params['engines']->y = 1;
-        }
-        if (in_array($this->target_language, transposh_consts::$engines['u']['langs'])) {
-            $script_params['engines']->u = 1;
-        }
+
         if (!$this->options->enable_autotranslate) {
             $script_params['noauto'] = 1;
         }
@@ -1137,7 +1129,7 @@ class transposh_plugin {
             } else {
                 preg_match_all('/".*?("|$)|((?<=[\\s",+])|^)[^\\s",+]+/', $q['s'], $matches);
                 $q['search_terms'] = array_map(function ($a) {
-                    return trim($a, "\"'\\n\\r ");
+                    return trim($a, "\"'\n\r\t\v ");
                 }, $matches[0]);
                 //$q['search_terms'] = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
             }
@@ -1300,7 +1292,7 @@ class transposh_plugin {
             if (strpos(transposh_utils::get_clean_server_var('REQUEST_URI'), 'wp-admin/edit') !== false) {
                 tp_logger('iamhere?' . strpos(transposh_utils::get_clean_server_var('REQUEST_URI'), 'wp-admin/edit'));
                 $plugpath = @parse_url($this->transposh_plugin_url, PHP_URL_PATH);
-                list($langeng, $langorig, $langflag) = explode(',', transposh_consts::$languages[$lang]);
+                // ??? list($langeng, $langorig, $langflag) = explode(',', transposh_consts::$languages[$lang]);
                 //$text = transposh_utils::display_flag("$plugpath/img/flags", $langflag, $langorig, false) . ' ' . $text;
                 $text = "[$lang] " . $text;
             } else {
@@ -1583,27 +1575,22 @@ class transposh_plugin {
             }
         }
         if ($q) {
-            switch ($_GET['e']) {
+            $engine = $_GET['e'];
+            if (!transposh_consts::is_supported_engine($tl,$engine)) // nope...
+                return;
+            switch ($engine) {
                 case 'g': // google
-                    if (!$sl) {
-                        $sl = 'auto';
-                    }
-                    if (!in_array($tl, transposh_consts::$engines['g']['langs'])) // nope...
-                        return;
+                    if (!$sl) $sl = 'auto'; // setting default source language to auto
                     $source = 1;
-                    $result = $this->get_google_translation($tl, $sl, $q);
+                    $result = transposh_translate::get_google_translation($tl, $sl, $q);
                     break;
                 case 'y': // yandex
-                    if (!in_array($tl, transposh_consts::$engines['y']['langs'])) // nope...
-                        return;
                     $source = 4;
-                    $result = $this->get_yandex_translation($tl, $sl, $q);
+                    $result = transposh_translate::get_yandex_translation($tl, $sl, $q);
                     break;
                 case 'u': // baidu
-                    if (!in_array($tl, transposh_consts::$engines['u']['langs'])) // nope...
-                        return;
                     $source = 5;
-                    $result = $this->get_baidu_translation($tl, $sl, $q);
+                    $result = transposh_translate::get_baidu_translation($tl, $sl, $q);
                     break;
 
                 default:
@@ -1671,397 +1658,6 @@ class transposh_plugin {
         }
         echo json_encode($jsonout);
         die();
-    }
-
-    // Proxied Yandex translate suggestions
-    function get_yandex_translation($tl, $sl, $q) {
-        $sid = '';
-        $timestamp = 0;
-        if (get_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array())) {
-            list($sid, $timestamp) = get_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array());
-        }
-        tp_logger("yandex sid $sid", 1);
-        if ($sid == '') {
-            if ((time() - TRANSPOSH_YANDEXPROXY_DELAY > $timestamp)) {
-                // attempt key refresh on error
-                $url = 'https://translate.yandex.com/';
-                tp_logger($url, 1);
-                $ch = curl_init();
-                // yandex wants a referer someimes
-                curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                //must set agent for google to respond with utf-8
-                $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-//                tp_logger($UA,1);
-                curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-                $output = curl_exec($ch);
-                $sidpos = strpos($output, "SID: '") + 6;
-//                tp_logger($sidpos,1);
-//                tp_logger(strlen($output),1);
-                $newout = substr($output, $sidpos);
-//                tp_logger($newout,1);
-//                tp_logger(strpos($newout, "',")-2);
-                $sid = substr($newout, 0, strpos($newout, "',"));
-                tp_logger("new sid: $sid", 1);
-                // fix SID "encryption"
-                $sid = implode(".", array_map(
-                    function ($substring) {
-                        return implode('', array_reverse(str_split($substring)));
-                    },
-                    explode(".", $sid)
-                ));
-                tp_logger("fixed sid: $sid", 1);
-
-                if ($output === false) {
-                    tp_logger('Curl error: ' . curl_error($ch));
-                    return false;
-                }
-                //return false;
-                update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array($sid, time()));
-                curl_close($ch);
-            }
-        }
-
-        if (!$sid) {
-            tp_logger('No SID, gotta bail:' . $timestamp, 1);
-            return false;
-        }
-
-        $sourceadd = '';
-        if ($sl) {
-            $sourceadd = "&source_lang={$sl}";
-        }
-
-        $url = "https://translate.yandex.net/api/v1/tr.json/translate?id={$sid}-0-0&srv=tr-text".
-            $sourceadd.
-            "&target_lang={$tl}&reason=auto&format=text&strategy=0&disable_cache=false&ajax=1".
-            //"&yu=8520489821740499285".
-            "";
-        //    "&sprvk=dD0xNzQwOTA4MTg1O2k9ODIuMTY2LjIxMi41NjtEPUVEOTREOTQ5MUJGQkIyN0UxMTU2MTBEREMyMjI1QzU2NUVBODE4QTEwOTUyMjAwQUM5N0Q2MTUzQTkzQzVGMjg2NDIzNkFBOTdDMjk0MTA0RTcyRDZDMjBFQ0Q5Mjc2QjMzMTY0MENCRUQ4RDhDMkI2MEY0QjlGNTlCMTVGMkY0Nzc2MjUwRjU1NkMyOTMzQTExNzUyQkNCRDIxOEM4QkRDQjNBMTRBNzQyMDgxRjUxMUNGRDt1PTE3NDA5MDgxODU3OTIzNTYxNzM7aD1mZWVhMTVhNWMxNjBlMzk4MWMzZDNmNTM5YjQ0ZjgxYQ==";
-
-        // POST data
-        $q = urldecode($q);
-        $postData = [
-            'text' => $q,
-            'options' => 4
-        ];
-        // Initialize cURL
-        $ch = curl_init();
-
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1); // Set method to POST
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData)); // Encode POST data
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // Return response as string
-        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-        curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Accept: */*',
-            'X-Retpath-Y: https://translate.yandex.com',
-            'Origin: https://translate.yandex.com',
-            'Sec-Fetch-Dest: empty',
-            'Sec-Fetch-Mode: cors',
-            'Sec-Fetch-Site: cross-site',
-            'TE: trailers'
-        ]);
-
-        // Execute cURL request
-        $output = curl_exec($ch);
-        curl_close($ch);
-        tp_logger($output, 1);
-        $jsonarr = json_decode($output);
-        tp_logger($jsonarr, 3);
-        if (!$jsonarr) {
-            tp_logger('No JSON here, failing', 1);
-            tp_logger($output, 3);
-            return false;
-        }
-        if ($jsonarr->code != 200) {
-            tp_logger('Some sort of error!', 1);
-            tp_logger($output, 1);
-            if ($jsonarr->code == 406 || $jsonarr->code == 405) { //invalid session
-                update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array('', time()));
-            }
-
-            return false;
-        }
-
-        return $jsonarr->text;
-    }
-
-    // Proxied Baidu translate suggestions
-    function get_baidu_translation($tl, $sl, $q) {
-        $qstr = 'to=' . ((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$tl] : $tl);
-        if ($sl) {
-            $qstr .= '&from=' . ((isset(transposh_consts::$engines['u']['langconv'][$tl])) ? transposh_consts::$engines['u']['langconv'][$sl] : $sl);
-        }
-        $qstr .= '&query=';
-        if (is_array($q)) {
-            foreach ($q as $v) {
-                $qstr .= $v . "%0A";
-            }
-        } else {
-            $qstr .= $q;
-        }
-        $url = 'http://fanyi.baidu.com/v2transapi';
-        tp_logger($url, 3);
-        tp_logger($q, 3);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        //must set agent for google to respond with utf-8
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
-        $output = curl_exec($ch);
-        if ($output === false) {
-            tp_logger('Curl error: ' . curl_error($ch));
-            return false;
-        }
-        curl_close($ch);
-        tp_logger($output, 3);
-        $jsonarr = json_decode($output);
-        tp_logger($jsonarr, 3);
-        if (!$jsonarr) {
-            tp_logger('No JSON here, failing');
-            tp_logger($output, 3);
-            return false;
-        }
-        foreach ($jsonarr->trans_result->data as $val) {
-            $result[] = $val->dst;
-        }
-        return $result;
-    }
-
-    function _bitwise_zfrs($a, $b) {
-        if ($b == 0)
-            return $a;
-        return ($a >> $b) & ~(1 << (8 * PHP_INT_SIZE - 1) >> ($b - 1));
-    }
-
-    function hq($a, $chunk) {
-        for ($offset = 0; $offset < strlen($chunk) - 2; $offset += 3) {
-            $b = $chunk[$offset + 2];
-            $b = ($b >= "a") ? ord($b) - 87 : intval($b);
-            $b = ($chunk[$offset + 1] == "+") ? $this->_bitwise_zfrs($a, $b) : $a << $b;
-            $a = ($chunk[$offset] == "+") ? $a + $b & 4294967295 : $a ^ $b;
-        }
-        return $a;
-    }
-
-    /**
-     * Hey googler, if you are reading this, it means that you are actually here, why won't we work together on this?
-     */
-    function iq($input, $error) {
-        $e = explode(".", $error);
-        $value = intval($e[0]);
-        for ($i = 0; $i < strlen($input); $i++) {
-            $value += ord($input[$i]);
-            $value = $this->hq($value, "+-a^+6");
-        }
-        $value = $this->hq($value, "+-3^+b+-f");
-        $value ^= intval($e[1]);
-        if (0 > $value) {
-            $value = $value & 2147483647 + 2147483648;
-        }
-        $x = $value % 1E6;
-        return $x . "." . ($x ^ $error);
-    }
-
-// Proxied translation for google translate
-    function get_google_translation($tl, $sl, $q) {
-        if (get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array())) {
-            list($googlemethod, $timestamp) = get_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array());
-            //$googlemethod = 0;
-            //$timestamp = 0;
-            tp_logger("Google method $googlemethod, " . date(DATE_RFC2822, $timestamp) . ", current:" . date(DATE_RFC2822, time()) . " Delay:" . TRANSPOSH_GOOGLEPROXY_DELAY, 1);
-        } else {
-            tp_logger("Google is clean", 1);
-            $googlemethod = 0;
-        }
-        // we preserve the method, and will ignore lower methods for the given delay period
-        if (isset($timestamp) && (time() - TRANSPOSH_GOOGLEPROXY_DELAY > $timestamp)) {
-            delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
-        }
-        tp_logger('Google proxy initiated', 1);
-        $qstr = '';
-        $iqstr = '';
-        if (is_array($q)) {
-            foreach ($q as $v) {
-                $qstr .= '&q=' . $v;
-                $iqstr .= urldecode($v);
-            }
-        } else {
-            $qstr = '&q=' . $q;
-            $iqstr = urldecode($q);
-        }
-        // we avoid curling we had all results prehand
-        $urls = array(
-            'http://translate.google.com',
-            'http://212.199.205.226',
-            'http://74.125.195.138',
-            'https://translate.googleapis.com');
-
-        $attempt = 1;
-        $failed = true;
-        foreach ($urls as $gurl) {
-            if ($googlemethod < $attempt && $failed) {
-                $failed = false;
-                tp_logger("Attempt: $attempt", 1);
-                $url = $gurl . '/translate_a/t?client=te&v=1.0&tl=' . $tl . '&sl=' . $sl . '&tk=' . $this->iq($iqstr, '406448.272554134');
-                tp_logger($url, 3);
-                tp_logger($q, 3);
-                tp_logger($iqstr, 3);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                //must set agent for google to respond with utf-8
-                $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT");
-                tp_logger($UA, 1);
-                curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
-                // timeout is probably a good idea
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 7);
-
-                //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
-                if ($attempt > 1) {
-                    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                    curl_setopt($ch, CURLOPT_USERAGENT, transposh_utils::get_clean_server_var('HTTP_USER_AGENT'));
-                }
-                $output = curl_exec($ch);
-                $info = curl_getinfo($ch);
-                tp_logger('Curl code is: ' . $info['http_code'], 1);
-                curl_close($ch);
-                tp_logger($output, 3);
-                if ($info['http_code'] != 200) {
-                    tp_logger("method fail - $attempt", 1);
-                    $failed = true;
-                    update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array($attempt, time()));
-                }
-                unset($info);
-            }
-            $attempt++;
-        }
-
-        // TODO - last attempt, with key
-
-        if ($failed) {
-            tp_logger('out of options, die for the day!', 1);
-            return false;
-        }
-
-        if ($output === false) {
-            tp_logger('Curl error: ' . curl_error($ch));
-            return false;
-        }
-
-        tp_logger($output, 3);
-        // weird output that happens - $output='[[[[["Nnọọ"]],,"en"],[[["ụwa"]],,"en"],[[["Kedu ihe na-eme"]],,"en"]]]';
-        $jsonarr = json_decode($output);
-        if (!$jsonarr) {
-            tp_logger("google didn't return Proper JSON, lets try to recover", 2);
-            $newout = str_replace(',,', ',', $output);
-            tp_logger($newout);
-            $jsonarr = json_decode($newout);
-            if (!$jsonarr) {
-                tp_logger('No JSON here, failing');
-                tp_logger($output, 3);
-                return false;
-            }
-        }
-        tp_logger($jsonarr);
-        if (is_array($jsonarr)) {
-            if (is_array($jsonarr[0])) {
-                foreach ($jsonarr as $val) {
-                    // need to drill
-                    while (is_array($val)) {
-                        $val = $val[0];
-                    }
-                    $result[] = $val;
-                }
-            } else {
-                // yes - it was all that was needed to fix the Google 2022 translation change
-                $result = $jsonarr;
-            }
-        } else {
-            $result[] = $jsonarr;
-        }
-        /*
-          //        header('Content-type: text/html; charset=utf-8');
-
-          }
-         */
-        return $result;
-    }
-
-    /**
-     * Queue for One Hour Translate
-     */
-    function on_ajax_nopriv_tp_oht() {
-        // Admin access only
-        if (!current_user_can('manage_options')) {
-            echo "only admin is allowed";
-            die();
-        }
-        $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
-        if (!isset($_GET['orglang']))
-            $_GET['orglang'] = $this->options->default_language;
-        $key = $_GET['token'] . '@' . $_GET['lang'] . '@' . $_GET['orglang'];
-        if (isset($oht[$key])) {
-            unset($oht[$key]);
-            tp_logger('oht false');
-            echo json_encode(false);
-        } else {
-            $oht[$key] = array('q' => $_GET['q'], 'l' => $_GET['lang'], 'ol' => $_GET['orglang'], 't' => $_GET['token']);
-            tp_logger('oht true');
-            echo json_encode(true);
-        }
-
-        update_option(TRANSPOSH_OPTIONS_OHT, $oht);
-
-        // we will make an oht send event in defined time
-        wp_clear_scheduled_hook('transposh_oht_event');
-        wp_schedule_single_event(time() + TRANSPOSH_OHT_DELAY, 'transposh_oht_event');
-
-        die();
-    }
-
-    /**
-     * OHT event running
-     */
-    function run_oht() {
-        tp_logger("oht should run", 2);
-        $oht = get_option(TRANSPOSH_OPTIONS_OHT, array());
-        tp_logger($oht, 3);
-        $ohtp = get_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, array());
-        $projectid = time();
-        //send less data
-        $ohtbody = array();
-        $pcount = 0;
-        foreach ($oht as $arr) {
-            $pcount++;
-            tp_logger($arr);
-            $ohtbody[$arr['t']] = array('q' => $arr['q'], 'l' => $arr['l'], 'ol' => $arr['ol']);
-        }
-        $ohtbody['pid'] = $projectid;
-        $ohtbody['id'] = $this->options->oht_id;
-        $ohtbody['key'] = $this->options->oht_key;
-        $ohtbody['callback'] = admin_url('admin-ajax.php');
-        $ohtbody['homeurl'] = $this->home_url;
-        tp_logger($ohtbody);
-        // now we send this, add to log that it was sent to oht.. we'll also add a timer to make sure it gets back to us
-        $ret = wp_remote_post('http://svc.transposh.org/oht.php', array('body' => $ohtbody));
-        if ($ret['response']['code'] == '200') {
-            delete_option(TRANSPOSH_OPTIONS_OHT);
-            $ohtp[$projectid] = $pcount;
-            update_option(TRANSPOSH_OPTIONS_OHT_PROJECTS, $ohtp);
-        } else {
-            tp_logger($ret, 1);
-        }
     }
 
     // getting translation history

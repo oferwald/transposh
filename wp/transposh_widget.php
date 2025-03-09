@@ -270,8 +270,10 @@ class transposh_plugin_widget extends WP_Widget {
             $clean_page_url = transposh_utils::cleanup_url($this->transposh->home_url, $this->transposh->home_url, true);
         }
         // loop on the languages
-        foreach ($this->transposh->options->get_sorted_langs() as $code => $langrecord) {
-            list ($langname, $language, $flag) = explode(',', $langrecord);
+        foreach ($this->transposh->options->get_sorted_langs() as $code => $val) {
+            $langname = transposh_consts::get_language_name($code);
+            $language = transposh_consts::get_language_orig_name($code);
+            $flag = transposh_consts::get_language_flag($code);
 
             // Only send languages which are active
             if ($this->transposh->options->is_active_language($code) ||

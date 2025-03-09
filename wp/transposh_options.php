@@ -184,7 +184,7 @@ class transposh_option {
  * @property transposh_option $debug_loglevel_o
  * @property string           $debug_logfile Option holding a filename to store debugging into
  * @property transposh_option $debug_logfile_o
- * @property ip               $debug_remoteip Option that limits remote firePhp debug to a certain IP
+ * @property string           $debug_remoteip Option that limits remote firePhp debug to a certain IP
  * @property transposh_option $debug_remoteip_o
  * 
  * Hidden
@@ -328,8 +328,8 @@ class transposh_plugin_options {
         // Fix default language if needed, only done once now, and since this was being done constantly, we gain
         //tp_logger($this->default_language->get_value());
 
-        if (!isset(transposh_consts::$languages[$this->default_language])) {
-            if (defined('WPLANG') && isset(transposh_consts::$languages[WPLANG])) {
+        if (!transposh_consts::is_supported_language($this->default_language)) {
+            if (defined('WPLANG') && transposh_consts::is_supported_language(WPLANG)) {
                 $this->default_language = WPLANG;
             } else {
                 $this->default_language = "en";
@@ -347,9 +347,9 @@ class transposh_plugin_options {
     function get_sorted_langs() {
         if ($this->sorted_languages) {
             tp_logger($this->sorted_languages, 5);
-            return array_merge(array_flip(explode(",", $this->sorted_languages)), transposh_consts::$languages);
+            return array_merge(array_flip(explode(",", $this->sorted_languages)), array_flip(transposh_consts::get_langauge_keys()));
         }
-        return transposh_consts::$languages;
+        return transposh_consts::get_langauge_keys();
     }
 
     /**
@@ -360,9 +360,9 @@ class transposh_plugin_options {
     function get_sorted_engines() {
         if ($this->preferred_translators) {
             tp_logger($this->preferred_translators, 3);
-            return array_merge(array_flip(explode(",", $this->preferred_translators)), transposh_consts::$engines);
+            return array_merge(array_flip(explode(",", $this->preferred_translators)), transposh_consts::get_engines());
         }
-        return transposh_consts::$engines;
+        return transposh_consts::get_engines();
     }
 
     function get_transposh_admin_hide_warning($id) {

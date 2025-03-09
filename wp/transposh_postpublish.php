@@ -59,13 +59,13 @@ class transposh_postpublish {
         if (get_post_meta($_GET['post'], 'transposh_can_translate', true)) { // do isdefined stuff
             $this->just_published = true; // this is later used in the meta boxes //XXXXXXXXXXXXXXXXXXXXXXXXXXXX
             wp_enqueue_script("transposh_backend", $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/backendtranslate.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
+            $enginelangs = '';
+            foreach (transposh_consts::get_engines() as $engine => $engrec) {
+                $enginelangs .= "t_be.{$engine}_langs = ". json_encode(implode(',',transposh_consts::get_engine_lang_codes($engine))).';';
+            }
             $script_params = array(
                 'post' => $_GET['post'],
-                'l10n_print_after' =>
-                't_be.a_langs = ' . json_encode(transposh_consts::$engines['a']['langs']) . ';' .
-                't_be.b_langs = ' . json_encode(transposh_consts::$engines['b']['langs']) . ';' .
-                't_be.g_langs = ' . json_encode(transposh_consts::$engines['g']['langs']) . ';' .
-                't_be.y_langs = ' . json_encode(transposh_consts::$engines['y']['langs']) . ';'
+                'l10n_print_after' => $enginelangs
             );
             wp_localize_script("transposh_backend", "t_be", $script_params);
             // MAKESURE 3.3
@@ -155,10 +155,13 @@ class transposh_postpublish {
                 // as we don't normally want to auto-translate the default language -FIX THIS to include only correct stuff, how?
                 if (!$this->transposh->options->is_default_language($lang) || $this->transposh->options->enable_default_translate) {
                     // There is no point in returning phrases, languages pairs that cannot be translated
-                    if (in_array($lang, transposh_consts::$engines['b']['langs']) ||
-                            in_array($lang, transposh_consts::$engines['g']['langs']) ||
-                            in_array($lang, transposh_consts::$engines['y']['langs']) ||
-                            in_array($lang, transposh_consts::$engines['a']['langs'])) {
+                    $is_language_enginetranslateable = false;
+                    foreach (transposh_consts::get_engines() as $engine => $enginerec) {
+                        if (transposh_consts::is_supported_engine($lang,$engine)) {
+                            $is_language_enginetranslateable = true;
+                        }
+                    }
+                    if ($is_language_enginetranslateable) {
                         list($source, $translation) = $this->transposh->database->fetch_translation($key, $lang);
                         if (!$translation) {
                             // p stands for phrases, l stands for languages, t is token

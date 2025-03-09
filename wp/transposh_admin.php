@@ -317,12 +317,12 @@ class transposh_plugin_admin {
                 wp_enqueue_style('jqueryui', '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
                 wp_enqueue_script('jqueryui', '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/jquery-ui.min.js', array('jquery'), JQUERYUI_VER, true);
                 wp_enqueue_script('transposh_backend', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/backendtranslate.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
+                $enginelangs = '';
+                foreach (transposh_consts::get_engines() as $engine => $engrec) {
+                    $enginelangs .= "t_be.{$engine}_langs = ". json_encode(implode(',',transposh_consts::get_engine_lang_codes($engine))).';';
+                }
                 $script_params = array(
-                    'l10n_print_after' =>
-                    't_be.a_langs = ' . json_encode(transposh_consts::$engines['a']['langs']) . ';' .
-                    't_be.b_langs = ' . json_encode(transposh_consts::$engines['b']['langs']) . ';' .
-                    't_be.g_langs = ' . json_encode(transposh_consts::$engines['g']['langs']) . ';' .
-                    't_be.y_langs = ' . json_encode(transposh_consts::$engines['y']['langs']) . ';'
+                    'l10n_print_after' => $enginelangs
                 );
                 wp_localize_script("transposh_backend", "t_be", $script_params);
             case 'tp_editor':
@@ -367,8 +367,7 @@ class transposh_plugin_admin {
             // retrieve the function output and set it as tab content
             //TODO - add how to getting those keys
             'content' => '<h3>' . __('Translation engines keys', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
-            '<p>' . __('Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site.', TRANSPOSH_TEXT_DOMAIN) . '</p>' .
-            '<p>' . __('For One Hour Translation, after registering. The key will be reachable at:', TRANSPOSH_TEXT_DOMAIN) . '<a href="https://www.onehourtranslation.com/profile/apiKeys/">https://www.onehourtranslation.com/profile/apiKeys/</a>' . '</p>'
+            '<p>' . __('Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site.', TRANSPOSH_TEXT_DOMAIN) . '</p>',
         ));
         if ($this->page == 'tp_main') {
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
@@ -459,7 +458,9 @@ class transposh_plugin_admin {
         }
 
         // this is the default language location
-        list ($langname, $langorigname, $flag) = explode(",", transposh_consts::$languages[$this->transposh->options->default_language]);
+        $langname = transposh_consts::get_language_name($this->transposh->options->default_language);
+        $langorigname = transposh_consts::get_language_orig_name($this->transposh->options->default_language);
+        $flag = transposh_consts::get_language_flag($this->transposh->options->default_language);
         echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">';
         $this->header(__('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN), 'languages');
         echo '<ul id="default_list"><li id="' . $this->transposh->options->default_language . '" class="languages">'
@@ -476,23 +477,25 @@ class transposh_plugin_admin {
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             tp_logger($langcode, 5);
-            list ($langname, $langorigname, $flag) = explode(",", $langrecord);
+            $langname = transposh_consts::get_language_name($langcode);
+            $langorigname = transposh_consts::get_language_orig_name($langcode);
+            $flag = transposh_consts::get_language_flag($langcode);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_active_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "lng_active" : "")
             . '"><div style="float:' . $this->localeleft . '">'
             . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, false /* $langorigname,$this->transposh->options->get_widget_css_flags() */)
             // DOC THIS BUGBUG fix!
             . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_active_language($langcode) ? ",v" : ",") . '" />'
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
-            foreach (transposh_consts::$engines as $enginecode => $enginerecord) {
-                if (in_array($langcode, $enginerecord['langs'])) {
+            foreach (transposh_consts::get_engines() as $enginecode => $enginerecord) {
+                if (transposh_consts::is_supported_engine($langcode, $enginecode)) {
                     echo '<span class="tr-icon tr-icon-'.strtolower($enginerecord['name']).'"></span>';
                 } else {
                     echo '<div class="logoicon" style="margin:9px"></div>';
                 }
             }
-            if (in_array($langcode, transposh_consts::$adsense_languages))
+            if (transposh_consts::is_language_adsense($langcode))
                 echo '<span class="tr-icon tr-icon-adsense"></span>';
-            if (in_array($langcode, transposh_consts::$rtl_languages))
+            if (transposh_consts::is_language_rtl($langcode))
                 echo '<span class="tr-icon tr-icon-rtl"></span>';
 
             /* if ($this->does_mo_exist(transposh_consts::get_language_locale($langcode)))
@@ -509,7 +512,7 @@ class transposh_plugin_admin {
         echo '</div>';
         // icons legend
         echo '<div style="clear: both;">' . __('Icons legend:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: none; margin-' . $this->localeleft . ':20px;font-size:11px">';
-        foreach (transposh_consts::$engines as $enginecode => $enginerecord) {
+        foreach (transposh_consts::get_engines() as $enginecode => $enginerecord) {
            echo '<li><span class="tr-legendicon tr-icon-'.strtolower($enginerecord['name']).'"></span> '.esc_attr(sprintf(__('Language supported by %s translate', TRANSPOSH_TEXT_DOMAIN), $enginerecord['name'])).'</li>';
         }
         echo '<li><span class="tr-legendicon tr-icon-rtl"></span> '. esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '</li>';

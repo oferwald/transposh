@@ -75,7 +75,7 @@ class transposh_3rdparty {
         //Now, we are actually using the referrer and not the request, with some precautions
         // check server['']
         $GLOBALS['wp_cache_request_uri'] = substr(transposh_utils::get_clean_server_var('HTTP_REFERER'), stripos(transposh_utils::get_clean_server_var('HTTP_REFERER'), transposh_utils::get_clean_server_var('HTTP_HOST')) + strlen(transposh_utils::get_clean_server_var('HTTP_HOST')));
-        $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace('/index.php', '/', str_replace('..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri']))));
+        $GLOBALS['wp_cache_request_uri'] = preg_replace('/[ <>\'\"\r\n\t()]/', '', str_replace('/index.php', '/', str_replace('..', '', preg_replace("/(\?.*)?$/", '', $GLOBALS['wp_cache_request_uri']))));
         // get some supercache variables
         extract(wp_super_cache_init());
         tp_logger(wp_super_cache_init());
@@ -138,10 +138,10 @@ class transposh_3rdparty {
 
     /**
      * For search form in current buddypress
-     * @param type $url
+     * @param string $url
      */
     function bbp_get_search_results_url($url) {
-        $lang = transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->home_url);
+        $lang = transposh_utils::get_language_from_url(transposh_utils::get_clean_server_var('HTTP_REFERER'), $this->transposh->home_url);
         $href = transposh_utils::rewrite_url_lang_param($url, $this->transposh->home_url, $this->transposh->enable_permalinks_rewrite, $lang, false);
         return $href;
     }
@@ -188,7 +188,7 @@ class transposh_3rdparty {
 
         // we only log translation for logged on users
         if (!$bp->loggedin_user->id)
-            return;
+            return false;
 
         /* Because blog, comment, and blog post code execution happens before anything else
           we may need to manually instantiate the activity component globals */
@@ -198,7 +198,7 @@ class transposh_3rdparty {
         // just got this from buddypress, changed action and content
         $values = array(
             'user_id' => $bp->loggedin_user->id,
-            'action' => sprintf(__('%s translated a phrase to %s with transposh:', TRANSPOSH_TEXT_DOMAIN), bp_core_get_userlink($bp->loggedin_user->id), substr(transposh_consts::$languages[$lang], 0, strpos(transposh_consts::$languages[$lang], ','))),
+            'action' => sprintf(__('%s translated a phrase to %s with transposh:', TRANSPOSH_TEXT_DOMAIN), bp_core_get_userlink($bp->loggedin_user->id), transposh_consts::get_language_name($lang)),
             'content' => "Original: <span class=\"no_translate\">$original</span>\nTranslation: <span class=\"no_translate\">$translation</span>",
             'primary_link' => '',
             'component' => $bp->blogs->id,
@@ -353,7 +353,7 @@ class transposh_3rdparty {
 
     function fix_wpbdp_cat_links($url) {
         tp_logger($url, 1);
-        return $url;
+        return $url; // CHECK
         $url = preg_replace('#/.lang=[a-z]*/#', '/', $url);
         if ($this->transposh->options->is_default_language($this->transposh->target_language)) {
             return $url;

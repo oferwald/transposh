@@ -100,19 +100,19 @@ class tp_parser {
     private $ent_breaks = true;
     // functions that need to be defined... //
 
-    /** @var function */
+    /** @var callable */
     public $url_rewrite_func = null;
 
-    /** @var function */
+    /** @var callable */
     public $fetch_translate_func = null;
 
-    /** @var function */
+    /** @var callable */
     public $prefetch_translate_func = null;
 
-    /** @var function */
+    /** @var callable */
     public $split_url_func = null;
 
-    /** @var function */
+    /** @var callable */
     public $fix_src_tag_func = null;
 
     /** @var int stores the number of the last used span_id */
@@ -136,7 +136,7 @@ class tp_parser {
     public $srclang;
     private $inbody = false;
 
-    /** @var hold fact that we are in select or other similar elements */
+    /** @var boolean holds the fact that we are in select or other similar elements */
     private $inselect = false;
     public $is_edit_mode;
     public $is_auto_translate;
@@ -150,7 +150,7 @@ class tp_parser {
     //first three are html, later 3 come from feeds xml (link is problematic...)
     protected $ignore_tags = array('script' => 1, 'style' => 1, 'code' => 1, 'wfw:commentrss' => 1, 'comments' => 1, 'guid' => 1);
 
-    /** @var parserstats Contains parsing statistics */
+    /** @var tp_parserstats Contains parsing statistics */
     private $stats;
 
     /** @var boolean Are we inside a translated gettext */
@@ -174,7 +174,7 @@ class tp_parser {
 
     /**
      * Determine if the current position in buffer is a white space.
-     * @param char $char
+     * @param string $char
      * @return boolean true if current position marks a white space
      */
     function is_white_space($char) {
@@ -319,8 +319,8 @@ class tp_parser {
     /**
      * Determine if the current position in buffer is a sentence breaker, e.g. '.' or ',' .
      * Note html markups are not considered sentence breaker within the scope of this function.
-     * @param char $char charcter checked if breaker
-     * @param char $nextchar needed for checking if . or - breaks
+     * @param string $char charcter checked if breaker
+     * @param string $nextchar needed for checking if . or - breaks
      * @return int length of breaker if current position marks a break in sentence
      */
     function is_sentence_breaker($char, $nextchar, $nextnextchar) {
@@ -411,8 +411,9 @@ class tp_parser {
         }
 
         $start = $pos;
-
-        while ($pos < strlen($string)) {
+        $strlen = strlen($string);
+        $string.='  '; // This is to avoid invalid string access in the lookahead buffer
+        while ($pos < $strlen) {
             // Some HTML entities make us break, almost all but apostrophies
             if ($this->ent_breaks && $len_of_entity = $this->is_html_entity($string, $pos)) {
                 $entity = substr($string, $pos, $len_of_entity);
@@ -432,7 +433,7 @@ class tp_parser {
             // we have a special case for <> tags which might have came to us (maybe in xml feeds) (we'll skip them...)
             elseif ($string[$pos] == '<') {
                 $this->tag_phrase($string, $start, $pos);
-                while ($string[$pos] != '>' && $pos < strlen($string)) {
+                while ($string[$pos] != '>' && $pos < $strlen) {
                     $pos++;
                 }
                 $pos++;
@@ -704,9 +705,9 @@ class tp_parser {
 
     /**
      * Allow changing of parsing rules, yeah, I caved
-     * @param type $puncts
-     * @param type $numbers
-     * @param type $entities
+     * @param boolean $puncts
+     * @param boolean $numbers
+     * @param boolean $entities
      */
     function change_parsing_rules($puncts, $numbers, $entities) {
         $this->punct_breaks = $puncts;

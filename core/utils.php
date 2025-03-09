@@ -76,7 +76,7 @@ class transposh_utils {
                 $secondslashpos = strlen($parsedurl['path']);
             }
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
-            if (isset(transposh_consts::$languages[$prevlang])) {
+            if (transposh_consts::is_supported_language($prevlang)) {
                 tp_logger("prevlang: " . $prevlang, 4);
                 $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
             }
@@ -148,7 +148,7 @@ class transposh_utils {
                 $secondslashpos = strlen($parsedurl['path']);
             }
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
-            if (isset(transposh_consts::$languages[$prevlang])) {
+            if (transposh_consts::is_supported_language($prevlang)) {
                 tp_logger("prevlang: " . $prevlang, 4);
                 $parsedurl['path'] = substr($parsedurl['path'], $secondslashpos);
             }
@@ -203,7 +203,7 @@ class transposh_utils {
             foreach ($params as $key => $param) {
                 if (stripos($param, LANG_PARAM) === 0) {
                     $langa = explode("=", $params[$key]);
-                    if (isset(transposh_consts::$languages[$langa[1]])) {
+                    if (transposh_consts::is_supported_language($langa[1])) {
                         return ($langa[1]);
                     }
                 }
@@ -227,7 +227,7 @@ class transposh_utils {
                 $secondslashpos = strlen($parsedurl['path']);
             }
             $prevlang = substr($parsedurl['path'], 1, $secondslashpos - 1);
-            if (isset(transposh_consts::$languages[$prevlang])) {
+            if (transposh_consts::is_supported_language($prevlang)) {
                 //logger ("prevlang: ".$prevlang,4);
                 //$parsedurl['path'] = substr($parsedurl['path'],$secondslashpos);
                 return $prevlang;
@@ -239,7 +239,7 @@ class transposh_utils {
     /**
      * glue a parse_url array back to a url
      * @param array $parsed url_parse style array
-     * @return combined url
+     * @return string combined url
      */
     public static function glue_url($parsed) {
         if (!is_array($parsed)) {
@@ -283,10 +283,10 @@ class transposh_utils {
      * @param string $href
      * @param string $home_url
      * @param string $target_language
-     * @param function $fetch_translation_func
+     * @param callable $fetch_translation_func
      * @return string translated url permalink
      */
-    public static function translate_url($href, $home_url, $target_language, $fetch_translation_func) {
+    public static function translate_url($href, $home_url, $target_language, callable $fetch_translation_func) {
         $url = '';
         $querypart = '';
         $fragment = '';
@@ -337,7 +337,7 @@ class transposh_utils {
      * @param string $href
      * @param string $home_url
      * @param string $target_language
-     * @param function $fetch_translation_func
+     * @param callable $fetch_translation_func
      * @return string
      */
     public static function get_original_url($href, $home_url, $target_language, $fetch_translation_func) {
@@ -394,8 +394,8 @@ class transposh_utils {
 
     /**
      * Checks that we may perform a rewrite on said url
-     * @param url to be checked $url
-     * @param the base url of the site $home_url
+     * @param string url to be checked $url
+     * @param string the base url of the site $home_url
      * @return boolean if this is rewriteable 
      */
     public static function is_rewriteable_url($url, $home_url) {
@@ -500,8 +500,8 @@ class transposh_utils {
         } else {
             $bestlang = $default_lang;
         }
-        if (isset(transposh_consts::$countryToLanguageMapping[strtolower($country)])) {
-            $lang = transposh_consts::$countryToLanguageMapping[strtolower($country)];
+        if (isset(transposh_consts::get_country_mapping()[strtolower($country)])) {
+            $lang = transposh_consts::get_country_mapping()[strtolower($country)];
             if (strpos($lang, ',') !== false) {
                 $langs = explode(",", $lang);
                 foreach ($langs as $lang) {
@@ -533,8 +533,8 @@ class transposh_utils {
 
     /**
      * Cleans stray locale markings
-     * @param type $input
-     * @return type
+     * @param string $input
+     * @return string
      */
     public static function clean_breakers($input) {
         return str_replace(array(TP_GTXT_BRK, TP_GTXT_IBRK, TP_GTXT_BRK_CLOSER, TP_GTXT_IBRK_CLOSER), '', $input);
@@ -555,7 +555,7 @@ class transposh_utils {
     /**
      * Return a server var, because of the 15 years old filter_input bug.
      * @param String $var
-     * @return type
+     * @return string
      */
     public static function get_clean_server_var($var) {
         $ret = filter_input(INPUT_SERVER, $var);
