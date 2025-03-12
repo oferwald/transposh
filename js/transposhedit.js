@@ -963,9 +963,9 @@
             width: 500,
             open: function() {
                 // Set a very high z-index when the dialog opens
-                highest = 0;
+                var highest = 0;
                 $("*").each(function() {
-                    let z = parseInt($(this).css("z-index"), 10);
+                    var z = parseInt($(this).css("z-index"), 10);
                     if (!isNaN(z) && z > highest) {
                         highest = z;
                     }
