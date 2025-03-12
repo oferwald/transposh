@@ -10,6 +10,12 @@ COPYTO=$3
 WPO=$4
 MINIFY=true
 
+if [ -n "$WPO" ]; then
+  echo "Version supplied $WPO"
+else
+  WPO="full"
+fi
+
 #
 # Init replacement vars
 #
@@ -124,7 +130,7 @@ if [ $MINIFY == true ]; then
     echo "minifying $file"
     BASENAME=`basename $file`
     DIRNAME=`dirname $file`
-    uglifyjs --comments --compress --mangle --source-map-include-sources --source-map "base='$DIRNAME',url='$BASENAME.map',includeSources" $file -o $TRANSPOSH_DIR/$file
+    uglifyjs --comments --compress --mangle --source-map "base='$DIRNAME',url='$BASENAME.map',includeSources" $file -o $TRANSPOSH_DIR/$file
 
     if [[ $LAZYLIST == *$BASENAME* ]] # lazy loaded?
     then
