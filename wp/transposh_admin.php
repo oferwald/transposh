@@ -161,7 +161,6 @@ class transposh_plugin_admin {
                     wp_schedule_event(time(), 'daily', 'transposh_digest_event');
                     $this->transposh->options->transposh_last_mail_digest = time();
                 }
-
                 //** FULLSTOP 
 
                 $this->transposh->options->transposh_backup_schedule = TP_FROM_POST;
@@ -171,19 +170,7 @@ class transposh_plugin_admin {
                 if ($this->transposh->options->transposh_backup_schedule)
                     wp_schedule_event(time(), 'daily', 'transposh_backup_event');
 
-                //** FULL VERSION
-                $this->transposh->options->enable_superproxy = TP_FROM_POST;
-                //** FULLSTOP
                 $this->transposh->options->transposh_key = TP_FROM_POST;
-
-                //** FULL VERSION
-                // superproxy hook
-                wp_clear_scheduled_hook('superproxy_reg_event');
-                if ($this->transposh->options->enable_superproxy)
-                    wp_schedule_event(time(), 'daily', 'superproxy_reg_event');
-
-                $this->transposh->options->superproxy_key = TP_FROM_POST;
-                //** FULLSTOP
                 break;
             case "tp_engines":
                 delete_option(TRANSPOSH_OPTIONS_GOOGLEPROXY);
@@ -654,19 +641,6 @@ class transposh_plugin_admin {
         echo '<a target="_blank" href="http://transposh.org/faq/#restore">' . __('How to restore?', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
         $this->sectionstop();
 
-        //** FULL VERSION
-        $this->section(__('Super proxy support', TRANSPOSH_TEXT_DOMAIN));
-        $this->checkbox($this->transposh->options->enable_superproxy_o, __('Support super proxy, and get paid for traffic', TRANSPOSH_TEXT_DOMAIN)
-                , __('Enable support of this feature Read about this at <a href="http://superproxy.transposh.net/">superproxy.transposh.net</a>' .
-                        '', TRANSPOSH_TEXT_DOMAIN));
-        echo '<br>';
-        $this->textinput($this->transposh->options->superproxy_key_o
-                , '', __('Proxy key', TRANSPOSH_TEXT_DOMAIN));
-        if ($this->transposh->options->superproxy_key) {
-            echo ' <a target="_blank" href="http://superproxy.transposh.net/status.php?id=' . $this->transposh->options->superproxy_key . '">' . __('See node status', TRANSPOSH_TEXT_DOMAIN) . '</a><br/>';
-        }
-        $this->sectionstop();
-        //** FULLSTOP
     }
 
     function tp_engines() {

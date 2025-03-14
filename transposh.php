@@ -212,14 +212,6 @@ class transposh_plugin {
         add_action('wp_ajax_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
         add_action('wp_ajax_nopriv_tp_cookie_bck', array(&$this, 'on_ajax_nopriv_tp_cookie_bck'));
 
-        if (defined('FULL_VERSION')) { //** FULL VERSION
-            // For super proxy
-            add_action('superproxy_reg_event', array(&$this, 'superproxy_reg'));
-            if ($this->options->enable_superproxy) {
-                add_action('wp_ajax_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
-                add_action('wp_ajax_nopriv_proxy', array(&$this, 'on_ajax_nopriv_proxy'));
-            }
-        }//** FULLSTOP
         // comment_moderation_text - future filter TODO
         // full post wrapping (should happen late)
         add_filter('the_content', array(&$this, 'post_content_wrap'), 9999);
@@ -665,7 +657,7 @@ class transposh_plugin {
                     if ($this->options->enable_detect_redirect) {
                         $bestlang = transposh_utils::prefered_language(explode(',', $this->options->viewable_languages), $this->options->default_language);
                         // we won't redirect if we should not, or this is a presumable bot
-                    } elseif ($this->options->enable_geoip_redirect) {
+                    } elseif ($this->options->enable_geoip_redirect && function_exists('geoip_detect2_get_info_from_current_ip')) {
                         $country = geoip_detect2_get_info_from_current_ip()->country->isoCode;
                         $bestlang = transposh_utils::language_from_country(explode(',', $this->options->viewable_languages), $country, $this->options->default_language);
                     }
@@ -1172,41 +1164,6 @@ class transposh_plugin {
         $my_transposh_backup->do_backup();
     }
 
-    //** FULL VERSION
-
-    /**
-     * Register for superproxy
-     */
-    function superproxy_reg() {
-        $url = "http://superproxy.transposh.net/?action=register&version=0.1&entry_url=" . admin_url('admin-ajax.php');
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        if ($output === false) {
-            echo 'Curl error: ' . curl_error($ch);
-            die();
-        }
-
-        tp_logger($output);
-        curl_close($ch);
-
-        $info = json_decode($output);
-        tp_logger($info);
-        if (isset($info->id)) {
-            $this->options->superproxy_key = $info->id;
-            $this->options->update_options();
-        }
-        if (isset($info->ips)) {
-            $this->options->superproxy_ips = json_encode($info->ips);
-            $this->options->update_options();
-        }
-        die();
-    }
-
-    //** FULLSTOP
-
     /**
      * Runs a restore
      */
@@ -1460,77 +1417,6 @@ class transposh_plugin {
         } else {
             return do_shortcode($content);
         }
-    }
-
-    // Super Proxy 
-    function on_ajax_nopriv_proxy() {
-        // Check if enabled
-        if (!$this->options->enable_superproxy) {
-            $errstr = "Error: 500: Not enabled";
-            tp_logger($errstr);
-            die($errstr);
-        }
-
-        // Check requester IP to be allowed
-        $ips = json_decode($this->options->superproxy_ips);
-        if (!in_array(transposh_utils::get_clean_server_var('REMOTE_ADDR'), $ips)) {
-            $errstr = "Error: 503: Unauthorized " . transposh_utils::get_clean_server_var('REMOTE_ADDR');
-            tp_logger($errstr);
-            die($errstr);
-        }
-
-        // We need curl for this proxy
-        if (!function_exists('curl_init')) {
-            $errstr = "Error: 504: fatal error - curl";
-            tp_logger($errstr);
-            die($errstr);
-        }
-
-        // Create proxy request
-        $encoded_url = $_GET['url'];
-        $url = base64_decode($encoded_url);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-
-        // Send the headers we got
-        $reqheaders = getallheaders();
-        $headers = array();
-        //tp_logger($reqheaders);
-        if ($reqheaders) {
-            unset($reqheaders['Host']);
-            unset($reqheaders['Content-Length']);
-            foreach ($reqheaders as $name => $value) {
-                $headers[] = "$name: $value";
-            }
-        }
-        //tp_logger($headers);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        // Handle POST method
-        if (transposh_utils::get_clean_server_var('REQUEST_METHOD') === 'POST') {
-            //tp_logger($_POST);
-            curl_setopt($ch, CURLOPT_POST, true);
-            foreach ($_POST as $key => $value) {
-                $post .= $amp . $key . "=" . urlencode($value);
-                $amp = "&";
-            }
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post); //$_POST);
-        }
-
-        tp_logger("Before curl");
-        $output = curl_exec($ch);
-        tp_logger("After curl");
-        if ($output === false) {
-            $errstr = "Error: " . curl_errno($ch) . ' ' . curl_error($ch);
-            tp_logger($errstr);
-            die($errstr);
-        }
-
-        echo $output;
-        curl_close($ch);
-        die();
     }
 
     // transposh translation proxy ajax wrapper
