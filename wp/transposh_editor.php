@@ -214,9 +214,9 @@ class transposh_editor_table extends WP_List_Table {
 
         //'filter' => sprintf('<a href="?page=%s&action=%s&ftb=%s">Filter</a>', filter_input(INPUT_GET, "page"), 'filter-by', $item['translated_by']),
         if (filter_input(INPUT_GET, 'fts', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE) !== false) {
-            echo (sprintf('<a href="?page=%s&action=%s%s">' . __('Show all translations') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $this->get_column_filter('fts')));
+            echo (sprintf('<a href="?page=%s&action=%s%s">' . __('Show all translations',TRANSPOSH_TEXT_DOMAIN) . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', $this->get_column_filter('fts')));
         } else {
-            echo (sprintf('<a href="?page=%s&action=%s&fts=%s%s">' . __('Show only human translations') . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', "0", $this->get_column_filter('fts')));
+            echo (sprintf('<a href="?page=%s&action=%s&fts=%s%s">' . __('Show only human translations',TRANSPOSH_TEXT_DOMAIN) . '</a>', filter_input(INPUT_GET, "page"), 'filter-by', "0", $this->get_column_filter('fts')));
         }
         echo '
         <form method="post">

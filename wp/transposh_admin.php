@@ -112,7 +112,9 @@ class transposh_plugin_admin {
                 } //** WPORGSTOP
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
                 $this->transposh->options->sorted_languages = implode(',', $sorted_langs);
-                $GLOBALS['wp_rewrite']->flush_rules();
+                if (is_object($GLOBALS['wp_rewrite'])) {
+                    $GLOBALS['wp_rewrite']->flush_rules();
+                } // There is some wordpress bug here, need to look further...
                 break;
             case "tp_settings":
                 //update roles and capabilities
@@ -800,7 +802,7 @@ class transposh_plugin_admin {
         echo __('Reach us via different forums:', TRANSPOSH_TEXT_DOMAIN);
         echo '<ul style="list-style-type:disc;margin-' . $this->localeleft . ':20px;">';
         echo '<li><a href="https://github.com/oferwald/transposh/">';
-        echo __('Our development site on github, with wiki and tickets', TRANSPOSH_TEXT_DOMAIN);
+        echo __('Our development site on github', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li><li><a href="https://www.facebook.com/transposh">';
         echo __('Our facebook page', TRANSPOSH_TEXT_DOMAIN);
         echo '</a></li></ul>';
