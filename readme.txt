@@ -86,6 +86,15 @@ Must upgrade if you are using Google as your translation Engine or you have upgr
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2025/03/15 - 1.0.9.5 =
+ * Yandex and Baidu should be working again
+ * Changed the way language constants were defined, updated supported languages
+ * Improved jacascript compression with newer uglifyjs
+ * Removed obsolete code from the plugin (superproxy and oht)
+ * Updated language files
+ * New widget that uses emojies for Flags.
+ * Fix translation window z-index problems
+ * Fix Bestlang variable (Issue #8)
 = 2025/02/28 - 1.0.9.4 =
  * Mark adsense supported languages
  * New language selection interface fixes
