@@ -17,6 +17,14 @@
 
 /*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_jl, window, VKI_attach, VKI_show, VKI_close */
 (function ($) { // closure
+    var engines = [
+        { id: 'google',l: 'g', click: getgt },
+        { id: 'bing', l: 'b', click: getbt },
+        { id: 'yandex', l: 'y', click: getyt },
+        { id: 'baidu', l: 'u', click: getut },
+        { id: 'apertium', l: 'a', click: getat },
+    ];
+
     // list of languages
     var l = {
         'en': 'English - English',
@@ -306,6 +314,8 @@
         });
 
         $(idprefix + 'cancel').button({
+            icon: "ui-icon-closethick",
+            showLabel: false,
             icons: {
                 primary: "ui-icon-closethick"
             },
@@ -315,6 +325,8 @@
         });
 
         $(idprefix + 'discard').button({
+            icon: "ui-icon-check",
+            showLabel: false,
             icons: {
                 primary: "ui-icon-check"
             },
@@ -427,6 +439,8 @@
                 $(dialog + " th").addClass('ui-widget-header').css('padding', '3px');
                 $(dialog + " td").addClass('ui-widget-content').css('padding', '3px');
                 $("." + prefix + "delete").button({
+                    icon: "ui-icon-circle-close",
+                    showLabel: false,
                     icons: {
                         primary: "ui-icon-circle-close"
                     },
@@ -564,9 +578,6 @@
             $(idprefix + 'next').button("disable");
         }
 
-        // oht should not be highlighted
-        $(idprefix + 'oht').removeClass('ui-state-highlight');
-
         // set the original language part
         var segmentlang = $(idprefix + segment_id).attr('data-srclang');
         if (segmentlang === undefined) {
@@ -585,27 +596,13 @@
     //Open translation dialog
     function translate_dialog(segment_id) {
         //only add button is bing support is defined for the language
-        var bingbutton = '', googlebutton = '', apertiumbutton = '', ohtbutton = '', yandexbutton = '', baidubutton = '', dialog = idprefix + "dialog";
+        var dialog = idprefix + "dialog";
 
         // Only add buttons if translation engine is supported in said language
-        if (t_jp.engines.b) {
-            bingbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'bing">' + __('bing suggest') + '</button>';
-        }
-        if (t_jp.engines.g) {
-            googlebutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'google">' + __('google suggest') + '</button>';
-        }
-        if (t_jp.engines.a) {
-            apertiumbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'apertium">' + __('apertium suggest') + '</button>';
-        }
-        if (t_jp.engines.y) {
-            yandexbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'yandex">' + __('yandex suggest') + '</button>';
-        }
-        if (t_jp.engines.u) {
-            baidubutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'baidu">' + __('baidu suggest') + '</button>';
-        }
-        if (t_jp.engines.o) {
-            ohtbutton = '<button class="' + prefix + 'suggest" id="' + prefix + 'oht">' + __('One Hour Translate queue') + '</button>';
-        }
+        var e_buttons = engines
+            .filter(engine => t_jp.engines[engine.l])
+            .map(engine => `<button class="${prefix}suggest" id="${prefix}${engine.id}">${__(engine.id+' suggest')}</button>`)
+            .join('');
 
         // this is our current way of cleaning up, might reconsider?
         $(dialog).remove();
@@ -626,12 +623,7 @@
                 '<span id="' + prefix + 'ltlbar">' +
                 '<button id="' + prefix + 'history">' + __('view translation log') + '</button>' +
                 '<button id="' + prefix + 'keyboard">' + __('virtual keyboard') + '</button>' +
-                googlebutton +
-                bingbutton +
-                yandexbutton +
-                baidubutton +
-                apertiumbutton +
-                ohtbutton +
+                e_buttons +
                 '<button id="' + prefix + 'approve">' + __('approve translation') + '</button>' +
                 '</span>' +
                 '</div>'
@@ -727,18 +719,24 @@
         });
 
         $(idprefix + 'prev').button({
+            icon: "ui-icon-seek-" + previcon,
+            showLabel: false,
             icons: {
                 primary: "ui-icon-seek-" + previcon
             },
             text: false
         });
         $(idprefix + 'zoom').button({
+            icon: "ui-icon-search",
+            showLabel: false,
             icons: {
                 primary: "ui-icon-search"
             },
             text: false
         });
         $(idprefix + 'next').button({
+            icon: "ui-icon-seek-" + nexticon,
+            showLabel: false,
             icons: {
                 primary: "ui-icon-seek-" + nexticon
             },
@@ -820,6 +818,8 @@
         });
 
         $(idprefix + 'history').button({
+            icon: "ui-icon-clipboard",
+            showLabel: false,
             icons: {
                 primary: "ui-icon-clipboard"
             },
@@ -829,6 +829,8 @@
         });
 
         $(idprefix + 'keyboard').button({
+            icon: "ui-icon-calculator",
+            showLabel: false,
             icons: {
                 primary: "ui-icon-calculator"
             },
@@ -850,83 +852,23 @@
             cleanui();
             $(this).button("disable");
         });
-        $(idprefix + 'google').button({
-            icons: {
-                primary: "tr-icon-google"
-            },
-            text: false
-        }).click(function () {
-            getgt();
-        });
 
-        $(idprefix + 'bing').button({
-            icons: {
-                primary: "tr-icon-bing"
-            },
-            text: false
-        }).click(function () {
-            getbt();
-        });
-
-        $(idprefix + 'yandex').button({
-            icons: {
-                primary: "tr-icon-yandex"
-            },
-            text: false
-        }).click(function () {
-            getyt();
-        });
-
-        $(idprefix + 'baidu').button({
-            icons: {
-                primary: "tr-icon-baidu"
-            },
-            text: false
-        }).click(function () {
-            getut();
-            $(this).button("disable");
-        });
-
-        $(idprefix + 'apertium').button({
-            icons: {
-                primary: "tr-icon-apertium"
-            },
-            text: false
-        }).click(function () {
-            getat();
-            $(this).button("disable");
-        });
-
-        $(idprefix + 'oht').button({
-            icons: {
-                primary: "tr-icon-oht"
-            },
-            text: false
-        }).click(function () {
-            var b = $(this);
-            $.ajax({
-                url: t_jp.ajaxurl,
-                data: {
-                    action: 'tp_oht',
-                    q: $(idprefix + "original").val(),
-                    token: $(idprefix + segment_id).attr('data-orig'),
-                    orglang: $(idprefix + segment_id).attr('data-srclang'),
-                    lang: t_jp.lang
-                },
-                dataType: "json",
-                cache: false,
-                success: function (result) {
-                    if (result) {
-                        b.addClass('ui-state-highlight');
-                    } else {
-                        b.removeClass('ui-state-highlight');
-                    }
-                }
-            });
+        engines.forEach(({ id, click }) => {
+            const icon = `tr-icon-${id}`;
+            $(idprefix + id).button({
+                // new jQueryUI
+                icon: icon,
+                showLabel: false,
+                // Deprecated...
+                icons: { primary: icon },
+                text: false
+            }).click(click);
         });
 
         // approval button
         $(idprefix + 'approve').button({
+            icon: "ui-icon-check",
+            showLabel: false,
             icons: {
                 primary: "ui-icon-check"
             },

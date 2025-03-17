@@ -1742,7 +1742,7 @@ define('TRANSLATOR', 'translator');
 define('TRANSPOSH_PLUGIN_VER', '%VERSION%');
 
 //Current jQuery UI
-define('JQUERYUI_VER', '1.12.1');
+define('JQUERYUI_VER', '1.14.1');
 
 //Define segment id prefix, will be included in span tag. also used as class identifier
 define('SPAN_PREFIX', 'tr_');
