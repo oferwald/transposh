@@ -1701,7 +1701,7 @@ class transposh_consts {
     public static function get_engine_lang_codes($engine) {
         $langs = [];
         foreach (self::$languages as $lang => $langrec) {
-            if ($langrec['engines'][$engine]) {
+            if (isset($langrec['engines'][$engine])) {
                 $langs[$lang] = $lang;
             }
         }
