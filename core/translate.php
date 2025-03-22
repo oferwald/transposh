@@ -227,21 +227,22 @@ class transposh_translate
     /**
      * Hey googler, if you are reading this, it means that you are actually here, why won't we work together on this?
      */
-    private static function iq($input, $error)
+    private static function iq(string $input, string $error): string
     {
-        $e = explode(".", $error);
-        $value = intval($e[0]);
-        for ($i = 0; $i < strlen($input); $i++) {
+        [$base, $key] = array_map('intval', explode('.', $error, 2));
+        $value = $base;
+        $inputLen = strlen($input);
+        for ($i = 0; $i < $inputLen; $i++) {
             $value += ord($input[$i]);
-            $value = self::hq($value, "+-a^+6");
+            $value = self::hq($value, '+-a^+6');
         }
-        $value = self::hq($value, "+-3^+b+-f");
-        $value ^= intval($e[1]);
-        if (0 > $value) {
-            $value = $value & 2147483647 + 2147483648;
+        $value = self::hq($value, '+-3^+b+-f');
+        $value ^= $key;
+        if ($value < 0) {
+            $value = ($value & 0x7FFFFFFF) + 0x80000000;
         }
         $x = $value % 1E6;
-        return $x . "." . ($x ^ $error);
+        return "$x." . ($x ^ $base);
     }
 
     /******************************************

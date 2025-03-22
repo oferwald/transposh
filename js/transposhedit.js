@@ -1,4 +1,4 @@
-/*  Copyright © 2009-2018 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2025 Transposh Team (website : https://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -155,22 +155,16 @@
 
     function fix_page_human(token, translation, source) {
         //reset to the original content - the unescaped version if translation is empty
-        // TODO!
-        token = token.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
-        if ($.trim(translation).length === 0) {
+        token = token.replace(/[;&,.+*~':"!^#$%@[\]()=>|]/g, '\\$1');
+        if (!$.trim(translation)) {
             translation = $("[data-orig='" + token + "']").attr('data-orig');
         }
 
         var fix_image = function () { // handle the image changes
-            var img_segment_id = $(this).attr('id').substr($(this).attr('id').lastIndexOf('_') + 1),
-                    img = $(idprefix + "img_" + img_segment_id);
+            var img_segment_id = this.id.split('_').pop(),
+                img = $(idprefix + "img_" + img_segment_id);
             $(idprefix + img_segment_id).attr('data-source', source); // source is 0 human
-            img.removeClass('tr-icon-yellow').removeClass('tr-icon-green')
-            if (source === 0) {
-                img.addClass('tr-icon-green');
-            } else if (source) {
-                img.addClass('tr-icon-yellow');
-            }
+            img.removeClass('tr-icon-yellow tr-icon-green').addClass(source === 0 ? 'tr-icon-green' : source ? 'tr-icon-yellow' : '');
         };
         // rewrite text for all matching items at once
         $("*[data-orig='" + token + "'][data-hidden!='y']")
@@ -183,8 +177,7 @@
                 .each(fix_image);
 
         // fix interface by issue of keyup, and make sure the data holds proper original
-        $(idprefix + "translation").data('origval', translation);
-        $(idprefix + "translation").keyup();
+        $(idprefix + "translation").data('origval', translation).keyup();
 
     }
 
