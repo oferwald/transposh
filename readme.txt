@@ -86,6 +86,10 @@ Must upgrade if you are using Google as your translation Engine or you have upgr
  * French - [Michel Chaussée](tajimoko.com)
 
 == Changelog ==
+= 2025/04/05 - 1.0.9.6 =
+ * Support jQueryUI 1.14.1
+ * Minor code improvements to edit interface
+ * Fixed issue #28, useless warnings
 = 2025/03/15 - 1.0.9.5 =
  * Yandex and Baidu should be working again
  * Changed the way language constants were defined, updated supported languages
