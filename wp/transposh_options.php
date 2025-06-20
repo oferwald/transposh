@@ -329,7 +329,7 @@ class transposh_plugin_options {
             tp_logger($this->sorted_languages, 5);
             return array_merge(array_flip(explode(",", $this->sorted_languages)), array_flip(transposh_consts::get_langauge_keys()));
         }
-        return transposh_consts::get_langauge_keys();
+        return array_flip(transposh_consts::get_langauge_keys());
     }
 
     /**

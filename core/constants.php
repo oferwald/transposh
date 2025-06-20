@@ -1617,6 +1617,9 @@ class transposh_consts {
     );
 
     public static function get_language_name($lang) {
+        if (!isset(self::$languages[$lang])) {
+            return '';
+        }
         $langname = self::$languages[$lang]['name'];
         $langname_r = apply_filters("tp_language_name", $langname);
         return $langname_r;

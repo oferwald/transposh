@@ -467,6 +467,9 @@ class transposh_plugin_admin {
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             tp_logger($langcode, 5);
             $langname = transposh_consts::get_language_name($langcode);
+            if (!$langname) {
+                continue; // skip languages that are not supported
+            }
             $langorigname = transposh_consts::get_language_orig_name($langcode);
             $flag = transposh_consts::get_language_flag($langcode);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_active_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "lng_active" : "")
