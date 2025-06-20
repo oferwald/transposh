@@ -1108,6 +1108,8 @@ class transposh_plugin {
     function posts_where_request($where) {
 
         tp_logger($where, 3);
+        $searchand = '';
+        $search = '';
         // from query.php line 1742 (v2.8.6)
         // If a search pattern is specified, load the posts that match
         $q = &$GLOBALS['wp_query']->query_vars;
@@ -1126,8 +1128,6 @@ class transposh_plugin {
                 //$q['search_terms'] = array_map(create_function('$a', 'return trim($a, "\\"\'\\n\\r ");'), $matches[0]);
             }
             $n = !empty($q['exact']) ? '' : '%';
-            $searchand = '';
-            $search = '';
             foreach ((array) $q['search_terms'] as $term) {
                 // now we'll get possible translations for this term
                 $possible_original_terms = $this->database->get_orignal_phrases_for_search_term($term, $this->target_language);
