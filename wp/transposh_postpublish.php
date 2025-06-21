@@ -210,8 +210,9 @@ class transposh_postpublish {
         $lang = get_post_meta($_GET['post'], 'tp_language', true);
         echo '<select name="transposh_tp_language">';
         echo '<option value="">' . __('Default') . '</option>';
-        foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
-            list ($langname, $langorigname, $flag) = explode(",", $langrecord);
+        foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord ) {
+            $langname = transposh_consts::get_language_name($langcode);
+            $langorigname = transposh_consts::get_language_orig_name($langcode);
             echo '<option value="' . $langcode . ($langcode == $lang ? '" selected="selected' : '') . '">' . $langname . ' - ' . $langorigname . '</option>';
         }
         echo '</select>';
