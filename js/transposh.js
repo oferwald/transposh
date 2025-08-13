@@ -36,8 +36,7 @@
             // source - 0 is human, 1 google , 2 bing, 3 apertium, 4 yandex, 5 baidu - higher reserved for future engines
             source = 1,
             //Ajax translation
-            done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = [],
-            loadingmsn = 0
+            done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
             ;
 
     // This function fixes the page, it gets a token and translation and fixes this,
@@ -113,7 +112,7 @@
         }, 200); // wait 200 ms... -- TODO, maybe do - items*3
     }
 
-    // happens on traslate success
+    // happens on translate success
     function auto_translate_success(token, translation) {
         ajax_translate(token, $("<div>" + $.trim(translation) + "</div>").text());
         window.console && console.log(possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').length + "/" + possibly_translateable + " auto translated");
@@ -178,31 +177,24 @@
 
     // mass bing translation
     function do_mass_bing_translate(batchtrans, callback, lang) {
-        if (t_jp.msn_key) {
-            var q = "[";
-            $(batchtrans).each(function (i) {
-                q += '"' + encodeURIComponent(batchtrans[i].replace(/[\\"]/g, '\\$&').replace(/(\r\n|\n|\r)/gm, " ")) + '",';
-            });
-            q = q.slice(0, -1) + ']';
-            $.ajax({
-                url: '//api.microsofttranslator.com/V2/Ajax.svc/TranslateArray?appId=' + t_jp.msn_key + '&to=' + lang + '&texts=' + q,
-                dataType: "jsonp",
-                jsonp: "oncomplete",
-                success: callback
-            });
-        } else {
-            if (loadingmsn === 1) {
-                setTimeout(function () {
-                    do_mass_bing_translate(batchtrans, callback, lang);
-                }, 500);
-            } else {
-                loadingmsn = 1;
-                $.getScript('//www.microsofttranslator.com/ajax/v2/toolkit.ashx?loc=en&toolbar=none', function () {
-                    t_jp.msn_key = _mstConfig.appId;
-                    do_mass_bing_translate(batchtrans, callback, lang);
-                });
-            }
-        }
+        /*var sl = '';
+         if (usedefault) {
+         sl = t_jp.olang;
+         }*/
+        $.ajax({
+            url: t_jp.ajaxurl,
+            dataType: "json",
+            type: "GET",
+            // check each
+            data: {
+                action: 'tp_tp',
+                e: 'b',
+                tl: lang,
+                // sl: sl,
+                q: batchtrans
+            },
+            success: callback
+        });
     }
 
     function do_mass_bing_invoker(tokens, trans) {
@@ -211,7 +203,7 @@
             $(result).each(function (i) {
                 auto_translate_success(tokens[i], this.TranslatedText);
             });
-        }, t_jp.blang);
+        }, t_jp.lang);
     }
 
     // mass yandex translation - using proxy
@@ -401,9 +393,6 @@
     t_jp.tfju = test_for_jqueryui;
 
     $(function () {
-        // set a global binglang (if needed)
-        if (typeof t_jp.blang === 'undefined')
-            t_jp.blang = t_jp.lang;
 
         // this is the set_default_language function
         // attach a function to the set_default_language link if its there

@@ -229,9 +229,7 @@
     // fetch translation from google translate...
     function getgt()
     {
-
         getproxiedsuggestion('g');
-
     }
 
     // fetch translation from yandex translate...
@@ -246,14 +244,10 @@
         getproxiedsuggestion('u');
     }
 
-
     // fetch translation from bing translate...
     function getbt()
     {
-        t_jp.dbt([$(idprefix + "original").val()], function (result) {
-            $(idprefix + "translation").val($("<div>" + $.trim(result[0].TranslatedText) + "</div>").text())
-                    .keyup();
-        }, t_jp.blang);
+        getproxiedsuggestion('b');
     }
 
     // fetch translation from apertium translate...

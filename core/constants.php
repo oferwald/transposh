@@ -44,7 +44,13 @@ define('TRANSPOSH_RESTORE_SERVICE_URL', 'http://svc.transposh.org/restore');
 define('TRANSPOSH_UPDATE_SERVICE_URL', 'http://svc.transposh.org/update-check');
 
 /**
- * Holds our arrays staticly to reduce chance of namespace collision
+ * Holds our arrays statically to reduce chance of namespace collision
+ * This is the short list of engine codes:
+ * b - Bing
+ * g - Google
+ * u - Baidu
+ * y - Yandex
+ * a - Apertium
  */
 class transposh_consts {
 //Supported languages, new languages can be added here
@@ -251,7 +257,7 @@ class transposh_consts {
             'flag' => 'cn',
             'locale' => 'zh_CN',
             'engines' => [
-                'b' => 'zh-chs',
+                'b' => 'zh-Hans',
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
@@ -264,7 +270,7 @@ class transposh_consts {
             'flag' => 'tw',
             'locale' => 'zh_TW',
             'engines' => [
-                'b' => 'zh-cht',
+                'b' => 'zh-Hant',
                 'g' => 'y',
                 'u' => 'cht',
             ],
@@ -1761,8 +1767,11 @@ define('TRANSPOSH_YANDEXPROXY_DELAY', 3600); // give it an hour
 //0.9.6 - Making sure Google works
 define('TRANSPOSH_OPTIONS_GOOGLEPROXY', 'transposh_options_googleproxy');
 define('TRANSPOSH_GOOGLEPROXY_DELAY', 86400); // give it a day
+//1.0.9.7 - Making sure Bing works
+define('TRANSPOSH_OPTIONS_BINGPROXY', 'transposh_options_bingproxy');
+define('TRANSPOSH_BINGPROXY_DELAY', 3600); // give it an hour
 //0.5.6 new definitions
-//Defintions for directories used in the plugin
+//Directories used in the plugin
 define('TRANSPOSH_DIR_CSS', 'css');
 define('TRANSPOSH_DIR_IMG', 'img');
 define('TRANSPOSH_DIR_JS', 'js');

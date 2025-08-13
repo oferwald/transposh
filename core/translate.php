@@ -12,7 +12,7 @@
 
 /**
  *
- * Contains traslation scraping functions
+ * Contains translation scraping functions
  *
  */
 require_once("constants.php");
@@ -205,7 +205,7 @@ class transposh_translate
         return false;
     }
 
-    /* helper function for google translate */
+    /* helper function for Google Translate */
     private static function _bitwise_zfrs($a, $b)
     {
         if ($b == 0)
@@ -246,7 +246,7 @@ class transposh_translate
     }
 
     /******************************************
-     * Proxied translation for google translate
+     * Proxied translation for Google Translate
      *****************************************/
 
     public static function get_google_translation($tl, $sl, $q)
@@ -298,7 +298,7 @@ class transposh_translate
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                //must set agent for google to respond with utf-8
+                //must set agent for Google to respond with utf-8
                 $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT");
                 tp_logger($UA, 1);
                 curl_setopt($ch, CURLOPT_USERAGENT, $UA);
@@ -371,5 +371,93 @@ class transposh_translate
             $result[] = $jsonarr;
         }
         return $result;
+    }
+
+    /******************************************
+     * Proxied translation for Bing translate
+     *****************************************/
+
+    public static function getBingTranslatorTokens() {
+        if (get_option(TRANSPOSH_OPTIONS_BINGPROXY, array())) {
+            list($tokens, $timestamp) = get_option(TRANSPOSH_OPTIONS_BINGPROXY, array());
+            // If keys are still valid, return them
+            if ((time() - TRANSPOSH_BINGPROXY_DELAY < $timestamp) && (!empty($tokens['IG']) && !empty($tokens['IID']) && !empty($tokens['key']) && !empty($tokens['token']))) {
+                tp_logger("using saved Bing translator tokens", 1);
+                return $tokens;
+            }
+        }
+        tp_logger("getting new Bing translator tokens", 1);
+        $url = "https://www.bing.com/translator";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
+        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        // Extract IG (Instance GUID) and token
+        preg_match('/IG:"([a-zA-Z0-9_-]+)"/', $response, $ig_matches);
+        preg_match('/data-iid="([a-zA-Z0-9._-]+)"/', $response, $iid_matches);
+        preg_match('/params_AbusePreventionHelper\s*=\s*\[(\d+),\s*"([^"]+)",\s*\d+\]/', $response, $token_matches);
+
+        $tokens = [
+            'IG' => $ig_matches[1] ?? '',
+            'IID' => $iid_matches[1] ?? '',
+            'key' => $token_matches[1] ?? '',
+            'token' => $token_matches[2] ?? ''
+        ];
+        update_option(TRANSPOSH_OPTIONS_BINGPROXY, array($tokens, time()));
+        return $tokens;
+    }
+
+    public static function get_bing_translation($tl, $sl, $q)
+    {
+        $tokens = transposh_translate::getBingTranslatorTokens();
+        if (empty($tokens['IG']) || empty($tokens['IID']) || empty($tokens['key']) || empty($tokens['token'])) {
+            tp_logger("Error: Unable to retrieve necessary tokens.",1);
+        }
+
+        $url = "https://www.bing.com/ttranslatev3?isVertical=1&&IG={$tokens['IG']}&IID={$tokens['IID']}";
+        $tl = transposh_consts::get_engine_lang_code($tl, 'b');
+        tp_logger($tl);
+        $postData = [
+            'fromLang' => $sl,
+            'text' => $q,
+            'to' => $tl,
+            'token' => $tokens['token'],
+            'key' => $tokens['key']
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/x-www-form-urlencoded",
+        ]);
+        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
+        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            tp_logger("Error: HTTP $httpCode received.");
+        }
+
+        $data = json_decode($response, true);
+        tp_logger($data,1);
+        if (isset($data[0]['translations'][0]['text'])) {
+            return $data[0]['translations'][0]['text'];
+        } else {
+            //var_dump($data);
+            tp_logger("Error: Unable to parse translation response.");
+        }
+        return false;
     }
 }

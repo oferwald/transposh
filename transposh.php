@@ -878,10 +878,6 @@ class transposh_plugin {
         foreach (transposh_consts::get_engines() as $enginekey => $enginevals ) {
             if (transposh_consts::is_supported_engine($this->target_language,$enginekey)) {
                 $script_params['engines']->$enginekey = 1;
-                // special case of bing
-                if ($enginekey == 'b' && transposh_consts::get_engine_lang_code($this->target_language,$enginekey) != $this->target_language) {
-                    $script_params['blang'] = transposh_consts::get_engine_lang_code($this->target_language,$enginekey);
-                }
             }
         }
 
@@ -1470,6 +1466,11 @@ class transposh_plugin {
                     $source = 1;
                     $result = transposh_translate::get_google_translation($tl, $sl, $q);
                     break;
+                case 'b': // bing
+                    if (!$sl) $sl = 'en'; // setting default source language to english
+                    $source = 2;
+                    $result = transposh_translate::get_bing_translation($tl, $sl, $q);
+                    break;
                 case 'y': // yandex
                     $source = 4;
                     $result = transposh_translate::get_yandex_translation($tl, $sl, $q);
@@ -1510,9 +1511,8 @@ class transposh_plugin {
                 }
             }
 
-            //  // we send here because update translation dies... TODO: fix this mess
+            // we send here because update translation dies... TODO: fix this mess
             //          echo json_encode($jsonout);
-//
             // do the db dance - a bit hackish way to insert downloaded translations directly to the db without having
             // to pass through the user and collect $200
             if ($k) {
