@@ -415,6 +415,7 @@ class transposh_translate
 
     public static function get_bing_translation($tl, $sl, $q)
     {
+        $q_was_array = is_array($q);
         $tokens = transposh_translate::getBingTranslatorTokens();
         if (empty($tokens['IG']) || empty($tokens['IID']) || empty($tokens['key']) || empty($tokens['token'])) {
             tp_logger("Error: Unable to retrieve necessary tokens.",1);
@@ -422,7 +423,9 @@ class transposh_translate
 
         $url = "https://www.bing.com/ttranslatev3?isVertical=1&&IG={$tokens['IG']}&IID={$tokens['IID']}";
         $tl = transposh_consts::get_engine_lang_code($tl, 'b');
-        tp_logger($tl);
+        if (is_array($q)) {
+            $q = json_encode(array_map('urldecode', $q), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
         $postData = [
             'fromLang' => $sl,
             'text' => $q,
@@ -430,7 +433,6 @@ class transposh_translate
             'token' => $tokens['token'],
             'key' => $tokens['key']
         ];
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -453,9 +455,12 @@ class transposh_translate
         $data = json_decode($response, true);
         tp_logger($data,1);
         if (isset($data[0]['translations'][0]['text'])) {
+            if ($q_was_array) {
+                tp_logger(json_decode($data[0]['translations'][0]['text'], true));
+                return json_decode($data[0]['translations'][0]['text'], true);
+            }
             return $data[0]['translations'][0]['text'];
         } else {
-            //var_dump($data);
             tp_logger("Error: Unable to parse translation response.");
         }
         return false;

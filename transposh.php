@@ -1439,7 +1439,11 @@ class transposh_plugin {
         if (isset($_GET['m']) && $_GET['m'] == 's')
             $suggestmode = true;
         if ($suggestmode) {
-            $q = urlencode(stripslashes($_GET['q']));
+            if (is_array($_GET['q'])) { // this should not have happened, but lets not crash
+                $q = urlencode(stripslashes($_GET['q'][0]));
+            } else {
+                $q = urlencode(stripslashes($_GET['q']));
+            }
             if (!$q)
                 return;
         } else {
