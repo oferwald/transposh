@@ -23,6 +23,45 @@ require_once("logging.php");
  */
 class transposh_translate
 {
+    /**
+     * Executes a cURL request with the given URL, options, and headers.
+     *
+     * @param string $url The URL to request.
+     * @param array $options Optional cURL options to set.
+     * @param array $headers Optional headers to set for the request.
+     * @return string|false The response from the cURL request, or false on failure.
+     */
+    private static function executeCurlRequest(string $url, array $options = [], array $headers = []): string|false {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
+        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
+        // set default timeouts
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 7);
+        foreach ($options as $key => $value) {
+            curl_setopt($ch, $key, $value);
+        }
+        if (!empty($headers)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            tp_logger('cURL error: ' . curl_error($ch), 1);
+            curl_close($ch);
+            return false;
+        }
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($httpCode !== 200) {
+            tp_logger("HTTP error: $httpCode for URL $url", 1);
+            tp_logger("Response: $response");
+            return false;
+        }
+        return $response;
+    }
+
     /******************************************
      * Proxied Yandex translate suggestions
      *****************************************/
@@ -39,13 +78,15 @@ class transposh_translate
                 // attempt key refresh on error
                 $url = 'https://translate.yandex.com/';
                 tp_logger($url, 1);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-                curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-                $output = curl_exec($ch);
+                $output = self::executeCurlRequest(
+                    $url,
+                    [CURLOPT_REFERER => "https://translate.yandex.com/"]
+                );
+                if ($output === false) {
+                    tp_logger('Curl error during SID refresh');
+                    return false;
+                }
+
                 $sidpos = strpos($output, "SID: '") + 6;
                 $newout = substr($output, $sidpos);
                 $sid = substr($newout, 0, strpos($newout, "',"));
@@ -58,14 +99,8 @@ class transposh_translate
                     explode(".", $sid)
                 ));
                 tp_logger("fixed sid: $sid", 1);
-
-                if ($output === false) {
-                    tp_logger('Curl error: ' . curl_error($ch));
-                    return false;
-                }
-                //return false;
                 update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array($sid, time()));
-                curl_close($ch);
+
             }
         }
 
@@ -94,25 +129,24 @@ class transposh_translate
         ];
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1); // Set method to POST
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData)); // Encode POST data
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // Return response as string
-        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-        curl_setopt($ch, CURLOPT_REFERER, "https://translate.yandex.com/");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Accept: */*',
-            'X-Retpath-Y: https://translate.yandex.com',
-            'Origin: https://translate.yandex.com',
-            'Sec-Fetch-Dest: empty',
-            'Sec-Fetch-Mode: cors',
-            'Sec-Fetch-Site: cross-site',
-            'TE: trailers'
-        ]);
+        $output = self::executeCurlRequest(
+            $url,
+            [
+                CURLOPT_POST => 1,
+                CURLOPT_POSTFIELDS => http_build_query($postData),
+                CURLOPT_REFERER => "https://translate.yandex.com/"
+            ],
+            [
+                'Accept: */*',
+                'X-Retpath-Y: https://translate.yandex.com',
+                'Origin: https://translate.yandex.com',
+                'Sec-Fetch-Dest: empty',
+                'Sec-Fetch-Mode: cors',
+                'Sec-Fetch-Site: cross-site',
+                'TE: trailers'
+            ]
+        );
 
-        $output = curl_exec($ch);
-        curl_close($ch);
         tp_logger($output, 1);
         $jsonarr = json_decode($output);
         tp_logger($jsonarr, 3);
@@ -127,10 +161,8 @@ class transposh_translate
             if ($jsonarr->code == 406 || $jsonarr->code == 405) { //invalid session
                 update_option(TRANSPOSH_OPTIONS_YANDEXPROXY, array('', time()));
             }
-
             return false;
         }
-
         return $jsonarr->text;
     }
 
@@ -157,51 +189,46 @@ class transposh_translate
 
         $jsonData = json_encode($data);
 
-        $ch = curl_init();
+        $response = self::executeCurlRequest(
+            $url,
+            [
+                CURLOPT_POST => 1,
+                CURLOPT_POSTFIELDS => $jsonData,
+                CURLOPT_SSL_VERIFYPEER => false
+            ],
+            [
+                'Accept: text/event-stream',
+                'Accept-Language: en-US,en;q=0.5',
+                'Accept-Encoding: gzip, deflate, br, zstd',
+                'Content-Type: application/json',
+                'Origin: https://fanyi.baidu.com',
+                'Sec-Fetch-Dest: empty',
+                'Sec-Fetch-Mode: cors',
+                'Sec-Fetch-Site: same-origin',
+                'Pragma: no-cache',
+                'Cache-Control: no-cache'
+            ]
+        );
 
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // Return response as string
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Skip SSL verification (not recommended for production)
-        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
+        if ($response === false) {
+            tp_logger('Baidu cURL error or HTTP error', 1);
+            return false;
+        }
 
-        // Set headers
-        $headers = [
-            'Accept: text/event-stream',
-            'Accept-Language: en-US,en;q=0.5',
-            'Accept-Encoding: gzip, deflate, br, zstd',
-            'Content-Type: application/json',
-            'Origin: https://fanyi.baidu.com',
-            'Sec-Fetch-Dest: empty',
-            'Sec-Fetch-Mode: cors',
-            'Sec-Fetch-Site: same-origin',
-            'Pragma: no-cache',
-            'Cache-Control: no-cache'
-        ];
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        $response = curl_exec($ch);
-
-        if (curl_errno($ch)) {
-            echo "cURL Error: " . curl_error($ch);
-        } else {
-            // Since it's an event stream, process line by line
-            $lines = explode("\n", $response);
-            foreach ($lines as $line) {
-                if (strpos($line, 'data:') === 0) {
-                    $json = substr($line, 5); // Remove "data: " prefix
-                    $decoded = json_decode($json, true);
-                    if ($decoded) {
-                        if (isset($decoded['data']['event']) && $decoded['data']['event'] == 'Translating') {
-                            return $decoded['data']['list'][0]['dst'];
-                        }
+        // Since it's an event stream, process line by line
+        $lines = explode("\n", $response);
+        foreach ($lines as $line) {
+            if (strpos($line, 'data:') === 0) {
+                $json = substr($line, 5); // Remove "data: " prefix
+                $decoded = json_decode($json, true);
+                if ($decoded) {
+                    if (isset($decoded['data']['event']) && $decoded['data']['event'] == 'Translating') {
+                        return $decoded['data']['list'][0]['dst'];
                     }
                 }
             }
         }
+        tp_logger('Baidu: No translation found in response', 1);
         return false;
     }
 
@@ -278,7 +305,6 @@ class transposh_translate
             $iqstr = urldecode($q);
         }
 
-        // we avoid curling we had all results prehand
         $urls = array(
             'http://translate.google.com',
             'http://212.199.205.226',
@@ -295,30 +321,19 @@ class transposh_translate
                 tp_logger($url, 3);
                 tp_logger($q, 3);
                 tp_logger($iqstr, 3);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                //must set agent for Google to respond with utf-8
-                $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT");
-                tp_logger($UA, 1);
-                curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $qstr);
-                // timeout is probably a good idea
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 7);
 
-                //if the attempt is 2 or more, we skip ipv6 and use an alternative user agent
+                $options = [
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $qstr,
+                ];
+                //if the attempt is 2 or more, we skip ipv6
                 if ($attempt > 1) {
-                    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                    curl_setopt($ch, CURLOPT_USERAGENT, transposh_utils::get_clean_server_var('HTTP_USER_AGENT'));
+                    $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
                 }
-                $output = curl_exec($ch);
-                $info = curl_getinfo($ch);
-                tp_logger('Curl code is: ' . $info['http_code'], 1);
-                curl_close($ch);
-                tp_logger($output, 3);
-                if ($info['http_code'] != 200) {
+
+                $output = self::executeCurlRequest($url, $options);
+
+                if ($output === false) {
                     tp_logger("method fail - $attempt", 1);
                     $failed = true;
                     update_option(TRANSPOSH_OPTIONS_GOOGLEPROXY, array($attempt, time()));
@@ -329,13 +344,8 @@ class transposh_translate
         }
 
         // Maybe in the future we may attempt with a key
-        if ($failed) {
+        if ($failed || $output === false) {
             tp_logger('out of options, die for the day!', 1);
-            return false;
-        }
-
-        if ($output === false) {
-            tp_logger('Curl error: ' . curl_error($ch));
             return false;
         }
 
@@ -388,16 +398,11 @@ class transposh_translate
         }
         tp_logger("getting new Bing translator tokens", 1);
         $url = "https://www.bing.com/translator";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
+        $response = self::executeCurlRequest($url, [CURLOPT_FOLLOWLOCATION => true]);
+        if ($response === false) {
+            tp_logger("Error: Unable to fetch Bing translator page and keys.", 1);
+            return ['IG' => '', 'IID' => '', 'key' => '', 'token' => ''];
+        }
         // Extract IG (Instance GUID) and token
         preg_match('/IG:"([a-zA-Z0-9_-]+)"/', $response, $ig_matches);
         preg_match('/data-iid="([a-zA-Z0-9._-]+)"/', $response, $iid_matches);
@@ -433,27 +438,24 @@ class transposh_translate
             'token' => $tokens['token'],
             'key' => $tokens['key']
         ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/x-www-form-urlencoded",
-        ]);
-        $UA = transposh_utils::get_clean_server_var("HTTP_USER_AGENT", FILTER_DEFAULT);
-        curl_setopt($ch, CURLOPT_USERAGENT, $UA);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200) {
-            tp_logger("Error: HTTP $httpCode received.");
+        $response = self::executeCurlRequest(
+            $url,
+            [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => http_build_query($postData)
+            ],
+            [
+                "Content-Type: application/x-www-form-urlencoded"
+            ]
+        );
+        if ($response === false) {
+            tp_logger("Error: Bing cURL or HTTP error.", 1);
+            return false;
         }
 
         $data = json_decode($response, true);
-        tp_logger($data,1);
+        // tp_logger($data,1);
         if (isset($data[0]['translations'][0]['text'])) {
             if ($q_was_array) {
                 tp_logger(json_decode($data[0]['translations'][0]['text'], true));
