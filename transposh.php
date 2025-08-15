@@ -920,25 +920,23 @@ class transposh_plugin {
         }
         $widget_args = $this->widget->create_widget_args($this->get_clean_url());
         tp_logger($widget_args, 4);
+        // changes according to https://developers.google.com/search/docs/specialty/international/localized-versions
         foreach ($widget_args as $lang) {
-            if (!$lang['active']) {
+            // Only output all rels if target language is default, otherwise just the pair
+            if ($this->target_language == $this->options->default_language ||
+                $lang['isocode'] == $this->target_language ||
+                $lang['isocode'] == $this->options->default_language) {
                 echo '<link rel="alternate" hreflang="' . $lang['isocode'] . '" href="';
-                if (defined('FULL_VERSION')) { //** FULL VERSION
-                    if ($this->options->full_rel_alternate) {
-                        $current_url = ( is_ssl() ? 'https://' : 'http://' ) . transposh_utils::get_clean_server_var('HTTP_HOST') . transposh_utils::get_clean_server_var('REQUEST_URI');
-                        $url = transposh_utils::rewrite_url_lang_param($current_url, $this->home_url, $this->enable_permalinks_rewrite, $lang['isocode'], $this->edit_mode);
-                        if ($this->options->is_default_language($lang['isocode'])) {
-                            $url = transposh_utils::cleanup_url($url, $this->home_url);
-                        }
-                        echo $url;
-                    } else {
-                        echo $lang['url'];
+                if ($this->options->full_rel_alternate) {
+                    $current_url = (is_ssl() ? 'https://' : 'http://') . transposh_utils::get_clean_server_var('HTTP_HOST') . transposh_utils::get_clean_server_var('REQUEST_URI');
+                    $url = transposh_utils::rewrite_url_lang_param($current_url, $this->home_url, $this->enable_permalinks_rewrite, $lang['isocode'], $this->edit_mode);
+                    if ($this->options->is_default_language($lang['isocode'])) {
+                        $url = transposh_utils::cleanup_url($url, $this->home_url);
                     }
-                } //** FULLSTOP    
-                if (!defined('FULL_VERSION')) { //** WPORG VERSION
+                    echo $url;
+                } else {
                     echo $lang['url'];
-                } // WPORGSTOP
-
+                }
                 echo '"/>';
             }
         }
