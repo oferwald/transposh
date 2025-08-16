@@ -51,6 +51,7 @@ define('TRANSPOSH_UPDATE_SERVICE_URL', 'http://svc.transposh.org/update-check');
  * u - Baidu
  * y - Yandex
  * a - Apertium
+ * l - LibreTranslate
  */
 class transposh_consts {
 //Supported languages, new languages can be added here
@@ -66,6 +67,7 @@ class transposh_consts {
                 'u' => 'y',
                 'y' => 'y',
                 'a' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -85,9 +87,11 @@ class transposh_consts {
             'orig' => 'Shqip',
             'flag' => 'al',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'alb',
                 'y' => 'y',
+                'l' => 'y',
             ],
         ],
         'am' => [
@@ -95,6 +99,7 @@ class transposh_consts {
             'orig' => 'አማርኛ',
             'flag' => 'et',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'amh',
                 'y' => 'y',
@@ -109,6 +114,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'ara',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'rtl' => 'y',
             'adsense' => 'y',
@@ -118,6 +124,7 @@ class transposh_consts {
             'orig' => 'Հայերեն',
             'flag' => 'am',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'arm',
                 'y' => 'y',
@@ -128,9 +135,11 @@ class transposh_consts {
             'orig' => 'azərbaycan dili',
             'flag' => 'az',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'aze',
                 'y' => 'y',
+                'l' => 'y',
             ],
         ],
         'eu' => [
@@ -138,9 +147,11 @@ class transposh_consts {
             'orig' => 'Euskara',
             'flag' => 'es-ba',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'baq',
                 'y' => 'y',
+                'l' => 'y',
             ],
         ],
         'ba' => [
@@ -148,6 +159,9 @@ class transposh_consts {
             'orig' => 'башҡорт теле',
             'flag' => 'ru-ba',
             'engines' => [
+                'b' => 'y',
+                'g' => 'y',
+                'u' => 'bak',
                 'y' => 'y',
             ],
         ],
@@ -172,6 +186,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'ben',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -197,6 +212,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'bul',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -220,6 +236,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'cat',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -230,6 +247,8 @@ class transposh_consts {
             'locale' => 'zh_HK',
             'engines' => [
                 'b' => 'y',
+                'g' => 'y',
+                'u' => 'y',
             ],
         ],
         'ceb' => [
@@ -249,6 +268,7 @@ class transposh_consts {
             'flag' => 'mw',
             'engines' => [
                 'g' => 'y',
+                'u' => 'nya',
             ],
         ],
         'zh' => [
@@ -261,6 +281,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'zh-Hans',
             ],
             'adsense' => 'y',
         ],
@@ -273,16 +294,18 @@ class transposh_consts {
                 'b' => 'zh-Hant',
                 'g' => 'y',
                 'u' => 'cht',
+                'l' => 'zh-Hant',
             ],
             'adsense' => 'y',
         ],
         'co' => [
             'name' => 'Corsican',
             'orig' => 'Corsu',
-            'flag' => 'fr',
+            'flag' => 'fr-co',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
+                'u' => 'cos',
             ],
         ],
         'hr' => [
@@ -307,6 +330,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -320,6 +344,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'dan',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -333,6 +358,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -346,6 +372,7 @@ class transposh_consts {
                 'u' => 'epo',
                 'y' => 'y',
                 'a' => 'y',
+                'l' => 'y',
             ],
         ],
         'et' => [
@@ -357,6 +384,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'est',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -366,6 +394,7 @@ class transposh_consts {
             'flag' => 'fj',
             'engines' => [
                 'b' => 'y',
+                'g' => 'y',
             ],
         ],
         'fil' => [
@@ -374,6 +403,8 @@ class transposh_consts {
             'flag' => 'ph',
             'engines' => [
                 'b' => 'y',
+                'g' => 'tl',
+                'u' => 'fil',
             ],
             'adsense' => 'y',
         ],
@@ -386,6 +417,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'fin',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -399,13 +431,14 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'fra',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
         'fy' => [
             'name' => 'Frisian',
             'orig' => 'Frysk',
-            'flag' => 'nl',
+            'flag' => 'nl-fr',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -420,6 +453,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'glg',
                 'y' => 'y',
+                'l' => 'y',
             ],
         ],
         'ka' => [
@@ -428,6 +462,7 @@ class transposh_consts {
             'flag' => 'ge',
             'locale' => 'ka_GE',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'geo',
                 'y' => 'y',
@@ -443,6 +478,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -455,6 +491,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -463,6 +500,7 @@ class transposh_consts {
             'orig' => 'ગુજરાતી',
             'flag' => 'in',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'guj',
                 'y' => 'y',
@@ -470,7 +508,7 @@ class transposh_consts {
             'adsense' => 'y',
         ],
         'ht' => [
-            'name' => 'Haitian',
+            'name' => 'Haitian Creole',
             'orig' => 'Kreyòl ayisyen',
             'flag' => 'ht',
             'engines' => [
@@ -485,7 +523,9 @@ class transposh_consts {
             'orig' => 'Harshen Hausa',
             'flag' => 'ng',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
+                'u' => 'hau',
             ],
         ],
         'haw' => [
@@ -494,6 +534,7 @@ class transposh_consts {
             'flag' => 'us-ha',
             'engines' => [
                 'g' => 'y',
+                'u' => 'haw',
             ],
         ],
         'hmn' => [
@@ -522,6 +563,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'heb',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'rtl' => 'y',
             'adsense' => 'y',
@@ -544,6 +586,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -557,6 +600,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -576,6 +620,7 @@ class transposh_consts {
             'orig' => 'Asụsụ Igbo',
             'flag' => 'ng',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'ibo',
             ],
@@ -590,6 +635,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -601,6 +647,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'gle',
                 'y' => 'y',
+                'l' => 'y',
             ],
         ],
         'it' => [
@@ -613,6 +660,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -625,6 +673,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'jp',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -636,6 +685,7 @@ class transposh_consts {
             'engines' => [
                 'b' => 'jav',
                 'g' => 'y',
+                'u' => 'jav',
                 'y' => 'jv',
             ],
         ],
@@ -644,6 +694,7 @@ class transposh_consts {
             'orig' => 'ಕನ್ನಡ',
             'flag' => 'in',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'kan',
                 'y' => 'y',
@@ -655,6 +706,7 @@ class transposh_consts {
             'orig' => 'Қазақ тілі',
             'flag' => 'kz',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'kaz',
                 'y' => 'y',
@@ -665,6 +717,7 @@ class transposh_consts {
             'orig' => 'ភាសាខ្មែរ',
             'flag' => 'kh',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'hkm',
                 'y' => 'y',
@@ -679,6 +732,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'kir',
                 'y' => 'y',
+                'l' => 'y',
             ],
         ],
         'ko' => [
@@ -691,6 +745,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'kor',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -707,6 +762,7 @@ class transposh_consts {
             'orig' => 'ພາສາລາວ',
             'flag' => 'la',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'lao',
                 'y' => 'y',
@@ -732,6 +788,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'lav',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -744,6 +801,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'lit',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -764,6 +822,7 @@ class transposh_consts {
             'flag' => 'mk',
             'locale' => 'mk_MK',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'mac',
                 'y' => 'y',
@@ -790,6 +849,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'may',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -798,6 +858,7 @@ class transposh_consts {
             'orig' => 'മലയാളം',
             'flag' => 'in',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'mal',
                 'y' => 'y',
@@ -830,6 +891,7 @@ class transposh_consts {
             'orig' => 'मराठी',
             'flag' => 'in',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'mar',
                 'y' => 'y',
@@ -841,6 +903,7 @@ class transposh_consts {
             'orig' => 'марий йылме',
             'flag' => 'ru',
             'engines' => [
+                'g' => 'chm',
                 'y' => 'y',
             ],
         ],
@@ -849,6 +912,7 @@ class transposh_consts {
             'orig' => 'Монгол',
             'flag' => 'mn',
             'engines' => [
+                'b' => 'mn-Cyrl',
                 'g' => 'y',
                 'u' => 'mon',
                 'y' => 'y',
@@ -860,6 +924,7 @@ class transposh_consts {
             'flag' => 'np',
             'locale' => 'ne_NP',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'nep',
                 'y' => 'y',
@@ -875,6 +940,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'nor',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -892,6 +958,8 @@ class transposh_consts {
             'flag' => 'aw',
             'engines' => [
                 'b' => 'y',
+                'g' => 'y',
+                'u' => 'pap',
                 'y' => 'y',
             ],
         ],
@@ -905,6 +973,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'per',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'rtl' => 'y',
         ],
@@ -918,6 +987,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -928,9 +998,10 @@ class transposh_consts {
             'locale' => 'pt_PT',
             'engines' => [
                 'b' => 'pt-PT',
-                'g' => 'y',
+                'g' => 'pt-PT',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -941,6 +1012,9 @@ class transposh_consts {
             'locale' => 'pt_BR',
             'engines' => [
                 'b' => 'pt',
+                'g' => 'pt',
+                'y' => 'pt-BR',
+                'l' => 'pt-BR',
             ],
             'adsense' => 'y',
         ],
@@ -950,6 +1024,7 @@ class transposh_consts {
             'flag' => 'pk',
             'locale' => 'pa_IN',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'pan',
                 'y' => 'y',
@@ -966,6 +1041,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'rom',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -979,6 +1055,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -989,6 +1066,7 @@ class transposh_consts {
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
+                'u' => 'y',
             ],
         ],
         'gd' => [
@@ -1007,7 +1085,7 @@ class transposh_consts {
             'flag' => 'rs',
             'locale' => 'sr_RS',
             'engines' => [
-                'b' => 'y',
+                'b' => 'sr-Cyrl',
                 'g' => 'y',
                 'u' => 'srp',
                 'y' => 'y',
@@ -1019,6 +1097,7 @@ class transposh_consts {
             'orig' => 'Sesotho',
             'flag' => 'ls',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
             ],
         ],
@@ -1027,7 +1106,9 @@ class transposh_consts {
             'orig' => 'chiShona',
             'flag' => 'zw',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
+                'u' => 'sna',
             ],
         ],
         'sd' => [
@@ -1035,7 +1116,9 @@ class transposh_consts {
             'orig' => 'سنڌي',
             'flag' => 'pk',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
+                'u' => 'snd',
             ],
         ],
         'si' => [
@@ -1044,6 +1127,7 @@ class transposh_consts {
             'flag' => 'lk',
             'locale' => 'si_LK',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'sin',
                 'y' => 'y',
@@ -1059,6 +1143,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1072,6 +1157,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'slo',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1080,7 +1166,9 @@ class transposh_consts {
             'orig' => 'Af-Soomaali',
             'flag' => 'so',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
+                'u' => 'som',
             ],
         ],
         'es' => [
@@ -1094,6 +1182,7 @@ class transposh_consts {
                 'u' => 'spa',
                 'y' => 'y',
                 'a' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1129,6 +1218,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'swe',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1140,6 +1230,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'tgl',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1149,6 +1240,7 @@ class transposh_consts {
             'flag' => 'pf',
             'engines' => [
                 'b' => 'y',
+                'g' => 'y',
             ],
         ],
         'tg' => [
@@ -1156,6 +1248,7 @@ class transposh_consts {
             'orig' => 'Тоҷикӣ',
             'flag' => 'tj',
             'engines' => [
+                'b' => 'tgk',
                 'g' => 'y',
                 'u' => 'tgk',
                 'y' => 'y',
@@ -1179,6 +1272,8 @@ class transposh_consts {
             'orig' => 'татарча',
             'flag' => 'ru-ta',
             'engines' => [
+                'b' => 'y',
+                'g' => 'y',
                 'u' => 'tat',
                 'y' => 'y',
             ],
@@ -1204,6 +1299,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1213,6 +1309,7 @@ class transposh_consts {
             'flag' => 'to',
             'engines' => [
                 'b' => 'y',
+                'g' => 'y',
             ],
         ],
         'tr' => [
@@ -1225,6 +1322,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'y',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1245,6 +1343,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'ukr',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'adsense' => 'y',
         ],
@@ -1257,6 +1356,7 @@ class transposh_consts {
                 'g' => 'y',
                 'u' => 'urd',
                 'y' => 'y',
+                'l' => 'y',
             ],
             'rtl' => 'y',
             'adsense' => 'y',
@@ -1267,6 +1367,7 @@ class transposh_consts {
             'flag' => 'uz',
             'locale' => 'uz_UZ',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'uzb',
                 'y' => 'y',
@@ -1300,6 +1401,7 @@ class transposh_consts {
             'orig' => 'isiXhosa',
             'flag' => 'za',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'xho',
                 'y' => 'y',
@@ -1322,6 +1424,7 @@ class transposh_consts {
             'orig' => 'èdè Yorùbá',
             'flag' => 'ng',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'yor',
             ],
@@ -1332,6 +1435,7 @@ class transposh_consts {
             'flag' => 'mx',
             'engines' => [
                 'b' => 'y',
+                'g' => 'y',
             ],
         ],
         'zu' => [
@@ -1339,6 +1443,7 @@ class transposh_consts {
             'orig' => 'isiZulu',
             'flag' => 'za',
             'engines' => [
+                'b' => 'y',
                 'g' => 'y',
                 'u' => 'zul',
                 'y' => 'y',
