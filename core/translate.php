@@ -171,12 +171,18 @@ class transposh_translate
      ******************************************/
     public static function get_baidu_translation($tl, $sl, $q)
     {
+        $attempt = 1;
+        $q_was_array = is_array($q);
         // URL for the request
         $url = 'https://fanyi.baidu.com/ait/text/translate';
         tp_logger("Baidu translate", 1);
 
         // JSON payload
-        $q = urldecode($q);
+        if (is_array($q)) {
+            $q = json_encode(array_map('urldecode', $q), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        } else {
+            $q = urldecode($q);
+        }
         $data = [
             "query" => $q,
             "from" => "en", // BUG
@@ -189,46 +195,57 @@ class transposh_translate
 
         $jsonData = json_encode($data);
 
-        $response = self::executeCurlRequest(
-            $url,
-            [
-                CURLOPT_POST => 1,
-                CURLOPT_POSTFIELDS => $jsonData,
-                CURLOPT_SSL_VERIFYPEER => false
-            ],
-            [
-                'Accept: text/event-stream',
-                'Accept-Language: en-US,en;q=0.5',
-                'Accept-Encoding: gzip, deflate, br, zstd',
-                'Content-Type: application/json',
-                'Origin: https://fanyi.baidu.com',
-                'Sec-Fetch-Dest: empty',
-                'Sec-Fetch-Mode: cors',
-                'Sec-Fetch-Site: same-origin',
-                'Pragma: no-cache',
-                'Cache-Control: no-cache'
-            ]
-        );
+        tp_logger("Baidu JSON data: $jsonData", 1);
 
-        if ($response === false) {
-            tp_logger('Baidu cURL error or HTTP error', 1);
-            return false;
-        }
+        while ($attempt <= 3) {
+            $response = self::executeCurlRequest(
+                $url,
+                [
+                    CURLOPT_POST => 1,
+                    CURLOPT_POSTFIELDS => $jsonData,
+                    CURLOPT_SSL_VERIFYPEER => false
+                ],
+                [
+                    'Accept: text/event-stream',
+                    'Accept-Language: en-US,en;q=0.5',
+                    'Accept-Encoding: gzip, deflate, br, zstd',
+                    'Content-Type: application/json',
+                    'Origin: https://fanyi.baidu.com',
+                    'Sec-Fetch-Dest: empty',
+                    'Sec-Fetch-Mode: cors',
+                    'Sec-Fetch-Site: same-origin',
+                    'Pragma: no-cache',
+                    'Cache-Control: no-cache'
+                ]
+            );
 
-        // Since it's an event stream, process line by line
-        $lines = explode("\n", $response);
-        foreach ($lines as $line) {
-            if (strpos($line, 'data:') === 0) {
-                $json = substr($line, 5); // Remove "data: " prefix
-                $decoded = json_decode($json, true);
-                if ($decoded) {
-                    if (isset($decoded['data']['event']) && $decoded['data']['event'] == 'Translating') {
-                        return $decoded['data']['list'][0]['dst'];
+            if ($response === false) {
+                tp_logger('Baidu cURL error or HTTP error', 1);
+                return false;
+            }
+            tp_logger($response, 3);
+            // Since it's an event stream, process line by line
+            $lines = explode("\n", $response);
+            foreach ($lines as $line) {
+                if (strpos($line, 'data:') === 0) {
+                    $json = substr($line, 5); // Remove "data: " prefix
+                    $decoded = json_decode($json, true);
+                    if ($decoded) {
+                        if (isset($decoded['data']['event']) && $decoded['data']['event'] == 'Translating') {
+                            if ($q_was_array) {
+                                tp_logger(json_decode($decoded['data']['list'][0]['dst'], true));
+                                return json_decode($decoded['data']['list'][0]['dst'], true);
+                            }
+                            return $decoded['data']['list'][0]['dst'];
+                        }
                     }
                 }
             }
+            tp_logger("Baidu: attempt $attempt failed", 1);
+            sleep(rand(1,3)); // Wait before retrying
+            $attempt++;
         }
-        tp_logger('Baidu: No translation found in response', 1);
+        tp_logger("Baidu: No translation found in response - tried $attempt times", 1);
         return false;
     }
 
