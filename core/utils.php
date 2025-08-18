@@ -500,7 +500,12 @@ class transposh_utils {
         } else {
             $bestlang = $default_lang;
         }
-        if (isset(transposh_consts::get_country_mapping()[strtolower($country)])) {
+        // if no country is given (null or empty), return the best language
+        if (!$country) {
+            return $bestlang;
+        }
+
+        if (isset(transposh_consts::get_country_mapping()[strtolower($country)])) { //NULL?
             $lang = transposh_consts::get_country_mapping()[strtolower($country)];
             if (strpos($lang, ',') !== false) {
                 $langs = explode(",", $lang);
