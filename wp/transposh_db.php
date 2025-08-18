@@ -409,7 +409,7 @@ class transposh_database {
                 $trans = $_POST["tr$i"];
                 // Decode & remove already escaped character to avoid double escaping
                 $translation = esc_sql(htmlspecialchars(stripslashes(rawurldecode($trans))));
-                if (is_empty($translation)) {
+                if (empty($translation)) {
                     tp_logger("Warning empty translation for $original, $lang", 1);
                     continue; // skip empty translations
                 }
