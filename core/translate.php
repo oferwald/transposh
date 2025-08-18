@@ -56,7 +56,7 @@ class transposh_translate
         curl_close($ch);
         if ($httpCode !== 200) {
             tp_logger("HTTP error: $httpCode for URL $url", 1);
-            tp_logger("Response: $response");
+            tp_logger("Response: $response", 1);
             return false;
         }
         return $response;
@@ -483,5 +483,50 @@ class transposh_translate
             tp_logger("Error: Unable to parse translation response.");
         }
         return false;
+    }
+
+    /******************************************
+     * Proxied translation for LibreTranslate
+     *****************************************/
+    public static function get_libretranslate_translation($tl, $sl, $q)
+    {
+        $q_was_array = is_array($q);
+        global $my_transposh_plugin;
+        $url = $my_transposh_plugin->options->libretranslate_server;
+        if (!$url) {
+            $url = TRANSPOSH_LIBRETRANSLATE_SERVICE_URL;
+        }
+
+        // Prepare payload
+        $data = [
+            'q' => $q_was_array ? array_map('urldecode', $q) : urldecode($q),
+            'source' => 'auto',
+            'target' => $tl,
+            'format' => 'text'
+        ];
+        $jsonData = json_encode($data);
+
+        $response = self::executeCurlRequest(
+            $url,
+            [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $jsonData,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json']
+            ]
+        );
+
+        if ($response === false) {
+            tp_logger('LibreTranslate cURL or HTTP error', 1);
+            return false;
+        }
+
+        $result = json_decode($response, true);
+        if (!isset($result['translatedText'])) {
+            tp_logger('LibreTranslate: No translatedText in response', 1);
+            tp_logger($response, 3);
+            return false;
+        }
+        tp_logger($response, 1);
+        return $result['translatedText'];
     }
 }

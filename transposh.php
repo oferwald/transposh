@@ -232,16 +232,6 @@ class transposh_plugin {
             add_filter('locale', array(&$this, 'transposh_locale_filter'));
         }
 
-        // internal update mechnism - is disabled in wporg version unless user enabled this
-        //** WPORG VERSION
-        if (!defined('FULL_VERSION') && $this->options->allow_full_version_upgrade) {
-            //** WPORGSTOP
-            add_filter('http_request_args', array(&$this, 'filter_wordpress_org_update'), 10, 2);
-            add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_for_plugin_update'));
-            add_filter('plugins_api', array(&$this, 'plugin_api_call'), 10, 3);
-            //** WPORG VERSION            
-        }
-        //** WPORGSTOP
         // debug function for bad redirects
         add_filter('wp_redirect', array(&$this, 'on_wp_redirect'), 10, 2);
         add_filter('redirect_canonical', array(&$this, 'on_redirect_canonical'), 10, 2);
@@ -1480,6 +1470,10 @@ class transposh_plugin {
                 case 'u': // baidu
                     $source = 5;
                     $result = transposh_translate::get_baidu_translation($tl, $sl, $q);
+                    break;
+                case 'l': // libretranslate
+                    $source = 6;
+                    $result = transposh_translate::get_libretranslate_translation($tl, $sl, $q);
                     break;
 
                 default:

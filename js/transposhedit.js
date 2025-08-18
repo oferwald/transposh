@@ -18,11 +18,12 @@
 /*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_jl, window, VKI_attach, VKI_show, VKI_close */
 (function ($) { // closure
     var engines = [
-        { id: 'google',l: 'g', click: getgt },
-        { id: 'bing', l: 'b', click: getbt },
-        { id: 'yandex', l: 'y', click: getyt },
-        { id: 'baidu', l: 'u', click: getut },
-        { id: 'apertium', l: 'a', click: getat },
+        { id: 'google',l: 'g', click: getgt, n:1},
+        { id: 'bing', l: 'b', click: getbt, n:2},
+        { id: 'apertium', l: 'a', click: getat, n:3},
+        { id: 'yandex', l: 'y', click: getyt, n:4},
+        { id: 'baidu', l: 'u', click: getut, n:5},
+        { id: 'libretranslate', l: 'l', click: getlt, n:6},
     ];
 
     // list of languages
@@ -250,6 +251,12 @@
         getproxiedsuggestion('b');
     }
 
+    // fetch translation from bing translate...
+    function getlt()
+    {
+        getproxiedsuggestion('l');
+    }
+
     // fetch translation from apertium translate...
     function getat()
     {
@@ -385,31 +392,15 @@
                         '</tbody>' +
                         '</table>');
                 $.each(data, function (index, row) {
-                    switch (row.source)
-                    {
-                        case '1':
-                            icon = 'tr-icon-google';
-                            icontitle = __('google');
+                    icon = 'ui-icon-person';
+                    icontitle = __('manual translation');
+                    // Find matching engine by n
+                    for (let i = 0; i < engines.length; i++) {
+                        if (String(engines[i].n) === String(row.source)) {
+                            icon = 'tr-icon-' + engines[i].id;
+                            icontitle = __(engines[i].id);
                             break;
-                        case '2':
-                            icon = 'tr-icon-bing';
-                            icontitle = __('bing');
-                            break;
-                        case '3':
-                            icon = 'tr-icon-apertium';
-                            icontitle = __('apertium');
-                            break;
-                        case '4':
-                            icon = 'tr-icon-yandex';
-                            icontitle = __('yandex');
-                            break;
-                        case '5':
-                            icon = 'tr-icon-baidu';
-                            icontitle = __('baidu');
-                            break;
-                        default:
-                            icon = 'ui-icon-person';
-                            icontitle = __('manual translation');
+                        }
                     }
                     if (row.user_login === null) {
                         row.user_login = row.translated_by;

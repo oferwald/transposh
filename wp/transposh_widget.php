@@ -128,16 +128,14 @@ class transposh_plugin_widget extends WP_Widget {
 
         // Followed by subwisgets selection
         $widgets = $this->get_widgets();
-        if (defined('FULL_VERSION')) { //** FULL VERSION
-            // Upload dir widgets
-            $upload = wp_upload_dir();
-            $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
-            $widgets2 = $this->get_widgets($upload_dir);
-            foreach ($widgets2 as $file => $widget) {
-                $widget['Name'] = '(*) ' . $widget['Name'];
-                $widgets['*' . $file] = $widget;
-            }
-        } //** FULLSTOP
+        // Upload dir widgets
+        $upload = wp_upload_dir();
+        $upload_dir = $upload['basedir'] . '/' . TRANSPOSH_DIR_UPLOAD . '/' . TRANSPOSH_DIR_WIDGETS;
+        $widgets2 = $this->get_widgets($upload_dir);
+        foreach ($widgets2 as $file => $widget) {
+            $widget['Name'] = '(*) ' . $widget['Name'];
+            $widgets['*' . $file] = $widget;
+        }
 
         echo '<p><label for="' . $this->get_field_name('widget_file') . '">' . __('Style:', TRANSPOSH_TEXT_DOMAIN) .
         '<select id="' . $this->get_field_id('widget_file') . '" name="' . $this->get_field_name('widget_file') . '">';
@@ -387,24 +385,20 @@ class transposh_plugin_widget extends WP_Widget {
         //** FULLSTOP
         $plugpath = @parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
 
-        if (defined('FULL_VERSION')) { //** FULL VERSION
-            if (!$this->transposh->options->widget_remove_logo) {
-                $tagline = esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . ' - ';
-                $tagline .= esc_attr__('translation plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
+        if (!$this->transposh->options->widget_remove_logo) {
+            $tagline = esc_attr__('Transposh', TRANSPOSH_TEXT_DOMAIN) . ' - ';
+            $tagline .= esc_attr__('translation plugin for wordpress', TRANSPOSH_TEXT_DOMAIN);
 
-                $extralang = '';
-                if ($this->transposh->target_language != 'en') {
-                    $extralang = $this->transposh->target_language . '/';
-                }
+            $extralang = '';
+            if ($this->transposh->target_language != 'en') {
+                $extralang = $this->transposh->target_language . '/';
             }
-        } //** FULLSTOP        
+        }
         echo '<div id="' . SPAN_PREFIX . 'credit' . self::$draw_calls . '">';
-        if (defined('FULL_VERSION')) { //** FULL VERSION
-            if (!$this->transposh->options->widget_remove_logo) {
-                echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img height="16" width="16" src="' .
-                $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0;box-shadow:0 0;border-radius:0" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
-            }
-        } //** FULLSTOP
+        if (!$this->transposh->options->widget_remove_logo) {
+            echo 'by <a href="http://tran' . 'sposh.org/' . $extralang . '"><img height="16" width="16" src="' .
+            $plugpath . '/img/tplog' . 'o.png" style="padding:1px;border:0;box-shadow:0 0;border-radius:0" title="' . $tagline . '" alt="' . $tagline . '"/></a>';
+        }
         echo '</div>';
         if (isset($after_widget))
             echo $after_widget;

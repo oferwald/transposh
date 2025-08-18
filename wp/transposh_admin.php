@@ -107,9 +107,6 @@ class transposh_plugin_admin {
                     }
                 }
 
-                if (!defined('FULL_VERSION')) { //** WPORG VERSION
-                    $viewable_langs = array_slice($viewable_langs, 0, 5);
-                } //** WPORGSTOP
                 $this->transposh->options->viewable_languages = implode(',', $viewable_langs);
                 $this->transposh->options->sorted_languages = implode(',', $sorted_langs);
                 if (is_object($GLOBALS['wp_rewrite'])) {
@@ -126,9 +123,6 @@ class transposh_plugin_admin {
                         $role->remove_cap(TRANSLATOR);
                 }
 
-                if (!defined('FULL_VERSION')) { //** WPORG VERSION
-                    $this->transposh->options->allow_full_version_upgrade = TP_FROM_POST;
-                } //** WPORGSTOP
                 // anonymous needs to be handled differently as it does not have a role
                 tp_logger($_POST['anonymous']);
                 $this->transposh->options->allow_anonymous_translation = $_POST['anonymous'];
@@ -152,7 +146,6 @@ class transposh_plugin_admin {
 
                 $this->transposh->options->mail_to = TP_FROM_POST;
                 $this->transposh->options->mail_ontranslate = TP_FROM_POST;
-                //** FULL VERSION
                 $this->transposh->options->mail_ontranslate_buffer = TP_FROM_POST;
                 $this->transposh->options->mail_digest = TP_FROM_POST;
                 $this->transposh->options->mail_ignore_admin = TP_FROM_POST;
@@ -163,7 +156,6 @@ class transposh_plugin_admin {
                     wp_schedule_event(time(), 'daily', 'transposh_digest_event');
                     $this->transposh->options->transposh_last_mail_digest = time();
                 }
-                //** FULLSTOP 
 
                 $this->transposh->options->transposh_backup_schedule = TP_FROM_POST;
 
@@ -183,6 +175,7 @@ class transposh_plugin_admin {
                 $this->transposh->options->google_key = TP_FROM_POST;
                 $this->transposh->options->yandex_key = TP_FROM_POST;
                 $this->transposh->options->baidu_key = TP_FROM_POST;
+                $this->transposh->options->libretranslate_server = TP_FROM_POST;
                 tp_logger($_POST['engines']);
                 foreach ($_POST['engines'] as $engine) {
                     $sorted_engines[$engine] = $engine;
@@ -192,17 +185,14 @@ class transposh_plugin_admin {
             case "tp_widget":
                 // $this->transposh->options->widget_progressbar = TP_FROM_POST;
                 $this->transposh->options->widget_allow_set_deflang = TP_FROM_POST;
-                if (defined('FULL_VERSION')) { //** FULL VERSION
-                    $this->transposh->options->widget_remove_logo = TP_FROM_POST;
-                } //** FULLSTOP
+                $this->transposh->options->widget_remove_logo = TP_FROM_POST;
                 $this->transposh->options->widget_theme = TP_FROM_POST;
                 break;
             case "tp_advanced":
                 $this->transposh->options->enable_url_translate = TP_FROM_POST;
                 $this->transposh->options->dont_add_rel_alternate = TP_FROM_POST;
-                if (defined('FULL_VERSION')) { //** FULL VERSION
-                    $this->transposh->options->full_rel_alternate = TP_FROM_POST;
-                } //** FULLSTOP
+                $this->transposh->options->full_rel_alternate = TP_FROM_POST;
+
                 $this->transposh->options->jqueryui_override = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_puncts = TP_FROM_POST;
                 $this->transposh->options->parser_dont_break_numbers = TP_FROM_POST;
@@ -358,6 +348,20 @@ class transposh_plugin_admin {
             'content' => '<h3>' . __('Translation engines keys', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
             '<p>' . __('Under normal conditions, at the date of this release, you may leave the key fields empty, and the different engines will just work, no need to pay or create a key. However if for some reason the current methods will stop working you have the ability to create a key for each service on the appropriate site.', TRANSPOSH_TEXT_DOMAIN) . '</p>',
         ));
+        $screen->add_help_tab(array(
+            'id' => 'libretranslate', // This should be unique for the screen.
+            'title' => __('LibreTranslate', TRANSPOSH_TEXT_DOMAIN),
+            // retrieve the function output and set it as tab content
+            'content' => '<h3>' . __('Changing the LibreTranslate server used', TRANSPOSH_TEXT_DOMAIN) . '</h3>' .
+                '<p>' . sprintf(__('Transposh supports integration with the LibreTranslate engine for automatic translations.<br/>
+By default, Transposh uses its own hosted LibreTranslate service at %s.<br/>
+However, you have the flexibility to run your own local instance of LibreTranslate and configure Transposh to use your custom server address instead of the default.<br/>
+This can be useful for privacy, performance, or compliance reasons.<br/>
+To change the server URL, simply update the LibreTranslate Server field in the settings.<br/>
+For more information about LibreTranslate, including installation instructions and source code, visit <a href="https://libretranslate.com/">https://libretranslate.com/</a><br/>
+and the official GitHub repository at <a href="https://github.com/LibreTranslate/LibreTranslate">https://github.com/LibreTranslate/LibreTranslate</a>.<br/>
+Please note that while Transposh currently offers a hosted LibreTranslate service, the URL may be changed at any time to point to your own or another public instance.', TRANSPOSH_TEXT_DOMAIN), TRANSPOSH_LIBRETRANSLATE_SERVICE_URL) . '</p>',
+        ));
         if ($this->page == 'tp_main') {
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
@@ -460,9 +464,6 @@ class transposh_plugin_admin {
         // list of languages
         echo '<div style="overflow:auto; clear: both;">';
         $this->header(__('Available Languages (Click to toggle language state - Drag to sort in the widget)', TRANSPOSH_TEXT_DOMAIN));
-        if (!defined('FULL_VERSION')) { //** WPORG VERSION
-            $this->header(__('Only first five will be saved! Upgrade to full free version by choosing the option at the settings', TRANSPOSH_TEXT_DOMAIN));
-        } //** WPORGSTOP
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_langs() as $langcode => $langrecord) {
             tp_logger($langcode, 5);
@@ -480,18 +481,17 @@ class transposh_plugin_admin {
             . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
             foreach (transposh_consts::get_engines() as $enginecode => $enginerecord) {
                 if (transposh_consts::is_supported_engine($langcode, $enginecode)) {
-                    echo '<span class="tr-icon tr-icon-'.strtolower($enginerecord['name']).'"></span>';
+                    echo '<span title="' . esc_attr__($enginerecord['name'], TRANSPOSH_TEXT_DOMAIN) . '" class="tr-icon tr-icon-'.strtolower($enginerecord['name']).'"></span>';
                 } else {
                     echo '<div class="logoicon" style="margin:9px"></div>';
                 }
             }
             if (transposh_consts::is_language_adsense($langcode))
-                echo '<span class="tr-icon tr-icon-adsense"></span>';
+                echo '<span title="' . esc_attr__('Language is supported by adsense', TRANSPOSH_TEXT_DOMAIN) . '" class="tr-icon tr-icon-adsense"></span>';
             if (transposh_consts::is_language_rtl($langcode))
-                echo '<span class="tr-icon tr-icon-rtl"></span>';
+                echo '<span title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" class="tr-icon tr-icon-rtl"></span>';
 
-            /* if ($this->does_mo_exist(transposh_consts::get_language_locale($langcode)))
-              echo 'BLBL<img width="16" height="16" alt="r" class="logoicon" title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" src="' . $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_IMG . '/rtlicon.png"/>'; */
+            /* if ($this->does_mo_exist(transposh_consts::get_language_locale($langcode))) ??? */
             echo '</li>';
         }
         echo "</ul></div>";
@@ -530,14 +530,6 @@ class transposh_plugin_admin {
 
     // Show normal settings
     function tp_settings() {
-        if (!defined('FULL_VERSION')) { //** WPORG VERSION
-            $this->section(__('Upgrade to full version', TRANSPOSH_TEXT_DOMAIN));
-            $this->checkbox($this->transposh->options->allow_full_version_upgrade_o
-                    , __('Allow upgrading to full version', TRANSPOSH_TEXT_DOMAIN)
-                    , __('Allow upgrading to full version from http://transposh.org, which has no limit on languages used and includes a full set of widgets', TRANSPOSH_TEXT_DOMAIN));
-            $this->sectionstop();
-        } //** WPORGSTOP
-
         $this->section(__('Translation related settings', TRANSPOSH_TEXT_DOMAIN));
 
         /*
@@ -600,7 +592,7 @@ class transposh_plugin_admin {
                 , __('This option enables collection of statistics by transposh that will be used to improve the product.', TRANSPOSH_TEXT_DOMAIN));
 
         /* WIP2
-          echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */
+        echo '<a href="http://transposh.org/services/index.php?flags='.$flags.'">Gen sprites</a>'; */
         $this->sectionstop();
 
         $this->section(__('Mail settings', TRANSPOSH_TEXT_DOMAIN));
@@ -612,7 +604,6 @@ class transposh_plugin_admin {
                 , __('Send mails immediately', TRANSPOSH_TEXT_DOMAIN)
                 , __('Enabling this will send a message as soon as a human translation is submitted.', TRANSPOSH_TEXT_DOMAIN));
         echo '<br>';
-        //** FULL VERSION
         $this->checkbox($this->transposh->options->mail_ontranslate_buffer_o
                 , __('Buffer immediate translations', TRANSPOSH_TEXT_DOMAIN)
                 , __('Enabling this will set a timer, and messages will be buffered and sent after it expires.', TRANSPOSH_TEXT_DOMAIN));
@@ -633,7 +624,6 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->mail_ignore_admin_o
                 , __('Ignore authenticated users translations', TRANSPOSH_TEXT_DOMAIN)
                 , __('Translations made by users with translation role will not be sent immediately, but only on daily digests.', TRANSPOSH_TEXT_DOMAIN));
-        //** FULLSTOP
         $this->sectionstop();
 
         $this->section(__('Backup service settings', TRANSPOSH_TEXT_DOMAIN));
@@ -665,18 +655,22 @@ class transposh_plugin_admin {
                 , __('Allow automatic translation of pages', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_autoposttranslate_o, __('Enable automatic translation after posting', TRANSPOSH_TEXT_DOMAIN)
                 , __('Do automatic translation immediately after a post has been published', TRANSPOSH_TEXT_DOMAIN));
+        // FIX! OLD
         $this->textinput($this->transposh->options->msn_key_o
-                , array('bingicon.png', __('MSN API key', TRANSPOSH_TEXT_DOMAIN))
+                , array('bing', __('MSN API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->textinput($this->transposh->options->google_key_o
-                , array('googleicon.png', __('Google API key', TRANSPOSH_TEXT_DOMAIN))
+                , array('google', __('Google API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->textinput($this->transposh->options->yandex_key_o
-                , array('yandexicon.png', __('Yandex API key', TRANSPOSH_TEXT_DOMAIN))
+                , array('yandex', __('Yandex API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
         $this->textinput($this->transposh->options->baidu_key_o
-                , array('baiduicon.png', __('Baidu API key', TRANSPOSH_TEXT_DOMAIN))
+                , array('baidu', __('Baidu API key', TRANSPOSH_TEXT_DOMAIN))
                 , __('API Key', TRANSPOSH_TEXT_DOMAIN), 35, 'keys');
+        $this->textinput($this->transposh->options->libretranslate_server_o
+            , array('libretranslate', __('LibreTranslate Server', TRANSPOSH_TEXT_DOMAIN))
+            , __('Server URL', TRANSPOSH_TEXT_DOMAIN), 100, 'libretranslate');
 
         echo '<div style="overflow:auto; clear: both;">';
         $this->header(__('Select preferred auto translation engine', TRANSPOSH_TEXT_DOMAIN));
@@ -700,10 +694,8 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->widget_allow_set_deflang_o, __('Allow user to set current language as default', TRANSPOSH_TEXT_DOMAIN)
                 , __('Widget will allow setting this language as user default', TRANSPOSH_TEXT_DOMAIN));
 
-        if (defined('FULL_VERSION')) { //** FULL VERSION
-            $this->checkbox($this->transposh->options->widget_remove_logo_o, __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN)
-                    , __('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN));
-        } //** FULLSTOP
+        $this->checkbox($this->transposh->options->widget_remove_logo_o, __('Remove transposh logo (see <a href="http://transposh.org/logoterms">terms</a>)', TRANSPOSH_TEXT_DOMAIN)
+                , __('Transposh logo will not appear on widget', TRANSPOSH_TEXT_DOMAIN));
         $this->select($this->transposh->options->widget_theme_o, __('Edit interface theme:', TRANSPOSH_TEXT_DOMAIN), __('Edit interface (and progress bar) theme:', TRANSPOSH_TEXT_DOMAIN), transposh_consts::$jqueryui_themes, false);
         $this->sectionstop();
     }
@@ -712,9 +704,7 @@ class transposh_plugin_admin {
         $this->checkbox($this->transposh->options->enable_url_translate_o, __('Enable url translation', TRANSPOSH_TEXT_DOMAIN) . ' (' . __('experimental', TRANSPOSH_TEXT_DOMAIN) . ')', __('Allow translation of permalinks and urls', TRANSPOSH_TEXT_DOMAIN));
         $this->textinput($this->transposh->options->jqueryui_override_o, __('Override jQueryUI version', TRANSPOSH_TEXT_DOMAIN) . " (" . JQUERYUI_VER . ")", __('Version', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->dont_add_rel_alternate_o, __('Disable adding rel=alternate to the html', TRANSPOSH_TEXT_DOMAIN), __('Disable the feature that adds the alternate language list to your page html header', TRANSPOSH_TEXT_DOMAIN));
-        if (defined('FULL_VERSION')) { //** FULL VERSION
-            $this->checkbox($this->transposh->options->full_rel_alternate_o, __('Add rel=alternate with fully qualified urls', TRANSPOSH_TEXT_DOMAIN), __('This will make google happy and will increase size of html by a lot', TRANSPOSH_TEXT_DOMAIN));
-        } //** FULLSTOP
+        $this->checkbox($this->transposh->options->full_rel_alternate_o, __('Add rel=alternate with fully qualified urls', TRANSPOSH_TEXT_DOMAIN), __('This will make google happy and will increase size of html by a lot', TRANSPOSH_TEXT_DOMAIN));
         $this->section(__('Parser related settings', TRANSPOSH_TEXT_DOMAIN)
                 , __('This is extremely dangerous, will break your current translations, and might cause severe hickups, only proceed if you really know what you are doing.', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->parser_dont_break_puncts_o, __('Disable punctuations break', TRANSPOSH_TEXT_DOMAIN)
@@ -894,7 +884,7 @@ class transposh_plugin_admin {
             $help = ' <a class="tp_help" href="#" rel="' . $help . '">[?]</a>';
         }
         if (is_array($head)) {
-            echo "<h3><img width=\"16\" height=\"16\" src=\"{$this->transposh->transposh_plugin_url}/img/{$head[0]}\"> {$head[1]}$help</h3>";
+            echo '<h3><span style="width: 16px;height: 16px;display:inline-block;margin:0 4px -2px 0;" class="tr-icon-'.$head[0]."\"></span>{$head[1]}$help</h3>";
         } else {
             echo "<h3>$head $help</h3>";
         }
@@ -948,14 +938,15 @@ class transposh_plugin_admin {
             $this->add_warning('tp_mem_warning', sprintf(__('Your current PHP memory limit of %s is quite low, if you experience blank pages please consider increasing it.', TRANSPOSH_TEXT_DOMAIN), ini_get('memory_limit')) . ' <a href="http://transposh.org/faq#blankpages">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>');
         }
 
-        if ($this->page &&
-                !(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) */) &&
+        /*if ($this->page &&
+                !(class_exists('Memcache') /* !!&& $this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) *-/) &&
                 !function_exists('apc_fetch') &&
                 !function_exists('apcu_fetch') &&
                 !function_exists('xcache_get') &&
                 !function_exists('eaccelerator_get')) {
-            $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>', 'updated');
-        }
+            // FIX THIS BUGBUG
+          //  $this->add_warning('tp_cache_warning', __('We were not able to find a supported in-memory caching engine, installing one can improve performance.', TRANSPOSH_TEXT_DOMAIN) . ' <a href="http://transposh.org/faq#performance">' . __('Check Transposh FAQs', TRANSPOSH_TEXT_DOMAIN) . '</a>', 'updated');
+        }*/
     }
 
     /**

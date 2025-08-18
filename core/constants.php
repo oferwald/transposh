@@ -11,9 +11,6 @@
  * Date: %DATE%
  */
 
-//** FULL VERSION
-define('FULL_VERSION', true);
-//** FULLSTOP
 //Language indicator in URL. i.e. lang=en
 define('LANG_PARAM', 'lang');
 
@@ -39,9 +36,10 @@ define('TP_GTXT_IBRK', chr(2)); // Gettext inner breaker (around %s)
 define('TP_GTXT_BRK_CLOSER', chr(3)); // Gettext breaker closer
 define('TP_GTXT_IBRK_CLOSER', chr(4)); // Gettext inner breaker closer
 //External services
-define('TRANSPOSH_BACKUP_SERVICE_URL', 'http://svc.transposh.org/backup');
-define('TRANSPOSH_RESTORE_SERVICE_URL', 'http://svc.transposh.org/restore');
-define('TRANSPOSH_UPDATE_SERVICE_URL', 'http://svc.transposh.org/update-check');
+define('TRANSPOSH_BACKUP_SERVICE_URL', 'https://svc.transposh.org/backup');
+define('TRANSPOSH_RESTORE_SERVICE_URL', 'https://svc.transposh.org/restore');
+define('TRANSPOSH_UPDATE_SERVICE_URL', 'https://svc.transposh.org/update-check');
+define('TRANSPOSH_LIBRETRANSLATE_SERVICE_URL', 'http://libretranslate.transposh.org:5000/translate');
 
 /**
  * Holds our arrays statically to reduce chance of namespace collision
@@ -301,7 +299,7 @@ class transposh_consts {
         'co' => [
             'name' => 'Corsican',
             'orig' => 'Corsu',
-            'flag' => 'fr-co',
+            'flag' => 'fr',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -438,7 +436,7 @@ class transposh_consts {
         'fy' => [
             'name' => 'Frisian',
             'orig' => 'Frysk',
-            'flag' => 'nl-fr',
+            'flag' => 'nl',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -1706,24 +1704,23 @@ class transposh_consts {
     private static $engines = array(
         'b' => array(
             'name' => 'Bing',
-            'icon' => 'bingicon.png',
         ),
         'g' => array(
             'name' => 'Google',
-            'icon' => 'googleicon.png',
         ),
         'u' => array(
             'name' => 'Baidu',
-            'icon' => 'baiduicon.png',
         ),
         'y' => array(
             'name' => 'Yandex',
-            'icon' => 'yandexicon.png',
         ),
         'a' => array(
             'name' => 'Apertium',
-            'icon' => 'apertiumicon.png',
         ),
+        'l' => array(
+            'name' => 'LibreTranslate',
+        ),
+
 
     );
 

@@ -33,7 +33,8 @@
             possibly_translateable,
             // ids of progress bars
             t_jp_prefix = t_jp.prefix,
-            // source - 0 is human, 1 google , 2 bing, 3 apertium, 4 yandex, 5 baidu - higher reserved for future engines
+            // source - 0 is human, 1 google , 2 bing, 3 apertium,
+            //          4 yandex, 5 baidu, 6 LibreTranslate - higher reserved for future engines
             source = 1,
             //Ajax translation
             done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
