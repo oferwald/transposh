@@ -1518,7 +1518,8 @@ class transposh_plugin {
                 $k = 0;
                 for ($j = 0; $j < $i; $j++) {
                     if (!isset($r[$j])) {
-                        if (isset($jsonout->results[$j])) {
+                        // Lets skip non translated items and empty items
+                        if (isset($jsonout->results[$j]) && !empty(trim($jsonout->results[$j]))) {
                             $_POST["tk$k"] = stripslashes($_GET['q'][$j]); // stupid, but should work
                             $_POST["tr$k"] = $jsonout->results[$j];
                             $k++;
