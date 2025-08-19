@@ -29,10 +29,8 @@ class transposh_mail {
 
         add_action('transposh_human_translation', array(&$this, 'transposh_mail_humantranslation'), 10, 4);
         add_filter('wp_mail', array(&$this, 'transposh_mail_filter'));
-        //** FULL VERSION
         add_action('transposh_digest_event', array(&$this, 'run_digest'));
         add_action('transposh_buffered_mail_event', array(&$this, 'run_buffered'));
-        //** FULLSTOP 
     }
 
     /**
@@ -56,7 +54,6 @@ class transposh_mail {
      * @param string $translated_by
      */
     function transposh_mail_humantranslation($translation, $original, $lang, $translated_by) {
-        //** FULL VERSION
         if ($this->transposh->options->mail_ignore_admin) {
             $user = new WP_User($translated_by);
             if ($user->has_cap(TRANSLATOR)) {
@@ -81,8 +78,7 @@ class transposh_mail {
             tp_logger("Some mail buffered for later");            
             return;
         }
-        //** FULLSTOP 
-        // if this option is off, no mail should be sent on translation 
+        // if this option is off, no mail should be sent on translation
         if (!$this->transposh->options->mail_ontranslate) {
             return;
         }
@@ -104,8 +100,8 @@ class transposh_mail {
     /**
      * This function should clean mails from stray transposh breakers inserted by locale markings
      * 
-     * @param type $args
-     * @return type
+     * @param array $args
+     * @return array
      */
     function transposh_mail_filter($args) {
 
@@ -119,8 +115,6 @@ class transposh_mail {
 
         return $new_mail;
     }
-
-    //** FULL VERSION
 
     function generate_digest() {
         $digest = "";
@@ -180,8 +174,6 @@ class transposh_mail {
                 . "<h2>" . __('Team Transposh', TRANSPOSH_TEXT_DOMAIN) . "</h2>\n\n<br/>"
         ;
         wp_mail($to, wp_specialchars_decode($subject), $body, $headers);
-        del_transient('transposh_buffered_mail');
+        delete_transient('transposh_buffered_mail');
     }
-
-//** FULLSTOP 
 }
