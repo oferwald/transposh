@@ -408,9 +408,7 @@ class transposh_plugin {
             $parse->is_edit_mode = $this->edit_mode;
             $parse->might_json = $this->attempt_json;
             $parse->is_auto_translate = $this->is_auto_translate_permitted();
-            //** FULL VERSION
             $parse->allow_ad = $this->options->widget_remove_logo;
-            //** FULLSTOP
             // TODO - check this!
             if (stripos(transposh_utils::get_clean_server_var('REQUEST_URI'), '/feed/') !== FALSE) {
                 tp_logger("in rss feed!", 2);
@@ -724,7 +722,6 @@ class transposh_plugin {
         @unlink($this->transposh_plugin_dir . 'widgets/tpw_default.php');
         @unlink($this->transposh_plugin_dir . 'core/globals.php');
 
-        //** FULL VERSION
         // create directories in upload folder, for use with third party widgets
         $upload = wp_upload_dir();
         $upload_dir = $upload['basedir'];
@@ -736,7 +733,6 @@ class transposh_plugin {
         if (!is_dir($transposh_upload_widgets_dir)) {
             mkdir($transposh_upload_widgets_dir, 0700);
         }
-        //** FULLSTOP        
 
         tp_logger("plugin_activate exit: " . dirname(__FILE__), 1);
         tp_logger("testing name:" . plugin_basename(__FILE__), 4);
@@ -1437,7 +1433,7 @@ class transposh_plugin {
         } else {
             // item count
             $i = 0;
-            $q = array();
+            $q = [];
             foreach ($_GET['q'] as $p) {
                 list(, $trans) = $this->database->fetch_translation(stripslashes($p), $tl);
                 if (!$trans) {
@@ -1479,7 +1475,11 @@ class transposh_plugin {
                 default:
                     die('engine not supported');
             }
-
+            if (count($q) != count($result)) {
+                // this should not happen, but lets not crash
+                tp_logger('Translation engine returned ' . count($result) . ' results for ' . count($q) . ' queries',1);
+                die();
+            }
             if ($result === false) {
                 echo 'Proxy attempt failed<br>' . $GLOBALS['tp_logger']->get_logstr();
                 die();
@@ -1535,7 +1535,7 @@ class transposh_plugin {
         // send out result
         // fix CVE-2021-24910
         if (isset($jsonout->result)) {
-            foreach ($jsonout->result as $key => $result) {
+            foreach ($jsonout->result as $key => $result) { // SOME BUG LURKS HERE (String?)
                 $jsonout->result[$key] = esc_html($result);
             }
         }
