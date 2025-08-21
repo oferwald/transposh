@@ -248,11 +248,9 @@ class transposh_plugin_options {
 
         $this->register_option('mail_to', TP_OPT_STRING);
         $this->register_option('mail_ontranslate', TP_OPT_BOOLEAN, 0);
-        //** FULL VERSION
         $this->register_option('mail_ontranslate_buffer', TP_OPT_BOOLEAN, 0);
         $this->register_option('mail_digest', TP_OPT_BOOLEAN, 0);
         $this->register_option('mail_ignore_admin', TP_OPT_BOOLEAN, 0);
-        //** FULLSTOP 
 
         $this->register_option('transposh_backup_schedule', TP_OPT_OTHER, 2);
         $this->register_option('transposh_key', TP_OPT_STRING);

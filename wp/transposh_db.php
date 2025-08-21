@@ -266,7 +266,9 @@ class transposh_database {
         $translated = null;
         tp_logger("Fetching for: $orig-$lang", 4);
         //The original is saved in db in its escaped form
-        $original = esc_sql(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8'));
+        // This should fix a long standing bug with html entities
+        //$original = esc_sql(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8'));
+        $original = esc_sql(htmlspecialchars(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8')));
         // first we look in the cache
         $cached = $this->cache_fetch($original, $lang);
         if ($cached !== false) {

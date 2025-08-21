@@ -372,7 +372,6 @@ class transposh_plugin_widget extends WP_Widget {
             echo '<p>No languages available for display. Check the Transposh settings (Admin).</p>';
         }
 
-        //** FULL VERSION
         // Now this is a comment for those wishing to remove our logo (tplogo.png) and link (transposh.org) from the widget
         // first - according to the gpl, you may do so - but since the code has changed - please make in available under the gpl
         // second - we did invest a lot of time and effort into this, and the link is a way to help us grow and show your appreciation, if it
@@ -382,7 +381,6 @@ class transposh_plugin_widget extends WP_Widget {
         // fifth - if you just delete the following line, it means that you have little respect to the whole copyright thing, which as far as we
         // understand means that by doing so - you are giving everybody else the right to do the same and use your work without any attribution
         // last - you can now remove the logo in exchange to a few percentage of ad and affiliate revenues on your pages, isn't that better?
-        //** FULLSTOP
         $plugpath = @parse_url($this->transposh->transposh_plugin_url, PHP_URL_PATH);
 
         if (!$this->transposh->options->widget_remove_logo) {
