@@ -1475,19 +1475,20 @@ class transposh_plugin {
                 default:
                     die('engine not supported');
             }
-            if (count($q) != count($result)) {
-                // this should not happen, but lets not crash
-                tp_logger('Translation engine returned ' . count($result) . ' results for ' . count($q) . ' queries',1);
-                die();
-            }
             if ($result === false) {
                 echo 'Proxy attempt failed<br>' . $GLOBALS['tp_logger']->get_logstr();
+                die();
+            }
+            // proper order for those checks
+            if (is_array($result) && count($q) != count($result)) {
+                // this should not happen, but lets not crash
+                tp_logger('Translation engine returned ' . count($result) . ' results for ' . count($q) . ' queries',1);
                 die();
             }
         }
         $GLOBALS['tp_logger']->set_global_log(0);
 
-        // encode results 
+        // encode results
         $jsonout = new stdClass();
         if ($suggestmode) {
             $jsonout->result = $result;
