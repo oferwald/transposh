@@ -59,7 +59,8 @@
         };
 
         // might need to escape the token selectors
-        token = token.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+        //token = token.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+        token = $.escapeSelector(token);
         //window.console && console.log(token);
         // rewrite text for all matching items at once
         $("*[data-orig='" + token + "'][data-hidden!='y']")
@@ -333,8 +334,12 @@
 
         $("." + t_jp_prefix + '[data-source=""]').each(function () {
             var token = $(this).attr('data-orig'),
-                    // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
-                    to_trans = $(this).attr('data-orig');
+            // we only have orig if we have some translation? so it should probably not be here... ? (or maybe for future invalidations of cached auto translations)
+                to_trans = $(this).attr('data-orig');
+            // should not happen, but just in case
+            if (!token || token.length === 0) {
+                return; // continue
+            }
             if (to_trans === undefined) {
                 to_trans = $(this).html();
             }

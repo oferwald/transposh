@@ -156,7 +156,8 @@
 
     function fix_page_human(token, translation, source) {
         //reset to the original content - the unescaped version if translation is empty
-        token = token.replace(/[;&,.+*~':"!^#$%@[\]()=>|]/g, '\\$1');
+        //token = token.replace(/[;&,.+*~':"!^#$%@[\]()=>|]/g, '\\$1');
+        token = $.escapeSelector(token);
         if (!$.trim(translation)) {
             translation = $("[data-orig='" + token + "']").attr('data-orig');
         }

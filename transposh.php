@@ -1480,7 +1480,7 @@ class transposh_plugin {
                 die();
             }
             // proper order for those checks
-            if (is_array($result) && count($q) != count($result)) {
+            if (is_array($result) && is_array($q) && count($q) != count($result)) {
                 // this should not happen, but lets not crash
                 tp_logger('Translation engine returned ' . count($result) . ' results for ' . count($q) . ' queries',1);
                 die();

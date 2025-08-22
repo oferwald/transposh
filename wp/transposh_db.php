@@ -50,6 +50,15 @@ class transposh_database {
     /** @var Memcache the memcached connection object */
     private $memcache;
 
+    /** @var Memcached the memcached connection object */
+    private $memcached;
+
+    /** @var Redis the redis connection object */
+    private $redis;
+
+    /** @var bool is redis working */
+    private $redis_working = false;
+
     /**
      * PHP5+ only
      */
@@ -59,14 +68,32 @@ class transposh_database {
         $this->translation_log_table = $GLOBALS['wpdb']->prefix . TRANSLATIONS_LOG;
 
         if (class_exists('Memcache')) {
-            if ($this->transposh->options->debug_enable) {
-                tp_logger('Trying pecl-Memcache!', 3);
-            }
+            tp_logger('Trying pecl-Memcache!', 3);
             $this->memcache_working = true;
             $this->memcache = new Memcache;
             @$this->memcache->connect(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT) or $this->memcache_working = false;
-            if ($this->transposh->options->debug_enable && $this->memcache_working) {
-                tp_logger('Memcache seems working');
+            if ($this->memcache_working) {
+                tp_logger('Memcache seems working',3);
+            }
+        } elseif (class_exists('Memcached')) {
+            tp_logger('Trying pecl-Memcached!', 3);
+            $this->memcache_working = true;
+            $this->memcached = new Memcached();
+            $this->memcached->addServer(TP_MEMCACHED_SRV, TP_MEMCACHED_PORT);
+            tp_logger('Memcached seems working', 3);
+        } elseif (class_exists('Redis')) {
+            if ($this->transposh->options->debug_enable) {
+                tp_logger('Trying Redis!', 3);
+            }
+            $this->redis = new Redis();
+            try {
+                $this->redis->connect(TP_REDIS_SRV, TP_REDIS_PORT); // adjust host/port as needed
+                $this->redis->select(TP_REDIS_DB); // Select the Redis database
+                $this->redis_working = true;
+                tp_logger('Redis seems working', 3);
+            } catch (Exception $e) {
+                $this->redis_working = false;
+                tp_logger('Redis connection failed: ' . $e->getMessage(), 1);
             }
         }
         // I have space in keys issues...
@@ -95,8 +122,15 @@ class transposh_database {
         $cached = false;
         $key = $lang . '_' . $original;
         if ($this->memcache_working) {
-            $cached = $this->memcache->get($key);
-            tp_logger('memcached ' . $key . ' ' . $cached, 5);
+            if ($this->memcache) {
+                $cached = $this->memcache->get($key);
+            } elseif ($this->memcached) {
+                $cached = $this->memcached->get($key);
+            }
+            if ($cached === null) {
+                return false;
+            }
+            tp_logger('memcache(d) ' . $key . ' ' . $cached, 5);
         } elseif (function_exists('apc_fetch')) {
             $cached = apc_fetch($key, $rc);
             if ($rc === false) {
@@ -123,6 +157,12 @@ class transposh_database {
             }
             //TODO - unfortunantly null storing does not work here..
             tp_logger('eaccelerator', 5);
+        } elseif ($this->redis_working) {
+            $cached = $this->redis->get($key);
+            if ($cached === false) {
+                return false;
+            }
+            tp_logger('redis ' . $key . ' ' . $cached, 5);
         }
         tp_logger("Cache fetched: $original => $cached", 4);
         if ($cached !== null && $cached !== false) {
@@ -149,7 +189,11 @@ class transposh_database {
         }
         $rc = false;
         if ($this->memcache_working) {
-            $rc = $this->memcache->set($key, $translated); //, time() + $ttl);
+            if ($this->memcache) {
+                $rc = $this->memcache->set($key, $translated);
+            } elseif ($this->memcached) {
+                $rc = $this->memcached->set($key, $translated, $ttl);
+            }
         } elseif (function_exists('apc_store')) {
             $rc = apc_store($key, $translated, $ttl);
         } elseif (function_exists('apcu_store')) {
@@ -158,6 +202,8 @@ class transposh_database {
             $rc = @xcache_set($key, $translated, $ttl);
         } elseif (function_exists('eaccelerator_put')) {
             $rc = eaccelerator_put($key, $translated, $ttl);
+        } elseif ($this->redis_working) {
+            $rc = $this->redis->set($key, $translated, ['ex' => $ttl]);
         }
 
         if ($rc) {
@@ -179,7 +225,11 @@ class transposh_database {
         }
         $key = $lang . '_' . $original;
         if ($this->memcache_working) {
-            $this->memcache->delete($key);
+            if ($this->memcache) {
+                $this->memcache->delete($key);
+            } elseif ($this->memcached) {
+                $this->memcached->delete($key);
+            }
         } elseif (function_exists('apc_delete')) {
             apc_delete($key);
         } elseif (function_exists('apcu_delete')) {
@@ -188,6 +238,8 @@ class transposh_database {
             @xcache_unset($key);
         } elseif (function_exists('eaccelerator_rm')) {
             eaccelerator_rm($key);
+        } elseif ($this->redis_working) {
+            $this->redis->del($key);
         }
     }
 
@@ -199,13 +251,21 @@ class transposh_database {
             return;
         }
         if ($this->memcache_working) {
-            $this->memcache->flush();
+            if ($this->memcache) {
+                $this->memcache->flush();
+            } elseif ($this->memcached) {
+                $this->memcached->flush();
+            }
         } elseif (function_exists('apc_clear_cache')) {
             apc_clear_cache('user');
         } elseif (function_exists('apc_clear_cache')) {
             apc_clear_cache();
         } elseif (function_exists('xcache_unset_by_prefix')) {
             @xcache_unset_by_prefix();
+        } elseif (function_exists('eaccelerator_clean')) {
+            eaccelerator_clean();
+        } elseif ($this->redis_working) {
+            $this->redis->flushDB();
         }
         //TODO - clean on eaccelerator is not so clean...
     }
@@ -271,7 +331,7 @@ class transposh_database {
         $original = esc_sql(htmlspecialchars(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8')));
         // first we look in the cache
         $cached = $this->cache_fetch($original, $lang);
-        if ($cached !== false) {
+        if ($cached !== false && is_array($cached)) {
             tp_logger("Exit from cache: {$cached[0]} {$cached[1]}", 4);
             return $cached;
         }
@@ -449,6 +509,10 @@ class transposh_database {
                 }
             }
             // Setting the values string for the database (notice how concatanation is handled)
+            if (!isset($translation) || !isset($original) || !isset($lang) || $translation === '' || $original === '' || $lang === '') {
+                tp_logger("Warning missing data for item $i - original: $original, translation: $translation, lang: $lang, source: $source", 1);
+                continue;
+            }
             $delvalues .= ( $firstitem ? '' : ' OR ') . "(original ='$original' AND lang='$lang')";
             // Setting the transaction log records
             $values .= ( $firstitem ? '' : ', ') . "('" . $original . "','" . $translation . "','" . $lang . "','" . $loguser . "','" . $source . "')";

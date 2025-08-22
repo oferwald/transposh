@@ -366,6 +366,7 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
             add_screen_option('layout_columns', array('max' => 4, 'default' => 2));
             add_meta_box('transposh-sidebox-news', __('Plugin news', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_news_content'), '', 'normal', 'core');
             add_meta_box('transposh-sidebox-stats', __('Plugin stats', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_stats_content'), '', 'column3', 'core');
+            add_meta_box('transposh-sidebox-cache', __('Cache Engines', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_sidebox_cache_content'), '', 'side', 'core');
             // add_meta_box('transposh-contentbox-community', __('Transposh community features', TRANSPOSH_TEXT_DOMAIN), array(&$this, 'on_contentbox_community_content'), '', 'normal', 'core');
         }
         if ($this->page == 'tp_editor') {
@@ -862,6 +863,107 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
 
     function on_sidebox_stats_content() {
         $this->transposh->database->db_stats();
+    }
+
+    function on_sidebox_cache_content() {
+        $engines = array(
+            'Memcache'   => class_exists('Memcache'),
+            'Memcached'  => class_exists('Memcached'),
+            'APC'        => function_exists('apc_fetch'),
+            'APCu'       => function_exists('apcu_fetch'),
+            'XCache'     => function_exists('xcache_get'),
+            'eAccelerator' => function_exists('eaccelerator_get'),
+            'Redis'      => class_exists('Redis'),
+        );
+        echo '<ul>';
+        foreach ($engines as $engine => $available) {
+            echo '<li>' . esc_html($engine) . ': <strong style="color:' . ($available ? 'green' : 'red') . ';">' . ($available ? __('Available', TRANSPOSH_TEXT_DOMAIN) : __('Not available', TRANSPOSH_TEXT_DOMAIN)) . '</strong>';
+            if ($available) {
+                // Show stats for supported engines
+                switch ($engine) {
+                    case 'Memcache':
+                        $memcache = new Memcache();
+                        @$memcache->connect('127.0.0.1', 11211);
+                        $stats = @$memcache->getStats();
+                        if ($stats) {
+                            echo '<br/>Keys: ' . intval($stats['curr_items']);
+                            $hits = $stats['get_hits'];
+                            $misses = $stats['get_misses'];
+                            $total = $hits + $misses;
+                            $ratio = $total ? round(100 * $hits / $total, 2) : 0;
+                            echo ', Hit Ratio: ' . $ratio . '%';
+                        }
+                        break;
+                    case 'Memcached':
+                        $memcached = new Memcached();
+                        @$memcached->addServer('127.0.0.1', 11211);
+                        $stats = @$memcached->getStats();
+                        if ($stats) {
+                            foreach ($stats as $server => $s) {
+                                echo '<br/>[' . esc_html($server) . '] Keys: ' . intval($s['curr_items']);
+                                $hits = $s['get_hits'];
+                                $misses = $s['get_misses'];
+                                $total = $hits + $misses;
+                                $ratio = $total ? round(100 * $hits / $total, 2) : 0;
+                                echo ', Hit Ratio: ' . $ratio . '%';
+                            }
+                        }
+                        break;
+                    case 'APC':
+                        $info = @apc_cache_info();
+                        $hits = $info['num_hits'] ?? 0;
+                        $misses = $info['num_misses'] ?? 0;
+                        $total = $hits + $misses;
+                        $ratio = $total ? round(100 * $hits / $total, 2) : 0;
+                        echo '<br/>Keys: ' . intval($info['num_entries'] ?? 0) . ', Hit Ratio: ' . $ratio . '%';
+                        break;
+                    case 'APCu':
+                        $info = @apcu_cache_info();
+                        $hits = $info['num_hits'] ?? 0;
+                        $misses = $info['num_misses'] ?? 0;
+                        $total = $hits + $misses;
+                        $ratio = $total ? round(100 * $hits / $total, 2) : 0;
+                        echo '<br/>Keys: ' . intval($info['num_entries'] ?? 0) . ', Hit Ratio: ' . $ratio . '%';
+                        break;
+                    case 'Redis':
+                        try {
+                            $redis = new Redis();
+                            @$redis->connect('127.0.0.1', 6379);
+                            $info = @$redis->info();
+                            echo '<br/>Keys: ' . intval($redis->dbSize());
+                            $hits = $info['keyspace_hits'] ?? 0;
+                            $misses = $info['keyspace_misses'] ?? 0;
+                            $total = $hits + $misses;
+                            $ratio = $total ? round(100 * $hits / $total, 2) : 0;
+                            echo ', Hit Ratio: ' . $ratio . '%';
+                        } catch (Exception $e) {
+                            echo '<br/>Error connecting to Redis';
+                        }
+                        break;
+                    case 'XCache':
+                        if (function_exists('xcache_count')) {
+                            $count = @xcache_count(XC_TYPE_VAR);
+                            $keys = 0;
+                            for ($i = 0; $i < $count; $i++) {
+                                $keys += @xcache_list(XC_TYPE_VAR, $i)['size'] ?? 0;
+                            }
+                            echo '<br/>Keys: ' . intval($keys);
+                            // XCache does not provide hit/miss stats via PHP API
+                        }
+                        break;
+                    case 'eAccelerator':
+                        if (function_exists('eaccelerator_list')) {
+                            $list = @eaccelerator_list();
+                            $keys = is_array($list) ? count($list) : 0;
+                            echo '<br/>Keys: ' . intval($keys);
+                            // eAccelerator does not provide hit/miss stats via PHP API
+                        }
+                        break;
+                }
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
     }
 
     /** UTILITY FUNCTIONS * */

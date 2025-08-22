@@ -24,6 +24,10 @@ define('TP_CACHE_TTL', 3600 * 24);
 //Constants for memcached
 define('TP_MEMCACHED_SRV', '127.0.0.1');
 define('TP_MEMCACHED_PORT', 11211);
+//Constants for Redis
+define('TP_REDIS_SRV', '127.0.0.1');
+define('TP_REDIS_PORT', 6379);
+define('TP_REDIS_DB', 426144); // just a number
 
 //Class marking a section not be translated.
 define('NO_TRANSLATE_CLASS', 'no_translate');
