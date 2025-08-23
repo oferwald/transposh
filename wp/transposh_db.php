@@ -320,7 +320,7 @@ class transposh_database {
      * Will return NULL if no translation is available.
      * @param string $orig
      * @param string $lang
-     * @return array list(source,translation)
+     * @return array|false // array(source, translated) or false on error
      */
     function fetch_translation($orig, $lang) {
         $translated = null;
@@ -342,7 +342,7 @@ class transposh_database {
         } else {
             // make sure $lang is reasonable, unless someone is messing with us, it will be ok
             if (!($this->transposh->options->is_active_language($lang))) {
-                return;
+                return false;
             }
             $query = "SELECT translated, source FROM {$this->translation_table} WHERE original = '$original' and lang = '$lang' ";
             $row = $GLOBALS['wpdb']->get_row($query);
@@ -457,7 +457,7 @@ class transposh_database {
         $delvalues = '';
         $backup_immidiate_possible = false;
         $firstitem = true;
-        $alreadybatched = array();
+        $alreadybatched = [];
         // We are now processing all posted items
         for ($i = 0; $i < $items; $i++) {
             if (isset($_POST["tk$i"])) {
@@ -466,6 +466,9 @@ class transposh_database {
                 // The original content is encoded as base64 before it is sent (i.e. token), after we
                 // decode it should just the same after it was parsed.
                 $original = esc_sql(htmlspecialchars(html_entity_decode($orig, ENT_NOQUOTES, 'UTF-8')));
+            } else {
+                tp_logger("Warning missing original for item $i", 1);
+                continue; // skip items with no original
             }
             if (isset($_POST["tr$i"])) {
                 $trans = $_POST["tr$i"];

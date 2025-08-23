@@ -1406,7 +1406,10 @@ class transposh_plugin {
         // we need curl for this proxy
         if (!function_exists('curl_init'))
             return;
-
+        // check needed params
+        if (!isset($_GET['e']) || !isset($_GET['tl']) || !isset($_GET['q'])) {
+            return;
+        }
         // we are permissive for sites using multiple domains and such
         transposh_utils::allow_cors();
         // get the needed params
@@ -1434,7 +1437,12 @@ class transposh_plugin {
             // item count
             $i = 0;
             $q = [];
-            foreach ($_GET['q'] as $p) {
+            if (is_array($_GET['q'])) { // this is normal
+                $posted_q = $_GET['q'];
+            } else {
+                $posted_q = array($_GET['q']);
+            }
+            foreach ($posted_q as $p) {
                 list(, $trans) = $this->database->fetch_translation(stripslashes($p), $tl);
                 if (!$trans) {
                     $q[] = urlencode(stripslashes($p)); // fix for the + case?
