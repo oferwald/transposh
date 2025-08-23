@@ -27,7 +27,8 @@ class ChromePhp_tp
     /**
      * @var string
      */
-    const VERSION = '4.1.0';
+    const VERSION = '4.1.1';
+    const MAX_HEADER_SIZE = 8192;
 
     /**
      * @var string
@@ -116,7 +117,7 @@ class ChromePhp_tp
     );
 
     /**
-     * @var ChromePhp
+     * @var ChromePhp_tp
      */
     protected static $_instance;
 
@@ -126,6 +127,13 @@ class ChromePhp_tp
      * @var array
      */
     protected $_processed = array();
+
+    /**
+     * Flag to track if the header size limit has been reached
+     *
+     * @var bool
+     */
+    protected $_limit_reached = false;
 
     /**
      * constructor
@@ -140,7 +148,7 @@ class ChromePhp_tp
     /**
      * gets instance of this class
      *
-     * @return ChromePhp
+     * @return ChromePhp_tp
      */
     public static function getInstance()
     {
@@ -159,7 +167,7 @@ class ChromePhp_tp
     public static function log()
     {
         $args = func_get_args();
-        return self::_log('', $args);
+        self::_log('', $args);
     }
 
     /**
@@ -171,7 +179,7 @@ class ChromePhp_tp
     public static function warn()
     {
         $args = func_get_args();
-        return self::_log(self::WARN, $args);
+        self::_log(self::WARN, $args);
     }
 
     /**
@@ -183,7 +191,7 @@ class ChromePhp_tp
     public static function error()
     {
         $args = func_get_args();
-        return self::_log(self::ERROR, $args);
+        self::_log(self::ERROR, $args);
     }
 
     /**
@@ -194,7 +202,7 @@ class ChromePhp_tp
     public static function group()
     {
         $args = func_get_args();
-        return self::_log(self::GROUP, $args);
+        self::_log(self::GROUP, $args);
     }
 
     /**
@@ -206,7 +214,7 @@ class ChromePhp_tp
     public static function info()
     {
         $args = func_get_args();
-        return self::_log(self::INFO, $args);
+        self::_log(self::INFO, $args);
     }
 
     /**
@@ -217,7 +225,7 @@ class ChromePhp_tp
     public static function groupCollapsed()
     {
         $args = func_get_args();
-        return self::_log(self::GROUP_COLLAPSED, $args);
+        self::_log(self::GROUP_COLLAPSED, $args);
     }
 
     /**
@@ -228,7 +236,7 @@ class ChromePhp_tp
     public static function groupEnd()
     {
         $args = func_get_args();
-        return self::_log(self::GROUP_END, $args);
+        self::_log(self::GROUP_END, $args);
     }
 
     /**
@@ -239,7 +247,7 @@ class ChromePhp_tp
     public static function table()
     {
         $args = func_get_args();
-        return self::_log(self::TABLE, $args);
+        self::_log(self::TABLE, $args);
     }
 
     /**
@@ -359,6 +367,7 @@ class ChromePhp_tp
         if ($property->isPrivate()) {
             return 'private' . $static . ' ' . $property->getName();
         }
+        return 'unknown' . $static . ' ' . $property->getName();
     }
 
     /**
@@ -369,6 +378,10 @@ class ChromePhp_tp
      */
     protected function _addRow(array $logs, $backtrace, $type)
     {
+        if ($this->_limit_reached) {
+            return;
+        }
+
         // if this is logged on the same line for example in a loop, set it to null to save space
         if (in_array($backtrace, $this->_backtraces)) {
             $backtrace = null;
@@ -380,13 +393,39 @@ class ChromePhp_tp
             $backtrace = null;
         }
 
-        if ($backtrace !== null) {
-            $this->_backtraces[] = $backtrace;
-        }
-
         $row = array($logs, $backtrace, $type);
 
+        $current_json = $this->_json;
+
         $this->_json['rows'][] = $row;
+
+        $encoded = $this->_encode($this->_json);
+        $header_size = strlen(self::HEADER_NAME . ': ') + strlen($encoded);
+
+        if ($header_size > self::MAX_HEADER_SIZE) {
+            $this->_json = $current_json;
+
+            $this->_limit_reached = true;
+
+            $trunc_logs = array('Header size limit reached. Further logs truncated.');
+            $trunc_row = array($trunc_logs, null, self::WARN);
+
+            $this->_json['rows'][] = $trunc_row;
+
+            $encoded = $this->_encode($this->_json);
+            $header_size = strlen(self::HEADER_NAME . ': ') + strlen($encoded);
+
+            if ($header_size > self::MAX_HEADER_SIZE) {
+                // Even the warning pushes it over, remove the warning
+                array_pop($this->_json['rows']);
+            }
+        } else {
+            // Row was added successfully, now add the backtrace if applicable
+            if ($backtrace !== null) {
+                $this->_backtraces[] = $backtrace;
+            }
+        }
+
         $this->_writeHeader($this->_json);
     }
 
