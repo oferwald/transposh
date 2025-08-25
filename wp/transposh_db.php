@@ -120,7 +120,7 @@ class transposh_database {
             return false;
         }
         $cached = false;
-        $key = $lang . '_' . $original;
+        $key = $lang . '_' . str_replace(' ','_',$original); // memcached has issues with spaces in keys...
         if ($this->memcache_working) {
             if ($this->memcache) {
                 $cached = $this->memcache->get($key);
@@ -183,7 +183,7 @@ class transposh_database {
         if (!TP_ENABLE_CACHE) {
             return false;
         }
-        $key = $lang . '_' . $original;
+        $key = $lang . '_' . str_replace(' ','_',$original); // memcached has issues with spaces in keys...
         if ($translated !== null) {
             $translated = implode('_', $translated);
         }
