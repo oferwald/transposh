@@ -18,12 +18,12 @@
 /*global Date, Math, alert, escape, clearTimeout, document, jQuery, setTimeout, t_jp, t_jl, window, VKI_attach, VKI_show, VKI_close */
 (function ($) { // closure
     var engines = [
-        { id: 'google',l: 'g', click: getgt, n:1},
-        { id: 'bing', l: 'b', click: getbt, n:2},
-        { id: 'apertium', l: 'a', click: getat, n:3},
-        { id: 'yandex', l: 'y', click: getyt, n:4},
-        { id: 'baidu', l: 'u', click: getut, n:5},
-        { id: 'libretranslate', l: 'l', click: getlt, n:6},
+        { id: 'google', l: 'g', click: () => getproxiedsuggestion('g'), n: 1 },
+        { id: 'bing', l: 'b', click: () => getproxiedsuggestion('b'), n: 2 },
+        { id: 'apertium', l: 'a', click: () => getproxiedsuggestion('a'), n: 3 },
+        { id: 'yandex', l: 'y', click: () => getproxiedsuggestion('y'), n: 4 },
+        { id: 'baidu', l: 'u', click: () => getproxiedsuggestion('u'), n: 5 },
+        { id: 'libretranslate', l: 'l', click: () => getproxiedsuggestion('l'), n: 6 },
     ];
 
     // list of languages
@@ -31,6 +31,7 @@
         'en': 'English - English',
         'af': 'Afrikaans - Afrikaans',
         'sq': 'Albanian - Shqip',
+        'am': 'Amharic - አማርኛ',
         'ar': 'Arabic - العربية',
         'hy': 'Armenian - Հայերեն',
         'az': 'Azerbaijani - azərbaycan dili',
@@ -40,30 +41,37 @@
         'bn': 'Bengali - বাংলা',
         'bs': 'Bosnian - bosanski jezik',
         'bg': 'Bulgarian - Български',
+        'my': 'Burmese - မြန်မာစာ',
         'ca': 'Catalan - Català',
         'yue': 'Cantonese - 粤语',
         'ceb': 'Cebuano - Binisaya',
         'ny': 'Chichewa - Chinyanja',
         'zh': 'Chinese (Simplified) - 中文(简体)',
         'zh-tw': 'Chinese (Traditional) - 中文(漢字)',
+        'co': 'Corsican - Corsu',
         'hr': 'Croatian - Hrvatski',
         'cs': 'Czech - Čeština',
         'da': 'Danish - Dansk',
         'nl': 'Dutch - Nederlands',
         'eo': 'Esperanto - Esperanto',
         'et': 'Estonian - Eesti keel',
+        'fj': 'Fijian - vosa Vakaviti',
+        'fil': 'Filipino - Wikang Filipino',
         'fi': 'Finnish - Suomi',
         'fr': 'French - Français',
+        'fy': 'Frisian - Frysk',
         'gl': 'Galician - Galego',
         'ka': 'Georgian - ქართული',
         'de': 'German - Deutsch',
         'el': 'Greek - Ελληνικά',
         'gu': 'Gujarati - ગુજરાતી',
-        'ht': 'Haitian - Kreyòl ayisyen',
+        'ht': 'Haitian Creole - Kreyòl ayisyen',
         'ha': 'Hausa - Harshen Hausa',
+        'haw': 'Hawaiian - ʻŌlelo Hawaiʻi',
         'hmn': 'Hmong - Hmoob',
         'mw': 'Hmong Daw - Hmoob Daw',
         'he': 'Hebrew - עברית',
+        'mrj': 'Hill Mari - Мары йӹлмӹ',
         'hi': 'Hindi - हिन्दी; हिंदी',
         'hu': 'Hungarian - Magyar',
         'is': 'Icelandic - Íslenska',
@@ -76,12 +84,14 @@
         'kn': 'Kannada - ಕನ್ನಡ',
         'kk': 'Kazakh - Қазақ тілі',
         'km': 'Khmer - ភាសាខ្មែរ',
-        'ko': 'Korean - 한국어',
         'ky': 'Kirghiz - кыргыз тили',
+        'ko': 'Korean - 한국어',
+        'ku': 'Kurdish (Kurmanji) - Kurdî',
         'lo': 'Lao - ພາສາລາວ',
         'la': 'Latin - Latīna',
         'lv': 'Latvian - Latviešu valoda',
         'lt': 'Lithuanian - Lietuvių kalba',
+        'lb': 'Luxembourgish - Lëtzebuergesch',
         'mk': 'Macedonian - македонски јазик',
         'mg': 'Malagasy - Malagasy fiteny',
         'ms': 'Malay - Bahasa Melayu',
@@ -89,18 +99,25 @@
         'mt': 'Maltese - Malti',
         'mi': 'Maori - Te Reo Māori',
         'mr': 'Marathi - मराठी',
+        'mhr': 'Mari - марий йылме',
         'mn': 'Mongolian - Монгол',
-        'my': 'Burmese - မြန်မာစာ',
         'ne': 'Nepali - नेपाली',
         'no': 'Norwegian - Norsk',
+        'otq': 'Otomi - Querétaro Otomi',
+        'pap': 'Papiamento - Papiamentu',
         'fa': 'Persian - پارسی',
         'pl': 'Polish - Polski',
         'pt': 'Portuguese - Português',
+        'pt-br': 'Brazilian Portuguese - Português do Brasil',
         'pa': 'Punjabi - ਪੰਜਾਬੀ',
         'ro': 'Romanian - Română',
         'ru': 'Russian - Русский',
+        'sm': 'Samoan - gagana fa\'a Samoa',
+        'gd': 'Scots Gaelic - Gàidhlig',
         'sr': 'Serbian - Cрпски језик',
         'st': 'Sesotho - Sesotho',
+        'sn': 'Shona - chiShona',
+        'sd': 'Sindhi - سنڌي',
         'si': 'Sinhala - සිංහල',
         'sk': 'Slovak - Slovenčina',
         'sl': 'Slovene - Slovenščina',
@@ -110,19 +127,24 @@
         'sw': 'Swahili - Kiswahili',
         'sv': 'Swedish - Svenska',
         'tl': 'Tagalog - Tagalog',
+        'ty': 'Tahitian - Reo Mā`ohi\'',
         'tg': 'Tajik - Тоҷикӣ',
         'ta': 'Tamil - தமிழ்',
         'tt': 'Tatar - татарча',
         'te': 'Telugu - తెలుగు',
         'th': 'Thai - ภาษาไทย',
+        'to': 'Tonga - faka Tonga',
         'tr': 'Turkish - Türkçe',
+        'udm': 'Udmurt - удмурт кыл',
         'uk': 'Ukrainian - Українська',
         'ur': 'Urdu - اردو',
         'uz': 'Uzbek - Oʻzbek tili',
         'vi': 'Vietnamese - Tiếng Việt',
         'cy': 'Welsh - Cymraeg',
+        'xh': 'Xhosa - isiXhosa',
         'yi': 'Yiddish - ייִדיש',
         'yo': 'Yoruba - èdè Yorùbá',
+        'yua': 'Yucatec Maya - Màaya T\'àan',
         'zu': 'Zulu - isiZulu'
     },
     prefix = t_jp.prefix,
@@ -226,45 +248,6 @@
             }
         });
 
-    }
-
-    // fetch translation from google translate...
-    function getgt()
-    {
-        getproxiedsuggestion('g');
-    }
-
-    // fetch translation from yandex translate...
-    function getyt()
-    {
-        getproxiedsuggestion('y');
-    }
-
-    // fetch translation from baidu translate...
-    function getut()
-    {
-        getproxiedsuggestion('u');
-    }
-
-    // fetch translation from bing translate...
-    function getbt()
-    {
-        getproxiedsuggestion('b');
-    }
-
-    // fetch translation from bing translate...
-    function getlt()
-    {
-        getproxiedsuggestion('l');
-    }
-
-    // fetch translation from apertium translate...
-    function getat()
-    {
-        t_jp.dat($(idprefix + "original").val(), function (result) {
-            $(idprefix + "translation").val($("<div>" + $.trim(result.responseData.translatedText) + "</div>").text())
-                    .keyup();
-        }, t_jp.lang);
     }
 
     // switch position of text and close button in ui-dialog for rtl

@@ -470,7 +470,7 @@ class transposh_translate
             tp_logger("Error: Bing cURL or HTTP error.", 1);
             return false;
         }
-
+        tp_logger("Bing response: $response", 3);
         $data = json_decode($response, true);
         // tp_logger($data,1);
         if (isset($data[0]['translations'][0]['text'])) {
@@ -528,5 +528,39 @@ class transposh_translate
         }
         tp_logger($response, 1);
         return $result['translatedText'];
+    }
+
+    /******************************************
+     * Proxied translation for Apertium
+     *****************************************/
+    public static function get_apertium_translation($tl, $sl, $q)
+    {
+        $q_was_array = is_array($q);
+
+        if (is_array($q)) {
+            $q = json_encode(array_map('urldecode', $q), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        $langpair = $sl . '|' . $tl;
+        $params = array(
+            'langpair' => $langpair,
+            'markUnknown' => 'no',
+            'q' => $q,
+        );
+
+        $url = 'https://apertium.org/apy/translate?' . http_build_query($params);
+
+        $response = self::executeCurlRequest($url, [], []);
+        if ($response === false) {
+            return false;
+        }
+
+        $json = json_decode($response, true);
+        if ($q_was_array) {
+            tp_logger(json_decode($json['responseData']['translatedText'], true));
+            return json_decode($json['responseData']['translatedText'], true);
+        } else {
+            return $json['responseData']['translatedText'];
+        }
     }
 }

@@ -1,4 +1,4 @@
-/*  Copyright © 2009-2018 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2025 Transposh Team (website : https://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,10 +16,6 @@
  */
 
 // List of exposed functions:
-//    t_jp.dgpt = do_mass_google_translate;
-//    t_jp.dbt = do_mass_bing_translate;
-//    t_jp.dyt = do_mass_yandex_translate;
-//    t_jp.dat = do_mass_apertium_translate;
 //    t_jp.tfl = test_for_lazyrun;
 //    t_jp.tfju = test_for_jqueryui;
 //    t_jp.at = do_auto_translate;
@@ -35,9 +31,14 @@
             t_jp_prefix = t_jp.prefix,
             // source - 0 is human, 1 google , 2 bing, 3 apertium,
             //          4 yandex, 5 baidu, 6 LibreTranslate - higher reserved for future engines
-            source = 1,
-            //Ajax translation
-            done_posted = 0, /*Timer for translation aggregation*/ timer, tokens = [], translations = []
+            ENGINES = {
+                'g': {s: 1 }, // Google
+                'b': {s: 2 }, // Bing
+                'a': {s: 3 }, // Apertium
+                'y': {s: 4 }, // Yandex
+                'u': {s: 5 }, // Baidu
+                'l': {s: 6 }, // LibreTranslate
+            }
             ;
 
     // This function fixes the page, it gets a token and translation and fixes this,
@@ -73,255 +74,52 @@
                 .each(fix_image);
     }
 
-    // we have four params, here two are implicit (source =1 auto translate, lang = target language)
-    function ajax_translate(token, translation) {
-        // we aggregate translations together, 200ms from the last translation we will send the timer
-        // so here we remove it so nothing unexpected happens
-        clearTimeout(timer);
-        // push translations
-        tokens.push(token);
-        translations.push(translation);
-        // This is a change - as we fix the pages before we got actual confirmation (worked well for auto-translation)
-        fix_page(token, translation);
-        timer = setTimeout(function () {
-            var data = {
-                ln0: t_jp.lang, // implicit
-                sr0: source, // implicit auto translate... 1 if google, 2 if msn
-                action: 'tp_translation',
-                items: tokens.length // we can do this here because all tokens will be different
-            }, i;
-            for (i = 0; i < tokens.length; i += 1) {
-                data["tk" + i] = tokens[i];
-                data["tr" + i] = translations[i];
-                // We are pre-accounting the progress bar here - which is not very nice
-                //if (source > 0) {
-                done_posted += $("*[data-orig='" + tokens[i].replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1') + "']").length;
-                //}
-            }
-            $.ajax({
-                type: "POST",
-                url: t_jp.ajaxurl,
-                data: data,
-                success: function () {
-                    // Success now only updates the save progress bar (green)
-                    console.window && console.log(done_posted + "/" + possibly_translateable + " translations posted");
-                }
-                // we removed the error function, as there is no alert for automated thing, this will silently fail
-                // which although bad, is what we can do for now
-            });
-            translations = [];
-            tokens = [];
-        }, 200); // wait 200 ms... -- TODO, maybe do - items*3
-    }
-
     // happens on translate success
     function auto_translate_success(token, translation) {
-        ajax_translate(token, $("<div>" + $.trim(translation) + "</div>").text());
+        // since this moved to the backend, we should not post again
+        fix_page(token, translation);
         window.console && console.log(possibly_translateable - $("." + t_jp_prefix + '[data-source=""]').length + "/" + possibly_translateable + " auto translated");
     }
 
-    // mass google translation - using proxy
-    function do_mass_google_translate(batchtrans, callback, lang) {
-        /*var sl = '';
-         if (usedefault) {
-         sl = t_jp.olang;
-         }*/
+    function mass_translate(engine, batchtrans, lang, success) {
         $.ajax({
             url: t_jp.ajaxurl,
             dataType: "json",
             type: "GET",
-            // check each
             data: {
                 action: 'tp_tp',
-                e: 'g',
+                e: engine,
                 tl: lang,
-                // sl: sl,
                 q: batchtrans
             },
-            success: callback
-        });
-    }
-    function do_mass_google_invoker(tokens, trans) {
-        do_mass_google_translate(trans, function (result) {
-            $(result.results).each(function (i) {
-                auto_translate_success(tokens[i], this);
-            });
-        }, t_jp.lang);
-    }
-
-    /*  // mass google translation using an api key
-     function do_mass_google_api_translate(batchtrans, callback, lang) {
-     $.ajax({
-     url: 'https://www.googleapis.com/language/translate/v2',
-     dataType: "jsonp",
-     data: {
-     key: t_jp.google_key,
-     q: batchtrans,
-     target: lang,
-     source: t_jp.olang
-     },
-     traditional: true,
-     success: callback
-     });
-     }
-     function do_mass_google_api_invoker(tokens, trans) {
-     do_mass_google_api_translate(trans, function (result) {
-     // if there was an error we will try the other invoker
-     if (typeof result.error !== 'undefined') {
-     do_mass_google_invoker(tokens, trans);
-     } else {
-     $(result.data.translations).each(function (i) {
-     auto_translate_success(tokens[i], this.translatedText);
-     });
-     }
-     }, t_jp.lang);
-     }*/
-
-    // mass bing translation
-    function do_mass_bing_translate(batchtrans, callback, lang) {
-        /*var sl = '';
-         if (usedefault) {
-         sl = t_jp.olang;
-         }*/
-        $.ajax({
-            url: t_jp.ajaxurl,
-            dataType: "json",
-            type: "GET",
-            // check each
-            data: {
-                action: 'tp_tp',
-                e: 'b',
-                tl: lang,
-                // sl: sl,
-                q: batchtrans
-            },
-            success: callback
+            success: success
         });
     }
 
-    function do_mass_bing_invoker(tokens, trans) {
-        source = 2;
-        do_mass_bing_translate(trans, function (result) {
-            $(result).each(function (i) {
-                auto_translate_success(tokens[i], this.TranslatedText);
-            });
-        }, t_jp.lang);
-    }
-
-    // mass yandex translation - using proxy
-    function do_mass_yandex_translate(batchtrans, callback, lang) {
-        /*var sl = '';
-         if (usedefault) {
-         sl = t_jp.olang;
-         }*/
-        $.ajax({
-            url: t_jp.ajaxurl,
-            dataType: "json",
-            type: "GET",
-            // check each
-            data: {
-                action: 'tp_tp',
-                e: 'y',
-                tl: lang,
-                // sl: sl,
-                q: batchtrans
-            },
-            success: callback
-        });
-    }
-    function do_mass_yandex_invoker(tokens, trans) {
-        source = 4;
-        do_mass_yandex_translate(trans, function (result) {
-            $(result.results).each(function (i) {
-                auto_translate_success(tokens[i], this);
-            });
-        }, t_jp.lang);
-    }
-
-    // mass baidu translation - using proxy
-    function do_mass_baidu_translate(batchtrans, callback, lang) {
-        /*var sl = '';
-         if (usedefault) {
-         sl = t_jp.olang;
-         }*/
-        $.ajax({
-            url: t_jp.ajaxurl,
-            dataType: "json",
-            type: "GET",
-            // check each
-            data: {
-                action: 'tp_tp',
-                e: 'u',
-                tl: lang,
-                // sl: sl,
-                q: batchtrans
-            },
-            success: callback
-        });
-    }
-    function do_mass_baidu_invoker(tokens, trans) {
-        source = 5;
-        do_mass_baidu_translate(trans, function (result) {
-            $(result.results).each(function (i) {
-                auto_translate_success(tokens[i], this);
-            });
-        }, t_jp.lang);
-    }
-
-    // mass apertium translation
-    function do_mass_apertium_translate(batchtrans, callback, lang) {
-        $.ajax({
-            url: 'http://api.apertium.org/json/translate',
-            data: {
-                q: batchtrans,
-                langpair: t_jp.olang + '|' + lang,
-                markUnknown: 'no'
-            },
-            dataType: "jsonp",
-            traditional: true,
-            success: callback
-        });
-    }
-
-    function do_mass_apertium_invoker(tokens, trans) {
-        source = 3;
-        do_mass_apertium_translate(trans, function (result) {
-            // we assume that 2xx answer should be good, 200 is good, 206 is partially good (some errors)
-            if (result.responseStatus >= 200 && result.responseStatus < 300) {
-                // single items get handled differently
-                if (result.responseData.translatedText !== undefined) {
-                    auto_translate_success(tokens[0], result.responseData.translatedText);
-                } else {
-                    $(result.responseData).each(function (i) {
-                        if (this.responseStatus === 200) {
-                            auto_translate_success(tokens[i], this.responseData.translatedText);
-                        }
-                    });
-                }
+    // Generic invoker
+    function invoke_engine(engine, tokens, batchtrans) {
+        var cfg = ENGINES[engine];
+        if (!cfg) return;
+        source = cfg.s;
+        mass_translate(engine, batchtrans, t_jp.lang, function (result) {
+            var arr;
+            try {
+                arr = result.results;
+            } catch (e) {
+                arr = [];
             }
-        }, t_jp.lang);
+            for (var i = 0; i < arr.length && i < tokens.length; i++) {
+                auto_translate_success(tokens[i], arr[i]);
+            }
+        });
     }
 
-    // invokes the correct mass translator based on the preferred one...
+    // Unified dispatcher
     function do_mass_invoke(batchtokens, batchtrans) {
+        if (!batchtokens.length) return;
         t_jp.preferred.some(function (engine) {
-            //console.log(engine);
             if (t_jp.engines[engine]) {
-                if (engine === 'a') {
-                    do_mass_apertium_invoker(batchtokens, batchtrans);
-                }
-                if (engine === 'b') {
-                    do_mass_bing_invoker(batchtokens, batchtrans);
-                }
-                if (engine === 'g') {
-                    do_mass_google_invoker(batchtokens, batchtrans);
-                }
-                if (engine === 'y') {
-                    do_mass_yandex_invoker(batchtokens, batchtrans);
-                }
-                if (engine === 'u') {
-                    do_mass_baidu_invoker(batchtokens, batchtrans);
-                }
+                invoke_engine(engine, batchtokens, batchtrans);
                 return true;
             }
         });
@@ -388,12 +186,6 @@
     }
 
     // expose some functions
-    t_jp.dgpt = do_mass_google_translate;
-    //t_jp.dgt = do_mass_google_api_translate;
-    t_jp.dbt = do_mass_bing_translate;
-    t_jp.dyt = do_mass_yandex_translate;
-    t_jp.dut = do_mass_baidu_translate;
-    t_jp.dat = do_mass_apertium_translate;
     t_jp.at = do_auto_translate;
     t_jp.tfl = test_for_lazyrun;
     t_jp.tfju = test_for_jqueryui;

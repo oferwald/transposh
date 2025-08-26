@@ -1467,6 +1467,11 @@ class transposh_plugin {
                     $source = 2;
                     $result = transposh_translate::get_bing_translation($tl, $sl, $q);
                     break;
+                case 'a': // apertium
+                    if (!$sl) $sl = 'en'; // setting default source language to english
+                    $source = 3;
+                    $result = transposh_translate::get_apertium_translation($tl, $sl, $q);
+                    break;
                 case 'y': // yandex
                     $source = 4;
                     $result = transposh_translate::get_yandex_translation($tl, $sl, $q);
