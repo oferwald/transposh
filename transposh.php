@@ -1573,6 +1573,13 @@ class transposh_plugin {
     // the case of posted translation
     function on_ajax_nopriv_tp_translation() {
         transposh_utils::allow_cors();
+        // we will check that our source is a human here, and that we now have a single translation
+        if (isset($_POST['sr0']) && $_POST['sr0'] != 0) {
+            die('This call only accepts human translations');
+        }
+        if (isset($_POST['items']) && $_POST['items'] != 1) {
+            die('Limited to one item at a time');
+        }
         do_action('transposh_translation_posted');
         $this->database->update_translation();
         die();
