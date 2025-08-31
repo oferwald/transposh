@@ -83,6 +83,25 @@ You can find them on our site [here](https://transposh.org/faq)
 <details open>
 <summary>
 
+### 2025/09/01 - 1.0.10
+</summary>
+
+- Revamped translation handling to fix #38 (dead Bing endpoint)
+- Fully moved translation processing to the backend, reducing client-side workload and fixing #40 for better performance
+- Added support for LibreTranslate (self-hosted or public instances) as a new translation backend
+- Added support for Memcached and Redis as caching backends
+- New backend widget to display caching stats and available caching engines
+- Removed the performance warning in the backend, as it was often misleading
+- Improved hreflang support for Google "compatibility"
+- Changed the frontend icons to SVG for improved quality and scalability
+- Fixed debugging infrastructure to prevent 500 errors during debug mode
+- Fixed various PHP warnings and notices, including those in #35
+- Removed code for WPORG version, which will never be updated again
+</details>
+
+<details>
+<summary>
+
 ### 2025/04/05 - 1.0.9.6
 </summary>
 
