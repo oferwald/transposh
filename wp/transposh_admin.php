@@ -488,7 +488,7 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
                 }
             }
             if (transposh_consts::is_language_adsense($langcode))
-                echo '<span title="' . esc_attr__('Language is supported by adsense', TRANSPOSH_TEXT_DOMAIN) . '" class="tr-icon tr-icon-adsense"></span>';
+                echo '<span title="' . esc_attr__('Language supported by Google Adsense', TRANSPOSH_TEXT_DOMAIN) . '" class="tr-icon tr-icon-adsense"></span>';
             if (transposh_consts::is_language_rtl($langcode))
                 echo '<span title="' . esc_attr__('Language is written from right to left', TRANSPOSH_TEXT_DOMAIN) . '" class="tr-icon tr-icon-rtl"></span>';
 
