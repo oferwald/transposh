@@ -74,7 +74,7 @@ class transposh_plugin_widget extends WP_Widget {
     static $first_init = true;
 
     /** @staticvar int Counts call to the widget do to generate unique IDs */
-    static $draw_calls = '';
+    static $draw_calls = 0;
 
     function __construct() {
         // We get the transposh details from the global variable
