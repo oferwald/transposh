@@ -754,7 +754,7 @@ class transposh_consts {
         'ku' => [
             'name' => 'Kurdish (Kurmanji)',
             'orig' => 'Kurdî',
-            'flag' => 'tr',
+            'flag' => 'krd',
             'engines' => [
                 'g' => 'y',
             ],
