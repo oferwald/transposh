@@ -1811,7 +1811,7 @@ class transposh_consts {
      */
     public static function is_supported_engine($lang, $engine) {
         $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
-        if (isset($overrides[$lang]['engines'][$engine]) && !empty($overrides[$lang]['engines'][$engine])) {
+        if (isset($overrides[$lang]['engines'][$engine]) && $overrides[$lang]['engines'][$engine]['enabled'] === 1) {
             return true;
         }
         return isset(self::$languages[$lang]['engines'][$engine]) && !empty(self::$languages[$lang]['engines'][$engine]);
