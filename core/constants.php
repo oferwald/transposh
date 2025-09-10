@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Transposh v%VERSION%
  * http://transposh.org/
@@ -56,7 +55,7 @@ define('TRANSPOSH_LIBRETRANSLATE_SERVICE_URL', 'http://libretranslate.transposh.
  * l - LibreTranslate
  */
 class transposh_consts {
-//Supported languages, new languages can be added here
+    // Supported languages, new languages may be added here, but also in the interface
     private static $languages = [
         'en' => [
             'name' => 'English',
@@ -1457,7 +1456,7 @@ class transposh_consts {
      * Upstream source: https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes
      */
     private static $countryToLanguageMapping = [
-        'ad' => 'ca', 
+        'ad' => 'ca',
         'ae' => 'ar',
         'af' => 'fa,ps',
         'ag' => 'en',
@@ -1510,7 +1509,7 @@ class transposh_consts {
         'cx' => 'en',
         'cy' => 'el,tr',
         'cz' => 'cs',
-        '// de' => 'de',
+        // 'de' => 'de',
         'dj' => 'fr,ar,so',
         'dk' => 'da',
         'dm' => 'en',
@@ -1724,40 +1723,54 @@ class transposh_consts {
         'l' => array(
             'name' => 'LibreTranslate',
         ),
-
-
     );
 
+    /**
+     * @param $lang - language code
+     * @return string - language name in English
+     */
     public static function get_language_name($lang) {
-        if (!isset(self::$languages[$lang])) {
-            return '';
-        }
-        $langname = self::$languages[$lang]['name'];
-        $langname_r = apply_filters("tp_language_name", $langname);
-        return $langname_r;
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        $name = isset($overrides[$lang]['name']) && !empty($overrides[$lang]['name'])
+            ? $overrides[$lang]['name']
+            : (isset(self::$languages[$lang]['name']) ? self::$languages[$lang]['name'] : '');
+        return apply_filters('tp_language_name', $name, $lang);
     }
 
+    /**
+     * @param $lang - language code
+     * @return string - language name in its own language
+     */
     public static function get_language_orig_name($lang) {
-        $langorigname = self::$languages[$lang]['orig'];
-        $langorigname_r = apply_filters("tp_language_origname", $langorigname);
-        return $langorigname_r;
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        $orig_name = isset($overrides[$lang]['orig']) && !empty($overrides[$lang]['orig'])
+            ? $overrides[$lang]['orig']
+            : (isset(self::$languages[$lang]['orig']) ? self::$languages[$lang]['orig'] : '');
+        return apply_filters('tp_language_origname', $orig_name, $lang);
     }
 
+    /**
+     * @param $lang - language code
+     * @return string - country code for flag
+     */
     public static function get_language_flag($lang) {
-        $flag = self::$languages[$lang]['flag'];
-        $flag_r = apply_filters("tp_language_flag", $flag);
-        return $flag_r;
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        $flag = isset($overrides[$lang]['flag']) && !empty($overrides[$lang]['flag'])
+            ? $overrides[$lang]['flag']
+            : (isset(self::$languages[$lang]['flag']) ? self::$languages[$lang]['flag'] : '');
+        return apply_filters('tp_language_flag', $flag, $lang);
     }
 
-    public static function get_language_locale($lang)
-    {
-        if (isset(self::$languages[$lang]['locale'])) {
-            $locale = self::$languages[$lang]['locale'];
-        } else {
-            $locale = $lang;
-        }
-        $locale_r = apply_filters("tp_language_locale", $locale);
-        return $locale_r;
+    /**
+     * @param string $lang - language tested
+     * @return string - locale for language
+     */
+    public static function get_language_locale($lang) {
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        $locale = isset($overrides[$lang]['locale']) && !empty($overrides[$lang]['locale'])
+            ? $overrides[$lang]['locale']
+            : (isset(self::$languages[$lang]['locale']) ? self::$languages[$lang]['locale'] : $lang);
+        return apply_filters('tp_language_locale', $locale, $lang);
     }
 
     /**
@@ -1765,7 +1778,8 @@ class transposh_consts {
      * @return bool - do we have it?
      */
     public static function is_supported_language($lang) {
-        return isset(self::$languages[$lang]);
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        return isset(self::$languages[$lang]) || isset($overrides[$lang]);
     }
 
     /**
@@ -1773,7 +1787,10 @@ class transposh_consts {
      * @return bool - is it rtl?
      */
     public static function is_language_rtl($lang) {
-        return isset(self::$languages[$lang]['rtl']);
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        return isset($overrides[$lang]['rtl']) && $overrides[$lang]['rtl'] == 1
+            ? true
+            : isset(self::$languages[$lang]['rtl']);
     }
 
     /**
@@ -1781,7 +1798,10 @@ class transposh_consts {
      * @return bool - is it adsense language?
      */
     public static function is_language_adsense($lang) {
-        return isset(self::$languages[$lang]['adsense']);
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        return isset($overrides[$lang]['adsense']) && $overrides[$lang]['adsense'] == 1
+            ? true
+            : isset(self::$languages[$lang]['adsense']);
     }
 
     /**
@@ -1790,7 +1810,11 @@ class transposh_consts {
      * @return bool - is language supported by engine?
      */
     public static function is_supported_engine($lang, $engine) {
-        return isset(self::$languages[$lang]['engines'][$engine]);
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        if (isset($overrides[$lang]['engines'][$engine]) && !empty($overrides[$lang]['engines'][$engine])) {
+            return true;
+        }
+        return isset(self::$languages[$lang]['engines'][$engine]) && !empty(self::$languages[$lang]['engines'][$engine]);
     }
 
     /**
@@ -1799,12 +1823,12 @@ class transposh_consts {
      * @return string - conversion of this engine?
      */
     public static function get_engine_lang_code($lang, $engine) {
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        if (isset($overrides[$lang]['engines'][$engine]) && !empty($overrides[$lang]['engines'][$engine])) {
+            return $overrides[$lang]['engines'][$engine] === 'y' ? $lang : $overrides[$lang]['engines'][$engine];
+        }
         if (isset(self::$languages[$lang]['engines'][$engine])) {
-            if (self::$languages[$lang]['engines'][$engine] == 'y') {
-                return $lang;
-            } else {
-                return self::$languages[$lang]['engines'][$engine];
-            }
+            return self::$languages[$lang]['engines'][$engine] === 'y' ? $lang : self::$languages[$lang]['engines'][$engine];
         }
         return '';
     }
@@ -1823,22 +1847,26 @@ class transposh_consts {
         return $langs;
     }
 
+    /**
+     * @return array[] - all engines
+     */
     public static function get_engines() {
         return self::$engines;
     }
 
     /**
-     * @return array
+     * @return array[] - all languages country mappings
      */
     public static function get_country_mapping() {
         return self::$countryToLanguageMapping;
     }
 
     /**
-     * @return int[]|string[]
+     * @return string[] - all language keys
      */
     public static function get_langauge_keys() {
-        return array_keys(self::$languages);
+        $overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        return array_unique(array_merge(array_keys(self::$languages), array_keys($overrides)));
     }
 
     // Array for holding po domains we have problems with
@@ -1847,7 +1875,6 @@ class transposh_consts {
     public static $jqueryui_themes = array('black-tie', 'blitzer', 'cupertino', 'dark-hive', 'dot-luv', 'eggplant', 'excite-bike', 'flick',
         'hot-sneaks', 'humanity', 'le-frog', 'mint-choc', 'overcast', 'pepper-grinder', 'redmond', 'smoothness', 'south-street',
         'start', 'sunny', 'swanky-purse', 'trontastic', 'ui-darkness', 'ui-lightness', 'vader');
-
 }
 
 //Define the new capability that will be assigned to roles - translator
@@ -1873,9 +1900,11 @@ define('TRANSPOSH_YANDEXPROXY_DELAY', 3600); // give it an hour
 //0.9.6 - Making sure Google works
 define('TRANSPOSH_OPTIONS_GOOGLEPROXY', 'transposh_options_googleproxy');
 define('TRANSPOSH_GOOGLEPROXY_DELAY', 86400); // give it a day
-//1.0.9.7 - Making sure Bing works
+//1.0.10 - Making sure Bing works
 define('TRANSPOSH_OPTIONS_BINGPROXY', 'transposh_options_bingproxy');
 define('TRANSPOSH_BINGPROXY_DELAY', 3600); // give it an hour
+//1.0.11 - Language overrides
+define('TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES', 'transposh_options_language_overrides');
 //0.5.6 new definitions
 //Directories used in the plugin
 define('TRANSPOSH_DIR_CSS', 'css');

@@ -1,4 +1,4 @@
-/*  Copyright © 2009-2018 Transposh Team (website : http://transposh.org)
+/*  Copyright © 2009-2025 Transposh Team (website : https://transposh.org)
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 (function ($) { // closure
     $(function () {
-        // makes the languages sortable, with placeholder, also prevent unneeded change after sort
+        // Existing sortable functionality
         $("#sortable").sortable({
             placeholder: "highlight",
             update: function (event, ui) {
@@ -27,16 +27,15 @@
                     $(this).click(clickfunction);
                 });
             }
-        });
-        $("#sortable").disableSelection();
+        }).disableSelection();
 
-        // toggles display of english/original names
+        // Toggles display of english/original names
         $("#changename").click(function () {
             $(".langname").toggleClass("hidden");
             return false;
         });
 
-        // enable all languages
+        // Enable all languages
         $("#selectall").click(function () {
             $("#sortable .languages").addClass("lng_active");
             $("#sortable .lng_active").each(function () {
@@ -45,7 +44,7 @@
             return false;
         });
 
-        // two flows on double click, if anonymous -> active, inactive otherwise active, translatable, inactive
+        // Two flows on double click, if anonymous -> active, inactive otherwise active, translatable, inactive
         clickfunction = function () {
             if ($(this).attr("id") === $("#default_list li").attr("id"))
                 return;
@@ -55,7 +54,7 @@
         };
         $(".languages").dblclick(clickfunction).click(clickfunction);
 
-        // the default language droppable
+        // The default language droppable
         $("#default_lang").droppable({
             accept: ".languages",
             activeClass: "highlight_default",
@@ -66,19 +65,21 @@
                 $("#sortable").find("#" + ui.draggable.attr("id")).addClass("lng_active");
             }
         });
-        // sorting by iso
+
+        // Sorting by iso
         $("#sortiso").click(function () {
             $("#sortable li").sort(function (a, b) {
-                //console.log(a);
-                if ($(a).attr("id") === $("#default_list li").attr("id"))
+                var id = $("#default_list li").attr("id")
+                if ($(a).attr("id") === id)
                     return -1;
-                if ($(b).attr("id") === $("#default_list li").attr("id"))
+                if ($(b).attr("id") === id)
                     return 1;
                 return $(a).attr("id") > $(b).attr("id") ? 1 : -1;
             }).remove().appendTo("#sortable").dblclick(clickfunction).click(clickfunction);
             return false;
         });
-        // sorting by name
+
+        // Sorting by name
         $("#sortname").click(function () {
             $("#sortable li").sort(function (a, b) {
                 langa = $(".langname", a).filter(function () {
@@ -98,5 +99,102 @@
             }).remove().appendTo("#sortable").dblclick(clickfunction).click(clickfunction);
             return false;
         });
+
+        // Open dialog on flag click
+        $('.lang-flag').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var langcode = $(this).data('langcode');
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'tp_get_lang_details',
+                    nonce: $('#transposh_nonce').val(),
+                    langcode: langcode
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#langcode').val(langcode).prop('disabled', true);
+                        $('#lang-name').val(response.data.lang_name);
+                        $('#lang-orig-name').val(response.data.lang_orig_name);
+                        $('#lang-flag').val(response.data.flag);
+                        $('#lang-locale').val(response.data.locale); // Set locale
+                        $('#lang-rtl').prop('checked', response.data.rtl === 1); // Set RTL checkbox
+                        $.each(response.data.engines, function (engine, data) {
+                            $('#engine-' + engine).prop('checked', data.enabled);
+                            $('#engine-code-' + engine).val(data.code === langcode || data.code === 'y' ? '' : data.code);
+                        });
+                        $('#lang-dialog').dialog('option', 'title', 'Edit Language Details').dialog('open');
+                    } else {
+                        alert('Error: ' + response.data);
+                    }
+                },
+                error: function () {
+                    alert('Error loading language details');
+                }
+            });
+        });
+
+        // Initialize dialog
+        $('#lang-dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            closeOnEscape: false, // Prevent closing with Escape key
+            dialogClass: 'no-close', // Add class to style close button
+            width: 600,
+            buttons: {
+                'Save': function () {
+                    var $dialog = $(this);
+                    var langcode = $('#langcode').val();
+                    var engines = {};
+                    $('input[id^="engine-"]').each(function () {
+                        var engine = $(this).attr('id').replace('engine-', '');
+                        engines[engine] = {
+                            enabled: $(this).is(':checked') ? 1 : 0,
+                            code: $('#engine-code-' + engine).val()
+                        };
+                    });
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'tp_save_lang_details',
+                            nonce: $('#transposh_nonce').val(),
+                            langcode: langcode,
+                            lang_name: $('#lang-name').val(),
+                            lang_orig_name: $('#lang-orig-name').val(),
+                            lang_flag: $('#lang-flag').val(),
+                            lang_locale: $('#lang-locale').val(), // Send locale
+                            lang_rtl: $('#lang-rtl').is(':checked') ? 1 : 0, // Send RTL
+                            engines: engines
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                var $li = $('#sortable #' + langcode);
+                                var $flagLink = $li.find('.lang-flag');
+                                var $langName = $li.find('.langname').eq(0);
+                                var $langNameEn = $li.find('.langname').eq(1);
+                                $langName.text(response.data.lang_orig_name);
+                                $langNameEn.text(response.data.lang_name);
+                                $flagLink.find('img').attr('src', transposh_vars.plugin_url + '/img/flags/' + response.data.flag + '.png');
+                                alert('Language saved successfully');
+                                $dialog.dialog('close');
+                            } else {
+                                alert('Error: ' + response.data);
+                            }
+                        },
+                        error: function () {
+                            alert('Error saving language details');
+                        }
+                    });
+                },
+                'Cancel': function () {
+                    $(this).dialog('close');
+                }
+            }
+        });
     });
-}(jQuery)); // end of closure
+}(jQuery));

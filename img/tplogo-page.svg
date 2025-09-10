@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="transposhlogo" width="20" height="20" version="1.2" viewBox="97 145 530 530">
+    <defs>
+        <radialGradient id="b" cx="362" cy="347" r="260" gradientTransform="translate(0 -1.15)" gradientUnits="userSpaceOnUse" href="#a"/>
+        <linearGradient id="a">
+            <stop offset="0" stop-color="#303030"/>
+            <stop offset="1" stop-color="#303030" stop-opacity=".19"/>
+        </linearGradient>
+    </defs>
+    <g id="layer1" stroke-linecap="round" stroke-linejoin="round">
+        <g id="logo" fill-opacity=".75" stroke="url(#b)" stroke-opacity=".83" stroke-width="20" transform="translate(0 64)">
+            <path id="redh" fill="red" d="M140 255c117-85 316-15 465 18 3-29 5-39 8-68-164-4-312-80-467-38-3 32-9 55-6 88z"/>
+            <path id="yellowh" fill="#ff0" d="M125 384c117-85 316-14 465 19 3-30 5-39 8-68-164-5-312-80-467-38-3 32-9 55-6 87z"/>
+            <path id="blueh" fill="#00f" d="M113 514c117-85 316-14 465 19 3-30 5-39 8-68-164-5-312-80-467-38-3 32-9 55-6 87z"/>
+            <path id="redv" fill="red" d="M275 568c-85-117-15-316 19-465-30-2-39-4.8-68-7.4C221 259 146 407 187 562c33 3 56 9 88 6z"/>
+            <path id="greenv" fill="#0f0" d="M411 583c-85-117-15-316 18-465-29-2-39-5-68-7-4 163-80 311-38 466 32 3 55 9 88 6z"/>
+            <path id="bluev" fill="#00f" d="M544 597c-85-117-15-316 18-465-29-3-39-5-68-8-4 164-80 312-38 467 32 3 55 9 88 6z"/>
+        </g>
+        <animateTransform attributeName="transform" attributeType="XML" dur="5s" from="0 355 389" repeatCount="4" to="360 355 389" type="rotate"/>
+    </g>
+</svg>
