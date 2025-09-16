@@ -146,7 +146,7 @@ class transposh_consts {
         'eu' => [
             'name' => 'Basque',
             'orig' => 'Euskara',
-            'flag' => 'es-ba',
+            'flag' => 'es-pv',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -231,7 +231,7 @@ class transposh_consts {
         'ca' => [
             'name' => 'Catalan',
             'orig' => 'Català',
-            'flag' => 'es-ca',
+            'flag' => 'es-ct',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -302,7 +302,7 @@ class transposh_consts {
         'co' => [
             'name' => 'Corsican',
             'orig' => 'Corsu',
-            'flag' => 'fr',
+            'flag' => 'fr-20r',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -439,7 +439,7 @@ class transposh_consts {
         'fy' => [
             'name' => 'Frisian',
             'orig' => 'Frysk',
-            'flag' => 'nl',
+            'flag' => 'nl-fr',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -499,7 +499,7 @@ class transposh_consts {
         'gu' => [
             'name' => 'Gujarati',
             'orig' => 'ગુજરાતી',
-            'flag' => 'in',
+            'flag' => 'in-gj',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -522,7 +522,7 @@ class transposh_consts {
         'ha' => [
             'name' => 'Hausa',
             'orig' => 'Harshen Hausa',
-            'flag' => 'ng',
+            'flag' => 'hausa',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -532,7 +532,7 @@ class transposh_consts {
         'haw' => [
             'name' => 'Hawaiian',
             'orig' => 'ʻŌlelo Hawaiʻi',
-            'flag' => 'us-ha',
+            'flag' => 'us-hi',
             'engines' => [
                 'g' => 'y',
                 'u' => 'haw',
@@ -541,7 +541,7 @@ class transposh_consts {
         'hmn' => [
             'name' => 'Hmong',
             'orig' => 'Hmoob',
-            'flag' => 'la',
+            'flag' => 'hmong',
             'engines' => [
                 'g' => 'y',
             ],
@@ -549,7 +549,7 @@ class transposh_consts {
         'mw' => [
             'name' => 'Hmong Daw',
             'orig' => 'Hmoob Daw',
-            'flag' => 'la',
+            'flag' => 'hmong',
             'engines' => [
                 'b' => 'mww',
             ],
@@ -681,7 +681,7 @@ class transposh_consts {
         'jw' => [
             'name' => 'Javanese',
             'orig' => 'basa Jawa',
-            'flag' => 'id',
+            'flag' => 'id-jt',
             'locale' => 'jv_ID',
             'engines' => [
                 'b' => 'jav',
@@ -693,7 +693,7 @@ class transposh_consts {
         'kn' => [
             'name' => 'Kannada',
             'orig' => 'ಕನ್ನಡ',
-            'flag' => 'in',
+            'flag' => 'in-ka',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -753,7 +753,7 @@ class transposh_consts {
         'ku' => [
             'name' => 'Kurdish (Kurmanji)',
             'orig' => 'Kurdî',
-            'flag' => 'krd',
+            'flag' => 'iq-kr',
             'engines' => [
                 'g' => 'y',
             ],
@@ -857,7 +857,7 @@ class transposh_consts {
         'ml' => [
             'name' => 'Malayalam',
             'orig' => 'മലയാളം',
-            'flag' => 'in',
+            'flag' => 'malayali',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -890,7 +890,7 @@ class transposh_consts {
         'mr' => [
             'name' => 'Marathi',
             'orig' => 'मराठी',
-            'flag' => 'in',
+            'flag' => 'language-mr',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -948,7 +948,7 @@ class transposh_consts {
         'otq' => [
             'name' => 'Otomi',
             'orig' => 'Querétaro Otomi',
-            'flag' => 'mx',
+            'flag' => 'otomi',
             'engines' => [
                 'b' => 'y',
             ],
@@ -1073,7 +1073,7 @@ class transposh_consts {
         'gd' => [
             'name' => 'Scots Gaelic',
             'orig' => 'Gàidhlig',
-            'flag' => 'gb-sc',
+            'flag' => 'gb-sct',
             'engines' => [
                 'g' => 'y',
                 'u' => 'gla',
@@ -1115,7 +1115,7 @@ class transposh_consts {
         'sd' => [
             'name' => 'Sindhi',
             'orig' => 'سنڌي',
-            'flag' => 'pk',
+            'flag' => 'pk-sd',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -1190,7 +1190,7 @@ class transposh_consts {
         'su' => [
             'name' => 'Sundanese',
             'orig' => 'Basa Sunda',
-            'flag' => 'id',
+            'flag' => 'id-jb',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -1258,7 +1258,7 @@ class transposh_consts {
         'ta' => [
             'name' => 'Tamil',
             'orig' => 'தமிழ்',
-            'flag' => 'in',
+            'flag' => 'in-tn',
             'locale' => 'ta_IN',
             'engines' => [
                 'b' => 'y',
@@ -1282,7 +1282,7 @@ class transposh_consts {
         'te' => [
             'name' => 'Telugu',
             'orig' => 'తెలుగు',
-            'flag' => 'in',
+            'flag' => 'in-tg',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -1330,7 +1330,7 @@ class transposh_consts {
         'udm' => [
             'name' => 'Udmurt',
             'orig' => 'удмурт кыл',
-            'flag' => 'ru',
+            'flag' => 'ru-ud',
             'engines' => [
                 'y' => 'y',
             ],
@@ -1389,7 +1389,7 @@ class transposh_consts {
         'cy' => [
             'name' => 'Welsh',
             'orig' => 'Cymraeg',
-            'flag' => 'gb-wa',
+            'flag' => 'gb-wls',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',
@@ -1411,7 +1411,7 @@ class transposh_consts {
         'yi' => [
             'name' => 'Yiddish',
             'orig' => 'ייִדיש',
-            'flag' => 'europeanunion',
+            'flag' => 'language-yi',
             'engines' => [
                 'b' => 'ydd',
                 'g' => 'y',
@@ -1423,7 +1423,7 @@ class transposh_consts {
         'yo' => [
             'name' => 'Yoruba',
             'orig' => 'èdè Yorùbá',
-            'flag' => 'ng',
+            'flag' => 'yorubaland',
             'engines' => [
                 'b' => 'y',
                 'g' => 'y',

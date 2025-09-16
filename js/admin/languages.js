@@ -147,7 +147,7 @@
                             var code = typeof data.code === 'object' ? (data.code.code || '') : (data.code || '');
                             $('#engine-code-' + engine).val(code);
                         });
-                        $('#lang-dialog').dialog('option', 'title', 'Edit Language Details').dialog('open');
+                        $('#lang-dialog').dialog('open');
                     } else {
                         alert('Error: ' + response.data);
                     }
@@ -162,7 +162,6 @@
         $('#lang-dialog').dialog({
             autoOpen: false,
             modal: true,
-            closeOnEscape: false, // Prevent closing with Escape key
             dialogClass: 'no-close', // Add class to style close button
             width: 600,
             buttons: {
@@ -200,9 +199,9 @@
                                 if (postData.action === 'tp_add_lang') {
                                     // NEW: Append new language to sortable list
                                     var newLangHtml = '<li id="' + langcode + '" class="languages lng_active">' +
-                                        '<div style="float:left">' +
+                                        '<div style="float:inline-start">' +
                                         '<a href="#" class="lang-flag" data-langcode="' + langcode + '">' +
-                                        //'<img src="' + transposh_vars.plugin_url + '/img/flags/' + response.data.flag + '.png" alt="' + response.data.lang_orig_name + '">' +
+                                        '<span title="'+ response.data.lang_orig_name + '" class="trf trf-'+response.data.flag+'"></span>' +
                                         '</a>' +
                                         '<input type="hidden" name="languages[]" value="' + langcode + ',v" />' +
                                         '&nbsp;<span class="langname">' + response.data.lang_orig_name + '</span>' +
@@ -210,7 +209,7 @@
                                     // Add engine and RTL icons
                                     $.each(response.data.engines, function (engine, data) {
                                         if (data.enabled) {
-                                            newLangHtml += '<span title="' + engine + '" class="tr-icon tr-icon-' + engine.toLowerCase() + '"></span>';
+                                            newLangHtml += '<span title="' + data.name + '" class="tr-icon tr-icon-' + data.name.toLowerCase() + '"></span>';
                                         } else {
                                             newLangHtml += '<div class="logoicon" style="margin:9px"></div>';
                                         }
@@ -252,7 +251,7 @@
                                                         var code = typeof data.code === 'object' ? (data.code.code || '') : (data.code || '');
                                                         $('#engine-code-' + engine).val(code);
                                                     });
-                                                    $('#lang-dialog').dialog('option', 'title', 'Edit Language Details').dialog('open');
+                                                    $('#lang-dialog').dialog('open');
                                                 } else {
                                                     alert('Error: ' + response.data);
                                                 }
@@ -265,12 +264,25 @@
                                 } else {
                                     // Update existing language in UI (edit mode)
                                     var $li = $('#sortable #' + langcode);
-                                    var $flagLink = $li.find('.lang-flag'); // TODO: Update flag image if needed
+                                    var $flagLink = $li.find('.trf');
                                     var $langName = $li.find('.langname').eq(0);
                                     var $langNameEn = $li.find('.langname').eq(1);
                                     $langName.text(response.data.lang_orig_name);
                                     $langNameEn.text(response.data.lang_name);
-                                    // $flagLink.find('img').attr('src', transposh_vars.plugin_url + '/img/flags/' + response.data.flag + '.png');
+                                    $flagLink.removeClass().addClass('trf trf-' + response.data.flag);
+                                    newLangHtml = '';
+                                    $.each(response.data.engines, function (engine, data) {
+                                        if (data.enabled) {
+                                            newLangHtml += '<span title="' + data.name + '" class="tr-icon tr-icon-' + data.name.toLowerCase() + '"></span>';
+                                        } else {
+                                            newLangHtml += '<div class="logoicon" style="margin:9px"></div>';
+                                        }
+                                    });
+                                    if (response.data.rtl) {
+                                        newLangHtml += '<span title="Language is written from right to left" class="tr-icon tr-icon-rtl"></span>';
+                                    }
+                                    $li.find('div:first').nextAll().remove().end().end().append(newLangHtml);
+
                                 }
                                 $dialog.dialog('close');
                             } else {
@@ -282,8 +294,34 @@
                         }
                     });
                 },
-                'Cancel': function () {
+/*                'Cancel': function () {
                     $(this).dialog('close');
+                },*/
+                'Reset': function () {
+                    var langcode = $('#langcode').val();
+                    if (confirm('Are you sure you want to reset this language override? This will remove all custom settings and revert to defaults.')) {
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'tp_reset_lang_override',
+                                nonce: $('#transposh_nonce').val(),
+                                langcode: langcode
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    alert('Language override reset successfully');
+                                    $dialog.dialog('close');
+                                    location.reload();
+                                } else {
+                                    alert('Error: ' + response.data);
+                                }
+                            },
+                            error: function () {
+                                alert('Error resetting language override');
+                            }
+                        });
+                    }
                 }
             }
         });

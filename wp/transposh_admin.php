@@ -47,6 +47,7 @@ class transposh_plugin_admin {
         add_action('wp_ajax_tp_get_lang_details', array(&$this, 'on_ajax_tp_get_lang_details'));
         add_action('wp_ajax_tp_save_lang_details', array(&$this, 'on_ajax_tp_save_lang_details'));
         add_action('wp_ajax_tp_add_lang', array(&$this, 'on_ajax_tp_add_lang'));
+        add_action('wp_ajax_tp_reset_lang_override', array(&$this, 'on_ajax_tp_reset_lang_override'));
 
         // allow language change for comments
         add_filter('comment_row_actions', array(&$this, 'comment_row_actions'), 999, 2);
@@ -288,6 +289,7 @@ class transposh_plugin_admin {
                 wp_enqueue_script('jquery-touch-punch');
                 wp_enqueue_script('transposh_admin_languages', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_JS . '/admin/languages.js', array('transposh'), TRANSPOSH_PLUGIN_VER, true);
                 wp_enqueue_style('jqueryui', '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERYUI_VER . '/themes/ui-lightness/jquery-ui.css', array(), JQUERYUI_VER);
+                wp_enqueue_style('transposh_flags', $this->transposh->transposh_plugin_url . '/' . TRANSPOSH_DIR_CSS . '/circle-flags.css');
             case 'tp_engines': // engines riding on languages
                 wp_enqueue_script('jquery-ui-droppable');
                 wp_enqueue_script('jquery-ui-sortable');
@@ -450,7 +452,7 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
      * Generate the language dialog HTML
      */
     private function lang_dialog() {
-        echo '<div id="lang-dialog" title="Edit Language Details" style="display:none;">
+        echo '<div id="lang-dialog" title="' . __('Edit Language Details', TRANSPOSH_TEXT_DOMAIN) . '" data-langcode="" style="display:none;">
         <form id="lang-dialog-form">
             <p>
                 <label for="langcode">' . __('Language Code', TRANSPOSH_TEXT_DOMAIN) . '</label>
@@ -482,8 +484,8 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
         foreach ($engines as $enginecode => $enginerecord) {
             echo '<div style="flex: 1 1 45%; min-width: 150px;">
             <input type="checkbox" name="engines[' . $enginecode . '][enabled]" value="1" id="engine-' . $enginecode . '"> 
-            <label for="engine-' . $enginecode . '">' . $enginerecord['name'] . '</label>
-            <input type="text" name="engines[' . $enginecode . '][code]" id="engine-code-' . $enginecode . '" style="margin-left:10px; width:70px;">
+            <label for="engine-' . $enginecode . '">' . __($enginerecord['name'], TRANSPOSH_TEXT_DOMAIN) . '</label>
+            <input type="text" name="engines[' . $enginecode . '][code]" id="engine-code-' . $enginecode . '" style="margin-inline-start:10px; width:70px;">
         </div>';
         }
         echo '</div>
@@ -506,7 +508,7 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
         echo '<div id="default_lang" style="overflow:auto;padding-bottom:10px;">';
         $this->header(__('Default Language (drag another language here to make it default)', TRANSPOSH_TEXT_DOMAIN), 'languages');
         echo '<ul id="default_list"><li id="' . $this->transposh->options->default_language . '" class="languages">'
-        . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false/* $this->transposh->options->get_widget_css_flags() */)
+        . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, true/* $this->transposh->options->get_widget_css_flags() */)
         . '<input type="hidden" name="languages[]" value="' . $this->transposh->options->default_language . '" />'
         . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></li>';
         echo '</ul></div>';
@@ -523,9 +525,9 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
             $langorigname = transposh_consts::get_language_orig_name($langcode);
             $flag = transposh_consts::get_language_flag($langcode);
             echo '<li id="' . $langcode . '" class="languages ' . ($this->transposh->options->is_active_language($langcode) || $this->transposh->options->is_default_language($langcode) ? "lng_active" : "")
-                . '"><div style="float:' . $this->localeleft . '">'
+                . '"><div style="float:inline-start;">'
                 . '<a href="#" class="lang-flag" data-langcode="' . $langcode . '">' // Clickable flag
-                . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, false)
+                . transposh_utils::display_flag("{$this->transposh->transposh_plugin_url}/img/flags", $flag, $langorigname, true)
                 . '</a>'
                 . '<input type="hidden" name="languages[]" value="' . $langcode . ($this->transposh->options->is_active_language($langcode) ? ",v" : ",") . '" />'
                 . '&nbsp;<span class="langname">' . $langorigname . '</span><span class="langname hidden">' . $langname . '</span></div>';
@@ -546,14 +548,14 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
         // NEW: Add Language Button
         echo '<div style="margin-bottom:10px;"><a id="add-language" href="#" class="button">' . __('Add Language', TRANSPOSH_TEXT_DOMAIN) . '</a></div>';
         // options to play with
-        echo '<div style="clear: both;">' . __('Display options:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: disc; margin-' . $this->localeleft . ':20px;font-size:11px">';
+        echo '<div style="clear: both;">' . __('Display options:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: disc; margin-inline-start:20px;font-size:11px">';
         echo '<li><a href="#" id="changename">' . __('Toggle names of languages between English and Original', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="selectall">' . __('Make all languages active', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="sortname">' . __('Sort by language name', TRANSPOSH_TEXT_DOMAIN) . '</a></li>';
         echo '<li><a href="#" id="sortiso">' . __('Sort by lSO code', TRANSPOSH_TEXT_DOMAIN) . '</a></li></ul>';
         echo '</div>';
         // icons legend
-        echo '<div style="clear: both;">' . __('Icons legend:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: none; margin-' . $this->localeleft . ':20px;font-size:11px">';
+        echo '<div style="clear: both;">' . __('Icons legend:', TRANSPOSH_TEXT_DOMAIN) . '<br/><ul style="list-style-type: none; margin-inline-start:20px;font-size:11px">';
         foreach (transposh_consts::get_engines() as $enginecode => $enginerecord) {
            echo '<li><span class="tr-legendicon tr-icon-'.strtolower($enginerecord['name']).'"></span> '.esc_attr(sprintf(__('Language supported by %s translate', TRANSPOSH_TEXT_DOMAIN), $enginerecord['name'])).'</li>';
         }
@@ -689,17 +691,6 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
     }
 
     function tp_engines() {
-        // we need some styles
-        global $wp_locale;
-        if ($wp_locale->text_direction == 'rtl') {
-            echo '<style>
-	#sortable li, #default_lang li { float: right !important;}
-        .logoicon {
-            float:left !important;
-        }
-        </style>';
-        }
-
         $this->section(__('Automatic Translation Settings', TRANSPOSH_TEXT_DOMAIN));
         $this->checkbox($this->transposh->options->enable_autotranslate_o, __('Enable automatic translation', TRANSPOSH_TEXT_DOMAIN)
                 , __('Allow automatic translation of pages', TRANSPOSH_TEXT_DOMAIN));
@@ -727,9 +718,9 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
         echo '<ul id="sortable">';
         foreach ($this->transposh->options->get_sorted_engines() as $enginecode => $enginerecord) {
             echo '<li id="' . $enginecode . '" class="languages">';
-            echo '<div style="float:' . $this->localeleft . '">'
-            . '<input type="hidden" name="engines[]" value="' . $enginecode . '" />';
-            echo $enginerecord['name'];
+            echo '<div style="float:inline-start;">'
+            . '<input type="hidden" name="engines[]" value="' . $enginecode . '" />'
+                .'<span style="float:inline-start;margin-inline:0 4px;" class="tr-icon tr-icon-'.strtolower($enginerecord['name'])."\"></span>".$enginerecord['name'];
             echo '</div>';
             echo '</li>';
         }
@@ -1035,7 +1026,7 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
             $help = ' <a class="tp_help" href="#" rel="' . $help . '">[?]</a>';
         }
         if (is_array($head)) {
-            echo '<h3><span style="width: 16px;height: 16px;display:inline-block;margin:0 4px -2px 0;" class="tr-icon-'.$head[0]."\"></span>{$head[1]}$help</h3>";
+            echo '<h3><span style="float:inline-start;margin-inline:0 4px;margin-block:3px 0;" class="tr-icon tr-icon-'.$head[0]."\"></span>{$head[1]}$help</h3>";
         } else {
             echo "<h3>$head $help</h3>";
         }
@@ -1235,7 +1226,7 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
         foreach (transposh_consts::get_engines() as $enginecode => $enginerecord) {
             $response['engines'][$enginecode] = array(
                 'enabled' => transposh_consts::is_supported_engine($langcode, $enginecode) ? 1 : 0,
-                'code' => transposh_consts::get_engine_lang_code($langcode, $enginecode)
+                'code' => transposh_consts::get_engine_lang_code($langcode, $enginecode) === $langcode ? '' : transposh_consts::get_engine_lang_code($langcode, $enginecode)
             );
         }
 
@@ -1276,7 +1267,8 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
             if (isset($engines[$enginecode]) && is_array($engines[$enginecode])) {
                 $lang_overrides[$langcode]['engines'][$enginecode] = array(
                     'enabled' => isset($engines[$enginecode]['enabled']) ? (int) $engines[$enginecode]['enabled'] : 0,
-                    'code' => isset($engines[$enginecode]['code']) ? sanitize_text_field(is_array($engines[$enginecode]['code']) ? '' : $engines[$enginecode]['code']) : ''
+                    'code' => isset($engines[$enginecode]['code']) ? sanitize_text_field(is_array($engines[$enginecode]['code']) ? '' : $engines[$enginecode]['code']) : '',
+                    'name' => transposh_consts::get_engines()[$enginecode]['name'],
                 );
             } else {
                 $lang_overrides[$langcode]['engines'][$enginecode] = array(
@@ -1332,7 +1324,8 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
             if (isset($engines[$enginecode]) && is_array($engines[$enginecode])) {
                 $lang_overrides[$langcode]['engines'][$enginecode] = array(
                     'enabled' => isset($engines[$enginecode]['enabled']) ? (int) $engines[$enginecode]['enabled'] : 0,
-                    'code' => isset($engines[$enginecode]['code']) ? sanitize_text_field(is_array($engines[$enginecode]['code']) ? '' : $engines[$enginecode]['code']) : ''
+                    'code' => isset($engines[$enginecode]['code']) ? sanitize_text_field(is_array($engines[$enginecode]['code']) ? '' : $engines[$enginecode]['code']) : '',
+                    'name' => transposh_consts::get_engines()[$enginecode]['name'],
                 );
             } else {
                 $lang_overrides[$langcode]['engines'][$enginecode] = array(
@@ -1351,6 +1344,24 @@ Please note that while Transposh currently offers a hosted LibreTranslate servic
             'rtl' => $lang_rtl,
             'engines' => $lang_overrides[$langcode]['engines']
         ));
+    }
+
+    function on_ajax_tp_reset_lang_override() {
+        $this->admins_only();
+
+        $langcode = sanitize_text_field(filter_input(INPUT_POST, 'langcode', FILTER_DEFAULT) ?: '');
+        if (!$langcode || !transposh_consts::is_supported_language($langcode)) {
+            wp_send_json_error('Invalid language code');
+        }
+
+        $lang_overrides = get_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, array());
+        if (isset($lang_overrides[$langcode])) {
+            unset($lang_overrides[$langcode]);
+            update_option(TRANSPOSH_OPTIONS_LANGUAGE_OVERRIDES, $lang_overrides);
+            wp_send_json_success(array('message' => 'Override reset successfully'));
+        } else {
+            wp_send_json_error('No override found for this language');
+        }
     }
 
 //    function on_ajax_tp_fetch() { WIP

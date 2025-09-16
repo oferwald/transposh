@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Transposh Translation Filter v%VERSION%\n"
 "Report-Msgid-Bugs-To: https://transposh.org/contact-us/\n"
 "POT-Creation-Date: 2025-03-14 02:36+0000\n"
-"PO-Revision-Date: 2025-08-31 23:21+0000\n"
+"PO-Revision-Date: 2025-09-11 13:32+0000\n"
 "Last-Translator: \n"
 "Language-Team: Hebrew\n"
 "MIME-Version: 1.0\n"
@@ -20,6 +20,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Textdomain-Support: yes\n"
 "Language: he_IL\n"
+"X-Generator: Loco https://localise.biz/"
 
 #: wp/transposh_3rdparty.php:201
 #, php-format
@@ -39,53 +40,57 @@ msgstr ""
 msgid "A new translation was just posted to your site"
 msgstr "תרגום חדש בדיוק נשלח אל האתר שלך"
 
-#: wp/transposh_admin.php:225
+#: wp/transposh_admin.php:230
 msgid "About"
 msgstr "אודות"
 
-#: wp/transposh_admin.php:765
+#: wp/transposh_admin.php:814
 msgid "About Transposh"
 msgstr "אודות טרנספוש"
 
-#: wp/transposh_admin.php:708
+#: wp/transposh_admin.php:547
+msgid "Add Language"
+msgstr "הוספת שפה"
+
+#: wp/transposh_admin.php:757
 msgid "Add rel=alternate with fully qualified urls"
 msgstr "הוסף rel=alternate עם כתובות מלאות"
 
-#: wp/transposh_admin.php:569
+#: wp/transposh_admin.php:618
 msgid "Add scripts to footer"
 msgstr "הוסף סקריפטים לתחתית הדף"
 
-#: wp/transposh_admin.php:222
+#: wp/transposh_admin.php:227
 msgid "Advanced"
 msgstr "מתקדם"
 
-#: wp/transposh_admin.php:656
+#: wp/transposh_admin.php:705
 msgid "Allow automatic translation of pages"
 msgstr "אפשר תרגום אוטומטי של דפים"
 
-#: wp/transposh_admin.php:592
+#: wp/transposh_admin.php:641
 msgid "Allow collecting usage statistics"
 msgstr "אפשר איסוף סטטיסטיקות שימוש"
 
-#: wp/transposh_admin.php:553
+#: wp/transposh_admin.php:602
 msgid "Allow search of translated languages (and the original language)"
 msgstr "אפשר חיפוש בשפות המתורגמות (בנוסף לשפת המקור)"
 
-#: wp/transposh_admin.php:550
+#: wp/transposh_admin.php:599
 msgid ""
 "Allow translation of default language - useful for sites with more than one "
 "major language"
 msgstr "אפשר תרגום שפת ברירת המחדל - שימושי באתרים עם יותר משפה עיקרית אחת"
 
-#: wp/transposh_admin.php:705
+#: wp/transposh_admin.php:754
 msgid "Allow translation of permalinks and urls"
 msgstr "אפשר תרגום של קישורים קבועים וכתובות אינטרנט"
 
-#: wp/transposh_admin.php:695
+#: wp/transposh_admin.php:744
 msgid "Allow user to set current language as default"
 msgstr "אפשר למשתמש לבחור את השפה הנוכחית כברירת מחדל"
 
-#: transposh.php:1683
+#: transposh.php:1687
 msgid ""
 "An Unexpected HTTP Error occurred during the API request.</p> <p><a href=\"?"
 "\" onclick=\"document.location.reload(); return false;\">Try again</a>"
@@ -93,78 +98,80 @@ msgstr ""
 "שגיאת HTTP לא צפוייה התרחשה בעת הקריאה לממשק. </p> <p><a href=\\\"?\\\" "
 "onclick=\\\"document.location.reload(); return false;\\\">נסו שנית</a>"
 
-#: transposh.php:1688
+#: transposh.php:1692
 msgid "An unknown error occurred"
 msgstr "התרחשה שגיאה לא ידועה"
 
-#: wp/transposh_admin.php:546
+#: wp/transposh_admin.php:595
 msgid "Anonymous"
 msgstr "אנונימי"
 
-#: wp/transposh_admin.php:662 wp/transposh_admin.php:665
-#: wp/transposh_admin.php:668 wp/transposh_admin.php:671
+#: wp/transposh_admin.php:711 wp/transposh_admin.php:714
+#: wp/transposh_admin.php:717 wp/transposh_admin.php:720
 msgid "API Key"
 msgstr "מפתח API"
 
-#: wp/transposh_admin.php:753
+#: wp/transposh_admin.php:802
 msgid "Attempt to fix errors caused by previous versions - please backup first"
 msgstr "נסה לתקן שגיאות שנגרמו על ידי גרסאות קודמות - אנא גבה קודם"
 
-#: wp/transposh_admin.php:654
+#: wp/transposh_admin.php:703
 msgid "Automatic Translation Settings"
 msgstr "הגדרות תרגום אוטומטי"
 
-#: wp/transposh_admin.php:880
+#: wp/transposh_admin.php:929
 msgid "Available"
 msgstr "זמין"
 
-#: wp/transposh_admin.php:467
+#: wp/transposh_admin.php:516
 msgid ""
-"Available Languages (Click to toggle language state - Drag to sort in the "
-"widget)"
-msgstr "שפות זמינות (הקלק כדי לשנות את סטטוס השפה - גרור כדי למיין בישומון)"
+"Available Languages (Click flag to edit details - Click name to toggle state "
+"- Drag to sort)"
+msgstr ""
+"שפות זמינות (לחצו על הדגל לעריכת פרטים - על השם לשינוי המצב - גרירה בעבור "
+"מיון)"
 
-#: wp/transposh_admin.php:630
+#: wp/transposh_admin.php:679
 msgid "Backup service settings"
 msgstr "הגדרות שרות גיבוי"
 
-#: wp/transposh_admin.php:670
+#: wp/transposh_admin.php:719
 msgid "Baidu API key"
 msgstr "מפתח API של באידו"
 
-#: wp/transposh_admin.php:587
+#: wp/transposh_admin.php:636
 msgid "Based on that detection and your current language selections"
 msgstr "בהתבסס על הזיהוי ועל בחירת השפות שלך"
 
-#: wp/transposh_admin.php:577
+#: wp/transposh_admin.php:626
 msgid "Based on your current ACCEPT_LANGUAGES headers"
 msgstr "בהתבסס על ה-ACCEPT_LANGUAGES הנוכחי שלך"
 
-#: wp/transposh_admin.php:609
+#: wp/transposh_admin.php:658
 msgid "Buffer immediate translations"
 msgstr "צבור הודעות מיידיות"
 
-#: wp/transposh_admin.php:369
+#: wp/transposh_admin.php:376
 msgid "Cache Engines"
 msgstr "מנועי מטמון"
 
-#: wp/transposh_admin.php:355
+#: wp/transposh_admin.php:362
 msgid "Changing the LibreTranslate server used"
 msgstr "שינוי שרת LibreTranslate שבשימוש"
 
-#: wp/transposh_admin.php:1040
+#: wp/transposh_admin.php:1089
 msgid "Check Transposh FAQs"
 msgstr "בדוק את השאלות הנפוצות של טרנספוש"
 
-#: wp/transposh_admin.php:803
+#: wp/transposh_admin.php:852
 msgid "Contact us directly via:"
 msgstr "צרו איתנו קשר ישירות דרך:"
 
-#: wp/transposh_admin.php:795
+#: wp/transposh_admin.php:844
 msgid "Create a ticket for us if you have found any bugs"
 msgstr "ניתן לפתוח לנו כרטיס אם נתקלתם בשגיאה"
 
-#: wp/transposh_admin.php:724
+#: wp/transposh_admin.php:773
 msgid "Critical"
 msgstr "קריטי"
 
@@ -172,7 +179,7 @@ msgstr "קריטי"
 msgid "Daily digest of human translation activities"
 msgstr "לקט יומי של פעילות תרגום אנושית"
 
-#: wp/transposh_admin.php:217
+#: wp/transposh_admin.php:222
 msgid "Dashboard"
 msgstr "לוח הבקרה"
 
@@ -184,19 +191,19 @@ msgstr "סטטיסטיקות בסיס הנתונים"
 msgid "Date"
 msgstr "תאריך"
 
-#: wp/transposh_admin.php:728
+#: wp/transposh_admin.php:777
 msgid "Debug"
 msgstr "דיבאג"
 
-#: wp/transposh_admin.php:718
+#: wp/transposh_admin.php:767
 msgid "Debug settings"
 msgstr "הגדרות דיבוג"
 
-#: wp/transposh_postpublish.php:212
+#: wp/transposh_postpublish.php:214
 msgid "Default"
 msgstr "ברירת מחדל"
 
-#: wp/transposh_admin.php:459
+#: wp/transposh_admin.php:507
 msgid "Default Language (drag another language here to make it default)"
 msgstr "שפת ברירת המחדל (גרור שפה אחרת לכאן על מנת להפכה לברירת מחדל)"
 
@@ -204,133 +211,137 @@ msgstr "שפת ברירת המחדל (גרור שפה אחרת לכאן על מ�
 msgid "Delete"
 msgstr "מחיקה"
 
-#: wp/transposh_admin.php:749
+#: wp/transposh_admin.php:798
 msgid "Delete all automated translations"
 msgstr "מחק את כל התרגומים האוטומטיים"
 
-#: wp/transposh_admin.php:750
+#: wp/transposh_admin.php:799
 msgid "Delete automated translations older than 14 days"
 msgstr "מחק תרגומים אוטומטיים בני יותר מ-14 ימים"
 
-#: wp/transposh_admin.php:751
+#: wp/transposh_admin.php:800
 msgid "Delete automated translations that add no apparent value"
 msgstr "מחק תרגומים אוטומטים שאינם מוסיפים ערך"
 
-#: wp/transposh_admin.php:581
+#: wp/transposh_admin.php:630
 msgid "Detect language based on IP"
 msgstr "זיהוי שפה בהתבסס על כתובת ה-IP"
 
-#: wp/transposh_admin.php:573
+#: wp/transposh_admin.php:622
 msgid "Detect language based on the ACCEPT_LANGUAGES http header"
 msgstr "זהה שפה בהתבסס על כותרת ה-http ACCEPT_LANGUAGES"
 
-#: wp/transposh_admin.php:333
+#: wp/transposh_admin.php:340
 msgid "Development website"
 msgstr "אתר הפיתוח"
 
-#: wp/transposh_admin.php:707
+#: wp/transposh_admin.php:756
 msgid "Disable adding rel=alternate to the html"
 msgstr "ביטול הוספת rel=alternate לקוד המקור של הדפים"
 
-#: wp/transposh_admin.php:633
+#: wp/transposh_admin.php:682
 msgid ""
 "Disable backup (Can be run manually by clicking the button on the utilities "
 "tab)"
 msgstr "בטל את הגיבוי (ניתן להריצו ידנית על ידי לחיצה על הכפתור בטאב כלי העזר)"
 
-#: wp/transposh_admin.php:715
+#: wp/transposh_admin.php:764
 msgid "Disable html entities break"
 msgstr "בטל שבירה בתגי HTML"
 
-#: wp/transposh_admin.php:713
+#: wp/transposh_admin.php:762
 msgid "Disable numbers break"
 msgstr "בטל עצירה במספרים"
 
-#: wp/transposh_admin.php:711
+#: wp/transposh_admin.php:760
 msgid "Disable punctuations break"
 msgstr "בטל עצירות בסימני ניקוד"
 
-#: wp/transposh_admin.php:707
+#: wp/transposh_admin.php:756
 msgid ""
 "Disable the feature that adds the alternate language list to your page html "
 "header"
 msgstr "ביטול התכונה שמוסיפה את רשימת השפות האלטרנטיביות לכותרת דף ה-HTML"
 
-#: wp/transposh_admin.php:500
+#: wp/transposh_admin.php:549
 msgid "Display options:"
 msgstr "הגדרות תצוגה:"
 
-#: wp/transposh_admin.php:658
+#: wp/transposh_admin.php:707
 msgid "Do automatic translation immediately after a post has been published"
 msgstr "בצע תרגום אוטומטי מייד לאחר שפוסט מפורסם"
 
-#: wp/transposh_admin.php:742
+#: wp/transposh_admin.php:791
 msgid "Do Backup Now"
 msgstr "גבה עכשיו"
 
-#: wp/transposh_admin.php:789
+#: wp/transposh_admin.php:838
 msgid "Do you need to ask us any question?"
 msgstr "האם אתם רוצים לשאול אותנו שאלה כלשהיא?"
 
-#: wp/transposh_admin.php:826
+#: wp/transposh_admin.php:875
 msgid "Donations"
 msgstr "תרומות"
 
-#: wp/transposh_admin.php:700
+#: wp/transposh_admin.php:749
 msgid "Edit interface (and progress bar) theme:"
 msgstr "ערכת עיצוב ממשק עריכה (ובר התקדמות):"
 
-#: wp/transposh_admin.php:700
+#: wp/transposh_admin.php:749
 msgid "Edit interface theme:"
 msgstr "עריכת ערכת ממשק:"
 
-#: wp/transposh_admin.php:602
+#: wp/transposh_admin.php:454
+msgid "Edit Language Details"
+msgstr "עריכת פרטי שפה"
+
+#: wp/transposh_admin.php:651
 msgid "Email"
 msgstr "דואר אלקטרוני"
 
-#: wp/transposh_admin.php:601
+#: wp/transposh_admin.php:650
 msgid "Email address to send messages to"
 msgstr "כתובת דואר שאליה ישלחו מכתבים"
 
-#: wp/transposh_admin.php:655
+#: wp/transposh_admin.php:704
 msgid "Enable automatic translation"
 msgstr "אפשר תרגום אוטומטי"
 
-#: wp/transposh_admin.php:657
+#: wp/transposh_admin.php:706
 msgid "Enable automatic translation after posting"
 msgstr "אפשר תרגום אוטומטי לאחר יצירת פוסט"
 
-#: wp/transposh_admin.php:631
+#: wp/transposh_admin.php:680
 msgid "Enable daily backup"
 msgstr "אפשר גיבוי יומי"
 
-#: wp/transposh_admin.php:720
+#: wp/transposh_admin.php:769
 msgid "Enable debugging"
 msgstr "אפשר דיבוג"
 
-#: wp/transposh_admin.php:549
+#: wp/transposh_admin.php:598
 msgid "Enable default language translation"
 msgstr "אפשר תרגום של שפת ברירת המחדל"
 
-#: wp/transposh_admin.php:555
+#: wp/transposh_admin.php:604
 msgid "Enable gettext integration"
 msgstr "אפשר אינטגרציית gettext"
 
-#: wp/transposh_admin.php:556
+#: wp/transposh_admin.php:605
 msgid ""
 "Enable integration of Transposh with existing gettext interface (.po/.mo "
 "files)"
 msgstr "אפשר אינטגרציה של טרנספוש עם ממשק gettext הקיים (קבצי .po/.mo)"
 
-#: wp/transposh_admin.php:632
+#: wp/transposh_admin.php:681
 msgid "Enable live backup"
 msgstr "אפשר גיבוי חי"
 
-#: wp/transposh_admin.php:559
+#: wp/transposh_admin.php:608
 msgid "Enable override for default locale"
 msgstr "אפשר עקיפת משתנה סביבת השפה של בררת במחדל"
 
-#: wp/transposh_admin.php:560
+#: wp/transposh_admin.php:609
 msgid ""
 "Enable overriding the default locale that is set in WP_LANG on default "
 "languages pages (such as untranslated pages and admin pages)"
@@ -338,35 +349,35 @@ msgstr ""
 "אפשר את עקיפת משתנה השפה של בררת המחדל המוגדר ב-WP_LANG עבור עמודים בשפת "
 "בררת המחדל (כמו עמודים שאינם מתורגמים ועמודי ניהול)"
 
-#: wp/transposh_admin.php:721
+#: wp/transposh_admin.php:770
 msgid "Enable running of Transposh internal debug functions"
 msgstr "אפשר את הרצת פונקציות הדיבוג הפנימיות של טרנספוש"
 
-#: wp/transposh_admin.php:552
+#: wp/transposh_admin.php:601
 msgid "Enable search in translated languages"
 msgstr "אפשר חיפוש בשפות המתורגמות"
 
-#: wp/transposh_admin.php:705
+#: wp/transposh_admin.php:754
 msgid "Enable url translation"
 msgstr "אפשר תרגום כתובות אינטרנט"
 
-#: wp/transposh_admin.php:606
+#: wp/transposh_admin.php:655
 msgid ""
 "Enabling this will send a message as soon as a human translation is "
 "submitted."
 msgstr "הפעלת האפשרות הזו תשלח הודעת מייל מייד עם שליחת תרגום אנושי"
 
-#: wp/transposh_admin.php:610
+#: wp/transposh_admin.php:659
 msgid ""
 "Enabling this will set a timer, and messages will be buffered and sent after "
 "it expires."
 msgstr "הפעלת אפשרות זו תיצור שעון עצר, כאשר ההודעות ייצברו וישלחו עם סיומו"
 
-#: wp/transposh_admin.php:345
+#: wp/transposh_admin.php:352
 msgid "Engine keys"
 msgstr "מפתחות מנוע"
 
-#: wp/transposh_admin.php:705
+#: wp/transposh_admin.php:754
 msgid "experimental"
 msgstr "נסיוני"
 
@@ -374,23 +385,27 @@ msgstr "נסיוני"
 msgid "Filter"
 msgstr "מסנן"
 
-#: wp/transposh_admin.php:330
+#: wp/transposh_admin.php:469
+msgid "Flag Code"
+msgstr "קוד דגל"
+
+#: wp/transposh_admin.php:337
 msgid ""
 "For further help and assistance, please look at the following resources:"
 msgstr "עבור תמיכה וסיוע אנא הסתכלו במקורות הבאים:"
 
-#: wp/transposh_admin.php:813
+#: wp/transposh_admin.php:862
 msgid ""
 "For the low low price of $99, we will take express action on your request. "
 "By express we mean that your issue will become our top priority, and will "
 "resolve ASAP"
 msgstr "בשביל המחיר הממש נמוך של $99, אנחנו נעזוב הכל ונטפל בבעיה שלכם"
 
-#: wp/transposh_admin.php:332
+#: wp/transposh_admin.php:339
 msgid "Frequently asked questions"
 msgstr "שאלות נפוצות"
 
-#: wp/transposh_admin.php:815
+#: wp/transposh_admin.php:864
 msgid ""
 "Full money back guarentee! If your problem remains unresolved or you are "
 "simply unhappy we will refund your paypal account as soon as you ask (as "
@@ -400,27 +415,27 @@ msgstr ""
 "שפשוט אינכם מרוצים, נחזיר לכם את הכסף לחשבונכם לכשתבקשו (כל עוד פייפאל "
 "מאפשרים, אל תבואו אלינו אחרי שלוש שנים!)"
 
-#: wp/transposh_admin.php:563
+#: wp/transposh_admin.php:612
 msgid "General settings"
 msgstr "הגדרות כלליות"
 
-#: wp/transposh_admin.php:614
+#: wp/transposh_admin.php:663
 msgid "Get a daily digest of human translation activities."
 msgstr "קבל לקט יומי של פעילות תרגום אנושית"
 
-#: wp/transposh_admin.php:664
+#: wp/transposh_admin.php:713
 msgid "Google API key"
 msgstr "מפתח API של גוגל"
 
-#: wp/transposh_admin.php:788
+#: wp/transposh_admin.php:837
 msgid "Have you encountered any problem with our plugin and need our help?"
 msgstr "האם נתקלתם בבעיה בתוסף שלנו ואתם זקוקים לעזרתנו?"
 
-#: wp/transposh_admin.php:1085
+#: wp/transposh_admin.php:1134
 msgid "Hide Notice"
 msgstr "הסתר הודעה"
 
-#: wp/transposh_admin.php:637
+#: wp/transposh_admin.php:686
 msgid "How to restore?"
 msgstr "איך לשחזר?"
 
@@ -430,7 +445,7 @@ msgstr "איך לשחזר?"
 msgid "https://transposh.org/"
 msgstr "https://transposh.org/he/"
 
-#: wp/transposh_admin.php:507
+#: wp/transposh_admin.php:556
 msgid "Icons legend:"
 msgstr "משמעות הסמלים:"
 
@@ -440,7 +455,7 @@ msgid ""
 "editor to modify it"
 msgstr "אם התרגומים האלו אינם טובים, ניתן להשתמש בעורך התרגום על מנת לשנותם"
 
-#: wp/transposh_admin.php:828
+#: wp/transposh_admin.php:877
 msgid ""
 "If you just want to show that you care, this is the button for you. But "
 "please think twice before doing this. It will make us happier if you just do "
@@ -451,73 +466,89 @@ msgstr ""
 "לפני השימוש. ישמח אותנו אם פשוט תעשו משהו נחמד למישהו באזורכם, תתרמו לארגון "
 "צדקה, ותספרו לנו!"
 
-#: wp/transposh_admin.php:626
+#: wp/transposh_admin.php:675
 msgid "Ignore authenticated users translations"
 msgstr "התעלם מתרגומים של משתמשים מורשים"
 
-#: wp/transposh_admin.php:725
+#: wp/transposh_admin.php:774
 msgid "Important"
 msgstr "חשוב"
 
-#: wp/transposh_admin.php:727
+#: wp/transposh_admin.php:776
 msgid "Information"
 msgstr "מידע"
 
+#: wp/transposh_admin.php:1153
+msgid "Invalid nonce - try refreshing the page"
+msgstr "נואנס לא מתאים - נסו לרפרש את העמוד"
+
 #: wp/transposh_mail.php:73 wp/transposh_mail.php:91 wp/transposh_mail.php:126
-#: wp/transposh_editor.php:73 wp/transposh_admin.php:1097
+#: wp/transposh_editor.php:73 wp/transposh_admin.php:1146
 msgid "Language"
 msgstr "שפה"
 
-#: wp/transposh_admin.php:493 wp/transposh_admin.php:511
+#: wp/transposh_admin.php:457
+msgid "Language Code"
+msgstr "קוד השפה"
+
+#: wp/transposh_admin.php:542 wp/transposh_admin.php:560
 msgid "Language is written from right to left"
 msgstr "שפה הנכתבת מימין לשמאל"
 
-#: wp/transposh_admin.php:339
+#: wp/transposh_admin.php:461
+msgid "Language Name"
+msgstr "שם השפה"
+
+#: wp/transposh_admin.php:346
 msgid "Language selection in Transposh"
 msgstr "בחירת שפות בטרנספוש"
 
-#: wp/transposh_admin.php:509
+#: wp/transposh_admin.php:558
 #, php-format
 msgid "Language supported by %s translate"
 msgstr "שפה שנתמכת על ידי המתרגם של %s"
 
-#: wp/transposh_admin.php:491 wp/transposh_admin.php:512
+#: wp/transposh_admin.php:540 wp/transposh_admin.php:561
 msgid "Language supported by Google Adsense"
 msgstr "שפה הנתמכת על ידי גוגל אדסנס"
 
-#: wp/transposh_admin.php:218 wp/transposh_admin.php:337
+#: wp/transposh_admin.php:223 wp/transposh_admin.php:344
 msgid "Languages"
 msgstr "שפות"
 
-#: wp/transposh_admin.php:768
+#: wp/transposh_admin.php:817
 msgid "Learn more about us in the following online presenses"
 msgstr "למדו עלינו עוד דרך העמודים הבאים שלנו"
 
-#: wp/transposh_admin.php:723
+#: wp/transposh_admin.php:772
 msgid "Level of logging"
 msgstr "רמת לוג"
 
-#: wp/transposh_admin.php:353
+#: wp/transposh_admin.php:360
 msgid "LibreTranslate"
 msgstr "LibreTranslate"
 
-#: wp/transposh_admin.php:673
+#: wp/transposh_admin.php:722
 msgid "LibreTranslate Server"
 msgstr "שרת LibreTranslate"
 
-#: wp/transposh_admin.php:722
+#: wp/transposh_admin.php:473
+msgid "Locale"
+msgstr "מיקום"
+
+#: wp/transposh_admin.php:771
 msgid "Log file name"
 msgstr "שם קובץ לוג"
 
-#: wp/transposh_admin.php:599
+#: wp/transposh_admin.php:648
 msgid "Mail settings"
 msgstr "הגדרות דואר"
 
-#: wp/transposh_admin.php:502
+#: wp/transposh_admin.php:551
 msgid "Make all languages active"
 msgstr "הפוך את כל השפות לפעילות"
 
-#: wp/transposh_admin.php:661
+#: wp/transposh_admin.php:710
 msgid "MSN API key"
 msgstr "מפתח API של MSN"
 
@@ -525,7 +556,7 @@ msgstr "מפתח API של MSN"
 msgid "No translations found."
 msgstr "לא נמצאו תרגומים."
 
-#: wp/transposh_admin.php:880
+#: wp/transposh_admin.php:929
 msgid "Not available"
 msgstr "לא זמין"
 
@@ -540,76 +571,84 @@ msgstr ""
 "%3s</strong>\"<br/>ל <strong style=\"color:red\">%4s</strong><br/>\"<strong>"
 "%5s</strong>\""
 
+#: wp/transposh_admin.php:1157
+msgid "Only an admin is allowed"
+msgstr "רק מנהל מורשה"
+
+#: wp/transposh_admin.php:465
+msgid "Original Language Name"
+msgstr "שם השפה המקורי"
+
 #: wp/transposh_mail.php:71 wp/transposh_mail.php:89 wp/transposh_mail.php:125
 #: wp/transposh_editor.php:74
 msgid "Original string"
 msgstr "מחרוזת מקורית"
 
-#: wp/transposh_admin.php:773
+#: wp/transposh_admin.php:822
 msgid "Our blog"
 msgstr "הבלוג שלנו"
 
-#: wp/transposh_admin.php:805
+#: wp/transposh_admin.php:854
 msgid "Our contact form"
 msgstr "טופס יצירת הקשר שלנו"
 
-#: wp/transposh_admin.php:799
+#: wp/transposh_admin.php:848
 msgid "Our development site on github"
 msgstr "אתר הפיתוח שלנו בגיטהאב"
 
-#: wp/transposh_admin.php:801
+#: wp/transposh_admin.php:850
 msgid "Our facebook page"
 msgstr "עמוד הפייסבוק שלנו"
 
-#: wp/transposh_admin.php:777
+#: wp/transposh_admin.php:826
 msgid "Our facebook page (feel free to like!)"
 msgstr "עמוד הפייסבוק שלנו (תרגישו חופשי ללייקק!)"
 
-#: wp/transposh_admin.php:791
+#: wp/transposh_admin.php:840
 msgid "Our free support"
 msgstr "התמיכה החינמית שלנו"
 
-#: wp/transposh_admin.php:775
+#: wp/transposh_admin.php:824
 msgid "Our twitter account (feel free to follow!)"
 msgstr "חשבון הטוויטר שלנו (תרגישו חופשי לעקוב!)"
 
-#: wp/transposh_admin.php:771
+#: wp/transposh_admin.php:820
 msgid "Our website"
 msgstr "האתר שלנו"
 
-#: wp/transposh_admin.php:779
+#: wp/transposh_admin.php:828
 msgid "Our youtube channel"
 msgstr "ערוץ היוטיוב שלנו"
 
-#: wp/transposh_admin.php:706
+#: wp/transposh_admin.php:755
 msgid "Override jQueryUI version"
 msgstr "עקוף הגדרת גרסת jQueryUI"
 
-#: wp/transposh_admin.php:709
+#: wp/transposh_admin.php:758
 msgid "Parser related settings"
 msgstr "הגדרות מפרש"
 
-#: wp/transposh_admin.php:331
+#: wp/transposh_admin.php:338
 msgid "Plugin homepage"
 msgstr "עמוד הבית של התוסף"
 
-#: wp/transposh_admin.php:367
+#: wp/transposh_admin.php:374
 msgid "Plugin news"
 msgstr "חדשות התוסף"
 
-#: wp/transposh_admin.php:368
+#: wp/transposh_admin.php:375
 msgid "Plugin stats"
 msgstr "סטטיסטיקות התוסף"
 
-#: wp/transposh_admin.php:844
+#: wp/transposh_admin.php:893
 msgid "Problems?"
 msgstr "בעיות?"
 
-#: wp/transposh_admin.php:811
+#: wp/transposh_admin.php:860
 msgid "Professional support option"
 msgstr "אפשרות תמיכה מקצועית"
 
-#: wp/transposh_admin.php:796
+#: wp/transposh_admin.php:845
 msgid "Reach us via different forums:"
 msgstr "השיגו אותנו דרך הפורומים הבאים:"
 
@@ -617,7 +656,7 @@ msgstr "השיגו אותנו דרך הפורומים הבאים:"
 msgid "Recent activity"
 msgstr "פעילות אחרונה"
 
-#: wp/transposh_admin.php:730
+#: wp/transposh_admin.php:779
 #, php-format
 msgid "Remote debug IP (Your current IP is %s)"
 msgstr "כתובת ה-IP המרוחקת (הכתובת שלך היא %s)"
@@ -626,7 +665,7 @@ msgstr "כתובת ה-IP המרוחקת (הכתובת שלך היא %s)"
 msgid "Remove all filters"
 msgstr "הסרת כל המסננים"
 
-#: wp/transposh_admin.php:752
+#: wp/transposh_admin.php:801
 msgid "Remove duplicates translations and originals"
 msgstr "הסרת תרגומים כפולים וזהים למקור"
 
@@ -634,7 +673,7 @@ msgstr "הסרת תרגומים כפולים וזהים למקור"
 msgid "Remove filter"
 msgstr "הסרת מסנן"
 
-#: wp/transposh_admin.php:698
+#: wp/transposh_admin.php:747
 msgid ""
 "Remove transposh logo (see <a href=\"http://transposh.org/logoterms\">"
 "terms</a>)"
@@ -642,31 +681,35 @@ msgstr ""
 "הסרת הלוגו של טרנספוש (ראה <a href=\"http://transposh.org/logoterms\">"
 "תנאים</a>)"
 
-#: wp/transposh_admin.php:807
+#: wp/transposh_admin.php:856
 msgid "Report a Bug"
 msgstr "דווח על באג"
 
-#: wp/transposh_admin.php:565
+#: wp/transposh_admin.php:614
 msgid "Requires that permalinks will be enabled."
 msgstr "יש צורך התמיכה בקישורים קבועים תאופשר"
 
-#: wp/transposh_admin.php:570
+#: wp/transposh_admin.php:619
 msgid "Requires that your theme should have proper footer support."
 msgstr "יש צורך כי ערכת הנושא תתמוך בכותרת תחתונה כראוי."
 
-#: wp/transposh_admin.php:747
+#: wp/transposh_admin.php:796
 msgid "Reset configuration to default (saves keys)"
 msgstr "אתחל את ההגדרות לברירת המחדל (מפתחות ישמרו)"
 
-#: wp/transposh_admin.php:748
+#: wp/transposh_admin.php:797
 msgid "Reset translation proxy timers"
 msgstr "איפוס הטיימרים עבור מתווכי התרגום"
 
-#: wp/transposh_admin.php:564
+#: wp/transposh_admin.php:613
 msgid "Rewrite URLs"
 msgstr "שיכתוב כתובות אינטרנט"
 
-#: wp/transposh_admin.php:408
+#: wp/transposh_admin.php:477
+msgid "Right to Left"
+msgstr "מימן לשמאל"
+
+#: wp/transposh_admin.php:415
 msgid "Save Changes"
 msgstr "שמור שינויים"
 
@@ -679,27 +722,27 @@ msgstr "חיפוש"
 msgid "Select language"
 msgstr "בחר שפה"
 
-#: wp/transposh_admin.php:677
+#: wp/transposh_admin.php:726
 msgid "Select preferred auto translation engine"
 msgstr "בחר את מנוע התרגום האוטומטי המועדף"
 
-#: wp/transposh_admin.php:605
+#: wp/transposh_admin.php:654
 msgid "Send mails immediately"
 msgstr "לשלוח מייל מיידית"
 
-#: wp/transposh_admin.php:613
+#: wp/transposh_admin.php:662
 msgid "Send translation digest"
 msgstr "שלח לקט תרגומים"
 
-#: wp/transposh_admin.php:674
+#: wp/transposh_admin.php:723
 msgid "Server URL"
 msgstr "כתובת שרת"
 
-#: wp/transposh_admin.php:636
+#: wp/transposh_admin.php:685
 msgid "Service key"
 msgstr "מפתח שרות"
 
-#: wp/transposh_widget.php:360
+#: wp/transposh_widget.php:358
 msgid "Set as default language"
 msgstr "הגדר כשפת ברירת מחדל"
 
@@ -707,7 +750,7 @@ msgstr "הגדר כשפת ברירת מחדל"
 msgid "Set post language"
 msgstr "הגדר את שפת הפוסט"
 
-#: transposh.php:1066 wp/transposh_admin.php:219
+#: transposh.php:1070 wp/transposh_admin.php:224
 msgid "Settings"
 msgstr "הגדרות"
 
@@ -719,7 +762,7 @@ msgstr "הצגת כל התרגומים"
 msgid "Show only human translations"
 msgstr "הצגת התרגומים שנעשו על ידי אנשים בלבד"
 
-#: wp/transposh_admin.php:816
+#: wp/transposh_admin.php:865
 msgid "So hit the following button. Thanks!"
 msgstr "אז לחצו על הכפתור הבא. תודה!"
 
@@ -727,11 +770,11 @@ msgstr "אז לחצו על הכפתור הבא. תודה!"
 msgid "Some new translation were just posted to your site"
 msgstr "כמה תרגומים חדשים בדיוק נשלחו אל האתר שלך"
 
-#: wp/transposh_admin.php:503
+#: wp/transposh_admin.php:552
 msgid "Sort by language name"
 msgstr "מיין לפי שם השפה"
 
-#: wp/transposh_admin.php:504
+#: wp/transposh_admin.php:553
 msgid "Sort by lSO code"
 msgstr "מיין לפי קוד ה-ISO"
 
@@ -743,20 +786,24 @@ msgstr "מקור"
 msgid "Style:"
 msgstr "סגנון:"
 
-#: wp/transposh_admin.php:806
+#: wp/transposh_admin.php:855
 msgid "Suggest a Feature"
 msgstr "הצע תכונה"
 
-#: wp/transposh_admin.php:226
+#: wp/transposh_admin.php:231
 msgid "Support"
 msgstr "תמיכה"
+
+#: wp/transposh_admin.php:480
+msgid "Supported Engines"
+msgstr "מנועים נתמכים"
 
 #. Author of the plugin
 #: wp/transposh_mail.php:95 wp/transposh_mail.php:174
 msgid "Team Transposh"
 msgstr "צוות טרנספוש"
 
-#: wp/transposh_admin.php:586
+#: wp/transposh_admin.php:635
 msgid "The detection assumes that your current country is"
 msgstr "הזיהוי מניח שהמדינה הנוכחית שלך היא "
 
@@ -772,40 +819,40 @@ msgstr "התרגומים הבאים בדיוק נוספו לאתר שלך"
 msgid "The following translations were made on your site in the last day"
 msgstr "התרגומים הבאים התבצעו באתר שלך ביום האחרון"
 
-#: wp/transposh_admin.php:577 wp/transposh_admin.php:587
+#: wp/transposh_admin.php:626 wp/transposh_admin.php:636
 msgid "the language will be redirected to the language"
 msgstr "השפה תופנה אוטומטית אל השפה"
 
-#: wp/transposh_admin.php:620
+#: wp/transposh_admin.php:669
 #, php-format
 msgid "The next digest will be sent on %s and will include %d translation"
 msgstr "הלקט הבא ישלח ב-%s ויכלול %d תרגומים"
 
-#: wp/transposh_admin.php:716
+#: wp/transposh_admin.php:765
 msgid ""
 "The parser will not break text into phrases when encountering html entities"
 msgstr "המפרש לא ישבור טקסט כאשר הוא נתקל בסימני HTML"
 
-#: wp/transposh_admin.php:714
+#: wp/transposh_admin.php:763
 msgid "The parser will not break text into phrases when encountering numbers"
 msgstr "המפרש לא ישבור טקסט כאשר הוא נתקל במספרים"
 
-#: wp/transposh_admin.php:712
+#: wp/transposh_admin.php:761
 msgid ""
 "The parser will not break text into phrases when encountering punctuations "
 "such as dots"
 msgstr "המפרש לא ישבור טקסט כאשר הוא נתקל בסימן ניקוד כמו נקודה או פסיק"
 
-#: wp/transposh_admin.php:793
+#: wp/transposh_admin.php:842
 msgid ""
 "There are many channels to reach us and we do try to help as fast as we can"
 msgstr "ישנם ערוצים רבים בהם ניתן להשיג אותנו ואנו ננסה לסייע בהקדם האפשרי"
 
-#: wp/transposh_admin.php:622
+#: wp/transposh_admin.php:671
 msgid "There are no new translations since last digest"
 msgstr "אין תרגומים חדשים מאז הלקט האחרון"
 
-#: wp/transposh_admin.php:814
+#: wp/transposh_admin.php:863
 msgid ""
 "This includes helping with various bugs, basic theme/plugins conflicts, or "
 "just telling you where the ON button is"
@@ -813,7 +860,7 @@ msgstr ""
 "בזה כלול סיוע בבגים שונים, התנגשויות בסיסיות עם תוספים וערכות נושא שונות, או "
 "פשוט שנגיד לך איפה כפתור ההפעלה"
 
-#: wp/transposh_admin.php:710 wp/transposh_admin.php:719
+#: wp/transposh_admin.php:759 wp/transposh_admin.php:768
 msgid ""
 "This is extremely dangerous, will break your current translations, and might "
 "cause severe hickups, only proceed if you really know what you are doing."
@@ -821,13 +868,13 @@ msgstr ""
 "הגדרות אלו מסוכנות, וישברו תרגומים קיימים. הן עלולות לגרום גם להתקפי שיהוק. "
 "המשיכו רק אם אתם יודעים מה אתם עושים"
 
-#: wp/transposh_admin.php:593
+#: wp/transposh_admin.php:642
 msgid ""
 "This option enables collection of statistics by transposh that will be used "
 "to improve the product."
 msgstr "אפשרות זו מאפשרת איסוף סטטיסטיקות על ידי טרנספוש שישמשו לשיפור המוצר."
 
-#: wp/transposh_admin.php:340
+#: wp/transposh_admin.php:347
 msgid ""
 "This tab allows you to select the languages your site will be translated "
 "into. The default language is the language most of your site is written in, "
@@ -836,11 +883,11 @@ msgstr ""
 "טאב זה מאפשר לכם לבחור את השפות אליהם יתורגם אתרכם. שפת ברירת המחדל הינה "
 "השפה בה נכתב התוכן באתרך ומשמשת כשפת הבסיס לתרגום. בדרך כלל היא לא תתורגם."
 
-#: wp/transposh_admin.php:708
+#: wp/transposh_admin.php:757
 msgid "This will make google happy and will increase size of html by a lot"
 msgstr "זה ישמח את גוגל ויגדיל את הדפים משמעותית"
 
-#: wp/transposh_admin.php:574 wp/transposh_admin.php:582
+#: wp/transposh_admin.php:623 wp/transposh_admin.php:631
 msgid ""
 "This will redirect the first page accessed in the session to the same page "
 "with the detected language."
@@ -851,7 +898,7 @@ msgstr ""
 msgid "Title:"
 msgstr "כותרת:"
 
-#: wp/transposh_admin.php:501
+#: wp/transposh_admin.php:550
 msgid "Toggle names of languages between English and Original"
 msgstr "שנה את הצגת שפות השפות בין אנגלית למקןר"
 
@@ -860,11 +907,11 @@ msgstr "שנה את הצגת שפות השפות בין אנגלית למקןר"
 msgid "Total of <strong style=\"color:red\">%s</strong> translated phrases."
 msgstr "סך הכל <strong style=\"color:red\">%s</strong> מקטעים מתורגמים."
 
-#: wp/transposh_admin.php:759
+#: wp/transposh_admin.php:808
 msgid "Translate All Now"
 msgstr "תרגם הכל עכשיו"
 
-#: wp/transposh_admin.php:757
+#: wp/transposh_admin.php:806
 msgid "Translate by clicking the button below"
 msgstr "תרגם על ידי לחיצה על הכפתור למטה"
 
@@ -882,7 +929,7 @@ msgstr "מחרוזת מתורגמת"
 
 #. this will be the default widget title
 #: wp/transposh_mail.php:72 wp/transposh_mail.php:90
-#: wp/transposh_widget.php:122
+#: wp/transposh_widget.php:122 wp/transposh_widget.php:530
 msgid "Translation"
 msgstr "תרגום"
 
@@ -890,15 +937,15 @@ msgstr "תרגום"
 msgid "translation"
 msgstr "תרגום"
 
-#: wp/transposh_admin.php:223
+#: wp/transposh_admin.php:228
 msgid "Translation editor"
 msgstr "עורך תרגום"
 
-#: wp/transposh_admin.php:220
+#: wp/transposh_admin.php:225
 msgid "Translation Engines"
 msgstr "מנועי תרגום"
 
-#: wp/transposh_admin.php:348
+#: wp/transposh_admin.php:355
 msgid "Translation engines keys"
 msgstr "מפתחות מנועי התרגום"
 
@@ -918,11 +965,11 @@ msgstr ""
 "page=tp_main\\\">עמוד ההגדרות</a> מעוניינים לסייע? בקרו את אתר הפיתוח שלנו "
 "ב<a href=\"https://github.com/oferwald/transposh\">גיטהאב</a>."
 
-#: wp/transposh_widget.php:388
+#: wp/transposh_widget.php:385
 msgid "translation plugin for wordpress"
 msgstr "תוסף התרגום לוורדפרס"
 
-#: wp/transposh_admin.php:534
+#: wp/transposh_admin.php:583
 msgid "Translation related settings"
 msgstr "הגדרות קשורות לתרגום"
 
@@ -934,7 +981,7 @@ msgstr "תרגומים"
 msgid "translations"
 msgstr "תרגומים"
 
-#: wp/transposh_admin.php:627
+#: wp/transposh_admin.php:676
 msgid ""
 "Translations made by users with translation role will not be sent "
 "immediately, but only on daily digests."
@@ -947,12 +994,12 @@ msgid "Translator"
 msgstr "מתרגם"
 
 #: wp/transposh_postpublish.php:53 wp/transposh_widget.php:86
-#: wp/transposh_widget.php:387 wp/transposh_admin.php:232
-#: wp/transposh_admin.php:232 wp/transposh_admin.php:239
+#: wp/transposh_widget.php:384 wp/transposh_admin.php:237
+#: wp/transposh_admin.php:237 wp/transposh_admin.php:244
 msgid "Transposh"
 msgstr "טרנספוש"
 
-#: wp/transposh_admin.php:327
+#: wp/transposh_admin.php:334
 msgid "Transposh Help"
 msgstr "עזרה של טרנספוש"
 
@@ -960,23 +1007,23 @@ msgstr "עזרה של טרנספוש"
 msgid "Transposh language selection widget"
 msgstr "ישומון בחירת השפה של טרנספוש"
 
-#: wp/transposh_admin.php:699
+#: wp/transposh_admin.php:748
 msgid "Transposh logo will not appear on widget"
 msgstr "הלוגו של טרנספוש לא יופיע בישומון"
 
-#: wp/transposh_admin.php:329
+#: wp/transposh_admin.php:336
 msgid "Transposh makes your blog translatable"
 msgstr "טרנספוש הופך את הבלוג שלך לניתן לתרגום"
 
-#: wp/transposh_widget.php:315
+#: wp/transposh_widget.php:318
 msgid "Transposh subwidget was not loaded correctly"
 msgstr "ישומון משנה של טרנספוש לא נטען כראוי"
 
-#: wp/transposh_admin.php:787
+#: wp/transposh_admin.php:836
 msgid "Transposh support"
 msgstr "התמיכה של טרנספוש"
 
-#: wp/transposh_admin.php:356
+#: wp/transposh_admin.php:363
 #, php-format
 msgid ""
 "Transposh supports integration with the LibreTranslate engine for automatic "
@@ -1019,13 +1066,13 @@ msgstr ""
 msgid "Transposh Translation Filter"
 msgstr "פילטר התרגום של טרנספוש"
 
-#: wp/transposh_admin.php:766
+#: wp/transposh_admin.php:815
 msgid ""
 "Transposh was started at 2008 and is dedicated to provide tools to ease "
 "website translation."
 msgstr "טרנספוש נוסדה בשנת 2008 והיא מספקת כלים להקלה בתרגום אתרים."
 
-#: wp/transposh_admin.php:349
+#: wp/transposh_admin.php:356
 msgid ""
 "Under normal conditions, at the date of this release, you may leave the key "
 "fields empty, and the different engines will just work, no need to pay or "
@@ -1038,55 +1085,55 @@ msgstr ""
 "השיטות הנוכחיות יפסיקו לתפקד באפשרותכם ליצור את המפתחות לשרות באתרים "
 "המתאימים."
 
-#: wp/transposh_admin.php:1093
+#: wp/transposh_admin.php:1142
 msgid "Unset"
 msgstr "לא מוגדרת"
 
-#: wp/transposh_admin.php:224
+#: wp/transposh_admin.php:229
 msgid "Utilities"
 msgstr "כלי עזר"
 
-#: wp/transposh_admin.php:706
+#: wp/transposh_admin.php:755
 msgid "Version"
 msgstr "גרסא"
 
-#: wp/transposh_admin.php:726
+#: wp/transposh_admin.php:775
 msgid "Warning"
 msgstr "אזהרה"
 
-#: wp/transposh_admin.php:539
+#: wp/transposh_admin.php:588
 msgid "Who can translate ?"
 msgstr "מי יכול לתרגם?"
 
-#: wp/transposh_admin.php:603
+#: wp/transposh_admin.php:652
 msgid "Whom should we mail? leave blank for admin"
 msgstr "למי לשלוח דואר? יש להשאיר ריק עבור המנהל"
 
-#: wp/transposh_admin.php:694
+#: wp/transposh_admin.php:743
 msgid "Widget settings"
 msgstr "הגדרות היישומון"
 
-#: wp/transposh_admin.php:696
+#: wp/transposh_admin.php:745
 msgid "Widget will allow setting this language as user default"
 msgstr "הישומון יאפשר הגדרת שפה זו כברירת מחדל"
 
-#: wp/transposh_admin.php:221
+#: wp/transposh_admin.php:226
 msgid "Widgets settings"
 msgstr "הגדרות יישומונים"
 
-#: wp/transposh_admin.php:667
+#: wp/transposh_admin.php:716
 msgid "Yandex API key"
 msgstr "מפתח API של Yandex"
 
-#: wp/transposh_admin.php:794
+#: wp/transposh_admin.php:843
 msgid "You can contact us through our contact form on our web site"
 msgstr "ניתן ליצור עמנו קשר דרך טופס יצירת הקשר באתרנו"
 
-#: wp/transposh_admin.php:790
+#: wp/transposh_admin.php:839
 msgid "You have two options:"
 msgstr "יש לכם שתי אפשרויות:"
 
-#: wp/transposh_admin.php:589
+#: wp/transposh_admin.php:638
 msgid ""
 "You may enable geo IP based detection by installing and activating the GeoIP "
 "Detection plugin by yellowtree.de"
@@ -1094,7 +1141,7 @@ msgstr ""
 "ניתן להפעיל זיהוי שפה מבוסס כתובת רשת על ידי התקנת והפעלת התוסף GeoIP "
 "Detection של yellowtree.de"
 
-#: wp/transposh_admin.php:341
+#: wp/transposh_admin.php:348
 msgid ""
 "You may select the languages you want to appear in your site by clicking "
 "them (their background will turn green). You may also drag those around to "
@@ -1103,7 +1150,7 @@ msgstr ""
 "אתם יכולים לבחור את השפות שברצונכם שיופיעו באתר על ידי הקלקה עליהן (צבע הרקע "
 "ישתנה לירוק). אתם גם יכולים לגרור אותן על מנת לשנות את סדר הופעתן ביישומון."
 
-#: wp/transposh_admin.php:1040
+#: wp/transposh_admin.php:1089
 #, php-format
 msgid ""
 "Your current PHP memory limit of %s is quite low, if you experience blank "
