@@ -85,12 +85,13 @@ You can find them on our site [here](https://transposh.org/faq)
 
 ### 2025/09/18 - 1.0.11
 </summary>
+
 - Added support for changing languages via the administrative interface
 - Added support for adding language without having to modify the constants file
 - Added three sets of SVG flags for the administrative interface and a future widget
   - Flag Icons by [lipis](https://flagicons.lipis.dev/)
-  - Circle Flag Icons by [kapowaz](https://github.com/kapowaz/circle-flags/)
-  - Square Flag Icons by [kapowaz](https://github.com/kapowaz/square-flags/)
+  - Circle Flags by [kapowaz](https://github.com/kapowaz/circle-flags/)
+  - Square Flags by [kapowaz](https://github.com/kapowaz/square-flags/)
 - Modernized styles used in the administrative interfaces
 </details>
 
